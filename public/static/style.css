@@ -1,1 +1,115 @@
-h1 { font-family: Arial, Helvetica, sans-serif; }
+/* 피부 성분 분석기 - 커스텀 스타일 */
+
+/* 폰트 및 기본 스타일 */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* 애니메이션 */
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.animate-pulse-custom {
+  animation: pulse 2s infinite;
+}
+
+/* 카메라 비디오 스타일 */
+#video {
+  transform: scaleX(-1); /* 셀카 모드처럼 좌우 반전 */
+  border: 3px solid #e5e7eb;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* 미리보기 이미지 스타일 */
+#preview-image {
+  border: 3px solid #e5e7eb;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  object-fit: contain;
+}
+
+/* 드래그 앤 드롭 효과 */
+.drag-over {
+  border-color: #3b82f6 !important;
+  background-color: #eff6ff !important;
+}
+
+/* 버튼 호버 효과 강화 */
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* 모바일 최적화 */
+@media (max-width: 768px) {
+  #video {
+    width: 100% !important;
+    max-width: 320px;
+  }
+  
+  .text-4xl {
+    font-size: 2rem !important;
+  }
+  
+  .grid.md\\:grid-cols-2 {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .grid.md\\:grid-cols-3 {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .grid.md\\:grid-cols-4 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* 로딩 스피너 */
+.loading-spinner {
+  border: 4px solid #f3f4f6;
+  border-top: 4px solid #3b82f6;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 결과 카드 애니메이션 */
+.result-card {
+  animation: slideInUp 0.5s ease-out;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 성분 안전성 아이콘 */
+.safety-icon {
+  font-size: 1.2rem;
+  margin-right: 0.5rem;
+}
+
+/* 반응형 텍스트 */
+@media (max-width: 640px) {
+  .responsive-text {
+    font-size: 0.875rem !important;
+  }
+}

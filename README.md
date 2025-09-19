@@ -1,21 +1,80 @@
-```txt
-npm install
-npm run dev
-```
+# 🧴 피부 성분 분석기
 
-```txt
+## 📋 프로젝트 개요
+- **이름**: 피부 성분 분석기 (Skin Analyzer)
+- **목표**: 화장품 성분표를 촬영하여 AI가 성분을 분석하고 안전성을 평가하는 웹 애플리케이션
+- **주요 기능**: 카메라 촬영, 이미지 업로드, OCR 기반 성분 인식, 성분 안전성 분석
+
+## 🌐 서비스 URL
+- **개발 서버**: https://3000-igspb00beqqqykyv9tso2-6532622b.e2b.dev
+- **API 엔드포인트**:
+  - `POST /api/analyze` - 이미지 분석 및 성분 추출
+  - `GET /api/ingredients` - 전체 성분 데이터베이스 조회
+  - `GET /api/ingredient/{name}` - 특정 성분 정보 조회
+
+## ✨ 현재 구현된 기능
+- ✅ **카메라 촬영**: 웹캠을 통해 성분표 직접 촬영
+- ✅ **이미지 업로드**: 갤러리에서 이미지 파일 선택
+- ✅ **이미지 미리보기**: 분석 전 선택된 이미지 확인
+- ✅ **OCR 시뮬레이션**: 이미지에서 성분명 추출 (현재 시뮬레이션)
+- ✅ **성분 안전성 분석**: 12가지 주요 화장품 성분 데이터베이스 기반 분석
+- ✅ **결과 시각화**: 안전성별 성분 분류 및 상세 설명
+- ✅ **반응형 디자인**: 모바일 친화적 UI/UX
+- ✅ **실시간 분석**: 이미지 업로드 후 즉시 분석 결과 제공
+
+## 🔄 아직 구현되지 않은 기능
+- ❌ **실제 OCR 연동**: Google Vision API, AWS Rekognition 등 외부 OCR 서비스 연동
+- ❌ **성분 데이터베이스 확장**: 더 많은 화장품 성분 정보 추가
+- ❌ **사용자 계정**: 분석 기록 저장 및 관리
+- ❌ **즐겨찾기**: 자주 사용하는 제품 저장
+- ❌ **제품 정보 연동**: 제품명으로 성분 정보 자동 조회
+- ❌ **피부 타입별 추천**: 개인 피부 타입에 맞는 성분 추천
+
+## 📊 데이터 아키텍처
+- **데이터 모델**: 성분명, 안전성 등급(safe/caution/harmful/unknown), 설명
+- **현재 저장소**: 메모리 기반 JavaScript 객체 (12개 성분)
+- **향후 계획**: Cloudflare D1 SQLite 데이터베이스 마이그레이션
+
+## 🎯 사용법
+1. **성분표 준비**: 화장품 뒷면의 성분표가 선명하게 보이도록 준비
+2. **이미지 입력**: 카메라로 촬영하거나 갤러리에서 이미지 선택
+3. **분석 시작**: '성분 분석 시작' 버튼 클릭
+4. **결과 확인**: 안전성별로 분류된 성분 정보 및 설명 확인
+
+## 🚀 개발 및 배포
+```bash
+# 의존성 설치
+npm install
+
+# 개발 서버 시작 (로컬)
+npm run dev
+
+# 샌드박스 환경 빌드 및 시작
+npm run build
+pm2 start ecosystem.config.cjs
+
+# 프로덕션 배포
 npm run deploy
 ```
 
-[For generating/synchronizing types based on your Worker configuration run](https://developers.cloudflare.com/workers/wrangler/commands/#types):
+## 🛠️ 기술 스택
+- **프론트엔드**: Vanilla JavaScript, Tailwind CSS, Font Awesome
+- **백엔드**: Hono Framework (TypeScript)
+- **배포 플랫폼**: Cloudflare Pages + Workers
+- **개발 도구**: Vite, PM2, Wrangler
 
-```txt
-npm run cf-typegen
-```
+## 📈 다음 개발 단계
+1. **외부 OCR API 연동** - Google Vision API 또는 AWS Rekognition 사용
+2. **성분 데이터베이스 구축** - Cloudflare D1으로 확장 가능한 데이터베이스 구축
+3. **사용자 기능 추가** - 계정 시스템 및 분석 기록 저장
+4. **AI 모델 개선** - 더 정확한 성분 인식 및 분석 로직 구현
+5. **모바일 앱 개발** - PWA 또는 네이티브 앱으로 확장
 
-Pass the `CloudflareBindings` as generics when instantiation `Hono`:
+## 📄 배포 상태
+- **플랫폼**: Cloudflare Pages (준비됨)
+- **현재 상태**: ✅ 개발 서버 활성 (샌드박스 환경)
+- **마지막 업데이트**: 2025-09-19
 
-```ts
-// src/index.ts
-const app = new Hono<{ Bindings: CloudflareBindings }>()
-```
+---
+
+⚠️ **면책 조항**: 이 앱의 분석 결과는 일반적인 참고용이며, 개인의 피부 상태나 알레르기 반응은 다를 수 있습니다. 피부 트러블이 있거나 민감한 피부를 가지신 분은 전문의와 상담하세요.
