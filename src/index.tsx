@@ -546,145 +546,279 @@ app.get('/api/homecare-sites', async (c) => {
 // Main page
 app.get('/', (c) => {
   return c.render(
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 to-blue-50 p-4">
-      <div className="max-w-4xl mx-auto">
-        <header className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">
-            🧴 피부 성분 분석기
-          </h1>
-          <p className="text-gray-600 text-lg">
-            화장품 성분표를 촬영하거나 업로드하여 안전성을 분석해보세요
-          </p>
-        </header>
+    <div className="min-h-screen bg-gradient-to-b from-purple-50 to-pink-50">
+      {/* 모바일 헤더 */}
+      <header className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
+        <div className="px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <div className="text-2xl">🧴</div>
+              <h1 className="text-xl font-bold text-gray-800">성분 분석기</h1>
+            </div>
+            <button id="history-btn" className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+              <i className="fas fa-history text-lg"></i>
+            </button>
+          </div>
+        </div>
+      </header>
 
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
-          <div className="grid md:grid-cols-2 gap-6">
-            {/* 카메라 촬영 */}
-            <div className="text-center p-6 border-2 border-dashed border-gray-300 rounded-xl hover:border-pink-300 transition-colors">
+      {/* 메인 컨텐츠 */}
+      <main className="px-4 pb-20">
+        {/* 간단한 소개 */}
+        <div className="py-4 text-center">
+          <p className="text-gray-600 text-sm leading-relaxed">
+            화장품 성분표를 촬영하면<br/>
+            <span className="font-semibold text-purple-600">AI가 안전성을 분석</span>하고<br/>
+            <span className="font-semibold text-pink-600">맞춤 제품을 추천</span>해드립니다
+          </p>
+        </div>
+
+        {/* 메인 액션 버튼들 */}
+        <div className="space-y-4 mb-8">
+          {/* 카메라 촬영 - 메인 버튼 */}
+          <div className="bg-gradient-to-r from-pink-500 to-purple-600 rounded-2xl p-1 shadow-lg">
+            <div className="bg-white rounded-xl p-6 text-center">
               <div className="mb-4">
-                <i className="fas fa-camera text-4xl text-pink-500"></i>
+                <div className="w-16 h-16 bg-gradient-to-r from-pink-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <i className="fas fa-camera text-2xl text-pink-600"></i>
+                </div>
+                <h3 className="text-lg font-bold text-gray-800 mb-1">카메라로 촬영</h3>
+                <p className="text-sm text-gray-600 leading-relaxed">성분표를 직접 촬영하여<br/>즉시 분석 시작</p>
               </div>
-              <h3 className="text-xl font-semibold mb-2">카메라로 촬영</h3>
-              <p className="text-gray-600 mb-4">성분표를 직접 촬영하여 분석</p>
-              <button id="camera-btn" className="bg-pink-500 text-white px-6 py-3 rounded-lg hover:bg-pink-600 transition-colors">
-                📸 카메라 시작
+              <button id="camera-btn" className="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white py-4 px-6 rounded-xl font-semibold text-lg shadow-md hover:shadow-lg transition-all transform hover:scale-105 active:scale-95">
+                📸 카메라 시작하기
               </button>
             </div>
+          </div>
 
-            {/* 파일 업로드 */}
-            <div className="text-center p-6 border-2 border-dashed border-gray-300 rounded-xl hover:border-blue-300 transition-colors">
+          {/* 갤러리 업로드 */}
+          <div className="bg-white rounded-2xl shadow-md border border-gray-100">
+            <div className="p-6 text-center">
               <div className="mb-4">
-                <i className="fas fa-upload text-4xl text-blue-500"></i>
+                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <i className="fas fa-image text-lg text-blue-600"></i>
+                </div>
+                <h3 className="text-base font-semibold text-gray-800 mb-1">갤러리에서 선택</h3>
+                <p className="text-sm text-gray-600">저장된 성분표 사진 업로드</p>
               </div>
-              <h3 className="text-xl font-semibold mb-2">이미지 업로드</h3>
-              <p className="text-gray-600 mb-4">저장된 이미지 파일 선택</p>
               <input 
                 type="file" 
                 id="file-input" 
                 accept="image/*" 
                 className="hidden"
               />
-              <button id="upload-btn" className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors">
-                📁 파일 선택
+              <button id="upload-btn" className="w-full bg-blue-500 text-white py-3 px-6 rounded-xl font-medium hover:bg-blue-600 transition-colors">
+                📁 갤러리에서 선택
               </button>
             </div>
           </div>
         </div>
 
         {/* 카메라 영역 */}
-        <div id="camera-section" className="bg-white rounded-2xl shadow-lg p-6 mb-6 hidden">
-          <div className="text-center">
-            {/* 카메라 선택 버튼 */}
-            <div className="mb-4">
-              <div className="flex justify-center space-x-2 mb-3">
-                <button id="front-camera-btn" className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm">
-                  🤳 전면 카메라
-                </button>
-                <button id="back-camera-btn" className="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors text-sm">
-                  📸 후면 카메라
-                </button>
+        <div id="camera-section" className="fixed inset-0 bg-black z-50 hidden">
+          {/* 카메라 헤더 */}
+          <div className="absolute top-0 left-0 right-0 z-10 bg-gradient-to-b from-black/70 to-transparent p-4">
+            <div className="flex items-center justify-between text-white">
+              <button id="stop-camera-btn" className="p-2 hover:bg-white/20 rounded-lg transition-colors">
+                <i className="fas fa-times text-xl"></i>
+              </button>
+              <div className="text-center">
+                <div id="camera-status" className="text-sm font-medium">
+                  카메라를 선택해주세요
+                </div>
               </div>
-              <div id="camera-status" className="text-sm text-gray-600 mb-2">
-                카메라를 선택해주세요
+              <button id="switch-camera-btn" className="p-2 hover:bg-white/20 rounded-lg transition-colors">
+                <i className="fas fa-sync-alt text-xl"></i>
+              </button>
+            </div>
+          </div>
+
+          {/* 카메라 선택 버튼 */}
+          <div className="absolute top-16 left-1/2 transform -translate-x-1/2 z-10">
+            <div className="flex space-x-2">
+              <button id="front-camera-btn" className="bg-blue-500/90 backdrop-blur-sm text-white px-3 py-2 rounded-full text-xs font-medium transition-all">
+                🤳 전면
+              </button>
+              <button id="back-camera-btn" className="bg-purple-500/90 backdrop-blur-sm text-white px-3 py-2 rounded-full text-xs font-medium transition-all">
+                📸 후면
+              </button>
+            </div>
+          </div>
+            
+          {/* 카메라 비디오 */}
+          <video id="video" className="w-full h-full object-cover" autoplay playsinline muted></video>
+          <canvas id="canvas" className="hidden"></canvas>
+          
+          {/* 카메라 컨트롤 */}
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-6">
+            <div className="flex items-center justify-center">
+              {/* 촬영 버튼 */}
+              <div className="relative">
+                <button id="capture-btn" className="w-20 h-20 bg-white rounded-full border-4 border-gray-300 flex items-center justify-center shadow-lg hover:scale-105 transition-transform active:scale-95">
+                  <div className="w-16 h-16 bg-white rounded-full border-2 border-gray-400"></div>
+                </button>
+                {/* 촬영 가이드 */}
+                <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 text-white text-xs text-center whitespace-nowrap">
+                  성분표를 화면에 맞춰주세요
+                </div>
               </div>
             </div>
-            
-            <video id="video" className="w-full max-w-md mx-auto rounded-lg border mb-4" autoplay playsinline></video>
-            <canvas id="canvas" className="hidden"></canvas>
-            
-            <div className="flex justify-center space-x-4">
-              <button id="capture-btn" className="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors">
-                📷 촬영하기
-              </button>
-              <button id="switch-camera-btn" className="bg-orange-500 text-white px-4 py-3 rounded-lg hover:bg-orange-600 transition-colors">
-                🔄 카메라 전환
-              </button>
-              <button id="stop-camera-btn" className="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition-colors">
-                ❌ 카메라 닫기
-              </button>
+
+            {/* 하단 힌트 */}
+            <div className="text-center text-white/80 text-xs mt-4">
+              <p>📱 성분표가 선명히 보이도록 촬영해주세요</p>
             </div>
           </div>
         </div>
 
         {/* 미리보기 영역 */}
-        <div id="preview-section" className="bg-white rounded-2xl shadow-lg p-6 mb-6 hidden">
-          <h3 className="text-xl font-semibold mb-4">📋 선택된 이미지</h3>
+        <div id="preview-section" className="bg-white rounded-2xl shadow-md p-4 mb-6 hidden">
           <div className="text-center">
-            <img id="preview-image" className="max-w-full max-h-64 mx-auto rounded-lg border mb-4" />
-            <div className="flex justify-center space-x-4">
-              <button id="analyze-btn" className="bg-purple-500 text-white px-8 py-3 rounded-lg hover:bg-purple-600 transition-colors">
+            <div className="mb-4">
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">📋 선택된 이미지</h3>
+              <div className="relative inline-block">
+                <img id="preview-image" className="max-w-full max-h-60 mx-auto rounded-xl border-2 border-gray-200 shadow-sm" />
+                <div className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
+                  미리보기
+                </div>
+              </div>
+            </div>
+            
+            <div className="space-y-3">
+              <button id="analyze-btn" className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-4 px-6 rounded-xl font-semibold text-lg shadow-md hover:shadow-lg transition-all transform hover:scale-105 active:scale-95">
                 🔍 성분 분석 시작
               </button>
-              <button id="reset-btn" className="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition-colors">
-                🔄 다시 선택
+              <button id="reset-btn" className="w-full bg-gray-100 text-gray-700 py-3 px-6 rounded-xl font-medium hover:bg-gray-200 transition-colors">
+                🔄 다시 선택하기
               </button>
             </div>
           </div>
         </div>
 
         {/* 분석 중 로딩 */}
-        <div id="loading-section" className="bg-white rounded-2xl shadow-lg p-8 text-center hidden">
-          <div className="animate-spin text-4xl mb-4">🔄</div>
-          <h3 className="text-xl font-semibold mb-2">성분 분석 중...</h3>
-          <p className="text-gray-600">잠시만 기다려주세요</p>
+        <div id="loading-section" className="bg-white rounded-2xl shadow-md p-8 text-center hidden">
+          <div className="mb-6">
+            <div className="w-16 h-16 mx-auto mb-4 relative">
+              <div className="absolute inset-0 rounded-full border-4 border-purple-200"></div>
+              <div className="absolute inset-0 rounded-full border-4 border-purple-500 border-t-transparent animate-spin"></div>
+            </div>
+            <div className="text-2xl mb-2">🧪</div>
+            <h3 className="text-xl font-semibold text-gray-800 mb-2">AI가 성분을 분석중이에요</h3>
+            <p className="text-gray-600 text-sm">잠시만 기다려주세요...</p>
+          </div>
+          
+          {/* 분석 과정 애니메이션 */}
+          <div className="space-y-2 text-xs text-gray-500">
+            <div className="flex items-center justify-center space-x-2">
+              <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse"></div>
+              <span>이미지에서 텍스트 추출중</span>
+            </div>
+            <div className="flex items-center justify-center space-x-2">
+              <div className="w-2 h-2 bg-pink-400 rounded-full animate-pulse" style="animation-delay: 0.5s"></div>
+              <span>성분 데이터베이스 검색중</span>
+            </div>
+            <div className="flex items-center justify-center space-x-2">
+              <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse" style="animation-delay: 1s"></div>
+              <span>피부타입 맞춤 분석중</span>
+            </div>
+          </div>
         </div>
 
         {/* 결과 영역 */}
-        <div id="results-section" className="bg-white rounded-2xl shadow-lg p-6 hidden">
-          <h3 className="text-2xl font-semibold mb-4">📊 분석 결과</h3>
-          <div id="results-content"></div>
+        <div id="results-section" className="space-y-4 hidden">
+          <div className="bg-white rounded-2xl shadow-md p-4">
+            <div className="flex items-center space-x-2 mb-4">
+              <div className="text-xl">📊</div>
+              <h3 className="text-lg font-bold text-gray-800">분석 결과</h3>
+            </div>
+            <div id="results-content"></div>
+          </div>
         </div>
 
         {/* 분석 기록 */}
-        <div id="history-section" className="bg-white rounded-2xl shadow-lg p-6 mb-6 hidden">
-          <h3 className="text-xl font-semibold mb-4">📚 분석 기록</h3>
-          <div id="history-content"></div>
+        <div id="history-section" className="space-y-4 hidden">
+          <div className="bg-white rounded-2xl shadow-md p-4">
+            <div className="flex items-center space-x-2 mb-4">
+              <div className="text-xl">📚</div>
+              <h3 className="text-lg font-bold text-gray-800">분석 기록</h3>
+            </div>
+            <div id="history-content"></div>
+          </div>
         </div>
 
         {/* 사용법 안내 */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 mt-6">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-xl font-semibold">💡 사용 방법</h3>
-            <button id="history-btn" className="text-blue-500 hover:text-blue-700 text-sm transition-colors">
-              📚 분석 기록 보기
-            </button>
+        <div className="bg-white rounded-2xl shadow-md p-4 mt-6">
+          <div className="mb-4">
+            <h3 className="text-lg font-bold text-gray-800 flex items-center space-x-2">
+              <span>💡</span>
+              <span>사용 방법</span>
+            </h3>
           </div>
-          <div className="grid md:grid-cols-3 gap-4 text-sm text-gray-600">
-            <div className="text-center">
-              <div className="text-2xl mb-2">1️⃣</div>
-              <p><strong>성분표 촬영</strong><br/>화장품 뒷면의 성분표를 선명하게 촬영하거나 업로드하세요</p>
+          
+          <div className="space-y-4">
+            <div className="flex items-start space-x-3">
+              <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-full flex items-center justify-center text-sm font-bold">1</div>
+              <div>
+                <h4 className="font-semibold text-gray-800 mb-1">성분표 촬영</h4>
+                <p className="text-sm text-gray-600">화장품 뒷면의 성분표를 선명하게 촬영하거나 갤러리에서 선택하세요</p>
+              </div>
             </div>
-            <div className="text-center">
-              <div className="text-2xl mb-2">2️⃣</div>
-              <p><strong>AI 분석</strong><br/>인공지능이 성분을 인식하고 안전성을 분석합니다</p>
+            
+            <div className="flex items-start space-x-3">
+              <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-r from-blue-500 to-teal-500 text-white rounded-full flex items-center justify-center text-sm font-bold">2</div>
+              <div>
+                <h4 className="font-semibold text-gray-800 mb-1">AI 분석</h4>
+                <p className="text-sm text-gray-600">인공지능이 성분을 인식하고 안전성을 자동으로 분석합니다</p>
+              </div>
             </div>
+            
+            <div className="flex items-start space-x-3">
+              <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full flex items-center justify-center text-sm font-bold">3</div>
+              <div>
+                <h4 className="font-semibold text-gray-800 mb-1">맞춤 추천</h4>
+                <p className="text-sm text-gray-600">피부 타입별 맞춤 추천과 유사 제품 정보를 확인하세요</p>
+              </div>
+            </div>
+          </div>
+
+          {/* 주요 기능 요약 */}
+          <div className="mt-6 p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl">
             <div className="text-center">
-              <div className="text-2xl mb-2">3️⃣</div>
-              <p><strong>맞춤 추천</strong><br/>피부 타입별 추천과 제품 정보를 확인하세요</p>
+              <p className="text-sm text-gray-700 mb-2">
+                <span className="font-semibold text-purple-600">🎯 피부타입 분석</span> • 
+                <span className="font-semibold text-pink-600">🛍️ 제품추천</span> • 
+                <span className="font-semibold text-blue-600">🗺️ 관리실찾기</span>
+              </p>
+              <p className="text-xs text-gray-500">모든 기능이 무료로 제공됩니다</p>
             </div>
           </div>
         </div>
-      </div>
+
+        {/* 추가 여백 (하단 바를 위한) */}
+        <div className="h-8"></div>
+      </main>
+
+      {/* 하단 네비게이션 바 */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40">
+        <div className="grid grid-cols-4 h-16">
+          <button id="nav-home" className="flex flex-col items-center justify-center text-purple-600 bg-purple-50">
+            <i className="fas fa-home text-lg"></i>
+            <span className="text-xs font-medium">홈</span>
+          </button>
+          <button id="nav-camera" className="flex flex-col items-center justify-center text-gray-400 hover:text-gray-600 transition-colors">
+            <i className="fas fa-camera text-lg"></i>
+            <span className="text-xs">촬영</span>
+          </button>
+          <button id="nav-history" className="flex flex-col items-center justify-center text-gray-400 hover:text-gray-600 transition-colors">
+            <i className="fas fa-history text-lg"></i>
+            <span className="text-xs">기록</span>
+          </button>
+          <button id="nav-info" className="flex flex-col items-center justify-center text-gray-400 hover:text-gray-600 transition-colors">
+            <i className="fas fa-info-circle text-lg"></i>
+            <span className="text-xs">정보</span>
+          </button>
+        </div>
+      </nav>
 
       <script src="/static/app.js"></script>
     </div>

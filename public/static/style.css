@@ -1,8 +1,27 @@
-/* 피부 성분 분석기 - 커스텀 스타일 */
+/* 피부 성분 분석기 - 모바일 최적화 스타일 */
 
 /* 폰트 및 기본 스타일 */
+* {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 모바일 스크롤 최적화 */
+html {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* 애니메이션 */
@@ -19,30 +38,73 @@ body {
   animation: pulse 2s infinite;
 }
 
+/* 모바일 터치 버튼 스타일 */
+button {
+  touch-action: manipulation;
+  -webkit-appearance: none;
+  border: none;
+  outline: none;
+  cursor: pointer;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
 /* 카메라 비디오 스타일 */
 #video {
-  border: 3px solid #e5e7eb;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease;
+}
+
+/* 풀스크린 카메라 모드 */
+#camera-section {
+  background: #000;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+#camera-section video {
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
 }
 
 /* 카메라 전환 버튼 스타일 */
 .camera-btn-active {
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
-  transform: scale(1.02);
+  background: rgba(255, 255, 255, 0.9) !important;
+  color: #1f2937 !important;
+  transform: scale(1.05);
+  font-weight: 600;
 }
 
 .camera-btn-inactive {
-  opacity: 0.7;
+  opacity: 0.8;
 }
 
 /* 카메라 상태 표시 */
 #camera-status {
-  background: rgba(0, 0, 0, 0.1);
-  padding: 4px 8px;
-  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 16px;
   display: inline-block;
   font-weight: 500;
+  backdrop-filter: blur(10px);
+}
+
+/* 촬영 버튼 특별 스타일 */
+#capture-btn:active {
+  transform: scale(0.9);
+}
+
+/* 네비게이션 바 활성 상태 */
+.nav-active {
+  color: #9333ea !important;
+  background-color: #f3e8ff !important;
+}
+
+.nav-active i {
+  transform: scale(1.1);
 }
 
 /* 미리보기 이미지 스타일 */
@@ -126,9 +188,76 @@ button:hover {
   margin-right: 0.5rem;
 }
 
-/* 반응형 텍스트 */
+/* 모바일 성능 최적화 */
+img, video {
+  max-width: 100%;
+  height: auto;
+}
+
+/* 하드웨어 가속 적용 */
+.hardware-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000;
+}
+
+/* 모바일 입력 스타일 */
+input[type="file"] {
+  font-size: 16px; /* iOS 줌 방지 */
+}
+
+/* 스크롤 성능 최적화 */
+.scroll-smooth {
+  -webkit-overflow-scrolling: touch;
+  overflow-scrolling: touch;
+}
+
+/* 모바일 안전 영역 (노치 대응) */
+@supports (padding: max(0px)) {
+  .safe-area-top {
+    padding-top: max(1rem, env(safe-area-inset-top));
+  }
+  
+  .safe-area-bottom {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+}
+
+/* 반응형 텍스트 및 레이아웃 */
 @media (max-width: 640px) {
   .responsive-text {
     font-size: 0.875rem !important;
+  }
+  
+  /* 모바일에서 그리드 간격 최적화 */
+  .mobile-grid-tight {
+    gap: 0.75rem !important;
+  }
+  
+  /* 모바일 패딩 최적화 */
+  .mobile-padding {
+    padding: 1rem !important;
+  }
+}
+
+/* 고해상도 디스플레이 최적화 */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .retina-optimized {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+}
+
+/* 다크모드 지원 준비 */
+@media (prefers-color-scheme: dark) {
+  /* 향후 다크모드 스타일 추가 예정 */
+}
+
+/* 애니메이션 성능 최적화 */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

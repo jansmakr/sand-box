@@ -64,10 +64,34 @@ class SkinAnalyzer {
       this.reset();
     });
 
-    // 분석 기록 버튼
+    // 분석 기록 버튼 (헤더와 네비게이션 둘 다)
     document.getElementById('history-btn')?.addEventListener('click', () => {
       this.showAnalysisHistory();
     });
+
+    // 하단 네비게이션 바 이벤트
+    document.getElementById('nav-home')?.addEventListener('click', () => {
+      this.showMainPage();
+      this.updateNavigation('home');
+    });
+
+    document.getElementById('nav-camera')?.addEventListener('click', () => {
+      this.startCamera();
+      this.updateNavigation('camera');
+    });
+
+    document.getElementById('nav-history')?.addEventListener('click', () => {
+      this.showAnalysisHistory();
+      this.updateNavigation('history');
+    });
+
+    document.getElementById('nav-info')?.addEventListener('click', () => {
+      this.showInfoPage();
+      this.updateNavigation('info');
+    });
+
+    // 터치 제스처 추가
+    this.initTouchGestures();
   }
 
   async startCamera() {
@@ -348,41 +372,55 @@ class SkinAnalyzer {
     const unknownIngredients = ingredients.filter(i => i.safety === 'unknown');
 
     resultsContent.innerHTML = `
-      <div class="mb-6">
-        <h4 class="text-lg font-semibold mb-3">📈 분석 요약</h4>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center text-sm md:text-base">
-          <div class="bg-blue-50 p-3 rounded-lg">
-            <div class="text-xl md:text-2xl font-bold text-blue-600">${analysis.totalIngredients}</div>
-            <div class="text-xs md:text-sm text-gray-600">총 성분</div>
+      <!-- 분석 요약 카드 -->
+      <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4 mb-4">
+        <h4 class="text-base font-bold text-gray-800 mb-3 flex items-center space-x-2">
+          <span>📈</span>
+          <span>분석 요약</span>
+        </h4>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-white rounded-lg p-3 text-center shadow-sm">
+            <div class="text-2xl font-bold text-blue-600 mb-1">${analysis.totalIngredients}</div>
+            <div class="text-xs text-gray-600">총 성분</div>
           </div>
-          <div class="bg-green-50 p-3 rounded-lg">
-            <div class="text-xl md:text-2xl font-bold text-green-600">${analysis.safeIngredients}</div>
-            <div class="text-xs md:text-sm text-gray-600">안전 성분</div>
+          <div class="bg-white rounded-lg p-3 text-center shadow-sm">
+            <div class="text-2xl font-bold text-green-600 mb-1">${analysis.safeIngredients}</div>
+            <div class="text-xs text-gray-600">안전 성분</div>
           </div>
-          <div class="bg-yellow-50 p-3 rounded-lg">
-            <div class="text-xl md:text-2xl font-bold text-yellow-600">${analysis.cautionIngredients}</div>
-            <div class="text-xs md:text-sm text-gray-600">주의 성분</div>
+          <div class="bg-white rounded-lg p-3 text-center shadow-sm">
+            <div class="text-2xl font-bold text-yellow-600 mb-1">${analysis.cautionIngredients}</div>
+            <div class="text-xs text-gray-600">주의 성분</div>
           </div>
-          <div class="bg-red-50 p-3 rounded-lg">
-            <div class="text-xl md:text-2xl font-bold text-red-600">${analysis.harmfulIngredients + (analysis.unknownIngredients || 0)}</div>
-            <div class="text-xs md:text-sm text-gray-600">주의/확인필요</div>
+          <div class="bg-white rounded-lg p-3 text-center shadow-sm">
+            <div class="text-2xl font-bold text-red-600 mb-1">${analysis.harmfulIngredients + (analysis.unknownIngredients || 0)}</div>
+            <div class="text-xs text-gray-600">확인 필요</div>
           </div>
         </div>
       </div>
 
       ${safeIngredients.length > 0 ? `
-      <div class="mb-6">
-        <h4 class="text-lg font-semibold mb-3 text-green-700">✅ 안전한 성분 (${safeIngredients.length}개)</h4>
-        <div class="space-y-2">
+      <div class="bg-white rounded-xl p-4 mb-4 shadow-sm">
+        <h4 class="text-base font-bold text-green-700 mb-3 flex items-center space-x-2">
+          <span>✅</span>
+          <span>안전한 성분 (${safeIngredients.length}개)</span>
+        </h4>
+        <div class="space-y-3">
           ${safeIngredients.map(ingredient => `
-            <div class="border rounded-lg p-3 bg-green-50 border-green-200">
-              <div class="flex items-center justify-between mb-1">
-                <h5 class="font-semibold text-green-800">${ingredient.name}</h5>
-                <span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-800">
-                  ✅ 안전
+            <div class="bg-green-50 border border-green-100 rounded-lg p-3">
+              <div class="flex items-start justify-between mb-2">
+                <h5 class="font-semibold text-green-800 text-sm">${ingredient.name}</h5>
+                <span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-700 flex-shrink-0 ml-2">
+                  안전
                 </span>
               </div>
-              <p class="text-green-700 text-sm">${ingredient.description}</p>
+              <p class="text-green-700 text-xs leading-relaxed">${ingredient.description}</p>
+              ${ingredient.benefits && ingredient.benefits.length > 0 ? `
+                <div class="mt-2 flex flex-wrap gap-1">
+                  ${ingredient.benefits.map(benefit => `
+                    <span class="px-2 py-0.5 bg-green-100 text-green-600 rounded-full text-xs">${benefit}</span>
+                  `).join('')}
+                </div>
+              ` : ''}
             </div>
           `).join('')}
         </div>
@@ -543,19 +581,28 @@ class SkinAnalyzer {
         </div>
       </div>
 
-      <div class="text-center space-y-3">
-        <div class="flex flex-col md:flex-row gap-3 justify-center">
+      <!-- 액션 버튼 -->
+      <div class="bg-white rounded-xl p-4 mb-4 shadow-sm">
+        <div class="space-y-3">
+          <button onclick="skinAnalyzer.saveAnalysis()" 
+                  class="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 px-6 rounded-xl font-semibold hover:shadow-lg transition-all transform hover:scale-105 active:scale-95">
+            💾 분석결과 저장하기
+          </button>
           <button onclick="skinAnalyzer.reset()" 
-                  class="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors">
+                  class="w-full bg-gray-100 text-gray-700 py-3 px-6 rounded-xl font-medium hover:bg-gray-200 transition-colors">
             🔄 새로운 분석하기
           </button>
-          <button onclick="skinAnalyzer.saveAnalysis()" 
-                  class="bg-purple-500 text-white px-6 py-3 rounded-lg hover:bg-purple-600 transition-colors">
-            💾 분석결과 저장
-          </button>
         </div>
-        <div class="text-xs text-gray-500">
-          * 이 분석 결과는 일반적인 참고용이며, 개인의 피부 상태에 따라 다를 수 있습니다.
+      </div>
+
+      <!-- 면책 조항 -->
+      <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-4">
+        <div class="flex items-start space-x-2">
+          <div class="text-amber-600 text-sm">⚠️</div>
+          <div class="text-xs text-amber-700 leading-relaxed">
+            <strong>안내사항:</strong> 이 분석 결과는 일반적인 참고용이며, 개인의 피부 상태나 알레르기 반응은 다를 수 있습니다. 
+            민감한 피부이거나 특이 반응이 있으신 분은 전문의와 상담하세요.
+          </div>
         </div>
       </div>
     `;
@@ -886,11 +933,115 @@ class SkinAnalyzer {
     }
   }
 
+  // 네비게이션 업데이트
+  updateNavigation(activeTab) {
+    const navButtons = ['nav-home', 'nav-camera', 'nav-history', 'nav-info'];
+    
+    navButtons.forEach(navId => {
+      const button = document.getElementById(navId);
+      if (button) {
+        button.classList.remove('nav-active', 'text-purple-600', 'bg-purple-50');
+        button.classList.add('text-gray-400');
+      }
+    });
+
+    const activeButton = document.getElementById(`nav-${activeTab}`);
+    if (activeButton) {
+      activeButton.classList.remove('text-gray-400');
+      activeButton.classList.add('nav-active', 'text-purple-600', 'bg-purple-50');
+    }
+  }
+
+  // 메인 페이지 표시
+  showMainPage() {
+    this.hideAllSections();
+    // 메인 페이지는 기본적으로 표시되므로 특별한 처리 없음
+  }
+
+  // 정보 페이지 표시
+  showInfoPage() {
+    this.hideAllSections();
+    
+    // 임시 정보 페이지 (실제로는 별도 컴포넌트로 구현)
+    alert('📱 피부 성분 분석기 v1.0\n\n🧴 화장품 성분표 AI 분석\n🎯 피부타입별 맞춤 추천\n🛍️ 제품 추천 및 가격 비교\n🗺️ 근처 피부관리실 찾기\n\n💬 문의: support@skinanalyzer.com');
+  }
+
+  // 터치 제스처 초기화
+  initTouchGestures() {
+    let touchStartY = 0;
+    let touchEndY = 0;
+
+    // 스와이프 제스처 감지
+    document.addEventListener('touchstart', (e) => {
+      touchStartY = e.changedTouches[0].screenY;
+    }, { passive: true });
+
+    document.addEventListener('touchend', (e) => {
+      touchEndY = e.changedTouches[0].screenY;
+      this.handleSwipeGesture();
+    }, { passive: true });
+
+    // 더블 탭으로 카메라 전환 (카메라 모드에서만)
+    let lastTapTime = 0;
+    document.getElementById('video')?.addEventListener('touchend', (e) => {
+      const currentTime = new Date().getTime();
+      const tapLength = currentTime - lastTapTime;
+      
+      if (tapLength < 500 && tapLength > 0) {
+        // 더블 탭 감지
+        this.toggleCamera();
+        e.preventDefault();
+      }
+      lastTapTime = currentTime;
+    });
+  }
+
+  // 스와이프 제스처 처리
+  handleSwipeGesture() {
+    const swipeThreshold = 100;
+    const diff = touchStartY - touchEndY;
+
+    // 위로 스와이프 (Pull up)
+    if (diff > swipeThreshold) {
+      // 결과 화면에서 위로 스와이프 시 상세 정보 표시
+      if (!document.getElementById('results-section').classList.contains('hidden')) {
+        this.showDetailedResults();
+      }
+    }
+    
+    // 아래로 스와이프 (Pull down)
+    if (diff < -swipeThreshold) {
+      // 카메라 화면에서 아래로 스와이프 시 카메라 닫기
+      if (!document.getElementById('camera-section').classList.contains('hidden')) {
+        this.stopCamera();
+      }
+    }
+  }
+
+  // 상세 결과 표시 (스와이프 업 시)
+  showDetailedResults() {
+    // 간단한 피드백 제공
+    const resultsSection = document.getElementById('results-section');
+    if (resultsSection && !resultsSection.classList.contains('hidden')) {
+      // 부드러운 스크롤로 결과 상단으로 이동
+      resultsSection.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' 
+      });
+      
+      // 햅틱 피드백 (지원되는 경우)
+      if (navigator.vibrate) {
+        navigator.vibrate(50);
+      }
+    }
+  }
+
   reset() {
     this.selectedFile = null;
     this.lastAnalysisResults = null;
     this.stopCamera();
     this.hideAllSections();
+    this.updateNavigation('home');
     
     // 파일 입력 리셋
     const fileInput = document.getElementById('file-input');
