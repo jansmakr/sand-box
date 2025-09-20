@@ -594,11 +594,30 @@ app.get('/', (c) => {
         {/* 카메라 영역 */}
         <div id="camera-section" className="bg-white rounded-2xl shadow-lg p-6 mb-6 hidden">
           <div className="text-center">
+            {/* 카메라 선택 버튼 */}
+            <div className="mb-4">
+              <div className="flex justify-center space-x-2 mb-3">
+                <button id="front-camera-btn" className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm">
+                  🤳 전면 카메라
+                </button>
+                <button id="back-camera-btn" className="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors text-sm">
+                  📸 후면 카메라
+                </button>
+              </div>
+              <div id="camera-status" className="text-sm text-gray-600 mb-2">
+                카메라를 선택해주세요
+              </div>
+            </div>
+            
             <video id="video" className="w-full max-w-md mx-auto rounded-lg border mb-4" autoplay playsinline></video>
             <canvas id="canvas" className="hidden"></canvas>
+            
             <div className="flex justify-center space-x-4">
               <button id="capture-btn" className="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors">
                 📷 촬영하기
+              </button>
+              <button id="switch-camera-btn" className="bg-orange-500 text-white px-4 py-3 rounded-lg hover:bg-orange-600 transition-colors">
+                🔄 카메라 전환
               </button>
               <button id="stop-camera-btn" className="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition-colors">
                 ❌ 카메라 닫기

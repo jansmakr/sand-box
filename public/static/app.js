@@ -7,6 +7,8 @@ class SkinAnalyzer {
     this.currentStream = null;
     this.selectedFile = null;
     this.lastAnalysisResults = null;
+    this.currentFacingMode = 'environment'; // 'user' (전면) 또는 'environment' (후면)
+    this.availableCameras = [];
     
     this.initEventListeners();
   }
@@ -37,6 +39,21 @@ class SkinAnalyzer {
       this.stopCamera();
     });
 
+    // 전면 카메라 버튼
+    document.getElementById('front-camera-btn')?.addEventListener('click', () => {
+      this.switchToCamera('user');
+    });
+
+    // 후면 카메라 버튼
+    document.getElementById('back-camera-btn')?.addEventListener('click', () => {
+      this.switchToCamera('environment');
+    });
+
+    // 카메라 전환 버튼
+    document.getElementById('switch-camera-btn')?.addEventListener('click', () => {
+      this.toggleCamera();
+    });
+
     // 분석 시작 버튼
     document.getElementById('analyze-btn')?.addEventListener('click', () => {
       this.analyzeImage();
@@ -55,31 +72,157 @@ class SkinAnalyzer {
 
   async startCamera() {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { 
-          facingMode: 'environment', // 후면 카메라 우선
+      // 사용 가능한 카메라 목록 확인
+      await this.detectAvailableCameras();
+      
+      // 카메라 섹션 표시
+      this.hideAllSections();
+      document.getElementById('camera-section').classList.remove('hidden');
+      
+      // 기본적으로 후면 카메라로 시작
+      await this.switchToCamera('environment');
+      
+    } catch (error) {
+      console.error('카메라 초기화 오류:', error);
+      alert('카메라에 접근할 수 없습니다. 권한을 확인해주세요.');
+    }
+  }
+
+  async detectAvailableCameras() {
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      this.availableCameras = devices.filter(device => device.kind === 'videoinput');
+      
+      console.log(`감지된 카메라 개수: ${this.availableCameras.length}`, this.availableCameras);
+      
+      // 카메라 버튼 활성화/비활성화
+      const frontBtn = document.getElementById('front-camera-btn');
+      const backBtn = document.getElementById('back-camera-btn');
+      const switchBtn = document.getElementById('switch-camera-btn');
+      
+      if (this.availableCameras.length === 0) {
+        this.updateCameraStatus('카메라를 찾을 수 없습니다');
+        frontBtn.disabled = true;
+        backBtn.disabled = true;
+        switchBtn.disabled = true;
+      } else if (this.availableCameras.length === 1) {
+        this.updateCameraStatus('카메라 1개 감지됨');
+        switchBtn.disabled = true;
+      } else {
+        this.updateCameraStatus(`카메라 ${this.availableCameras.length}개 감지됨`);
+        switchBtn.disabled = false;
+      }
+      
+    } catch (error) {
+      console.error('카메라 감지 오류:', error);
+      this.updateCameraStatus('카메라 감지 실패');
+    }
+  }
+
+  async switchToCamera(facingMode) {
+    try {
+      // 기존 스트림 정지
+      if (this.currentStream) {
+        this.currentStream.getTracks().forEach(track => track.stop());
+      }
+
+      this.currentFacingMode = facingMode;
+      
+      const constraints = {
+        video: {
+          facingMode: { ideal: facingMode },
           width: { ideal: 1280 },
           height: { ideal: 720 }
-        } 
-      });
+        }
+      };
+
+      // 특정 deviceId가 있는 경우 사용 (더 정확한 카메라 선택)
+      if (this.availableCameras.length > 1) {
+        // 전면/후면 카메라 구분을 위한 휴리스틱
+        const targetCamera = this.availableCameras.find(camera => {
+          const label = camera.label.toLowerCase();
+          if (facingMode === 'user') {
+            return label.includes('front') || label.includes('user') || label.includes('selfie');
+          } else {
+            return label.includes('back') || label.includes('rear') || label.includes('environment');
+          }
+        });
+
+        if (targetCamera) {
+          constraints.video.deviceId = { exact: targetCamera.deviceId };
+          delete constraints.video.facingMode; // deviceId 사용 시 facingMode 제거
+        }
+      }
+
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
 
       this.video = document.getElementById('video');
       this.canvas = document.getElementById('canvas');
       this.currentStream = stream;
 
       this.video.srcObject = stream;
-      
-      // 카메라 섹션 표시
-      document.getElementById('camera-section').classList.remove('hidden');
-      
-      // 다른 섹션 숨기기
-      this.hideAllSections();
-      document.getElementById('camera-section').classList.remove('hidden');
 
-      console.log('카메라가 시작되었습니다.');
+      // 전면 카메라인 경우 좌우 반전 적용
+      if (facingMode === 'user') {
+        this.video.style.transform = 'scaleX(-1)';
+        this.updateCameraStatus('🤳 전면 카메라 활성화');
+      } else {
+        this.video.style.transform = 'scaleX(1)';
+        this.updateCameraStatus('📸 후면 카메라 활성화');
+      }
+
+      // 버튼 상태 업데이트
+      this.updateCameraButtons(facingMode);
+
+      console.log(`${facingMode === 'user' ? '전면' : '후면'} 카메라로 전환됨`);
+      
     } catch (error) {
-      console.error('카메라 접근 오류:', error);
-      alert('카메라에 접근할 수 없습니다. 권한을 확인해주세요.');
+      console.error('카메라 전환 오류:', error);
+      
+      // 실패 시 기본 설정으로 재시도
+      try {
+        const fallbackStream = await navigator.mediaDevices.getUserMedia({
+          video: { width: { ideal: 1280 }, height: { ideal: 720 } }
+        });
+        
+        this.currentStream = fallbackStream;
+        this.video.srcObject = fallbackStream;
+        this.updateCameraStatus('⚠️ 기본 카메라로 연결됨');
+        
+      } catch (fallbackError) {
+        console.error('기본 카메라도 실패:', fallbackError);
+        this.updateCameraStatus('❌ 카메라 연결 실패');
+        alert('카메라에 연결할 수 없습니다. 다른 앱이 카메라를 사용 중이거나 권한이 없을 수 있습니다.');
+      }
+    }
+  }
+
+  toggleCamera() {
+    const newFacingMode = this.currentFacingMode === 'user' ? 'environment' : 'user';
+    this.switchToCamera(newFacingMode);
+  }
+
+  updateCameraStatus(message) {
+    const statusElement = document.getElementById('camera-status');
+    if (statusElement) {
+      statusElement.textContent = message;
+    }
+  }
+
+  updateCameraButtons(activeFacingMode) {
+    const frontBtn = document.getElementById('front-camera-btn');
+    const backBtn = document.getElementById('back-camera-btn');
+    
+    // 버튼 스타일 초기화
+    frontBtn.classList.remove('bg-blue-700', 'bg-blue-500');
+    backBtn.classList.remove('bg-purple-700', 'bg-purple-500');
+    
+    if (activeFacingMode === 'user') {
+      frontBtn.classList.add('bg-blue-700'); // 활성화된 상태
+      backBtn.classList.add('bg-purple-500'); // 비활성화된 상태
+    } else {
+      frontBtn.classList.add('bg-blue-500'); // 비활성화된 상태
+      backBtn.classList.add('bg-purple-700'); // 활성화된 상태
     }
   }
 
@@ -91,7 +234,20 @@ class SkinAnalyzer {
     
     if (this.video) {
       this.video.srcObject = null;
+      this.video.style.transform = 'scaleX(1)'; // 변환 초기화
     }
+
+    // 상태 초기화
+    this.updateCameraStatus('카메라를 선택해주세요');
+    this.currentFacingMode = 'environment';
+    
+    // 버튼 상태 초기화
+    const frontBtn = document.getElementById('front-camera-btn');
+    const backBtn = document.getElementById('back-camera-btn');
+    frontBtn.classList.remove('bg-blue-700');
+    backBtn.classList.remove('bg-purple-700');
+    frontBtn.classList.add('bg-blue-500');
+    backBtn.classList.add('bg-purple-500');
 
     document.getElementById('camera-section').classList.add('hidden');
   }
@@ -103,11 +259,19 @@ class SkinAnalyzer {
     this.canvas.width = this.video.videoWidth;
     this.canvas.height = this.video.videoHeight;
     
-    context.drawImage(this.video, 0, 0);
+    // 전면 카메라인 경우 이미지를 좌우 반전하여 저장
+    if (this.currentFacingMode === 'user') {
+      context.save();
+      context.scale(-1, 1);
+      context.drawImage(this.video, -this.canvas.width, 0);
+      context.restore();
+    } else {
+      context.drawImage(this.video, 0, 0);
+    }
     
     // Canvas를 Blob으로 변환
     this.canvas.toBlob((blob) => {
-      this.selectedFile = new File([blob], 'camera-capture.jpg', { type: 'image/jpeg' });
+      this.selectedFile = new File([blob], `camera-capture-${this.currentFacingMode}.jpg`, { type: 'image/jpeg' });
       this.showPreview(URL.createObjectURL(blob));
       this.stopCamera();
     }, 'image/jpeg', 0.8);
