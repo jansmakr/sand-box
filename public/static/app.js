@@ -6,6 +6,7 @@ class SkinAnalyzer {
     this.canvas = null;
     this.currentStream = null;
     this.selectedFile = null;
+    this.lastAnalysisResults = null;
     
     this.initEventListeners();
   }
@@ -44,6 +45,11 @@ class SkinAnalyzer {
     // 리셋 버튼
     document.getElementById('reset-btn')?.addEventListener('click', () => {
       this.reset();
+    });
+
+    // 분석 기록 버튼
+    document.getElementById('history-btn')?.addEventListener('click', () => {
+      this.showAnalysisHistory();
     });
   }
 
@@ -164,6 +170,9 @@ class SkinAnalyzer {
   }
 
   displayResults(results) {
+    // 분석 결과 저장 (나중에 저장 기능에서 사용)
+    this.lastAnalysisResults = results;
+    
     const resultsContent = document.getElementById('results-content');
     
     const { ingredients, analysis } = results;
@@ -283,10 +292,104 @@ class SkinAnalyzer {
         </div>
       </div>
 
+      ${results.skinAnalysis && results.skinAnalysis.recommendedSkinTypes.length > 0 ? `
+      <div class="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-6">
+        <h4 class="text-lg font-semibold mb-3 text-purple-800">🎯 피부 타입 맞춤 분석</h4>
+        <div class="space-y-3">
+          <div class="text-purple-700">
+            <strong>추천 피부 타입:</strong> ${results.skinAnalysis.recommendedSkinTypes.join(', ')}
+          </div>
+          ${results.skinAnalysis.recommendations.map(rec => `
+            <div class="bg-white p-3 rounded border border-purple-100">
+              <p class="text-sm text-purple-600">${rec.description}</p>
+              <div class="mt-2 text-xs text-purple-500">
+                <strong>추천 성분:</strong> ${rec.recommended.join(', ')}
+              </div>
+              ${rec.avoid ? `<div class="text-xs text-red-500">
+                <strong>주의 성분:</strong> ${rec.avoid.join(', ')}
+              </div>` : ''}
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      ` : ''}
+
+      ${results.similarProducts && results.similarProducts.length > 0 ? `
+      <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+        <h4 class="text-lg font-semibold mb-3 text-green-800">🛍️ 추천 제품</h4>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          ${results.similarProducts.map(product => `
+            <div class="bg-white p-3 rounded border border-green-100 hover:shadow-md transition-shadow">
+              <div class="flex justify-between items-start mb-2">
+                <div>
+                  <h5 class="font-semibold text-sm text-green-800">${product.name}</h5>
+                  <p class="text-xs text-green-600">${product.brand} | ${product.category}</p>
+                </div>
+                <div class="text-right">
+                  <div class="text-sm font-bold text-green-700">${product.price.toLocaleString()}원</div>
+                  <div class="text-xs text-yellow-600">⭐ ${product.rating} (${product.reviews})</div>
+                </div>
+              </div>
+              <div class="text-xs text-green-600 mb-2">
+                <strong>적합:</strong> ${product.suitableFor.join(', ')}
+              </div>
+              <div class="text-xs text-gray-600 mb-2">
+                <strong>주요성분:</strong> ${product.ingredients.join(', ')}
+              </div>
+              <a href="${product.url}" target="_blank" 
+                 class="inline-block bg-green-500 text-white text-xs px-3 py-1 rounded hover:bg-green-600 transition-colors">
+                제품 보러가기 →
+              </a>
+            </div>
+          `).join('')}
+        </div>
+        <div class="mt-3 text-center">
+          <button onclick="skinAnalyzer.showMoreProducts()" 
+                  class="text-green-600 text-sm hover:text-green-800 transition-colors">
+            더 많은 제품 보기 →
+          </button>
+        </div>
+      </div>
+      ` : ''}
+
+      ${results.homecareRecommendations ? `
+      <div class="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-6">
+        <h4 class="text-lg font-semibold mb-3 text-orange-800">🏠 홈케어 추천 사이트</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+          ${results.homecareRecommendations.map(site => `
+            <a href="${site.url}" target="_blank" 
+               class="bg-white p-3 rounded border border-orange-100 hover:shadow-md transition-shadow text-center block">
+              <h5 class="font-semibold text-sm text-orange-800 mb-1">${site.name}</h5>
+              <p class="text-xs text-orange-600 mb-2">${site.description}</p>
+              <span class="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded">${site.category}</span>
+            </a>
+          `).join('')}
+        </div>
+      </div>
+      ` : ''}
+
+      <div class="bg-indigo-50 border border-indigo-200 rounded-lg p-4 mb-6">
+        <h4 class="text-lg font-semibold mb-3 text-indigo-800">🗺️ 주변 피부 관리 서비스</h4>
+        <div class="space-y-3">
+          <button onclick="skinAnalyzer.findNearbyClinics()" 
+                  class="w-full bg-indigo-500 text-white py-2 rounded-lg hover:bg-indigo-600 transition-colors">
+            📍 근처 피부관리실 찾기
+          </button>
+          <div id="clinics-list" class="hidden space-y-2"></div>
+        </div>
+      </div>
+
       <div class="text-center space-y-3">
-        <button onclick="skinAnalyzer.reset()" class="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors">
-          🔄 새로운 분석하기
-        </button>
+        <div class="flex flex-col md:flex-row gap-3 justify-center">
+          <button onclick="skinAnalyzer.reset()" 
+                  class="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors">
+            🔄 새로운 분석하기
+          </button>
+          <button onclick="skinAnalyzer.saveAnalysis()" 
+                  class="bg-purple-500 text-white px-6 py-3 rounded-lg hover:bg-purple-600 transition-colors">
+            💾 분석결과 저장
+          </button>
+        </div>
         <div class="text-xs text-gray-500">
           * 이 분석 결과는 일반적인 참고용이며, 개인의 피부 상태에 따라 다를 수 있습니다.
         </div>
@@ -329,7 +432,8 @@ class SkinAnalyzer {
       'camera-section',
       'preview-section', 
       'loading-section',
-      'results-section'
+      'results-section',
+      'history-section'
     ];
     
     sections.forEach(sectionId => {
@@ -337,8 +441,290 @@ class SkinAnalyzer {
     });
   }
 
+  // 근처 피부관리실 찾기
+  async findNearbyClinics() {
+    if (!navigator.geolocation) {
+      alert('위치 서비스를 사용할 수 없습니다.');
+      return;
+    }
+
+    try {
+      const position = await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject);
+      });
+
+      const { latitude, longitude } = position.coords;
+      
+      const response = await fetch(`/api/skincare-clinics?lat=${latitude}&lng=${longitude}&radius=5`);
+      const data = await response.json();
+
+      this.displayClinics(data.clinics);
+    } catch (error) {
+      console.error('위치 정보를 가져올 수 없습니다:', error);
+      // Mock 데이터로 대체
+      const response = await fetch('/api/skincare-clinics');
+      const data = await response.json();
+      this.displayClinics(data.clinics);
+    }
+  }
+
+  // 피부관리실 목록 표시
+  displayClinics(clinics) {
+    const clinicsList = document.getElementById('clinics-list');
+    
+    if (clinics.length === 0) {
+      clinicsList.innerHTML = '<p class="text-gray-500 text-sm">근처에 등록된 피부관리실이 없습니다.</p>';
+    } else {
+      clinicsList.innerHTML = clinics.map(clinic => `
+        <div class="bg-white p-3 rounded border border-indigo-100">
+          <div class="flex justify-between items-start mb-2">
+            <div>
+              <h5 class="font-semibold text-sm text-indigo-800">${clinic.name}</h5>
+              <p class="text-xs text-indigo-600">${clinic.address}</p>
+              <p class="text-xs text-gray-600">${clinic.phone}</p>
+            </div>
+            <div class="text-right">
+              <div class="text-xs text-yellow-600">⭐ ${clinic.rating} (${clinic.reviews})</div>
+              <div class="text-xs text-indigo-600">${clinic.distance}km</div>
+            </div>
+          </div>
+          <div class="text-xs text-indigo-600 mb-2">
+            <strong>전문분야:</strong> ${clinic.specialties.join(', ')}
+          </div>
+          <a href="${clinic.url}" target="_blank" 
+             class="inline-block bg-indigo-500 text-white text-xs px-3 py-1 rounded hover:bg-indigo-600 transition-colors">
+            상세보기 →
+          </a>
+        </div>
+      `).join('');
+    }
+
+    clinicsList.classList.remove('hidden');
+  }
+
+  // 더 많은 제품 보기
+  async showMoreProducts() {
+    try {
+      const response = await fetch('/api/products/recommend');
+      const data = await response.json();
+      
+      // 새 탭에서 제품 목록 페이지 열기 (실제로는 별도 페이지로 구현)
+      const productsWindow = window.open('', '_blank');
+      productsWindow.document.write(`
+        <html>
+        <head>
+          <title>추천 제품 목록</title>
+          <script src="https://cdn.tailwindcss.com"></script>
+        </head>
+        <body class="bg-gray-50 p-4">
+          <div class="max-w-6xl mx-auto">
+            <h1 class="text-2xl font-bold mb-6">🛍️ 추천 제품 목록</h1>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              ${data.products.map(product => `
+                <div class="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow">
+                  <h3 class="font-semibold mb-2">${product.name}</h3>
+                  <p class="text-sm text-gray-600 mb-2">${product.brand} | ${product.category}</p>
+                  <p class="text-lg font-bold text-green-600 mb-2">${product.price.toLocaleString()}원</p>
+                  <p class="text-sm text-yellow-600 mb-2">⭐ ${product.rating} (${product.reviews}개 리뷰)</p>
+                  <p class="text-xs text-gray-500 mb-3">${product.suitableFor.join(', ')}에 적합</p>
+                  <a href="${product.url}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors">
+                    구매하기 →
+                  </a>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </body>
+        </html>
+      `);
+    } catch (error) {
+      console.error('제품 정보를 가져올 수 없습니다:', error);
+      alert('제품 정보를 가져오는데 실패했습니다.');
+    }
+  }
+
+  // 분석 결과 저장 (로컬 스토리지)
+  saveAnalysis() {
+    const analysisData = {
+      timestamp: new Date().toISOString(),
+      results: this.lastAnalysisResults,
+      imageDataUrl: document.getElementById('preview-image')?.src
+    };
+
+    try {
+      let savedAnalyses = JSON.parse(localStorage.getItem('skinAnalyses') || '[]');
+      savedAnalyses.unshift(analysisData); // 최신 순으로 저장
+      
+      // 최대 10개까지만 저장
+      if (savedAnalyses.length > 10) {
+        savedAnalyses = savedAnalyses.slice(0, 10);
+      }
+      
+      localStorage.setItem('skinAnalyses', JSON.stringify(savedAnalyses));
+      alert('분석 결과가 저장되었습니다! (최대 10개 저장)');
+    } catch (error) {
+      console.error('저장 실패:', error);
+      alert('분석 결과 저장에 실패했습니다.');
+    }
+  }
+
+  // 분석 기록 보기
+  showAnalysisHistory() {
+    try {
+      const savedAnalyses = JSON.parse(localStorage.getItem('skinAnalyses') || '[]');
+      const historyContent = document.getElementById('history-content');
+      
+      if (savedAnalyses.length === 0) {
+        historyContent.innerHTML = `
+          <div class="text-center py-8 text-gray-500">
+            <div class="text-4xl mb-2">📝</div>
+            <p>저장된 분석 기록이 없습니다.</p>
+            <p class="text-sm mt-2">분석 후 '분석결과 저장' 버튼을 눌러 기록을 남겨보세요!</p>
+          </div>
+        `;
+      } else {
+        historyContent.innerHTML = `
+          <div class="space-y-4">
+            ${savedAnalyses.map((analysis, index) => `
+              <div class="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                <div class="flex justify-between items-start mb-3">
+                  <div>
+                    <h4 class="font-semibold text-gray-800">분석 #${savedAnalyses.length - index}</h4>
+                    <p class="text-sm text-gray-500">${new Date(analysis.timestamp).toLocaleString('ko-KR')}</p>
+                  </div>
+                  <button onclick="skinAnalyzer.deleteAnalysis(${index})" 
+                          class="text-red-500 hover:text-red-700 text-sm">
+                    🗑️ 삭제
+                  </button>
+                </div>
+                
+                ${analysis.imageDataUrl ? `
+                  <img src="${analysis.imageDataUrl}" class="w-16 h-16 object-cover rounded border mb-3" />
+                ` : ''}
+                
+                <div class="text-sm space-y-2">
+                  <div class="flex flex-wrap gap-2">
+                    <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
+                      총 ${analysis.results.analysis.totalIngredients}개 성분
+                    </span>
+                    <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">
+                      안전 ${analysis.results.analysis.safeIngredients}개
+                    </span>
+                    ${analysis.results.analysis.cautionIngredients > 0 ? `
+                      <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs">
+                        주의 ${analysis.results.analysis.cautionIngredients}개
+                      </span>
+                    ` : ''}
+                    ${analysis.results.skinAnalysis && analysis.results.skinAnalysis.recommendedSkinTypes ? `
+                      <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs">
+                        ${analysis.results.skinAnalysis.recommendedSkinTypes[0]}
+                      </span>
+                    ` : ''}
+                  </div>
+                  
+                  <div class="flex gap-2">
+                    <button onclick="skinAnalyzer.viewAnalysisDetail(${index})" 
+                            class="bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600 transition-colors">
+                      상세보기
+                    </button>
+                    <button onclick="skinAnalyzer.reAnalyze(${index})" 
+                            class="bg-gray-500 text-white px-3 py-1 rounded text-xs hover:bg-gray-600 transition-colors">
+                      재분석
+                    </button>
+                  </div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+          
+          <div class="text-center mt-6">
+            <button onclick="skinAnalyzer.clearAllHistory()" 
+                    class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors">
+              🗑️ 모든 기록 삭제
+            </button>
+          </div>
+        `;
+      }
+
+      this.hideAllSections();
+      document.getElementById('history-section').classList.remove('hidden');
+    } catch (error) {
+      console.error('기록 로드 실패:', error);
+      alert('분석 기록을 불러오는데 실패했습니다.');
+    }
+  }
+
+  // 특정 분석 기록 삭제
+  deleteAnalysis(index) {
+    if (confirm('이 분석 기록을 삭제하시겠습니까?')) {
+      try {
+        let savedAnalyses = JSON.parse(localStorage.getItem('skinAnalyses') || '[]');
+        savedAnalyses.splice(index, 1);
+        localStorage.setItem('skinAnalyses', JSON.stringify(savedAnalyses));
+        this.showAnalysisHistory(); // 화면 새로고침
+      } catch (error) {
+        console.error('삭제 실패:', error);
+        alert('기록 삭제에 실패했습니다.');
+      }
+    }
+  }
+
+  // 모든 분석 기록 삭제
+  clearAllHistory() {
+    if (confirm('모든 분석 기록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
+      try {
+        localStorage.removeItem('skinAnalyses');
+        this.showAnalysisHistory(); // 화면 새로고침
+      } catch (error) {
+        console.error('전체 삭제 실패:', error);
+        alert('기록 삭제에 실패했습니다.');
+      }
+    }
+  }
+
+  // 분석 상세보기
+  viewAnalysisDetail(index) {
+    try {
+      const savedAnalyses = JSON.parse(localStorage.getItem('skinAnalyses') || '[]');
+      const analysis = savedAnalyses[index];
+      
+      if (analysis && analysis.results) {
+        this.displayResults(analysis.results);
+      }
+    } catch (error) {
+      console.error('상세보기 실패:', error);
+      alert('분석 결과를 불러오는데 실패했습니다.');
+    }
+  }
+
+  // 기록에서 재분석 (같은 이미지로)
+  reAnalyze(index) {
+    try {
+      const savedAnalyses = JSON.parse(localStorage.getItem('skinAnalyses') || '[]');
+      const analysis = savedAnalyses[index];
+      
+      if (analysis && analysis.imageDataUrl) {
+        // 이미지를 미리보기에 설정하고 분석 화면으로 이동
+        document.getElementById('preview-image').src = analysis.imageDataUrl;
+        this.hideAllSections();
+        document.getElementById('preview-section').classList.remove('hidden');
+        
+        // 이미지 데이터를 File 객체로 변환 (간단한 방법)
+        fetch(analysis.imageDataUrl)
+          .then(res => res.blob())
+          .then(blob => {
+            this.selectedFile = new File([blob], 'reanalysis.jpg', { type: 'image/jpeg' });
+          });
+      }
+    } catch (error) {
+      console.error('재분석 준비 실패:', error);
+      alert('재분석 준비에 실패했습니다.');
+    }
+  }
+
   reset() {
     this.selectedFile = null;
+    this.lastAnalysisResults = null;
     this.stopCamera();
     this.hideAllSections();
     
