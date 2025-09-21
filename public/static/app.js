@@ -1202,8 +1202,121 @@ class SkinAnalyzer {
   showInfoPage() {
     this.hideAllSections();
     
-    // 임시 정보 페이지 (실제로는 별도 컴포넌트로 구현)
-    alert('📱 피부 성분 분석기 v1.0\n\n🧴 화장품 성분표 AI 분석\n🎯 피부타입별 맞춤 추천\n🛍️ 제품 추천 및 가격 비교\n🗺️ 근처 피부관리실 찾기\n\n💬 문의: support@skinanalyzer.com');
+    // 정보 모달 생성
+    const infoModal = document.createElement('div');
+    infoModal.className = 'fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4';
+    infoModal.innerHTML = `
+      <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl">
+        <!-- 헤더 -->
+        <div class="text-center mb-6">
+          <div class="w-16 h-16 mx-auto mb-3 bg-gradient-to-r from-purple-100 to-pink-100 rounded-full flex items-center justify-center">
+            <svg width="32" height="32" viewBox="0 0 32 32">
+              <circle cx="16" cy="16" r="15" fill="url(#infoLogoGradient)" stroke="#ffffff" stroke-width="1"/>
+              <rect x="11" y="8" width="10" height="16" rx="2" fill="#ffffff" opacity="0.9"/>
+              <rect x="12" y="9" width="8" height="14" rx="1" fill="url(#infoContainerGradient)"/>
+              <path d="M13.5 15l2 2 3-4" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+              <defs>
+                <linearGradient id="infoLogoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#9333ea"/>
+                  <stop offset="100%" stop-color="#ec4899"/>
+                </linearGradient>
+                <linearGradient id="infoContainerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#a855f7"/>
+                  <stop offset="100%" stop-color="#f472b6"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">셀픽</h3>
+          <p class="text-sm text-gray-600">"화장품도 스스로 픽!"</p>
+        </div>
+
+        <!-- 앱 정보 -->
+        <div class="space-y-4 mb-6">
+          <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-4">
+            <h4 class="text-sm font-bold text-gray-800 mb-2 flex items-center space-x-2">
+              <span>📱</span>
+              <span>셀픽 - AI 성분 분석기 v1.0</span>
+            </h4>
+            <p class="text-xs text-gray-600 leading-relaxed">화장품 성분표를 촬영하면 AI가 안전성을 분석하고 맞춤 제품을 추천해드립니다.</p>
+          </div>
+
+          <!-- 주요 기능 -->
+          <div class="space-y-2">
+            <div class="flex items-center space-x-3 text-sm">
+              <span class="text-purple-500">🧴</span>
+              <span class="text-gray-700">화장품 성분표 AI 분석</span>
+            </div>
+            <div class="flex items-center space-x-3 text-sm">
+              <span class="text-pink-500">🎯</span>
+              <span class="text-gray-700">피부타입별 맞춤 추천</span>
+            </div>
+            <div class="flex items-center space-x-3 text-sm">
+              <span class="text-blue-500">🛍️</span>
+              <span class="text-gray-700">제품 추천 및 가격 비교</span>
+            </div>
+            <div class="flex items-center space-x-3 text-sm">
+              <span class="text-green-500">🗺️</span>
+              <span class="text-gray-700">근처 피부관리실 찾기</span>
+            </div>
+          </div>
+
+          <!-- 문의 정보 -->
+          <div class="bg-gray-50 rounded-lg p-4 border border-gray-100">
+            <h4 class="text-sm font-bold text-gray-800 mb-2 flex items-center space-x-2">
+              <span>💬</span>
+              <span>문의 및 지원</span>
+            </h4>
+            <div class="flex items-center justify-between">
+              <span class="text-xs text-gray-600">이메일</span>
+              <div class="flex items-center space-x-2">
+                <span class="text-sm font-medium text-purple-600">utuber@kakao.com</span>
+                <button onclick="navigator.clipboard?.writeText('utuber@kakao.com')" class="text-xs bg-purple-100 text-purple-600 px-2 py-1 rounded hover:bg-purple-200 transition-colors">
+                  복사
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 닫기 버튼 -->
+        <button id="close-info-modal" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 rounded-xl font-medium hover:shadow-lg transition-all">
+          확인
+        </button>
+      </div>
+    `;
+
+    document.body.appendChild(infoModal);
+
+    // 닫기 이벤트
+    const closeBtn = infoModal.querySelector('#close-info-modal');
+    const closeModal = () => {
+      infoModal.remove();
+      this.showHomePage();
+    };
+
+    closeBtn?.addEventListener('click', closeModal);
+    infoModal.addEventListener('click', (e) => {
+      if (e.target === infoModal) {
+        closeModal();
+      }
+    });
+
+    // 이메일 복사 완료 메시지
+    infoModal.addEventListener('click', (e) => {
+      if (e.target?.textContent === '복사') {
+        navigator.clipboard?.writeText('utuber@kakao.com').then(() => {
+          e.target.textContent = '복사됨!';
+          e.target.classList.add('bg-green-100', 'text-green-600');
+          e.target.classList.remove('bg-purple-100', 'text-purple-600');
+          setTimeout(() => {
+            e.target.textContent = '복사';
+            e.target.classList.remove('bg-green-100', 'text-green-600');
+            e.target.classList.add('bg-purple-100', 'text-purple-600');
+          }, 2000);
+        });
+      }
+    });
   }
 
   // 터치 제스처 초기화
