@@ -669,8 +669,14 @@ app.get('/', (c) => {
 
       {/* 메인 컨텐츠 */}
       <main className="px-4 pb-20">
-        {/* 간단한 소개 */}
+        {/* 메인 카피라이트 */}
         <div className="py-4 text-center">
+          <div className="mb-3">
+            <h2 className="text-lg font-bold text-gray-800 leading-relaxed">
+              "화장품 성분분석, 이젠 화장품도 스스로 픽!<br/>
+              <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">셀픽</span>"
+            </h2>
+          </div>
           <p className="text-gray-600 text-sm leading-relaxed">
             화장품 성분표를 촬영하면<br/>
             <span className="font-semibold text-purple-600">AI가 안전성을 분석</span>하고<br/>
@@ -808,7 +814,8 @@ app.get('/', (c) => {
               <div className="absolute inset-0 rounded-full border-4 border-purple-500 border-t-transparent animate-spin"></div>
             </div>
             <div className="text-2xl mb-2">🔍</div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">AI가 이미지를 분석중입니다</h3>
+            <h3 className="text-lg font-semibold text-gray-800 mb-1">셀픽이 분석중입니다</h3>
+            <p className="text-xs text-gray-500 mb-3">"화장품도 스스로 픽!"</p>
             <div id="loading-status" className="text-sm text-gray-600 mb-4">
               이미지 품질을 확인하고 있습니다...
             </div>
@@ -912,8 +919,11 @@ app.get('/', (c) => {
           </div>
 
           {/* 주요 기능 요약 */}
-          <div className="mt-6 p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl">
+          <div className="mt-6 p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl">
             <div className="text-center">
+              <p className="text-sm font-semibold text-gray-800 mb-3">
+                "화장품도 스스로 픽! 셀픽"
+              </p>
               <p className="text-sm text-gray-700 mb-2">
                 <span className="font-semibold text-purple-600">🎯 피부타입 분석</span> • 
                 <span className="font-semibold text-pink-600">🛍️ 제품추천</span> • 
