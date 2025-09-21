@@ -219,22 +219,111 @@ const HOMECARE_SITES = [
   }
 ]
 
+// OCR 품질 평가 함수
+function evaluateImageQuality(imageBuffer: ArrayBuffer) {
+  // 실제로는 이미지 선명도, 해상도, 조명 등을 분석
+  // 현재는 시뮬레이션으로 랜덤하게 품질 평가
+  const qualityScore = Math.random();
+  const hasText = Math.random() > 0.15; // 85% 확률로 텍스트 인식
+  const isBlurry = Math.random() < 0.2; // 20% 확률로 흐림
+  const isLowLight = Math.random() < 0.15; // 15% 확률로 조명 부족
+  const isTooFar = Math.random() < 0.1; // 10% 확률로 너무 멀어서 글씨가 작음
+  
+  return {
+    qualityScore,
+    hasText,
+    isBlurry,
+    isLowLight,
+    isTooFar,
+    canReadText: hasText && !isBlurry && !isLowLight && !isTooFar && qualityScore > 0.3
+  };
+}
+
 // 간단한 OCR 시뮬레이션 함수 (실제로는 외부 OCR API 사용)
-function simulateOCR(imageBuffer: ArrayBuffer): string[] {
-  // 실제로는 Google Vision API, AWS Rekognition, Azure Computer Vision 등을 사용
-  // 현재는 시뮬레이션으로 랜덤 성분 반환
+function simulateOCR(imageBuffer: ArrayBuffer) {
+  const quality = evaluateImageQuality(imageBuffer);
+  
+  // 이미지 품질이 좋지 않은 경우 구체적인 피드백 제공
+  if (!quality.canReadText) {
+    let errorMessage = '';
+    let suggestions = [];
+    
+    if (!quality.hasText) {
+      errorMessage = '이미지에서 텍스트를 찾을 수 없습니다';
+      suggestions = [
+        '성분표가 화면에 포함되었는지 확인해주세요',
+        '화장품 뒷면의 성분 목록 부분을 촬영해주세요',
+        '제품 전체보다는 성분표 부분만 촬영하시면 더 정확합니다'
+      ];
+    } else if (quality.isBlurry) {
+      errorMessage = '이미지가 흐려서 글씨를 읽을 수 없습니다';
+      suggestions = [
+        '카메라를 흔들지 말고 안정적으로 촬영해주세요',
+        '초점이 맞을 때까지 기다린 후 촬영해주세요',
+        '손떨림 방지를 위해 양손으로 촬영하시거나 지지대를 활용해보세요'
+      ];
+    } else if (quality.isLowLight) {
+      errorMessage = '조명이 부족해서 글씨를 읽기 어렵습니다';
+      suggestions = [
+        '밝은 곳에서 촬영해주세요',
+        '플래시를 켜거나 조명을 추가해보세요',
+        '창가나 조명 아래에서 촬영하면 더 좋습니다'
+      ];
+    } else if (quality.isTooFar) {
+      errorMessage = '글씨가 너무 작아서 읽을 수 없습니다';
+      suggestions = [
+        '성분표에 더 가까이 다가가서 촬영해주세요',
+        '성분 목록 부분만 화면에 가득 차도록 촬영해보세요',
+        '줌 기능을 활용하여 글씨가 선명하게 보이도록 해주세요'
+      ];
+    } else {
+      errorMessage = '이미지 품질이 좋지 않아 글씨를 읽을 수 없습니다';
+      suggestions = [
+        '조명이 밝은 곳에서 다시 촬영해주세요',
+        '카메라를 성분표에 더 가까이 대고 촬영해주세요',
+        '성분표가 평평하고 선명하게 보이도록 각도를 조절해주세요'
+      ];
+    }
+    
+    return {
+      success: false,
+      error: errorMessage,
+      suggestions: suggestions,
+      ingredients: []
+    };
+  }
+  
+  // 품질이 좋은 경우 성분 추출
   const allIngredients = Object.keys(INGREDIENT_DATABASE);
-  const numIngredients = Math.floor(Math.random() * 5) + 3; // 3-7개 성분
+  const detectedCount = Math.floor(Math.random() * 4) + 2; // 2-5개 성분 (적은 수로 조정)
+  
+  // 인식된 성분이 너무 적은 경우 추가 안내
+  if (detectedCount < 3) {
+    return {
+      success: false,
+      error: '인식된 성분이 부족합니다',
+      suggestions: [
+        '성분표 전체가 화면에 포함되도록 촬영해주세요',
+        '성분 목록이 모두 보이는지 확인해주세요',
+        '여러 줄로 된 성분표의 경우 전체가 포함되도록 해주세요'
+      ],
+      ingredients: []
+    };
+  }
   
   const selectedIngredients: string[] = [];
-  for (let i = 0; i < numIngredients; i++) {
+  for (let i = 0; i < detectedCount; i++) {
     const randomIngredient = allIngredients[Math.floor(Math.random() * allIngredients.length)];
     if (!selectedIngredients.includes(randomIngredient)) {
       selectedIngredients.push(randomIngredient);
     }
   }
   
-  return selectedIngredients;
+  return {
+    success: true,
+    ingredients: selectedIngredients,
+    confidence: quality.qualityScore
+  };
 }
 
 // 피부 타입 분석 함수
@@ -368,16 +457,32 @@ app.post('/api/analyze', async (c) => {
     const imageBuffer = await image.arrayBuffer();
 
     // OCR 수행 (시뮬레이션)
-    const detectedIngredients = simulateOCR(imageBuffer);
-    console.log('감지된 성분들:', detectedIngredients);
+    const ocrResult = simulateOCR(imageBuffer);
+    
+    // OCR 실패한 경우 오류 응답
+    if (!ocrResult.success) {
+      return c.json({
+        success: false,
+        error: ocrResult.error,
+        suggestions: ocrResult.suggestions,
+        errorType: 'OCR_FAILED'
+      }, 422) // Unprocessable Entity
+    }
+
+    console.log('감지된 성분들:', ocrResult.ingredients);
 
     // 성분 분석
-    const analysisResults = analyzeIngredients(detectedIngredients);
+    const analysisResults = analyzeIngredients(ocrResult.ingredients);
+    
+    // 분석 결과에 신뢰도 정보 추가
+    analysisResults.ocrConfidence = ocrResult.confidence;
+    analysisResults.detectedIngredientsCount = ocrResult.ingredients.length;
 
     return c.json({
       success: true,
       results: analysisResults,
-      ocrText: detectedIngredients.join(', ')
+      ocrText: ocrResult.ingredients.join(', '),
+      confidence: ocrResult.confidence
     })
   } catch (error) {
     console.error('Analysis error:', error)
@@ -696,31 +801,56 @@ app.get('/', (c) => {
         </div>
 
         {/* 분석 중 로딩 */}
-        <div id="loading-section" className="bg-white rounded-2xl shadow-md p-8 text-center hidden">
+        <div id="loading-section" className="bg-white rounded-2xl shadow-md p-6 text-center hidden">
           <div className="mb-6">
             <div className="w-16 h-16 mx-auto mb-4 relative">
               <div className="absolute inset-0 rounded-full border-4 border-purple-200"></div>
               <div className="absolute inset-0 rounded-full border-4 border-purple-500 border-t-transparent animate-spin"></div>
             </div>
-            <div className="text-2xl mb-2">🧪</div>
-            <h3 className="text-xl font-semibold text-gray-800 mb-2">AI가 성분을 분석중이에요</h3>
-            <p className="text-gray-600 text-sm">잠시만 기다려주세요...</p>
+            <div className="text-2xl mb-2">🔍</div>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">AI가 이미지를 분석중입니다</h3>
+            <div id="loading-status" className="text-sm text-gray-600 mb-4">
+              이미지 품질을 확인하고 있습니다...
+            </div>
           </div>
           
-          {/* 분석 과정 애니메이션 */}
-          <div className="space-y-2 text-xs text-gray-500">
-            <div className="flex items-center justify-center space-x-2">
-              <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse"></div>
-              <span>이미지에서 텍스트 추출중</span>
+          {/* 분석 단계 표시 */}
+          <div className="space-y-3 text-xs">
+            <div id="step-1" className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div className="flex items-center space-x-2">
+                <div className="w-4 h-4 bg-purple-500 rounded-full animate-pulse"></div>
+                <span className="text-gray-700">이미지 품질 검사</span>
+              </div>
+              <div className="text-gray-500">진행중...</div>
             </div>
-            <div className="flex items-center justify-center space-x-2">
-              <div className="w-2 h-2 bg-pink-400 rounded-full animate-pulse" style="animation-delay: 0.5s"></div>
-              <span>성분 데이터베이스 검색중</span>
+            
+            <div id="step-2" className="flex items-center justify-between p-3 bg-gray-50 rounded-lg opacity-50">
+              <div className="flex items-center space-x-2">
+                <div className="w-4 h-4 bg-gray-300 rounded-full"></div>
+                <span className="text-gray-500">텍스트 인식 (OCR)</span>
+              </div>
+              <div className="text-gray-400">대기중</div>
             </div>
-            <div className="flex items-center justify-center space-x-2">
-              <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse" style="animation-delay: 1s"></div>
-              <span>피부타입 맞춤 분석중</span>
+            
+            <div id="step-3" className="flex items-center justify-between p-3 bg-gray-50 rounded-lg opacity-50">
+              <div className="flex items-center space-x-2">
+                <div className="w-4 h-4 bg-gray-300 rounded-full"></div>
+                <span className="text-gray-500">성분 안전성 분석</span>
+              </div>
+              <div className="text-gray-400">대기중</div>
             </div>
+            
+            <div id="step-4" className="flex items-center justify-between p-3 bg-gray-50 rounded-lg opacity-50">
+              <div className="flex items-center space-x-2">
+                <div className="w-4 h-4 bg-gray-300 rounded-full"></div>
+                <span className="text-gray-500">맞춤 제품 추천</span>
+              </div>
+              <div className="text-gray-400">대기중</div>
+            </div>
+          </div>
+          
+          <div className="mt-6 text-xs text-gray-500">
+            💡 팁: 성분표가 흐리거나 잘 보이지 않으면 분석이 어려울 수 있어요
           </div>
         </div>
 

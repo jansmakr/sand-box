@@ -332,6 +332,17 @@ class SkinAnalyzer {
     // 로딩 화면 표시
     this.hideAllSections();
     document.getElementById('loading-section').classList.remove('hidden');
+    
+    // 로딩 단계 시뮬레이션
+    this.updateLoadingStep(1, '이미지 품질 검사', '진행중');
+    
+    // 잠시 대기 (사용자가 과정을 볼 수 있도록)
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
+    this.updateLoadingStep(1, '이미지 품질 검사', '완료');
+    this.updateLoadingStep(2, '텍스트 인식 (OCR)', '진행중');
+    
+    await new Promise(resolve => setTimeout(resolve, 600));
 
     try {
       const formData = new FormData();
@@ -345,16 +356,185 @@ class SkinAnalyzer {
       const data = await response.json();
 
       if (data.success) {
+        this.updateLoadingStep(2, '텍스트 인식 (OCR)', '완료');
+        this.updateLoadingStep(3, '성분 안전성 분석', '진행중');
+        
+        await new Promise(resolve => setTimeout(resolve, 400));
+        
+        this.updateLoadingStep(3, '성분 안전성 분석', '완료');
+        this.updateLoadingStep(4, '맞춤 제품 추천', '진행중');
+        
+        await new Promise(resolve => setTimeout(resolve, 400));
+        
+        this.updateLoadingStep(4, '맞춤 제품 추천', '완료');
+        
+        // 잠시 완료 상태를 보여준 후 결과 표시
+        await new Promise(resolve => setTimeout(resolve, 300));
+        
         this.displayResults(data.results);
       } else {
-        throw new Error(data.error || '분석에 실패했습니다.');
+        // OCR 실패나 기타 오류 처리
+        this.showAnalysisError(data);
       }
     } catch (error) {
       console.error('분석 오류:', error);
-      alert('분석 중 오류가 발생했습니다: ' + error.message);
-      this.hideAllSections();
-      document.getElementById('preview-section').classList.remove('hidden');
+      this.showAnalysisError({
+        error: '네트워크 오류가 발생했습니다',
+        suggestions: ['인터넷 연결을 확인해주세요', '잠시 후 다시 시도해보세요']
+      });
     }
+  }
+
+  // 분석 오류 표시
+  showAnalysisError(errorData) {
+    this.hideAllSections();
+    
+    const errorSection = document.createElement('div');
+    errorSection.id = 'error-section';
+    errorSection.className = 'bg-white rounded-2xl shadow-md p-4 mb-6';
+    
+    errorSection.innerHTML = `
+      <div class="text-center">
+        <div class="mb-4">
+          <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3">
+            <i class="fas fa-exclamation-triangle text-2xl text-red-600"></i>
+          </div>
+          <h3 className="text-lg font-bold text-gray-800 mb-2">분석할 수 없습니다</h3>
+          <p class="text-red-600 font-medium mb-4">${errorData.error}</p>
+        </div>
+
+        ${errorData.suggestions ? `
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6 text-left">
+          <h4 class="font-semibold text-blue-800 mb-3 flex items-center">
+            <i class="fas fa-lightbulb mr-2"></i>
+            개선 방법
+          </h4>
+          <ul class="space-y-2 text-sm text-blue-700">
+            ${errorData.suggestions.map(suggestion => `
+              <li class="flex items-start">
+                <span class="text-blue-500 mr-2">•</span>
+                <span>${suggestion}</span>
+              </li>
+            `).join('')}
+          </ul>
+        </div>
+        ` : ''}
+
+        <div class="space-y-3">
+          <button onclick="skinAnalyzer.retakePhoto()" 
+                  class="w-full bg-gradient-to-r from-blue-500 to-purple-500 text-white py-3 px-6 rounded-xl font-semibold hover:shadow-lg transition-all transform hover:scale-105 active:scale-95">
+            📸 다시 촬영하기
+          </button>
+          <button onclick="skinAnalyzer.showPhotoTips()" 
+                  class="w-full bg-green-100 text-green-700 py-3 px-6 rounded-xl font-medium hover:bg-green-200 transition-colors">
+            💡 촬영 팁 보기
+          </button>
+          <button onclick="skinAnalyzer.reset()" 
+                  class="w-full bg-gray-100 text-gray-700 py-3 px-6 rounded-xl font-medium hover:bg-gray-200 transition-colors">
+            🏠 처음으로 돌아가기
+          </button>
+        </div>
+      </div>
+    `;
+
+    // 기존 error-section이 있으면 제거
+    const existingError = document.getElementById('error-section');
+    if (existingError) {
+      existingError.remove();
+    }
+
+    // 메인 컨텐츠에 추가
+    const main = document.querySelector('main');
+    if (main) {
+      main.appendChild(errorSection);
+    }
+  }
+
+  // 다시 촬영하기
+  retakePhoto() {
+    const errorSection = document.getElementById('error-section');
+    if (errorSection) {
+      errorSection.remove();
+    }
+    this.startCamera();
+  }
+
+  // 로딩 단계 업데이트
+  updateLoadingStep(stepNumber, stepName, status) {
+    const stepElement = document.getElementById(`step-${stepNumber}`);
+    const statusElement = stepElement?.querySelector('div:last-child');
+    const dotElement = stepElement?.querySelector('.w-4.h-4');
+    
+    if (!stepElement) return;
+    
+    // 단계 활성화
+    stepElement.classList.remove('opacity-50');
+    
+    if (status === '진행중') {
+      dotElement.className = 'w-4 h-4 bg-purple-500 rounded-full animate-pulse';
+      statusElement.textContent = '진행중...';
+      statusElement.className = 'text-purple-600 text-xs font-medium';
+      
+      // 로딩 상태 메시지 업데이트
+      const loadingStatus = document.getElementById('loading-status');
+      if (loadingStatus) {
+        loadingStatus.textContent = `${stepName} 중입니다...`;
+      }
+    } else if (status === '완료') {
+      dotElement.className = 'w-4 h-4 bg-green-500 rounded-full';
+      statusElement.textContent = '✓ 완료';
+      statusElement.className = 'text-green-600 text-xs font-medium';
+    }
+  }
+
+  // 촬영 팁 표시
+  showPhotoTips() {
+    const tipsModal = document.createElement('div');
+    tipsModal.className = 'fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4';
+    tipsModal.innerHTML = `
+      <div class="bg-white rounded-2xl p-6 max-w-sm w-full max-h-96 overflow-y-auto">
+        <div class="text-center mb-4">
+          <div class="text-2xl mb-2">📷</div>
+          <h3 class="text-lg font-bold text-gray-800">성분표 촬영 가이드</h3>
+        </div>
+        
+        <div class="space-y-4 text-sm">
+          <div class="bg-green-50 border border-green-200 rounded-lg p-3">
+            <h4 class="font-semibold text-green-800 mb-2">✅ 좋은 촬영법</h4>
+            <ul class="space-y-1 text-green-700">
+              <li>• 밝은 곳에서 촬영하세요</li>
+              <li>• 성분표에 가까이 다가가세요</li>
+              <li>• 글씨가 선명하게 보일 때까지 기다리세요</li>
+              <li>• 성분 목록만 화면에 가득 채우세요</li>
+            </ul>
+          </div>
+          
+          <div class="bg-red-50 border border-red-200 rounded-lg p-3">
+            <h4 class="font-semibold text-red-800 mb-2">❌ 피해야 할 것</h4>
+            <ul class="space-y-1 text-red-700">
+              <li>• 어두운 곳에서 촬영</li>
+              <li>• 너무 멀리서 촬영</li>
+              <li>• 카메라를 흔들며 촬영</li>
+              <li>• 글씨가 흐릿한 상태에서 촬영</li>
+            </ul>
+          </div>
+        </div>
+        
+        <button onclick="this.parentElement.parentElement.remove()" 
+                class="w-full mt-6 bg-blue-500 text-white py-3 px-6 rounded-xl font-semibold hover:bg-blue-600 transition-colors">
+          확인했어요
+        </button>
+      </div>
+    `;
+    
+    document.body.appendChild(tipsModal);
+    
+    // 배경 클릭시 닫기
+    tipsModal.addEventListener('click', (e) => {
+      if (e.target === tipsModal) {
+        tipsModal.remove();
+      }
+    });
   }
 
   displayResults(results) {
@@ -374,10 +554,21 @@ class SkinAnalyzer {
     resultsContent.innerHTML = `
       <!-- 분석 요약 카드 -->
       <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4 mb-4">
-        <h4 class="text-base font-bold text-gray-800 mb-3 flex items-center space-x-2">
-          <span>📈</span>
-          <span>분석 요약</span>
-        </h4>
+        <div class="flex items-center justify-between mb-3">
+          <h4 class="text-base font-bold text-gray-800 flex items-center space-x-2">
+            <span>📈</span>
+            <span>분석 요약</span>
+          </h4>
+          ${results.ocrConfidence ? `
+            <div class="text-xs px-2 py-1 rounded-full ${
+              results.ocrConfidence > 0.8 ? 'bg-green-100 text-green-700' :
+              results.ocrConfidence > 0.6 ? 'bg-yellow-100 text-yellow-700' :
+              'bg-orange-100 text-orange-700'
+            }">
+              인식률 ${Math.round(results.ocrConfidence * 100)}%
+            </div>
+          ` : ''}
+        </div>
         <div class="grid grid-cols-2 gap-3">
           <div class="bg-white rounded-lg p-3 text-center shadow-sm">
             <div class="text-2xl font-bold text-blue-600 mb-1">${analysis.totalIngredients}</div>
@@ -595,6 +786,22 @@ class SkinAnalyzer {
         </div>
       </div>
 
+      <!-- 인식 품질 안내 -->
+      ${results.ocrConfidence && results.ocrConfidence < 0.7 ? `
+      <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 mb-4">
+        <div class="flex items-start space-x-2">
+          <div class="text-blue-600 text-sm">💡</div>
+          <div class="text-xs text-blue-700 leading-relaxed">
+            <strong>인식 품질 안내:</strong> 일부 글씨가 명확하지 않아 완전하지 않을 수 있습니다. 
+            더 정확한 분석을 원하시면 밝은 곳에서 성분표를 다시 촬영해보세요.
+            <button onclick="skinAnalyzer.retakePhoto()" class="underline ml-1 hover:text-blue-800">
+              다시 촬영하기
+            </button>
+          </div>
+        </div>
+      </div>
+      ` : ''}
+
       <!-- 면책 조항 -->
       <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-4">
         <div class="flex items-start space-x-2">
@@ -648,8 +855,17 @@ class SkinAnalyzer {
     ];
     
     sections.forEach(sectionId => {
-      document.getElementById(sectionId).classList.add('hidden');
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.classList.add('hidden');
+      }
     });
+
+    // 동적 생성된 error-section도 제거
+    const errorSection = document.getElementById('error-section');
+    if (errorSection) {
+      errorSection.remove();
+    }
   }
 
   // 근처 피부관리실 찾기
