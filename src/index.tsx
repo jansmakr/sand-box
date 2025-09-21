@@ -656,9 +656,37 @@ app.get('/', (c) => {
       <header className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
         <div className="px-4 py-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <div className="text-2xl">🧴</div>
-              <h1 className="text-xl font-bold text-gray-800">성분 분석기</h1>
+            <div className="flex items-center space-x-3">
+              {/* 셀픽 로고 */}
+              <div className="flex-shrink-0">
+                <svg width="32" height="32" viewBox="0 0 32 32" className="drop-shadow-sm">
+                  {/* 배경 원 */}
+                  <circle cx="16" cy="16" r="15" fill="url(#logoGradient)" stroke="#ffffff" strokeWidth="1"/>
+                  {/* 셀 (Cell) 모티브 - 화장품 용기 */}
+                  <rect x="11" y="8" width="10" height="16" rx="2" fill="#ffffff" opacity="0.9"/>
+                  <rect x="12" y="9" width="8" height="14" rx="1" fill="url(#containerGradient)"/>
+                  {/* 픽 (Pick) 모티브 - 체크마크 */}
+                  <path d="M13.5 15l2 2 3-4" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+                  {/* 그라데이션 정의 */}
+                  <defs>
+                    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#9333ea"/>
+                      <stop offset="100%" stopColor="#ec4899"/>
+                    </linearGradient>
+                    <linearGradient id="containerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#a855f7"/>
+                      <stop offset="100%" stopColor="#f472b6"/>
+                    </linearGradient>
+                  </defs>
+                </svg>
+              </div>
+              {/* 로고명과 카피 */}
+              <div className="flex flex-col">
+                <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent leading-tight">
+                  셀픽
+                </h1>
+                <p className="text-xs text-gray-500 leading-none">화장품도 스스로 픽!</p>
+              </div>
             </div>
             <button id="history-btn" className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
               <i className="fas fa-history text-lg"></i>
