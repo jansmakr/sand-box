@@ -96,6 +96,9 @@ class SkinAnalyzer {
 
   async startCamera() {
     try {
+      // 먼저 기본 권한 요청으로 테스트
+      await this.requestCameraPermission();
+      
       // 사용 가능한 카메라 목록 확인
       await this.detectAvailableCameras();
       
@@ -103,12 +106,34 @@ class SkinAnalyzer {
       this.hideAllSections();
       document.getElementById('camera-section').classList.remove('hidden');
       
-      // 기본적으로 후면 카메라로 시작
+      // 기본적으로 후면 카메라로 시작 (권한이 이미 허용됨)
       await this.switchToCamera('environment');
       
     } catch (error) {
       console.error('카메라 초기화 오류:', error);
-      alert('카메라에 접근할 수 없습니다. 권한을 확인해주세요.');
+      
+      if (error.name === 'NotAllowedError') {
+        this.handleCameraPermissionDenied();
+      } else {
+        this.showCameraErrorModal(error);
+      }
+    }
+  }
+
+  // 카메라 권한 사전 요청
+  async requestCameraPermission() {
+    try {
+      // 매우 기본적인 설정으로 권한만 요청하고 바로 스트림 종료
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { width: 320, height: 240 } 
+      });
+      
+      // 권한 획득 후 즉시 종료
+      stream.getTracks().forEach(track => track.stop());
+      
+      return true;
+    } catch (error) {
+      throw error; // 상위에서 처리
     }
   }
 
@@ -205,30 +230,51 @@ class SkinAnalyzer {
       
       // 권한 관련 오류인지 확인
       if (error.name === 'NotAllowedError') {
+        console.log('권한이 거부됨 - 권한 안내 모달 표시');
         this.handleCameraPermissionDenied();
         return;
       }
       
-      // 기타 오류 시 기본 설정으로 재시도
-      try {
-        const fallbackStream = await navigator.mediaDevices.getUserMedia({
-          video: { width: { ideal: 1280 }, height: { ideal: 720 } }
-        });
-        
-        this.currentStream = fallbackStream;
-        this.video.srcObject = fallbackStream;
-        this.updateCameraStatus('⚠️ 기본 카메라로 연결됨');
-        
-      } catch (fallbackError) {
-        console.error('기본 카메라도 실패:', fallbackError);
-        
-        if (fallbackError.name === 'NotAllowedError') {
-          this.handleCameraPermissionDenied();
-        } else {
-          this.updateCameraStatus('❌ 카메라 연결 실패');
-          this.showCameraErrorModal(fallbackError);
+      // deviceId 관련 오류인 경우 facingMode만 사용해서 재시도
+      if (error.name === 'OverconstrainedError' || error.name === 'NotFoundError') {
+        try {
+          console.log('기본 제약 조건으로 재시도');
+          const fallbackStream = await navigator.mediaDevices.getUserMedia({
+            video: { 
+              facingMode: { ideal: facingMode },
+              width: { ideal: 1280 }, 
+              height: { ideal: 720 } 
+            }
+          });
+          
+          this.currentStream = fallbackStream;
+          this.video.srcObject = fallbackStream;
+          
+          // 전면 카메라인 경우 좌우 반전 적용
+          if (facingMode === 'user') {
+            this.video.style.transform = 'scaleX(-1)';
+            this.updateCameraStatus('🤳 전면 카메라 활성화 (기본 설정)');
+          } else {
+            this.video.style.transform = 'scaleX(1)';
+            this.updateCameraStatus('📸 후면 카메라 활성화 (기본 설정)');
+          }
+          
+          this.updateCameraButtons(facingMode);
+          return;
+          
+        } catch (fallbackError) {
+          console.error('기본 설정도 실패:', fallbackError);
+          
+          if (fallbackError.name === 'NotAllowedError') {
+            this.handleCameraPermissionDenied();
+            return;
+          }
         }
       }
+      
+      // 최종 실패 시 오류 처리
+      this.updateCameraStatus('❌ 카메라 연결 실패');
+      this.showCameraErrorModal(error);
     }
   }
 

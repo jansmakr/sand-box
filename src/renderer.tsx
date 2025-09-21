@@ -24,11 +24,13 @@ export const renderer = jsxRenderer(({ children }) => {
         <link rel="dns-prefetch" href="https://cdn.tailwindcss.com" />
         <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />
         
-        {/* Tailwind CSS - 개발용 CDN (프로덕션에서는 빌드된 CSS 사용) */}
-        <script src="https://cdn.tailwindcss.com"></script>
+
         
         {/* Font Awesome */}
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+        
+        {/* Tailwind CSS - 로컬 빌드 버전 */}
+        <link href="/static/tailwind.css" rel="stylesheet" />
         
         {/* Custom CSS */}
         <link href="/static/style.css" rel="stylesheet" />
