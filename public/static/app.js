@@ -552,12 +552,36 @@ class SkinAnalyzer {
     const unknownIngredients = ingredients.filter(i => i.safety === 'unknown');
 
     resultsContent.innerHTML = `
+      <!-- 부분 분석 경고 (있는 경우만 표시) -->
+      ${results.partialAnalysis ? `
+        <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-4 mb-4">
+          <div class="flex items-start space-x-3">
+            <div class="text-amber-500 text-xl mt-0.5">⚠️</div>
+            <div class="flex-1">
+              <h4 class="text-sm font-bold text-amber-800 mb-2">${results.warningMessage || '일부 성분만 인식되었습니다'}</h4>
+              <p class="text-xs text-amber-700 mb-3">현재 이미지 품질로는 ${results.ingredients.length}개 성분만 분석할 수 있었어요. 더 정확한 분석을 원하시면 아래 제안사항을 참고해주세요.</p>
+              ${results.suggestions && results.suggestions.length > 0 ? `
+                <div class="space-y-1">
+                  ${results.suggestions.map(suggestion => `
+                    <div class="flex items-start space-x-2">
+                      <div class="text-amber-500 text-xs mt-0.5">•</div>
+                      <p class="text-xs text-amber-700 leading-relaxed">${suggestion}</p>
+                    </div>
+                  `).join('')}
+                </div>
+              ` : ''}
+            </div>
+          </div>
+        </div>
+      ` : ''}
+
       <!-- 분석 요약 카드 -->
       <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4 mb-4">
         <div class="flex items-center justify-between mb-3">
           <h4 class="text-base font-bold text-gray-800 flex items-center space-x-2">
             <span>📈</span>
             <span>분석 요약</span>
+            ${results.partialAnalysis ? '<span class="text-xs text-amber-600">(부분 분석)</span>' : ''}
           </h4>
           ${results.ocrConfidence ? `
             <div class="text-xs px-2 py-1 rounded-full ${

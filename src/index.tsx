@@ -242,73 +242,53 @@ function evaluateImageQuality(imageBuffer: ArrayBuffer) {
 // 간단한 OCR 시뮬레이션 함수 (실제로는 외부 OCR API 사용)
 function simulateOCR(imageBuffer: ArrayBuffer) {
   const quality = evaluateImageQuality(imageBuffer);
-  
-  // 이미지 품질이 좋지 않은 경우 구체적인 피드백 제공
-  if (!quality.canReadText) {
-    let errorMessage = '';
-    let suggestions = [];
-    
-    if (!quality.hasText) {
-      errorMessage = '이미지에서 텍스트를 찾을 수 없습니다';
-      suggestions = [
-        '성분표가 화면에 포함되었는지 확인해주세요',
-        '화장품 뒷면의 성분 목록 부분을 촬영해주세요',
-        '제품 전체보다는 성분표 부분만 촬영하시면 더 정확합니다'
-      ];
-    } else if (quality.isBlurry) {
-      errorMessage = '이미지가 흐려서 글씨를 읽을 수 없습니다';
-      suggestions = [
-        '카메라를 흔들지 말고 안정적으로 촬영해주세요',
-        '초점이 맞을 때까지 기다린 후 촬영해주세요',
-        '손떨림 방지를 위해 양손으로 촬영하시거나 지지대를 활용해보세요'
-      ];
-    } else if (quality.isLowLight) {
-      errorMessage = '조명이 부족해서 글씨를 읽기 어렵습니다';
-      suggestions = [
-        '밝은 곳에서 촬영해주세요',
-        '플래시를 켜거나 조명을 추가해보세요',
-        '창가나 조명 아래에서 촬영하면 더 좋습니다'
-      ];
-    } else if (quality.isTooFar) {
-      errorMessage = '글씨가 너무 작아서 읽을 수 없습니다';
-      suggestions = [
-        '성분표에 더 가까이 다가가서 촬영해주세요',
-        '성분 목록 부분만 화면에 가득 차도록 촬영해보세요',
-        '줌 기능을 활용하여 글씨가 선명하게 보이도록 해주세요'
-      ];
-    } else {
-      errorMessage = '이미지 품질이 좋지 않아 글씨를 읽을 수 없습니다';
-      suggestions = [
-        '조명이 밝은 곳에서 다시 촬영해주세요',
-        '카메라를 성분표에 더 가까이 대고 촬영해주세요',
-        '성분표가 평평하고 선명하게 보이도록 각도를 조절해주세요'
-      ];
-    }
-    
-    return {
-      success: false,
-      error: errorMessage,
-      suggestions: suggestions,
-      ingredients: []
-    };
-  }
-  
-  // 품질이 좋은 경우 성분 추출
   const allIngredients = Object.keys(INGREDIENT_DATABASE);
-  const detectedCount = Math.floor(Math.random() * 4) + 2; // 2-5개 성분 (적은 수로 조정)
   
-  // 인식된 성분이 너무 적은 경우 추가 안내
-  if (detectedCount < 3) {
+  // 품질에 따른 성분 인식 개수 결정
+  let detectedCount = 0;
+  let partialAnalysis = false;
+  let warningMessage = '';
+  
+  if (quality.canReadText) {
+    // 품질이 좋은 경우: 많은 성분 인식
+    detectedCount = Math.floor(Math.random() * 4) + 4; // 4-7개 성분
+  } else if (!quality.hasText) {
+    // 텍스트를 전혀 찾을 수 없는 경우
     return {
       success: false,
-      error: '인식된 성분이 부족합니다',
+      error: '🔍 이미지에서 성분표를 찾을 수 없습니다',
       suggestions: [
-        '성분표 전체가 화면에 포함되도록 촬영해주세요',
-        '성분 목록이 모두 보이는지 확인해주세요',
-        '여러 줄로 된 성분표의 경우 전체가 포함되도록 해주세요'
+        '화장품 뒷면의 성분 목록 부분을 정확히 촬영해주세요',
+        '성분표가 화면 중앙에 위치하도록 해주세요',
+        '제품 전체보다는 성분표 부분만 촬영하시면 더 정확합니다'
       ],
       ingredients: []
     };
+  } else {
+    // 품질이 좋지 않지만 부분적으로 분석 가능한 경우
+    partialAnalysis = true;
+    
+    if (quality.isBlurry && quality.isLowLight) {
+      detectedCount = Math.floor(Math.random() * 2) + 1; // 1-2개 성분
+      warningMessage = '📱 이미지가 흐리고 어두워서 일부 성분만 인식되었습니다';
+    } else if (quality.isBlurry) {
+      detectedCount = Math.floor(Math.random() * 3) + 2; // 2-4개 성분
+      warningMessage = '📱 이미지가 흐려서 일부 성분만 인식되었습니다';
+    } else if (quality.isLowLight) {
+      detectedCount = Math.floor(Math.random() * 3) + 2; // 2-4개 성분
+      warningMessage = '💡 조명이 부족해서 일부 성분만 인식되었습니다';
+    } else if (quality.isTooFar) {
+      detectedCount = Math.floor(Math.random() * 2) + 1; // 1-2개 성분
+      warningMessage = '🔍 글씨가 너무 작아서 일부 성분만 인식되었습니다';
+    } else {
+      detectedCount = Math.floor(Math.random() * 2) + 1; // 1-2개 성분
+      warningMessage = '⚠️ 이미지 품질로 인해 일부 성분만 인식되었습니다';
+    }
+  }
+  
+  // 최소 1개 성분은 보장
+  if (detectedCount < 1) {
+    detectedCount = 1;
   }
   
   const selectedIngredients: string[] = [];
@@ -319,10 +299,39 @@ function simulateOCR(imageBuffer: ArrayBuffer) {
     }
   }
   
+  // 부분 분석인 경우 경고 메시지와 개선 제안 포함
+  if (partialAnalysis) {
+    let suggestions = [];
+    
+    if (quality.isBlurry) {
+      suggestions.push('📸 다음엔 카메라를 안정적으로 잡고 초점이 맞을 때까지 기다려주세요');
+    }
+    if (quality.isLowLight) {
+      suggestions.push('💡 밝은 조명 아래에서 촬영하면 더 많은 성분을 인식할 수 있어요');
+    }
+    if (quality.isTooFar) {
+      suggestions.push('🔍 성분표에 더 가까이 다가가서 촬영하면 더 정확한 분석이 가능해요');
+    }
+    
+    if (suggestions.length === 0) {
+      suggestions.push('📱 더 선명한 이미지로 촬영하면 더 많은 성분을 분석할 수 있어요');
+    }
+    
+    return {
+      success: true,
+      ingredients: selectedIngredients,
+      confidence: quality.qualityScore,
+      partialAnalysis: true,
+      warningMessage: warningMessage,
+      suggestions: suggestions
+    };
+  }
+  
   return {
     success: true,
     ingredients: selectedIngredients,
-    confidence: quality.qualityScore
+    confidence: quality.qualityScore,
+    partialAnalysis: false
   };
 }
 
@@ -474,15 +483,21 @@ app.post('/api/analyze', async (c) => {
     // 성분 분석
     const analysisResults = analyzeIngredients(ocrResult.ingredients);
     
-    // 분석 결과에 신뢰도 정보 추가
+    // 분석 결과에 신뢰도 및 부분 분석 정보 추가
     analysisResults.ocrConfidence = ocrResult.confidence;
     analysisResults.detectedIngredientsCount = ocrResult.ingredients.length;
+    analysisResults.partialAnalysis = ocrResult.partialAnalysis;
+    analysisResults.warningMessage = ocrResult.warningMessage;
+    analysisResults.suggestions = ocrResult.suggestions;
 
     return c.json({
       success: true,
       results: analysisResults,
       ocrText: ocrResult.ingredients.join(', '),
-      confidence: ocrResult.confidence
+      confidence: ocrResult.confidence,
+      partialAnalysis: ocrResult.partialAnalysis,
+      warningMessage: ocrResult.warningMessage,
+      suggestions: ocrResult.suggestions
     })
   } catch (error) {
     console.error('Analysis error:', error)
