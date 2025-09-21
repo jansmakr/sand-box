@@ -788,11 +788,11 @@ class SkinAnalyzer {
       <div class="bg-indigo-50 border border-indigo-200 rounded-lg p-4 mb-6">
         <h4 class="text-lg font-semibold mb-3 text-indigo-800">🗺️ 주변 피부 관리 서비스</h4>
         <div class="space-y-3">
-          <button onclick="skinAnalyzer.findNearbyClinics()" 
+          <button onclick="skinAnalyzer.goToSkinCareShop()" 
                   class="w-full bg-indigo-500 text-white py-2 rounded-lg hover:bg-indigo-600 transition-colors">
-            📍 근처 피부관리실 찾기
+            🗺️ 근처 피부관리실 찾기
           </button>
-          <div id="clinics-list" class="hidden space-y-2"></div>
+          <p class="text-xs text-gray-500 text-center">포포샵에서 다양한 피부관리실을 찾아보세요</p>
         </div>
       </div>
 
@@ -892,65 +892,46 @@ class SkinAnalyzer {
     }
   }
 
-  // 근처 피부관리실 찾기
-  async findNearbyClinics() {
-    if (!navigator.geolocation) {
-      alert('위치 서비스를 사용할 수 없습니다.');
-      return;
-    }
 
-    try {
-      const position = await new Promise((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject);
-      });
 
-      const { latitude, longitude } = position.coords;
-      
-      const response = await fetch(`/api/skincare-clinics?lat=${latitude}&lng=${longitude}&radius=5`);
-      const data = await response.json();
-
-      this.displayClinics(data.clinics);
-    } catch (error) {
-      console.error('위치 정보를 가져올 수 없습니다:', error);
-      // Mock 데이터로 대체
-      const response = await fetch('/api/skincare-clinics');
-      const data = await response.json();
-      this.displayClinics(data.clinics);
-    }
+  // 피부관리실 찾기 - pposhop.kr로 이동
+  goToSkinCareShop() {
+    // 새 탭에서 포포샵 열기
+    window.open('https://pposhop.kr', '_blank');
+    
+    // 사용자에게 알림
+    this.showToast('🗺️ 포포샵에서 다양한 피부관리실을 찾아보세요!', 'info');
   }
 
-  // 피부관리실 목록 표시
-  displayClinics(clinics) {
-    const clinicsList = document.getElementById('clinics-list');
+  // 토스트 메시지 표시
+  showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `fixed top-20 left-1/2 transform -translate-x-1/2 z-50 px-4 py-3 rounded-lg shadow-lg text-white text-sm font-medium max-w-xs text-center transition-all duration-300 ${
+      type === 'success' ? 'bg-green-500' :
+      type === 'error' ? 'bg-red-500' :
+      type === 'warning' ? 'bg-yellow-500' :
+      'bg-blue-500'
+    }`;
+    toast.textContent = message;
     
-    if (clinics.length === 0) {
-      clinicsList.innerHTML = '<p class="text-gray-500 text-sm">근처에 등록된 피부관리실이 없습니다.</p>';
-    } else {
-      clinicsList.innerHTML = clinics.map(clinic => `
-        <div class="bg-white p-3 rounded border border-indigo-100">
-          <div class="flex justify-between items-start mb-2">
-            <div>
-              <h5 class="font-semibold text-sm text-indigo-800">${clinic.name}</h5>
-              <p class="text-xs text-indigo-600">${clinic.address}</p>
-              <p class="text-xs text-gray-600">${clinic.phone}</p>
-            </div>
-            <div class="text-right">
-              <div class="text-xs text-yellow-600">⭐ ${clinic.rating} (${clinic.reviews})</div>
-              <div class="text-xs text-indigo-600">${clinic.distance}km</div>
-            </div>
-          </div>
-          <div class="text-xs text-indigo-600 mb-2">
-            <strong>전문분야:</strong> ${clinic.specialties.join(', ')}
-          </div>
-          <a href="${clinic.url}" target="_blank" 
-             class="inline-block bg-indigo-500 text-white text-xs px-3 py-1 rounded hover:bg-indigo-600 transition-colors">
-            상세보기 →
-          </a>
-        </div>
-      `).join('');
-    }
-
-    clinicsList.classList.remove('hidden');
+    document.body.appendChild(toast);
+    
+    // 애니메이션으로 나타나기
+    setTimeout(() => {
+      toast.style.opacity = '1';
+      toast.style.transform = 'translateX(-50%) translateY(0)';
+    }, 100);
+    
+    // 3초 후 자동으로 제거
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateX(-50%) translateY(-20px)';
+      setTimeout(() => {
+        if (toast.parentNode) {
+          toast.parentNode.removeChild(toast);
+        }
+      }, 300);
+    }, 3000);
   }
 
   // 더 많은 제품 보기

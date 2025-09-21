@@ -597,53 +597,12 @@ app.get('/api/products/recommend', async (c) => {
   });
 })
 
-// 근처 피부관리실 찾기 API (Mock 데이터)
+// 근처 피부관리실 찾기 - pposhop.kr로 리디렉션
 app.get('/api/skincare-clinics', async (c) => {
-  const lat = parseFloat(c.req.query('lat') || '37.5665');
-  const lng = parseFloat(c.req.query('lng') || '126.9780');
-  const radius = parseInt(c.req.query('radius') || '5'); // km
-
-  // Mock 데이터 (실제로는 Google Places API나 네이버 지도 API 사용)
-  const mockClinics = [
-    {
-      id: 1,
-      name: '뷰티라인 피부과',
-      address: '서울시 강남구 논현동 123-45',
-      phone: '02-1234-5678',
-      rating: 4.8,
-      reviews: 234,
-      distance: 0.8,
-      specialties: ['여드름치료', '미백', '안티에이징'],
-      url: 'https://example.com/clinic1'
-    },
-    {
-      id: 2,
-      name: '클리어 스킨케어 센터',
-      address: '서울시 강남구 신사동 67-89',
-      phone: '02-2345-6789',
-      rating: 4.6,
-      reviews: 187,
-      distance: 1.2,
-      specialties: ['민감성피부', '아토피', '홈케어상담'],
-      url: 'https://example.com/clinic2'
-    },
-    {
-      id: 3,
-      name: '프리미엄 피부관리실',
-      address: '서울시 강남구 청담동 34-56',
-      phone: '02-3456-7890',
-      rating: 4.7,
-      reviews: 156,
-      distance: 2.1,
-      specialties: ['수분관리', '탄력케어', '맞춤관리'],
-      url: 'https://example.com/clinic3'
-    }
-  ];
-
   return c.json({
-    clinics: mockClinics.filter(clinic => clinic.distance <= radius),
-    searchArea: { lat, lng, radius },
-    total: mockClinics.length
+    redirect: true,
+    url: 'https://pposhop.kr',
+    message: '피부관리실 찾기는 포포샵에서 확인하실 수 있습니다.'
   });
 })
 
