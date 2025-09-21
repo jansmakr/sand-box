@@ -24,7 +24,7 @@ export const renderer = jsxRenderer(({ children }) => {
         <link rel="dns-prefetch" href="https://cdn.tailwindcss.com" />
         <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />
         
-        {/* Tailwind CSS */}
+        {/* Tailwind CSS - 개발용 CDN (프로덕션에서는 빌드된 CSS 사용) */}
         <script src="https://cdn.tailwindcss.com"></script>
         
         {/* Font Awesome */}

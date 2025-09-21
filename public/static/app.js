@@ -203,7 +203,13 @@ class SkinAnalyzer {
     } catch (error) {
       console.error('카메라 전환 오류:', error);
       
-      // 실패 시 기본 설정으로 재시도
+      // 권한 관련 오류인지 확인
+      if (error.name === 'NotAllowedError') {
+        this.handleCameraPermissionDenied();
+        return;
+      }
+      
+      // 기타 오류 시 기본 설정으로 재시도
       try {
         const fallbackStream = await navigator.mediaDevices.getUserMedia({
           video: { width: { ideal: 1280 }, height: { ideal: 720 } }
@@ -215,8 +221,13 @@ class SkinAnalyzer {
         
       } catch (fallbackError) {
         console.error('기본 카메라도 실패:', fallbackError);
-        this.updateCameraStatus('❌ 카메라 연결 실패');
-        alert('카메라에 연결할 수 없습니다. 다른 앱이 카메라를 사용 중이거나 권한이 없을 수 있습니다.');
+        
+        if (fallbackError.name === 'NotAllowedError') {
+          this.handleCameraPermissionDenied();
+        } else {
+          this.updateCameraStatus('❌ 카메라 연결 실패');
+          this.showCameraErrorModal(fallbackError);
+        }
       }
     }
   }
@@ -901,6 +912,90 @@ class SkinAnalyzer {
     
     // 사용자에게 알림
     this.showToast('🗺️ 포포샵에서 다양한 피부관리실을 찾아보세요!', 'info');
+  }
+
+  // 카메라 권한 거부 처리
+  handleCameraPermissionDenied() {
+    this.updateCameraStatus('🔒 카메라 권한 필요');
+    this.showCameraPermissionModal();
+  }
+
+  // 카메라 권한 안내 모달
+  showCameraPermissionModal() {
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4';
+    modal.innerHTML = `
+      <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl">
+        <div class="text-center mb-6">
+          <div class="w-16 h-16 mx-auto mb-3 bg-red-100 rounded-full flex items-center justify-center">
+            <span class="text-2xl">🔒</span>
+          </div>
+          <h3 class="text-lg font-bold text-gray-800 mb-2">카메라 권한이 필요해요</h3>
+          <p class="text-sm text-gray-600 leading-relaxed">성분표 촬영을 위해 카메라 접근 권한을 허용해주세요</p>
+        </div>
+
+        <div class="space-y-3 mb-6 text-xs text-gray-600">
+          <div class="flex items-start space-x-2">
+            <span class="text-blue-500 mt-0.5">1️⃣</span>
+            <p>브라우저 주소창 옆 🔒 아이콘을 클릭하세요</p>
+          </div>
+          <div class="flex items-start space-x-2">
+            <span class="text-blue-500 mt-0.5">2️⃣</span>
+            <p>카메라를 "허용"으로 변경해주세요</p>
+          </div>
+          <div class="flex items-start space-x-2">
+            <span class="text-blue-500 mt-0.5">3️⃣</span>
+            <p>페이지를 새로고침하고 다시 시도해주세요</p>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <button onclick="location.reload()" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 rounded-xl font-medium">
+            페이지 새로고침
+          </button>
+          <button id="close-permission-modal" class="w-full bg-gray-100 text-gray-700 py-3 rounded-xl font-medium">
+            갤러리에서 선택하기
+          </button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    // 닫기 이벤트
+    const closeBtn = modal.querySelector('#close-permission-modal');
+    closeBtn?.addEventListener('click', () => {
+      modal.remove();
+      this.showHomePage();
+      // 갤러리 선택 버튼 클릭
+      document.getElementById('upload-btn')?.click();
+    });
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.remove();
+        this.showHomePage();
+      }
+    });
+  }
+
+  // 카메라 오류 모달
+  showCameraErrorModal(error) {
+    const errorMessages = {
+      'NotFoundError': '카메라를 찾을 수 없습니다',
+      'NotReadableError': '카메라가 이미 다른 앱에서 사용 중입니다',
+      'OverconstrainedError': '요청한 카메라 설정을 지원하지 않습니다',
+      'SecurityError': '보안 설정으로 인해 카메라에 접근할 수 없습니다'
+    };
+
+    const message = errorMessages[error.name] || '카메라 연결 중 오류가 발생했습니다';
+    
+    this.showToast(`❌ ${message}`, 'error');
+    
+    // 홈으로 돌아가기
+    setTimeout(() => {
+      this.showHomePage();
+    }, 3000);
   }
 
   // 토스트 메시지 표시
