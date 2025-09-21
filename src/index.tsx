@@ -10,95 +10,74 @@ app.use('/api/*', cors())
 // Use renderer for HTML pages
 app.use(renderer)
 
-// 확장된 성분 데이터베이스
+// 실제 화장품 성분 데이터베이스 (INCI명 + 한국어명 포함)
 const INGREDIENT_DATABASE = {
-  '히알루론산': { 
-    safety: 'safe', 
-    description: '뛰어난 보습 효과로 피부 수분을 유지하는데 도움을 주는 안전한 성분',
-    benefits: ['보습', '수분공급', '탄력'], 
-    suitableFor: ['건성피부', '민감성피부', '모든피부타입'],
-    category: '보습'
-  },
-  '나이아신아마이드': { 
-    safety: 'safe', 
-    description: '비타민 B3 유도체로 미백, 주름개선, 모공케어에 효과적',
-    benefits: ['미백', '모공축소', '피지조절'],
-    suitableFor: ['지성피부', '복합성피부', '트러블피부'],
-    category: '미백'
-  },
-  '레티놀': { 
-    safety: 'caution', 
-    description: '강력한 안티에이징 성분이지만 초기 자극이 있을 수 있어 주의 필요',
-    benefits: ['주름개선', '탄력', '각질제거'],
-    suitableFor: ['노화피부', '성인피부'],
-    avoidFor: ['임산부', '수유부', '민감성피부'],
-    category: '안티에이징'
-  },
-  '글리콜산': { 
-    safety: 'caution', 
-    description: 'AHA 성분으로 각질 제거 효과가 있으나 자외선 민감성 증가',
-    benefits: ['각질제거', '피부결개선', '모공축소'],
-    suitableFor: ['지성피부', '복합성피부'],
-    avoidFor: ['민감성피부'],
-    category: '각질케어'
-  },
-  '살리실산': { 
-    safety: 'safe', 
-    description: 'BHA 성분으로 모공 깊숙한 각질과 피지 제거에 효과적',
-    benefits: ['여드름케어', '모공케어', '피지조절'],
-    suitableFor: ['지성피부', '트러블피부', '복합성피부'],
-    category: '트러블케어'
-  },
-  '벤조일퍼옥사이드': { 
-    safety: 'caution', 
-    description: '여드름 치료 성분이지만 건조함과 자극을 유발할 수 있음',
-    benefits: ['여드름치료', '항균'],
-    suitableFor: ['트러블피부'],
-    avoidFor: ['건성피부', '민감성피부'],
-    category: '트러블케어'
-  },
-  '하이드로퀴논': { 
-    safety: 'harmful', 
-    description: '강력한 미백 성분이나 장기 사용시 부작용 위험',
-    benefits: ['강력미백'],
-    avoidFor: ['모든피부타입'],
-    category: '미백'
-  },
-  '파라벤': { 
-    safety: 'caution', 
-    description: '방부제 성분으로 일부 사람에게 알레르기 반응 가능',
-    benefits: ['방부'],
-    avoidFor: ['민감성피부', '알레르기피부'],
-    category: '방부제'
-  },
-  '세라마이드': { 
-    safety: 'safe', 
-    description: '피부 장벽 강화에 도움을 주는 안전한 보습 성분',
-    benefits: ['장벽강화', '보습', '진정'],
-    suitableFor: ['건성피부', '민감성피부', '손상피부'],
-    category: '보습'
-  },
-  '비타민C': { 
-    safety: 'safe', 
-    description: '항산화 및 미백 효과가 있는 안전한 성분',
-    benefits: ['항산화', '미백', '콜라겐생성'],
-    suitableFor: ['모든피부타입', '노화피부'],
-    category: '항산화'
-  },
-  '펜톡시에탄올': { 
-    safety: 'safe', 
-    description: '안전한 방부제 성분으로 제품 보존에 사용',
-    benefits: ['방부'],
-    suitableFor: ['모든피부타입'],
-    category: '방부제'
-  },
-  '토코페롤': { 
-    safety: 'safe', 
-    description: '비타민E로 항산화 효과가 있는 안전한 성분',
-    benefits: ['항산화', '보습', '진정'],
-    suitableFor: ['모든피부타입'],
-    category: '항산화'
-  }
+  // === 기본 베이스 성분 ===
+  'Water': { safety: 'safe', description: '정제수, 화장품의 기본 베이스', benefits: ['베이스'], category: '베이스', koreanName: '정제수' },
+  'Aqua': { safety: 'safe', description: '정제수, 화장품의 기본 베이스', benefits: ['베이스'], category: '베이스', koreanName: '정제수' },
+  '정제수': { safety: 'safe', description: '화장품의 가장 기본적인 베이스 성분', benefits: ['베이스'], category: '베이스', englishName: 'Water' },
+  'Glycerin': { safety: 'safe', description: '글리세린, 강력한 보습제', benefits: ['보습', '수분공급'], suitableFor: ['모든피부'], category: '보습제', koreanName: '글리세린' },
+  '글리세린': { safety: 'safe', description: '강력한 보습 효과를 가진 안전한 성분', benefits: ['보습', '수분공급'], suitableFor: ['모든피부'], category: '보습제', englishName: 'Glycerin' },
+  'Butylene Glycol': { safety: 'safe', description: '부틸렌글라이콜, 보습 및 용제 역할', benefits: ['보습', '용제'], category: '보습제', koreanName: '부틸렌글라이콜' },
+  '부틸렌글라이콜': { safety: 'safe', description: '보습 및 용제 역할을 하는 성분', benefits: ['보습', '용제'], category: '보습제', englishName: 'Butylene Glycol' },
+  
+  // === 보습 성분 ===
+  'Hyaluronic Acid': { safety: 'safe', description: '히알루론산, 1000배 수분 보유력', benefits: ['보습', '수분공급'], suitableFor: ['모든피부'], category: '보습제', koreanName: '히알루론산' },
+  '히알루론산': { safety: 'safe', description: '뛰어난 보습 효과로 피부 수분을 유지', benefits: ['보습', '수분공급', '탄력'], suitableFor: ['건성피부', '민감성피부'], category: '보습제', englishName: 'Hyaluronic Acid' },
+  'Sodium Hyaluronate': { safety: 'safe', description: '히알루론산나트륨, 저분자 히알루론산', benefits: ['보습', '수분공급'], suitableFor: ['모든피부'], category: '보습제', koreanName: '히알루론산나트륨' },
+  'Ceramide NP': { safety: 'safe', description: '세라마이드NP, 피부장벽강화', benefits: ['장벽강화', '보습'], suitableFor: ['건성피부', '민감성피부'], category: '보습제', koreanName: '세라마이드NP' },
+  '세라마이드': { safety: 'safe', description: '피부 장벽 강화에 도움을 주는 안전한 보습 성분', benefits: ['장벽강화', '보습', '진정'], suitableFor: ['건성피부', '민감성피부'], category: '보습제', englishName: 'Ceramide' },
+  'Squalane': { safety: 'safe', description: '스쿠알란, 가벼운 오일 보습제', benefits: ['보습', '유연'], suitableFor: ['모든피부'], category: '보습제', koreanName: '스쿠알란' },
+  
+  // === 항산화 성분 ===
+  'Vitamin C': { safety: 'safe', description: '비타민C, 강력한 항산화 및 미백', benefits: ['항산화', '미백', '콜라겐생성'], suitableFor: ['모든피부'], category: '항산화제', koreanName: '비타민C' },
+  '비타민C': { safety: 'safe', description: '항산화 및 미백 효과가 있는 안전한 성분', benefits: ['항산화', '미백', '콜라겐생성'], suitableFor: ['모든피부타입'], category: '항산화제', englishName: 'Vitamin C' },
+  'Ascorbic Acid': { safety: 'safe', description: '아스코르빈산, 순수 비타민C', benefits: ['항산화', '미백'], suitableFor: ['모든피부'], category: '항산화제', koreanName: '아스코르빈산' },
+  'Tocopherol': { safety: 'safe', description: '토코페롤, 천연 비타민E', benefits: ['항산화', '보습'], suitableFor: ['모든피부'], category: '항산화제', koreanName: '토코페롤' },
+  '토코페롤': { safety: 'safe', description: '비타민E로 항산화 효과가 있는 안전한 성분', benefits: ['항산화', '보습', '진정'], suitableFor: ['모든피부타입'], category: '항산화제', englishName: 'Tocopherol' },
+  'Niacinamide': { safety: 'safe', description: '나이아신아마이드, 비타민B3', benefits: ['미백', '모공축소', '피지조절'], suitableFor: ['지성피부', '트러블피부'], category: '미백제', koreanName: '나이아신아마이드' },
+  '나이아신아마이드': { safety: 'safe', description: '비타민 B3 유도체로 미백, 주름개선, 모공케어에 효과적', benefits: ['미백', '모공축소', '피지조절'], suitableFor: ['지성피부', '복합성피부'], category: '미백제', englishName: 'Niacinamide' },
+  
+  // === 안티에이징 성분 ===
+  'Retinol': { safety: 'caution', description: '레티놀, 강력한 안티에이징 성분', benefits: ['주름개선', '탄력', '각질제거'], suitableFor: ['노화피부'], avoidFor: ['임산부', '수유부', '민감성피부'], category: '안티에이징', koreanName: '레티놀' },
+  '레티놀': { safety: 'caution', description: '강력한 안티에이징 성분이지만 초기 자극이 있을 수 있어 주의 필요', benefits: ['주름개선', '탄력', '각질제거'], suitableFor: ['노화피부', '성인피부'], avoidFor: ['임산부', '수유부', '민감성피부'], category: '안티에이징', englishName: 'Retinol' },
+  'Adenosine': { safety: 'safe', description: '아데노신, 주름개선 기능성 원료', benefits: ['주름개선'], suitableFor: ['노화피부'], category: '안티에이징', koreanName: '아데노신' },
+  'Peptides': { safety: 'safe', description: '펩타이드, 콜라겐 생성 촉진', benefits: ['주름개선', '탄력'], suitableFor: ['노화피부'], category: '안티에이징', koreanName: '펩타이드' },
+  
+  // === 각질제거제 ===
+  'Glycolic Acid': { safety: 'caution', description: '글리콜산, 강력한 AHA 각질제거제', benefits: ['각질제거', '피부결개선'], suitableFor: ['지성피부'], avoidFor: ['민감성피부'], category: '각질제거제', koreanName: '글리콜산' },
+  '글리콜산': { safety: 'caution', description: 'AHA 성분으로 각질 제거 효과가 있으나 자외선 민감성 증가', benefits: ['각질제거', '피부결개선', '모공축소'], suitableFor: ['지성피부'], avoidFor: ['민감성피부'], category: '각질제거제', englishName: 'Glycolic Acid' },
+  'Salicylic Acid': { safety: 'safe', description: '살리실산, BHA 모공각질제거제', benefits: ['여드름케어', '모공케어'], suitableFor: ['지성피부', '트러블피부'], category: '각질제거제', koreanName: '살리실산' },
+  '살리실산': { safety: 'safe', description: 'BHA 성분으로 모공 깊숙한 각질과 피지 제거에 효과적', benefits: ['여드름케어', '모공케어', '피지조절'], suitableFor: ['지성피부', '트러블피부'], category: '각질제거제', englishName: 'Salicylic Acid' },
+  'Lactic Acid': { safety: 'safe', description: '락틱산, 순한 AHA 각질제거제', benefits: ['각질제거', '보습'], suitableFor: ['민감성피부'], category: '각질제거제', koreanName: '락틱산' },
+  
+  // === 진정 성분 ===
+  'Panthenol': { safety: 'safe', description: '판테놀, 프로비타민B5 진정보습제', benefits: ['진정', '보습'], suitableFor: ['민감성피부'], category: '진정제', koreanName: '판테놀' },
+  'Centella Asiatica Extract': { safety: 'safe', description: '센텔라아시아티카추출물, 강력한 진정 효과', benefits: ['진정', '상처치유'], suitableFor: ['민감성피부', '트러블피부'], category: '진정제', koreanName: '센텔라아시아티카추출물' },
+  'Aloe Barbadensis Leaf Extract': { safety: 'safe', description: '알로에베라잎추출물, 진정 및 보습', benefits: ['진정', '보습'], suitableFor: ['민감성피부'], category: '진정제', koreanName: '알로에베라잎추출물' },
+  'Allantoin': { safety: 'safe', description: '알란토인, 진정 및 상처치유', benefits: ['진정', '상처치유'], suitableFor: ['민감성피부'], category: '진정제', koreanName: '알란토인' },
+  
+  // === 자외선차단제 ===
+  'Zinc Oxide': { safety: 'safe', description: '징크옥사이드, 물리적 자외선차단제', benefits: ['자외선차단'], suitableFor: ['민감성피부', '아기피부'], category: '자외선차단제', koreanName: '징크옥사이드' },
+  'Titanium Dioxide': { safety: 'safe', description: '티타늄디옥사이드, 물리적 자외선차단제', benefits: ['자외선차단'], suitableFor: ['민감성피부'], category: '자외선차단제', koreanName: '티타늄디옥사이드' },
+  
+  // === 방부제 ===
+  'Phenoxyethanol': { safety: 'safe', description: '페녹시에탄올, 안전한 방부제', benefits: ['방부'], category: '방부제', koreanName: '페녹시에탄올' },
+  '페녹시에탄올': { safety: 'safe', description: '안전한 방부제 성분으로 제품 보존에 사용', benefits: ['방부'], suitableFor: ['모든피부타입'], category: '방부제', englishName: 'Phenoxyethanol' },
+  'Ethylhexylglycerin': { safety: 'safe', description: '에틸헥실글리세린, 방부제 및 컨디셔닝제', benefits: ['방부', '컨디셔닝'], category: '방부제', koreanName: '에틸헥실글리세린' },
+  'Methylparaben': { safety: 'caution', description: '메틸파라벤, 파라벤계 방부제', benefits: ['방부'], avoidFor: ['민감성피부'], category: '방부제', koreanName: '메틸파라벤' },
+  '파라벤': { safety: 'caution', description: '방부제 성분으로 일부 사람에게 알레르기 반응 가능', benefits: ['방부'], avoidFor: ['민감성피부'], category: '방부제', englishName: 'Paraben' },
+  
+  // === 유화제/계면활성제 ===
+  'Cetearyl Alcohol': { safety: 'safe', description: '세테아릴알코올, 지방알코올 유화제', benefits: ['유화'], category: '유화제', koreanName: '세테아릴알코올' },
+  '세테아릴알코올': { safety: 'safe', description: '지방알코올 유화제, 안전한 성분', benefits: ['유화'], category: '유화제', englishName: 'Cetearyl Alcohol' },
+  'Stearic Acid': { safety: 'safe', description: '스테아릭산, 지방산 유화제', benefits: ['유화'], category: '유화제', koreanName: '스테아릭산' },
+  'Dimethicone': { safety: 'safe', description: '디메치콘, 실리콘 보습 및 보호막', benefits: ['보습', '보호'], category: '실리콘', koreanName: '디메치콘' },
+  '디메치콘': { safety: 'safe', description: '실리콘 보습 및 보호막 형성', benefits: ['보습', '보호'], category: '실리콘', englishName: 'Dimethicone' },
+  
+  // === 기타 활성성분 ===
+  'Benzoyl Peroxide': { safety: 'caution', description: '벤조일퍼옥사이드, 여드름 치료제', benefits: ['여드름치료', '항균'], suitableFor: ['트러블피부'], avoidFor: ['건성피부', '민감성피부'], category: '트러블케어', koreanName: '벤조일퍼옥사이드' },
+  'Hydroquinone': { safety: 'harmful', description: '하이드로퀴논, 강력한 미백제이나 부작용 위험', benefits: ['강력미백'], avoidFor: ['모든피부타입'], category: '미백제', koreanName: '하이드로퀴논' }
 }
 
 // 피부 타입별 추천 성분
@@ -219,14 +198,85 @@ const HOMECARE_SITES = [
   }
 ]
 
-// OCR 품질 평가 함수
+// 이미지 전처리 함수들
+function preprocessImageForOCR(canvas: HTMLCanvasElement, originalImageData: ImageData): ImageData {
+  const ctx = canvas.getContext('2d')!;
+  const imageData = ctx.createImageData(originalImageData);
+  const data = imageData.data;
+  const originalData = originalImageData.data;
+  
+  // 1. 대비 및 밝기 조정
+  const contrast = 1.5; // 대비 증가
+  const brightness = 20; // 밝기 증가
+  
+  for (let i = 0; i < originalData.length; i += 4) {
+    // RGB 각 채널에 대해 대비와 밝기 조정
+    data[i] = Math.min(255, Math.max(0, contrast * originalData[i] + brightness));     // R
+    data[i + 1] = Math.min(255, Math.max(0, contrast * originalData[i + 1] + brightness)); // G  
+    data[i + 2] = Math.min(255, Math.max(0, contrast * originalData[i + 2] + brightness)); // B
+    data[i + 3] = originalData[i + 3]; // A (투명도)
+  }
+  
+  return imageData;
+}
+
+// 선명도 개선 함수 (언샤프 마스킹 시뮬레이션)
+function enhanceSharpness(imageData: ImageData): ImageData {
+  const data = imageData.data;
+  const width = imageData.width;
+  const height = imageData.height;
+  
+  // 간단한 선명화 필터 적용
+  for (let y = 1; y < height - 1; y++) {
+    for (let x = 1; x < width - 1; x++) {
+      const idx = (y * width + x) * 4;
+      
+      // 각 RGB 채널에 대해 선명화 적용
+      for (let c = 0; c < 3; c++) {
+        const center = data[idx + c];
+        const surrounding = (
+          data[((y-1) * width + (x-1)) * 4 + c] + data[((y-1) * width + x) * 4 + c] + data[((y-1) * width + (x+1)) * 4 + c] +
+          data[(y * width + (x-1)) * 4 + c] + data[(y * width + (x+1)) * 4 + c] +
+          data[((y+1) * width + (x-1)) * 4 + c] + data[((y+1) * width + x) * 4 + c] + data[((y+1) * width + (x+1)) * 4 + c]
+        ) / 8;
+        
+        // 언샤프 마스킹: 원본 + (원본 - 블러된 이미지) * 강도
+        const enhanced = center + (center - surrounding) * 0.5;
+        data[idx + c] = Math.min(255, Math.max(0, enhanced));
+      }
+    }
+  }
+  
+  return imageData;
+}
+
+// 텍스트 영역 감지 개선 함수
+function detectTextRegions(imageBuffer: ArrayBuffer): { regions: Array<{x: number, y: number, width: number, height: number}>, confidence: number } {
+  // 실제로는 OpenCV.js나 Tesseract.js를 사용하여 텍스트 영역을 감지
+  // 현재는 시뮬레이션으로 성분표 영역 추정
+  
+  const mockRegions = [
+    { x: 10, y: 50, width: 300, height: 400 }, // 주요 성분표 영역
+    { x: 20, y: 450, width: 280, height: 100 }  // 추가 성분 정보 영역
+  ];
+  
+  return {
+    regions: mockRegions,
+    confidence: Math.random() * 0.3 + 0.7 // 70-100% 신뢰도
+  };
+}
+
+// OCR 품질 평가 함수 (향상된 버전)
 function evaluateImageQuality(imageBuffer: ArrayBuffer) {
   // 실제로는 이미지 선명도, 해상도, 조명 등을 분석
-  // 현재는 시뮬레이션으로 랜덤하게 품질 평가
-  const qualityScore = Math.random();
-  const hasText = Math.random() > 0.15; // 85% 확률로 텍스트 인식
-  const isBlurry = Math.random() < 0.2; // 20% 확률로 흐림
-  const isLowLight = Math.random() < 0.15; // 15% 확률로 조명 부족
+  // 향상된 품질 평가 로직
+  const fileSize = imageBuffer.byteLength;
+  const qualityScore = Math.min(1, fileSize / (1024 * 1024)); // 파일 크기 기반 품질 추정
+  
+  // 더 정교한 품질 평가
+  const hasText = qualityScore > 0.1; // 파일 크기가 충분한 경우 텍스트 있음으로 판단
+  const isBlurry = qualityScore < 0.3; // 작은 파일은 흐릿할 가능성
+  const isLowLight = qualityScore < 0.2; // 매우 작은 파일은 조명 부족
   const isTooFar = Math.random() < 0.1; // 10% 확률로 너무 멀어서 글씨가 작음
   
   return {
@@ -291,11 +341,44 @@ function simulateOCR(imageBuffer: ArrayBuffer) {
     detectedCount = 1;
   }
   
+  // 실제적인 성분 선택 로직 (빈도가 높은 성분 우선)
+  const commonIngredients = [
+    'Water', 'Glycerin', 'Butylene Glycol', 'Phenoxyethanol', 'Cetearyl Alcohol',
+    'Dimethicone', 'Niacinamide', 'Hyaluronic Acid', 'Panthenol', 'Tocopherol',
+    '정제수', '글리세린', '부틸렌글라이콜', '페녹시에탄올', '세테아릴알코올',
+    '디메치콘', '나이아신아마이드', '히알루론산', '세라마이드'
+  ];
+  
+  const functionalIngredients = [
+    'Retinol', 'Vitamin C', 'Salicylic Acid', 'Glycolic Acid', 'Adenosine',
+    'Centella Asiatica Extract', 'Zinc Oxide', 'Titanium Dioxide',
+    '레티놀', '비타민C', '살리실산', '글리콜산'
+  ];
+  
   const selectedIngredients: string[] = [];
-  for (let i = 0; i < detectedCount; i++) {
-    const randomIngredient = allIngredients[Math.floor(Math.random() * allIngredients.length)];
-    if (!selectedIngredients.includes(randomIngredient)) {
-      selectedIngredients.push(randomIngredient);
+  
+  // 기본 성분 우선 선택 (70% 확률)
+  const basicCount = Math.ceil(detectedCount * 0.7);
+  for (let i = 0; i < basicCount && selectedIngredients.length < detectedCount; i++) {
+    const ingredient = commonIngredients[Math.floor(Math.random() * commonIngredients.length)];
+    if (!selectedIngredients.includes(ingredient) && INGREDIENT_DATABASE[ingredient]) {
+      selectedIngredients.push(ingredient);
+    }
+  }
+  
+  // 기능성 성분 추가 (30% 확률)
+  while (selectedIngredients.length < detectedCount) {
+    const isFunction = Math.random() < 0.3;
+    const sourceArray = isFunction ? functionalIngredients : allIngredients;
+    const ingredient = sourceArray[Math.floor(Math.random() * sourceArray.length)];
+    
+    if (!selectedIngredients.includes(ingredient) && INGREDIENT_DATABASE[ingredient]) {
+      selectedIngredients.push(ingredient);
+    }
+    
+    // 무한 루프 방지
+    if (selectedIngredients.length === 0 && allIngredients.length > 0) {
+      selectedIngredients.push(allIngredients[0]);
     }
   }
   
@@ -777,9 +860,12 @@ app.get('/', (c) => {
               </div>
             </div>
 
-            {/* 하단 힌트 */}
-            <div className="text-center text-white/80 text-xs mt-4">
-              <p>📱 성분표가 선명히 보이도록 촬영해주세요</p>
+            {/* 하단 정확한 촬영 가이드 */}
+            <div className="text-center text-white/90 text-xs mt-4 space-y-1">
+              <p className="font-medium">🎯 정확한 전성분 인식을 위한 촬영법</p>
+              <p>• 💡 밝은 곳에서 그림자 없이 촬영</p>
+              <p>• 📏 성분 글씨가 화면에 가득 차도록 근접</p>
+              <p>• 📐 성분표가 수평이 되도록 각도 조정</p>
             </div>
           </div>
         </div>
@@ -899,7 +985,14 @@ app.get('/', (c) => {
               <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-full flex items-center justify-center text-sm font-bold">1</div>
               <div>
                 <h4 className="font-semibold text-gray-800 mb-1">성분표 촬영</h4>
-                <p className="text-sm text-gray-600">화장품 뒷면의 성분표를 선명하게 촬영하거나 갤러리에서 선택하세요</p>
+                <p className="text-sm text-gray-600 mb-2">화장품 뒷면의 전성분 목록을 정확하게 촬영해주세요</p>
+                <div className="text-xs text-gray-500 space-y-1">
+                  <p>• 📱 성분표만 화면에 가득 차도록 근접 촬영</p>
+                  <p>• 💡 밝은 조명 아래에서 그림자 없이 촬영</p>
+                  <p>• 📏 성분 글씨가 선명하게 보이도록 초점 맞춤</p>
+                  <p>• 📐 성분표가 수평이 되도록 각도 조정</p>
+                  <p>• 🔍 "전성분" 표기가 포함되도록 촬영 권장</p>
+                </div>
               </div>
             </div>
             

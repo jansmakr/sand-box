@@ -1,0 +1,20 @@
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <!-- 배경 원 -->
+  <circle cx="16" cy="16" r="15" fill="url(#logoGradient)" stroke="#ffffff" stroke-width="1"/>
+  <!-- 셀 (Cell) 모티브 - 화장품 용기 -->
+  <rect x="11" y="8" width="10" height="16" rx="2" fill="#ffffff" opacity="0.9"/>
+  <rect x="12" y="9" width="8" height="14" rx="1" fill="url(#containerGradient)"/>
+  <!-- 픽 (Pick) 모티브 - 체크마크 -->
+  <path d="M13.5 15l2 2 3-4" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <!-- 그라데이션 정의 -->
+  <defs>
+    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#9333ea"/>
+      <stop offset="100%" stop-color="#ec4899"/>
+    </linearGradient>
+    <linearGradient id="containerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a855f7"/>
+      <stop offset="100%" stop-color="#f472b6"/>
+    </linearGradient>
+  </defs>
+</svg>

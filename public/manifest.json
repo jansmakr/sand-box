@@ -1,0 +1,34 @@
+{
+  "name": "셀픽 - 화장품도 스스로 픽!",
+  "short_name": "셀픽",
+  "description": "화장품 성분분석, 이젠 화장품도 스스로 픽! 셀픽 📱 카메라로 성분표 촬영하면 AI가 안전성 분석하고 맞춤 제품을 추천해드립니다",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#9333ea",
+  "orientation": "portrait",
+  "categories": ["health", "lifestyle", "utilities"],
+  "lang": "ko",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot-mobile.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ]
+}
