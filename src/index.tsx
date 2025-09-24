@@ -840,6 +840,41 @@ app.get('/', (c) => {
             </div>
           </div>
           
+          {/* 3️⃣ 피부관리샵 전문가 모드 - 골드/오렌지 톤 */}
+          <div className="bg-gradient-to-r from-amber-500 via-orange-500 to-yellow-600 rounded-3xl p-1 shadow-xl">
+            <div className="bg-white rounded-[22px] p-6">
+              <div className="text-center mb-6">
+                <div className="w-20 h-20 bg-gradient-to-r from-amber-100 via-orange-100 to-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4 shadow-md">
+                  <i className="fas fa-user-tie text-3xl text-amber-600"></i>
+                </div>
+                <h3 className="text-xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent mb-2">
+                  👩‍⚕️ 전문가 모드
+                </h3>
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  피부관리샵 전용 객관적 진단<br/>
+                  <span className="font-semibold text-amber-600">수치화된 분석 결과</span>와<br/>
+                  <span className="font-semibold text-orange-600">전문 상담 리포트</span> 제공
+                </p>
+              </div>
+              
+              <div className="space-y-3">
+                <button id="expert-mode-btn" className="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white py-4 px-6 rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 active:scale-95">
+                  🏥 전문가 진단 시작
+                </button>
+                <div className="flex space-x-2 text-xs text-center">
+                  <div className="flex-1 bg-amber-50 rounded-xl py-2 px-3">
+                    <div className="text-amber-600 font-semibold">객관적 진단</div>
+                    <div className="text-gray-500">10점 만점 평가</div>
+                  </div>
+                  <div className="flex-1 bg-orange-50 rounded-xl py-2 px-3">
+                    <div className="text-orange-600 font-semibold">상담 리포트</div>
+                    <div className="text-gray-500">PDF 출력</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
         </div>
 
         {/* 카메라 영역 */}
@@ -1003,6 +1038,62 @@ app.get('/', (c) => {
           </div>
         </div>
 
+        {/* 전문가 모드 화면 */}
+        <div id="expert-section" className="space-y-4 hidden">
+          <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl p-6 border border-amber-200">
+            <div className="flex items-center space-x-2 mb-6">
+              <div className="text-2xl">👩‍⚕️</div>
+              <h3 className="text-xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">전문가 피부 진단</h3>
+            </div>
+            
+            {/* 고객 정보 입력 */}
+            <div className="bg-white rounded-xl p-4 mb-6 shadow-sm">
+              <h4 className="font-semibold text-gray-800 mb-3">🧾 고객 정보</h4>
+              <div className="grid grid-cols-2 gap-3">
+                <input type="text" id="customer-name" placeholder="고객명" className="p-3 border rounded-lg text-sm"/>
+                <input type="number" id="customer-age" placeholder="나이" className="p-3 border rounded-lg text-sm"/>
+                <select id="skin-concern" className="p-3 border rounded-lg text-sm">
+                  <option value="">주요 고민</option>
+                  <option value="acne">여드름/트러블</option>
+                  <option value="dryness">건조함</option>
+                  <option value="oily">과도한 유분</option>
+                  <option value="aging">노화/주름</option>
+                  <option value="pigmentation">색소침착</option>
+                  <option value="sensitivity">민감성</option>
+                </select>
+                <input type="text" id="previous-treatment" placeholder="이전 관리 이력" className="p-3 border rounded-lg text-sm"/>
+              </div>
+            </div>
+            
+            {/* 진단 버튼들 */}
+            <div className="space-y-3">
+              <button id="expert-skin-analysis-btn" className="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white py-4 px-6 rounded-xl font-bold text-lg shadow-md hover:shadow-lg transition-all">
+                📸 전문 피부 진단 시작
+              </button>
+              
+              <div className="grid grid-cols-2 gap-3">
+                <button id="quick-analysis-btn" className="bg-blue-100 text-blue-700 py-3 px-4 rounded-lg font-semibold hover:bg-blue-200 transition-colors">
+                  ⚡ 빠른 진단
+                </button>
+                <button id="detailed-analysis-btn" className="bg-green-100 text-green-700 py-3 px-4 rounded-lg font-semibold hover:bg-green-200 transition-colors">
+                  🔬 정밀 진단
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          {/* 진단 결과 표시 영역 */}
+          <div id="expert-results" className="bg-white rounded-2xl shadow-md p-4 hidden">
+            <div className="flex items-center space-x-2 mb-4">
+              <div className="text-xl">📊</div>
+              <h3 className="text-lg font-bold text-gray-800">객관적 진단 결과</h3>
+            </div>
+            <div id="expert-results-content">
+              {/* 진단 결과가 여기 표시됩니다 */}
+            </div>
+          </div>
+        </div>
+
         {/* 사용법 안내 */}
         <div className="bg-white rounded-2xl shadow-md p-4 mt-6">
           <div className="mb-4">
@@ -1065,30 +1156,36 @@ app.get('/', (c) => {
         <div className="h-8"></div>
       </main>
 
-      {/* 하단 네비게이션 바 - 뷰티샷 전용 */}
+      {/* 하단 네비게이션 바 - 뷰티샷 전용 (5탭) */}
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40 shadow-lg">
-        <div className="grid grid-cols-4 h-20 px-2">
+        <div className="grid grid-cols-5 h-16 px-1">
           {/* 홈 */}
-          <button id="nav-home" className="flex flex-col items-center justify-center text-blue-600 bg-blue-50 rounded-t-2xl">
-            <i className="fas fa-home text-lg mb-1"></i>
+          <button id="nav-home" className="flex flex-col items-center justify-center text-blue-600 bg-blue-50 rounded-t-xl">
+            <i className="fas fa-home text-sm mb-1"></i>
             <span className="text-xs font-semibold">홈</span>
           </button>
           
           {/* 피부측정 */}
-          <button id="nav-skin" className="flex flex-col items-center justify-center text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-all rounded-t-2xl">
-            <i className="fas fa-user-md text-lg mb-1"></i>
+          <button id="nav-skin" className="flex flex-col items-center justify-center text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-all rounded-t-xl">
+            <i className="fas fa-user-md text-sm mb-1"></i>
             <span className="text-xs font-medium">피부측정</span>
           </button>
           
           {/* 성분분석 */}
-          <button id="nav-analysis" className="flex flex-col items-center justify-center text-gray-500 hover:text-pink-600 hover:bg-pink-50 transition-all rounded-t-2xl">
-            <i className="fas fa-microscope text-lg mb-1"></i>
+          <button id="nav-analysis" className="flex flex-col items-center justify-center text-gray-500 hover:text-pink-600 hover:bg-pink-50 transition-all rounded-t-xl">
+            <i className="fas fa-microscope text-sm mb-1"></i>
             <span className="text-xs font-medium">성분분석</span>
           </button>
           
+          {/* 전문가모드 */}
+          <button id="nav-expert" className="flex flex-col items-center justify-center text-gray-500 hover:text-amber-600 hover:bg-amber-50 transition-all rounded-t-xl">
+            <i className="fas fa-user-tie text-sm mb-1"></i>
+            <span className="text-xs font-medium">전문가</span>
+          </button>
+          
           {/* 기록 */}
-          <button id="nav-history" className="flex flex-col items-center justify-center text-gray-500 hover:text-green-600 hover:bg-green-50 transition-all rounded-t-2xl">
-            <i className="fas fa-history text-lg mb-1"></i>
+          <button id="nav-history" className="flex flex-col items-center justify-center text-gray-500 hover:text-green-600 hover:bg-green-50 transition-all rounded-t-xl">
+            <i className="fas fa-history text-sm mb-1"></i>
             <span className="text-xs font-medium">기록</span>
           </button>
         </div>

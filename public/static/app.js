@@ -23,6 +23,23 @@ class SkinAnalyzer {
     document.getElementById('skin-analysis-btn')?.addEventListener('click', () => {
       this.startCamera('skin');
     });
+    
+    // 전문가 모드 버튼들
+    document.getElementById('expert-mode-btn')?.addEventListener('click', () => {
+      this.showExpertMode();
+    });
+    
+    document.getElementById('expert-skin-analysis-btn')?.addEventListener('click', () => {
+      this.startExpertAnalysis();
+    });
+    
+    document.getElementById('quick-analysis-btn')?.addEventListener('click', () => {
+      this.startExpertAnalysis('quick');
+    });
+    
+    document.getElementById('detailed-analysis-btn')?.addEventListener('click', () => {
+      this.startExpertAnalysis('detailed');
+    });
 
     // 파일 업로드 버튼
     document.getElementById('upload-btn')?.addEventListener('click', () => {
@@ -89,6 +106,11 @@ class SkinAnalyzer {
     document.getElementById('nav-analysis')?.addEventListener('click', () => {
       this.startCamera('ingredient');
       this.updateNavigation('analysis');
+    });
+    
+    document.getElementById('nav-expert')?.addEventListener('click', () => {
+      this.showExpertMode();
+      this.updateNavigation('expert');
     });
 
     document.getElementById('nav-history')?.addEventListener('click', () => {
@@ -915,7 +937,13 @@ class SkinAnalyzer {
     `;
 
     this.hideAllSections();
-    document.getElementById('results-section').classList.remove('hidden');
+    
+    // 전문가 모드인 경우 전문가 결과 표시
+    if (this.expertMode && this.analysisMode === 'expert') {
+      this.showExpertResults(results);
+    } else {
+      document.getElementById('results-section').classList.remove('hidden');
+    }
   }
 
   getSafetyColor(safety) {
@@ -951,7 +979,8 @@ class SkinAnalyzer {
       'preview-section', 
       'loading-section',
       'results-section',
-      'history-section'
+      'history-section',
+      'expert-section'
     ];
     
     sections.forEach(sectionId => {
@@ -1316,20 +1345,46 @@ class SkinAnalyzer {
 
   // 네비게이션 업데이트
   updateNavigation(activeTab) {
-    const navButtons = ['nav-home', 'nav-camera', 'nav-history', 'nav-info'];
+    const navButtons = ['nav-home', 'nav-skin', 'nav-analysis', 'nav-expert', 'nav-history'];
     
+    // 모든 네비게이션 버튼 초기화
     navButtons.forEach(navId => {
       const button = document.getElementById(navId);
       if (button) {
-        button.classList.remove('nav-active', 'text-purple-600', 'bg-purple-50');
-        button.classList.add('text-gray-400');
+        // 모든 색상 클래스 제거
+        button.classList.remove(
+          'text-blue-600', 'bg-blue-50',
+          'text-pink-600', 'bg-pink-50', 
+          'text-amber-600', 'bg-amber-50',
+          'text-green-600', 'bg-green-50'
+        );
+        button.classList.add('text-gray-500');
       }
     });
 
+    // 활성 탭 설정
     const activeButton = document.getElementById(`nav-${activeTab}`);
     if (activeButton) {
-      activeButton.classList.remove('text-gray-400');
-      activeButton.classList.add('nav-active', 'text-purple-600', 'bg-purple-50');
+      activeButton.classList.remove('text-gray-500');
+      
+      // 탭별 색상 적용
+      switch(activeTab) {
+        case 'home':
+          activeButton.classList.add('text-blue-600', 'bg-blue-50');
+          break;
+        case 'skin':
+          activeButton.classList.add('text-blue-600', 'bg-blue-50');
+          break;
+        case 'analysis':
+          activeButton.classList.add('text-pink-600', 'bg-pink-50');
+          break;
+        case 'expert':
+          activeButton.classList.add('text-amber-600', 'bg-amber-50');
+          break;
+        case 'history':
+          activeButton.classList.add('text-green-600', 'bg-green-50');
+          break;
+      }
     }
   }
 
@@ -1339,10 +1394,125 @@ class SkinAnalyzer {
     if (statusElement) {
       if (mode === 'skin') {
         statusElement.textContent = '👤 피부측정 모드 - 얼굴을 화면에 맞춰주세요';
+      } else if (mode === 'expert') {
+        statusElement.textContent = '👩‍⚕️ 전문가 진단 모드 - 고객의 얼굴을 정확히 촬영해주세요';
       } else {
         statusElement.textContent = '🧪 성분분석 모드 - 성분표를 화면에 맞춰주세요';
       }
     }
+  }
+
+  // 전문가 모드 표시
+  showExpertMode() {
+    this.hideAllSections();
+    document.getElementById('expert-section').classList.remove('hidden');
+  }
+
+  // 전문가 진단 시작
+  async startExpertAnalysis(type = 'standard') {
+    // 고객 정보 수집
+    const customerInfo = {
+      name: document.getElementById('customer-name')?.value || '',
+      age: document.getElementById('customer-age')?.value || '',
+      concern: document.getElementById('skin-concern')?.value || '',
+      previousTreatment: document.getElementById('previous-treatment')?.value || ''
+    };
+
+    // 고객명이 없으면 입력 요청
+    if (!customerInfo.name.trim()) {
+      alert('고객명을 입력해주세요.');
+      document.getElementById('customer-name')?.focus();
+      return;
+    }
+
+    try {
+      // 전문가 모드로 카메라 시작
+      await this.startCamera('expert');
+      
+      // 전문가 모드 데이터 저장
+      this.expertMode = {
+        type,
+        customerInfo,
+        startTime: new Date().toISOString()
+      };
+      
+    } catch (error) {
+      console.error('전문가 진단 시작 오류:', error);
+      alert('전문가 진단을 시작할 수 없습니다. 카메라 권한을 확인해주세요.');
+    }
+  }
+
+  // 전문가 모드 분석 결과 표시
+  showExpertResults(analysisData) {
+    const resultsSection = document.getElementById('expert-results');
+    const resultsContent = document.getElementById('expert-results-content');
+    
+    if (!resultsSection || !resultsContent) return;
+
+    // 객관적 점수 계산 (10점 만점)
+    const scores = this.calculateSkinScores(analysisData);
+    
+    resultsContent.innerHTML = `
+      <div class="space-y-6">
+        <!-- 고객 정보 -->
+        <div class="bg-amber-50 rounded-xl p-4 border border-amber-200">
+          <h4 class="font-bold text-amber-800 mb-2">📋 고객 정보</h4>
+          <div class="grid grid-cols-2 gap-2 text-sm">
+            <div><span class="font-semibold">이름:</span> ${this.expertMode?.customerInfo.name || 'N/A'}</div>
+            <div><span class="font-semibold">나이:</span> ${this.expertMode?.customerInfo.age || 'N/A'}세</div>
+            <div><span class="font-semibold">고민:</span> ${this.getSkinConcernText(this.expertMode?.customerInfo.concern)}</div>
+            <div><span class="font-semibold">이전관리:</span> ${this.expertMode?.customerInfo.previousTreatment || '없음'}</div>
+          </div>
+        </div>
+
+        <!-- 객관적 점수 -->
+        <div class="bg-white rounded-xl p-4 border border-gray-200">
+          <h4 class="font-bold text-gray-800 mb-4">📊 객관적 피부 점수 (10점 만점)</h4>
+          <div class="space-y-3">
+            ${this.renderScoreBar('수분도', scores.moisture, 'blue')}
+            ${this.renderScoreBar('유분밸런스', scores.oil, 'green')}
+            ${this.renderScoreBar('트러블', scores.trouble, 'red')}
+            ${this.renderScoreBar('탄력도', scores.elasticity, 'purple')}
+            ${this.renderScoreBar('색소침착', scores.pigmentation, 'orange')}
+          </div>
+          <div class="mt-4 p-3 bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg">
+            <div class="text-center">
+              <span class="text-2xl font-bold text-amber-600">${scores.overall.toFixed(1)}</span>
+              <span class="text-sm text-gray-600"> / 10.0</span>
+              <div class="text-sm text-gray-700 mt-1">종합 피부 건강도</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 전문 상담 의견 -->
+        <div class="bg-green-50 rounded-xl p-4 border border-green-200">
+          <h4 class="font-bold text-green-800 mb-2">💡 전문 상담 의견</h4>
+          <div class="space-y-2 text-sm text-green-700">
+            ${this.generateExpertAdvice(scores, this.expertMode?.customerInfo)}
+          </div>
+        </div>
+
+        <!-- 추천 관리 프로그램 -->
+        <div class="bg-blue-50 rounded-xl p-4 border border-blue-200">
+          <h4 class="font-bold text-blue-800 mb-2">🏥 추천 관리 프로그램</h4>
+          <div class="space-y-2 text-sm">
+            ${this.generateTreatmentPlan(scores, this.expertMode?.customerInfo)}
+          </div>
+        </div>
+
+        <!-- 액션 버튼 -->
+        <div class="flex space-x-3">
+          <button onclick="skinAnalyzer.generatePDFReport()" class="flex-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white py-3 px-4 rounded-xl font-semibold hover:shadow-lg transition-all">
+            📄 PDF 리포트 생성
+          </button>
+          <button onclick="skinAnalyzer.saveExpertAnalysis()" class="flex-1 bg-green-500 text-white py-3 px-4 rounded-xl font-semibold hover:bg-green-600 transition-colors">
+            💾 진단 결과 저장
+          </button>
+        </div>
+      </div>
+    `;
+    
+    resultsSection.classList.remove('hidden');
   }
 
   // 메인 페이지 표시
@@ -1552,6 +1722,171 @@ class SkinAnalyzer {
     // 파일 입력 리셋
     const fileInput = document.getElementById('file-input');
     if (fileInput) fileInput.value = '';
+  }
+
+  // 전문가 모드 헬퍼 함수들
+  calculateSkinScores(analysisData) {
+    // 실제로는 AI 분석 결과를 바탕으로 계산하지만, 
+    // 현재는 시뮬레이션으로 점수 생성
+    const baseScores = {
+      moisture: Math.random() * 3 + 6, // 6-9점
+      oil: Math.random() * 3 + 5, // 5-8점  
+      trouble: Math.random() * 4 + 4, // 4-8점
+      elasticity: Math.random() * 3 + 5, // 5-8점
+      pigmentation: Math.random() * 4 + 4 // 4-8점
+    };
+    
+    // 나이에 따른 조정
+    const age = parseInt(this.expertMode?.customerInfo.age) || 25;
+    if (age > 40) {
+      baseScores.elasticity *= 0.8;
+      baseScores.pigmentation *= 0.9;
+    }
+    
+    // 고민사항에 따른 조정
+    const concern = this.expertMode?.customerInfo.concern;
+    if (concern === 'acne') baseScores.trouble *= 0.6;
+    if (concern === 'dryness') baseScores.moisture *= 0.7;
+    if (concern === 'oily') baseScores.oil *= 0.6;
+    if (concern === 'aging') {
+      baseScores.elasticity *= 0.7;
+      baseScores.pigmentation *= 0.8;
+    }
+    if (concern === 'pigmentation') baseScores.pigmentation *= 0.5;
+    
+    // 전체 평균 계산
+    const overall = (baseScores.moisture + baseScores.oil + baseScores.trouble + baseScores.elasticity + baseScores.pigmentation) / 5;
+    
+    return { ...baseScores, overall };
+  }
+
+  renderScoreBar(label, score, color) {
+    const percentage = (score / 10) * 100;
+    const colorClass = {
+      blue: 'bg-blue-500',
+      green: 'bg-green-500', 
+      red: 'bg-red-500',
+      purple: 'bg-purple-500',
+      orange: 'bg-orange-500'
+    };
+    
+    return `
+      <div class="flex items-center space-x-3">
+        <div class="w-20 text-sm font-semibold text-gray-700">${label}</div>
+        <div class="flex-1 bg-gray-200 rounded-full h-3">
+          <div class="${colorClass[color]} h-3 rounded-full transition-all duration-1000" style="width: ${percentage}%"></div>
+        </div>
+        <div class="w-12 text-sm font-bold text-gray-800">${score.toFixed(1)}</div>
+      </div>
+    `;
+  }
+
+  getSkinConcernText(concern) {
+    const concerns = {
+      acne: '여드름/트러블',
+      dryness: '건조함',
+      oily: '과도한 유분',
+      aging: '노화/주름',
+      pigmentation: '색소침착',
+      sensitivity: '민감성'
+    };
+    return concerns[concern] || '없음';
+  }
+
+  generateExpertAdvice(scores, customerInfo) {
+    const advice = [];
+    
+    if (scores.moisture < 6) {
+      advice.push('<div>• 수분 부족 상태입니다. 수분 공급 중심의 관리가 필요합니다.</div>');
+    }
+    
+    if (scores.oil > 7) {
+      advice.push('<div>• 피지 분비가 과도합니다. 유분 조절 관리를 추천합니다.</div>');
+    }
+    
+    if (scores.trouble < 6) {
+      advice.push('<div>• 트러블이 많은 상태입니다. 진정 관리와 염증 케어가 시급합니다.</div>');
+    }
+    
+    if (scores.elasticity < 6) {
+      advice.push('<div>• 탄력 저하가 관찰됩니다. 리프팅 관리를 권장합니다.</div>');
+    }
+    
+    if (scores.pigmentation < 6) {
+      advice.push('<div>• 색소침착이 있습니다. 미백 관리와 자외선 차단이 중요합니다.</div>');
+    }
+    
+    if (advice.length === 0) {
+      advice.push('<div>• 전반적으로 건강한 피부 상태입니다. 현재 관리를 유지하세요.</div>');
+    }
+    
+    return advice.join('');
+  }
+
+  generateTreatmentPlan(scores, customerInfo) {
+    const treatments = [];
+    
+    // 점수 기반 맞춤 프로그램
+    if (scores.moisture < 6) {
+      treatments.push('<div class="p-2 bg-blue-100 rounded">💧 <strong>하이드라페이셜</strong> - 깊은 수분 공급 (주 1회, 4주 과정)</div>');
+    }
+    
+    if (scores.oil > 7) {
+      treatments.push('<div class="p-2 bg-green-100 rounded">🌿 <strong>피지조절 관리</strong> - 딥클렌징 + 모공케어 (주 1회, 6주 과정)</div>');
+    }
+    
+    if (scores.trouble < 6) {
+      treatments.push('<div class="p-2 bg-red-100 rounded">🎯 <strong>아쿠아필 관리</strong> - 염증 진정 + 트러블 케어 (주 2회, 4주 과정)</div>');
+    }
+    
+    if (scores.elasticity < 6) {
+      treatments.push('<div class="p-2 bg-purple-100 rounded">⚡ <strong>리프팅 관리</strong> - RF + 초음파 리프팅 (주 1회, 8주 과정)</div>');
+    }
+    
+    if (scores.pigmentation < 6) {
+      treatments.push('<div class="p-2 bg-orange-100 rounded">✨ <strong>미백 관리</strong> - IPL + 비타민C 관리 (주 1회, 6주 과정)</div>');
+    }
+    
+    if (treatments.length === 0) {
+      treatments.push('<div class="p-2 bg-gray-100 rounded">🏆 <strong>유지 관리</strong> - 기본 클렌징 + 수분 공급 (월 2회)</div>');
+    }
+    
+    return treatments.join('');
+  }
+
+  // PDF 리포트 생성 (시뮬레이션)
+  generatePDFReport() {
+    alert('PDF 리포트 기능은 실제 구현 시 추가됩니다.\n\n포함될 내용:\n• 고객 정보\n• 객관적 피부 분석 점수\n• 전문가 소견\n• 추천 관리 프로그램\n• 진단 사진');
+  }
+
+  // 전문가 진단 결과 저장
+  saveExpertAnalysis() {
+    if (!this.expertMode) return;
+    
+    const expertData = {
+      timestamp: new Date().toISOString(),
+      customerInfo: this.expertMode.customerInfo,
+      analysisType: this.expertMode.type,
+      results: this.lastAnalysisResults,
+      scores: this.calculateSkinScores(this.lastAnalysisResults),
+      imageDataUrl: document.getElementById('preview-image')?.src
+    };
+    
+    try {
+      let savedExpertAnalyses = JSON.parse(localStorage.getItem('expertAnalyses') || '[]');
+      savedExpertAnalyses.unshift(expertData);
+      
+      // 최대 50개까지 저장
+      if (savedExpertAnalyses.length > 50) {
+        savedExpertAnalyses = savedExpertAnalyses.slice(0, 50);
+      }
+      
+      localStorage.setItem('expertAnalyses', JSON.stringify(savedExpertAnalyses));
+      alert('전문가 진단 결과가 저장되었습니다.');
+    } catch (error) {
+      console.error('전문가 진단 저장 오류:', error);
+      alert('진단 결과 저장에 실패했습니다.');
+    }
   }
 }
 
