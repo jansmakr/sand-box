@@ -14,9 +14,14 @@ class SkinAnalyzer {
   }
 
   initEventListeners() {
-    // 카메라 버튼
+    // 화장품 성분분석 카메라 버튼
     document.getElementById('camera-btn')?.addEventListener('click', () => {
-      this.startCamera();
+      this.startCamera('ingredient');
+    });
+    
+    // 피부측정 버튼
+    document.getElementById('skin-analysis-btn')?.addEventListener('click', () => {
+      this.startCamera('skin');
     });
 
     // 파일 업로드 버튼
@@ -75,9 +80,15 @@ class SkinAnalyzer {
       this.updateNavigation('home');
     });
 
-    document.getElementById('nav-camera')?.addEventListener('click', () => {
-      this.startCamera();
-      this.updateNavigation('camera');
+    // 새로운 네비게이션 버튼들
+    document.getElementById('nav-skin')?.addEventListener('click', () => {
+      this.startCamera('skin');
+      this.updateNavigation('skin');
+    });
+    
+    document.getElementById('nav-analysis')?.addEventListener('click', () => {
+      this.startCamera('ingredient');
+      this.updateNavigation('analysis');
     });
 
     document.getElementById('nav-history')?.addEventListener('click', () => {
@@ -85,6 +96,7 @@ class SkinAnalyzer {
       this.updateNavigation('history');
     });
 
+    // 구 버전 호환성을 위해 유지
     document.getElementById('nav-info')?.addEventListener('click', () => {
       this.showInfoPage();
       this.updateNavigation('info');
@@ -94,8 +106,11 @@ class SkinAnalyzer {
     this.initTouchGestures();
   }
 
-  async startCamera() {
+  async startCamera(mode = 'ingredient') {
     try {
+      // 분석 모드 설정 (skin: 피부측정, ingredient: 성분분석)
+      this.analysisMode = mode;
+      
       // 먼저 기본 권한 요청으로 테스트
       await this.requestCameraPermission();
       
@@ -106,8 +121,12 @@ class SkinAnalyzer {
       this.hideAllSections();
       document.getElementById('camera-section').classList.remove('hidden');
       
-      // 기본적으로 후면 카메라로 시작 (권한이 이미 허용됨)
-      await this.switchToCamera('environment');
+      // 모드에 따라 기본 카메라 선택
+      const defaultCamera = mode === 'skin' ? 'user' : 'environment';
+      await this.switchToCamera(defaultCamera);
+      
+      // 카메라 상태 텍스트 업데이트
+      this.updateCameraStatus(mode);
       
     } catch (error) {
       console.error('카메라 초기화 오류:', error);
@@ -1311,6 +1330,18 @@ class SkinAnalyzer {
     if (activeButton) {
       activeButton.classList.remove('text-gray-400');
       activeButton.classList.add('nav-active', 'text-purple-600', 'bg-purple-50');
+    }
+  }
+
+  // 카메라 상태 업데이트 (뷰티샷 통합)
+  updateCameraStatus(mode) {
+    const statusElement = document.getElementById('camera-status');
+    if (statusElement) {
+      if (mode === 'skin') {
+        statusElement.textContent = '👤 피부측정 모드 - 얼굴을 화면에 맞춰주세요';
+      } else {
+        statusElement.textContent = '🧪 성분분석 모드 - 성분표를 화면에 맞춰주세요';
+      }
     }
   }
 

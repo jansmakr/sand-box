@@ -739,10 +739,10 @@ app.get('/', (c) => {
               </div>
               {/* 로고명과 카피 */}
               <div className="flex flex-col">
-                <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent leading-tight">
-                  셀픽
+                <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent leading-tight">
+                  뷰티샷
                 </h1>
-                <p className="text-xs text-gray-500 leading-none">화장품도 스스로 픽!</p>
+                <p className="text-xs text-gray-500 leading-none">피부측정&화장품분석</p>
               </div>
             </div>
             <button id="history-btn" className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
@@ -758,56 +758,88 @@ app.get('/', (c) => {
         <div className="py-4 text-center">
           <div className="mb-3">
             <h2 className="text-lg font-bold text-gray-800 leading-relaxed">
-              "화장품 성분분석, 이젠 화장품도 스스로 픽!<br/>
-              <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">셀픽</span>"
+              "피부측정부터 화장품분석까지!<br/>
+              <span className="bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">뷰티샷</span>에서 모든게 가능해요"
             </h2>
           </div>
           <p className="text-gray-600 text-sm leading-relaxed">
-            화장품 성분표를 촬영하면<br/>
-            <span className="font-semibold text-purple-600">AI가 안전성을 분석</span>하고<br/>
-            <span className="font-semibold text-pink-600">맞춤 제품을 추천</span>해드립니다
+            <span className="font-semibold text-blue-600">📸 피부상태 측정</span>과<br/>
+            <span className="font-semibold text-green-600">🔍 화장품 성분분석</span>을<br/>
+            AI가 동시에 제공합니다
           </p>
         </div>
 
-        {/* 메인 액션 버튼들 */}
-        <div className="space-y-4 mb-8">
-          {/* 카메라 촬영 - 메인 버튼 */}
-          <div className="bg-gradient-to-r from-pink-500 to-purple-600 rounded-2xl p-1 shadow-lg">
-            <div className="bg-white rounded-xl p-6 text-center">
-              <div className="mb-4">
-                <div className="w-16 h-16 bg-gradient-to-r from-pink-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <i className="fas fa-camera text-2xl text-pink-600"></i>
+        {/* 메인 서비스 영역 구분 */}
+        <div className="space-y-6 mb-8">
+          
+          {/* 1️⃣ 피부측정 영역 - 블루/시안 톤 */}
+          <div className="bg-gradient-to-r from-blue-500 via-cyan-500 to-teal-500 rounded-3xl p-1 shadow-xl">
+            <div className="bg-white rounded-[22px] p-6">
+              <div className="text-center mb-6">
+                <div className="w-20 h-20 bg-gradient-to-r from-blue-100 via-cyan-100 to-teal-100 rounded-full flex items-center justify-center mx-auto mb-4 shadow-md">
+                  <i className="fas fa-user-md text-3xl text-blue-600"></i>
                 </div>
-                <h3 className="text-lg font-bold text-gray-800 mb-1">카메라로 촬영</h3>
-                <p className="text-sm text-gray-600 leading-relaxed">성분표를 직접 촬영하여<br/>즉시 분석 시작</p>
+                <h3 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-teal-600 bg-clip-text text-transparent mb-2">
+                  🔬 피부상태 측정
+                </h3>
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  AI가 얼굴을 분석해서<br/>
+                  <span className="font-semibold text-blue-600">피부타입과 상태를 진단</span>하고<br/>
+                  <span className="font-semibold text-cyan-600">맞춤 케어를 추천</span>해드려요
+                </p>
               </div>
-              <button id="camera-btn" className="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white py-4 px-6 rounded-xl font-semibold text-lg shadow-md hover:shadow-lg transition-all transform hover:scale-105 active:scale-95">
-                📸 카메라 시작하기
-              </button>
+              
+              <div className="space-y-3">
+                <button id="skin-analysis-btn" className="w-full bg-gradient-to-r from-blue-500 to-teal-500 text-white py-4 px-6 rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 active:scale-95">
+                  📸 피부측정 시작하기
+                </button>
+                <div className="flex space-x-2 text-xs text-center">
+                  <div className="flex-1 bg-blue-50 rounded-xl py-2 px-3">
+                    <div className="text-blue-600 font-semibold">피부타입</div>
+                    <div className="text-gray-500">지성·건성·복합성</div>
+                  </div>
+                  <div className="flex-1 bg-cyan-50 rounded-xl py-2 px-3">
+                    <div className="text-cyan-600 font-semibold">트러블</div>
+                    <div className="text-gray-500">여드름·색소침착</div>
+                  </div>
+                  <div className="flex-1 bg-teal-50 rounded-xl py-2 px-3">
+                    <div className="text-teal-600 font-semibold">노화도</div>
+                    <div className="text-gray-500">주름·탄력·모공</div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-
-          {/* 갤러리 업로드 */}
-          <div className="bg-white rounded-2xl shadow-md border border-gray-100">
-            <div className="p-6 text-center">
-              <div className="mb-4">
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <i className="fas fa-image text-lg text-blue-600"></i>
+          
+          {/* 2️⃣ 화장품분석 영역 - 핑크/퍼플 톤 */}
+          <div className="bg-gradient-to-r from-pink-500 via-rose-500 to-purple-600 rounded-3xl p-1 shadow-xl">
+            <div className="bg-white rounded-[22px] p-6">
+              <div className="text-center mb-6">
+                <div className="w-20 h-20 bg-gradient-to-r from-pink-100 via-rose-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-4 shadow-md">
+                  <i className="fas fa-microscope text-3xl text-pink-600"></i>
                 </div>
-                <h3 className="text-base font-semibold text-gray-800 mb-1">갤러리에서 선택</h3>
-                <p className="text-sm text-gray-600">저장된 성분표 사진 업로드</p>
+                <h3 className="text-xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent mb-2">
+                  🧪 화장품 성분분석
+                </h3>
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  화장품 성분표를 촬영하면<br/>
+                  <span className="font-semibold text-pink-600">AI가 안전성을 분석</span>하고<br/>
+                  <span className="font-semibold text-purple-600">맞춤 제품을 추천</span>해드려요
+                </p>
               </div>
-              <input 
-                type="file" 
-                id="file-input" 
-                accept="image/*" 
-                className="hidden"
-              />
-              <button id="upload-btn" className="w-full bg-blue-500 text-white py-3 px-6 rounded-xl font-medium hover:bg-blue-600 transition-colors">
-                📁 갤러리에서 선택
-              </button>
+              
+              <div className="space-y-3">
+                <button id="camera-btn" className="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white py-4 px-6 rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 active:scale-95">
+                  📸 성분분석 시작하기
+                </button>
+                <button id="upload-btn" className="w-full bg-gradient-to-r from-rose-400 to-pink-500 text-white py-3 px-6 rounded-xl font-semibold hover:from-rose-500 hover:to-pink-600 transition-all">
+                  📁 갤러리에서 선택
+                </button>
+                <input type="file" id="file-input" accept="image/*" className="hidden"/>
+              </div>
             </div>
           </div>
+          
         </div>
 
         {/* 카메라 영역 */}
@@ -1033,24 +1065,31 @@ app.get('/', (c) => {
         <div className="h-8"></div>
       </main>
 
-      {/* 하단 네비게이션 바 */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40">
-        <div className="grid grid-cols-4 h-16">
-          <button id="nav-home" className="flex flex-col items-center justify-center text-purple-600 bg-purple-50">
-            <i className="fas fa-home text-lg"></i>
-            <span className="text-xs font-medium">홈</span>
+      {/* 하단 네비게이션 바 - 뷰티샷 전용 */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40 shadow-lg">
+        <div className="grid grid-cols-4 h-20 px-2">
+          {/* 홈 */}
+          <button id="nav-home" className="flex flex-col items-center justify-center text-blue-600 bg-blue-50 rounded-t-2xl">
+            <i className="fas fa-home text-lg mb-1"></i>
+            <span className="text-xs font-semibold">홈</span>
           </button>
-          <button id="nav-camera" className="flex flex-col items-center justify-center text-gray-400 hover:text-gray-600 transition-colors">
-            <i className="fas fa-camera text-lg"></i>
-            <span className="text-xs">촬영</span>
+          
+          {/* 피부측정 */}
+          <button id="nav-skin" className="flex flex-col items-center justify-center text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-all rounded-t-2xl">
+            <i className="fas fa-user-md text-lg mb-1"></i>
+            <span className="text-xs font-medium">피부측정</span>
           </button>
-          <button id="nav-history" className="flex flex-col items-center justify-center text-gray-400 hover:text-gray-600 transition-colors">
-            <i className="fas fa-history text-lg"></i>
-            <span className="text-xs">기록</span>
+          
+          {/* 성분분석 */}
+          <button id="nav-analysis" className="flex flex-col items-center justify-center text-gray-500 hover:text-pink-600 hover:bg-pink-50 transition-all rounded-t-2xl">
+            <i className="fas fa-microscope text-lg mb-1"></i>
+            <span className="text-xs font-medium">성분분석</span>
           </button>
-          <button id="nav-info" className="flex flex-col items-center justify-center text-gray-400 hover:text-gray-600 transition-colors">
-            <i className="fas fa-info-circle text-lg"></i>
-            <span className="text-xs">정보</span>
+          
+          {/* 기록 */}
+          <button id="nav-history" className="flex flex-col items-center justify-center text-gray-500 hover:text-green-600 hover:bg-green-50 transition-all rounded-t-2xl">
+            <i className="fas fa-history text-lg mb-1"></i>
+            <span className="text-xs font-medium">기록</span>
           </button>
         </div>
       </nav>

@@ -6,15 +6,15 @@ export const renderer = jsxRenderer(({ children }) => {
       <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-        <title>셀픽 - 화장품도 스스로 픽! | AI 성분 분석기</title>
-        <meta name="description" content="화장품 성분분석, 이젠 화장품도 스스로 픽! 셀픽 📱 카메라로 성분표 촬영하면 AI가 안전성 분석하고 맞춤 제품을 추천해드립니다" />
+        <title>뷰티샷 - 피부측정&화장품분석 | AI 뷰티 전문가</title>
+        <meta name="description" content="뷰티샷에서 피부측정과 화장품분석을 한번에! 📸 AI가 피부상태를 진단하고 화장품 성분을 분석해서 맞춤 뷰티 솔루션을 제공합니다" />
         
         {/* PWA 메타 태그 - 최신 표준 */}
         <meta name="theme-color" content="#9333ea" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="apple-mobile-web-app-title" content="셀픽" />
+        <meta name="apple-mobile-web-app-title" content="뷰티샷" />
         
         {/* Favicon 및 아이콘 */}
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -25,8 +25,8 @@ export const renderer = jsxRenderer(({ children }) => {
         <link rel="manifest" href="/manifest.json" />
         
         {/* 오픈 그래프 메타 태그 */}
-        <meta property="og:title" content="셀픽 - 화장품도 스스로 픽! | AI 성분 분석기" />
-        <meta property="og:description" content="화장품 성분분석, 이젠 화장품도 스스로 픽! 셀픽 📱 카메라로 성분표 촬영하면 AI가 분석해드립니다" />
+        <meta property="og:title" content="뷰티샷 - 피부측정&화장품분석 | AI 뷰티 전문가" />
+        <meta property="og:description" content="뷰티샷에서 피부측정과 화장품분석을 한번에! 📸 AI 뷰티 전문가가 맞춤 솔루션을 제공합니다" />
         <meta property="og:type" content="website" />
         
         {/* 성능 최적화 */}
