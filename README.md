@@ -6,7 +6,7 @@
 - **특징**: 특허기반 요양시설 매칭 서비스
 
 ## 🌐 배포 URL
-- **최신 배포**: https://24d85724.carejoa-webapp.pages.dev
+- **최신 배포**: https://cf35b893.carejoa-webapp.pages.dev
 - **프로젝트**: https://carejoa-webapp.pages.dev
 - **샌드박스**: https://3000-ic0ndu0vzhirrcffo6tky-6532622b.e2b.dev
 - **Android 앱**: https://play.google.com/store/apps/details?id=app.netlify.std_care_joa.twa
@@ -33,8 +33,12 @@
 - ✅ 2단계: 견적 비교
 - ✅ 3단계: 전문 상담
 
-### 4. 파트너 입점 신청
+### 4. 요양시설 입점 신청
 - ✅ 시설명, 시설 유형 선택
+- ✅ **시설 주소 입력** (NEW!)
+  - 시/도 선택 (드롭다운)
+  - 시/군/구 선택 (드롭다운)
+  - 상세주소 입력
 - ✅ 담당자 정보 (이름, 연락처)
 - ✅ 실시간 데이터 저장
 - ✅ 시설 유형: 상급종합병원, 주민센터사회복지, 요양원, 요양병원, 주간보호센터, 그룹홈, 재가복지센터, 한의사왕진서비스, 기타
@@ -57,7 +61,8 @@
 - ✅ 관리자 로그인 (비밀번호: 5874)
 - ✅ 대시보드 통계
 - ✅ 파트너 신청 목록 조회
-- ✅ **지역별 대표 상담센터 관리** (NEW!)
+- ✅ **시설 주소 정보 표시** (NEW!)
+- ✅ **지역별 대표 상담센터 관리**
   - 파트너 시설 중 대표 센터 선택 (체크박스)
   - 시/도 및 시/군/구 지역 설정
   - 지역별 최대 4개 제한
@@ -84,7 +89,7 @@
 
 ## 📊 데이터 아키텍처
 - **데이터 모델**: 
-  - Partners (시설 파트너 신청) - id, regionKey, isRegionalCenter 포함
+  - Partners (시설 파트너 신청) - id, facilitySido, facilitySigungu, facilityAddress, regionKey, isRegionalCenter 포함
   - FamilyCare (가족 간병 신청)
   - RegionalCenters (지역별 대표 상담센터) - 지역별 최대 4개
   - Sessions (관리자 세션)
@@ -125,7 +130,7 @@ npx wrangler pages deploy dist --project-name=carejoa-webapp
 ```
 
 ### 관리자 접속
-- URL: https://24d85724.carejoa-webapp.pages.dev/admin
+- URL: https://cf35b893.carejoa-webapp.pages.dev/admin
 - 비밀번호: 5874
 
 ## 📝 페이지 구조
@@ -161,9 +166,12 @@ npx wrangler pages deploy dist --project-name=carejoa-webapp
 4. 가족 간병이 필요한 경우 "가족간병등록" 버튼 클릭
 
 ### 파트너 (시설 담당자)
-1. 메인 페이지 하단 "파트너 입점 및 등록 신청" 섹션으로 이동
-2. 시설 정보 입력 (시설명, 유형, 담당자 정보)
-3. "파트너 등록 신청" 버튼 클릭
+1. 메인 페이지 하단 "요양시설 입점 신청" 섹션으로 이동
+2. 시설 정보 입력
+   - 시설명, 유형
+   - **시설 주소 (시/도, 시/군/구, 상세주소)** (NEW!)
+   - 담당자 정보
+3. "요양시설 입점 신청" 버튼 클릭
 
 ### 관리자
 1. 우측 상단 또는 모바일 하단 "관리자" 버튼 클릭
@@ -178,9 +186,11 @@ npx wrangler pages deploy dist --project-name=carejoa-webapp
 
 ## 🔄 배포 상태
 - ✅ **활성화**: Cloudflare Pages에 24/7 운영 중
-- ✅ **빌드 완료**: 최신 버전 배포됨 (지역별 전화상담 기능 추가)
+- ✅ **빌드 완료**: 최신 버전 배포됨 (시설 주소 입력 기능 추가)
 - ✅ **Git 저장소**: 초기화 및 커밋 완료
-- **마지막 업데이트**: 2025-10-15 (지역별 전화상담 시스템 추가)
+- **마지막 업데이트**: 2025-10-15
+  - 지역별 전화상담 시스템 추가
+  - 요양시설 입점 신청 폼에 주소 입력 기능 추가 (시/도, 시/군/구, 상세주소)
 
 ## 📈 통계 (공식 데이터)
 - 월 10만+ 이용자
