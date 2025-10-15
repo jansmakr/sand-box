@@ -916,6 +916,9 @@ app.get('/admin/dashboard', async (c) => {
         </div>
       </div>
 
+      {/* Axios CDN - 인라인 스크립트보다 먼저 로드 */}
+      <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
+      
       <script dangerouslySetInnerHTML={{
         __html: `
         // 지역 데이터
