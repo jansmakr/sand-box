@@ -54,7 +54,7 @@ app.get('/', (c) => {
                 <i class="fas fa-heart mr-1"></i>가족간병등록
               </a>
               <a href="#partner-section" class="bg-gray-600 text-white hover:bg-gray-700 px-3 py-2 rounded-lg">
-                <i class="fas fa-handshake mr-1"></i>입점신청
+                <i class="fas fa-handshake mr-1"></i>요양시설입점
               </a>
               <a href="/admin" class="bg-gray-900 text-white hover:bg-black px-3 py-2 rounded-lg">
                 <i class="fas fa-shield-alt mr-1"></i>관리자
@@ -160,7 +160,7 @@ app.get('/', (c) => {
           </a>
           <a href="#partner-section" class="flex flex-col items-center py-2 bg-gray-600 text-white rounded-lg px-1.5 shadow-md">
             <i class="fas fa-handshake text-base mb-1"></i>
-            <span class="text-[10px] font-medium">입점신청</span>
+            <span class="text-[10px] font-medium">시설입점</span>
           </a>
           <a href="/admin" class="flex flex-col items-center py-2 bg-gray-900 text-white rounded-lg px-1.5 shadow-md">
             <i class="fas fa-shield-alt text-base mb-1"></i>
@@ -251,12 +251,12 @@ app.get('/', (c) => {
         </div>
       </section>
 
-      {/* 파트너 입점 섹션 */}
+      {/* 요양시설 입점 섹션 */}
       <section id="partner-section" class="py-20 bg-gradient-to-br from-teal-50 to-emerald-50">
         <div class="max-w-7xl mx-auto px-4">
           <div class="text-center mb-12">
             <h3 class="text-3xl font-bold text-gray-900 mb-4">
-              <i class="fas fa-handshake text-teal-600 mr-3"></i>파트너 입점 및 등록 신청
+              <i class="fas fa-handshake text-teal-600 mr-3"></i>요양시설 입점 신청
             </h3>
             <p class="text-lg text-gray-600">케어조아와 함께 더 많은 고객을 만나보세요</p>
           </div>
@@ -291,6 +291,39 @@ app.get('/', (c) => {
                 </div>
               </div>
               
+              {/* 주소 입력 */}
+              <div class="border-t pt-6">
+                <h4 class="text-lg font-semibold text-gray-900 mb-4">
+                  <i class="fas fa-map-marker-alt mr-2 text-red-500"></i>시설 주소
+                </h4>
+                <div class="grid md:grid-cols-2 gap-6 mb-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                      <i class="fas fa-map mr-1 text-blue-500"></i>시/도*
+                    </label>
+                    <select id="facilitySido" required class="w-full p-3 border rounded-lg">
+                      <option value="">시/도를 선택하세요</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                      <i class="fas fa-map-marker mr-1 text-green-500"></i>시/군/구*
+                    </label>
+                    <select id="facilitySigungu" required class="w-full p-3 border rounded-lg" disabled>
+                      <option value="">시/군/구를 선택하세요</option>
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-home mr-1 text-purple-500"></i>상세주소*
+                  </label>
+                  <input type="text" id="facilityAddress" required 
+                    class="w-full p-3 border rounded-lg" 
+                    placeholder="예: 강남대로 123, 케어빌딩 2층" />
+                </div>
+              </div>
+              
               <div class="grid md:grid-cols-2 gap-6">
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-2">
@@ -308,7 +341,7 @@ app.get('/', (c) => {
               
               <div class="text-center pt-6">
                 <button type="submit" class="bg-gradient-to-r from-teal-600 to-emerald-600 text-white px-12 py-4 rounded-lg hover:from-teal-700 hover:to-emerald-700 transform hover:scale-105 font-bold">
-                  <i class="fas fa-handshake mr-2"></i>파트너 등록 신청
+                  <i class="fas fa-handshake mr-2"></i>요양시설 입점 신청
                 </button>
               </div>
             </form>
@@ -545,12 +578,44 @@ app.get('/', (c) => {
           }
         });
 
+        // 시설 입점 폼 - 시도 옵션 생성
+        const facilitySidoSelect = document.getElementById('facilitySido');
+        Object.keys(regionData).forEach(sido => {
+          const option = document.createElement('option');
+          option.value = sido;
+          option.textContent = sido;
+          facilitySidoSelect.appendChild(option);
+        });
+
+        // 시설 입점 폼 - 시도 선택 시 시군구 로드
+        facilitySidoSelect.addEventListener('change', function() {
+          const facilitySigunguSelect = document.getElementById('facilitySigungu');
+          const sido = this.value;
+          
+          facilitySigunguSelect.innerHTML = '<option value="">시/군/구를 선택하세요</option>';
+          
+          if (sido) {
+            facilitySigunguSelect.disabled = false;
+            regionData[sido].forEach(sigungu => {
+              const option = document.createElement('option');
+              option.value = sigungu;
+              option.textContent = sigungu;
+              facilitySigunguSelect.appendChild(option);
+            });
+          } else {
+            facilitySigunguSelect.disabled = true;
+          }
+        });
+
         // 파트너 폼 제출
         document.getElementById('partnerForm').addEventListener('submit', async (e) => {
           e.preventDefault();
           const data = {
             facilityName: document.getElementById('facilityName').value,
             facilityType: document.getElementById('facilityType').value,
+            facilitySido: document.getElementById('facilitySido').value,
+            facilitySigungu: document.getElementById('facilitySigungu').value,
+            facilityAddress: document.getElementById('facilityAddress').value,
             managerName: document.getElementById('managerName').value,
             managerPhone: document.getElementById('managerPhone').value,
           };
@@ -559,6 +624,7 @@ app.get('/', (c) => {
             const response = await axios.post('/api/partner', data);
             alert(response.data.message);
             e.target.reset();
+            document.getElementById('facilitySigungu').disabled = true;
           } catch (error) {
             alert('신청 중 오류가 발생했습니다.');
           }
@@ -809,6 +875,7 @@ app.get('/admin/dashboard', (c) => {
                   <th class="px-4 py-3 text-left">선택</th>
                   <th class="px-4 py-3 text-left">시설명</th>
                   <th class="px-4 py-3 text-left">유형</th>
+                  <th class="px-4 py-3 text-left">시설 주소</th>
                   <th class="px-4 py-3 text-left">담당자</th>
                   <th class="px-4 py-3 text-left">연락처</th>
                   <th class="px-4 py-3 text-left">지역 설정</th>
@@ -881,6 +948,10 @@ app.get('/admin/dashboard', (c) => {
                 centers.some(c => c.id === p.id)
               );
               
+              const fullAddress = p.facilitySido && p.facilitySigungu 
+                ? \`\${p.facilitySido} \${p.facilitySigungu} \${p.facilityAddress || ''}\`
+                : '미입력';
+              
               return \`
               <tr class="border-t hover:bg-gray-50" id="partner-\${index}">
                 <td class="px-4 py-3">
@@ -891,6 +962,9 @@ app.get('/admin/dashboard', (c) => {
                 </td>
                 <td class="px-4 py-3">\${p.facilityName}</td>
                 <td class="px-4 py-3">\${p.facilityType}</td>
+                <td class="px-4 py-3">
+                  <div class="text-sm">\${fullAddress}</div>
+                </td>
                 <td class="px-4 py-3">\${p.managerName}</td>
                 <td class="px-4 py-3">\${p.managerPhone}</td>
                 <td class="px-4 py-3">
@@ -912,7 +986,7 @@ app.get('/admin/dashboard', (c) => {
                 <td class="px-4 py-3">\${new Date(p.createdAt).toLocaleDateString('ko-KR')}</td>
               </tr>
               \`;
-            }).join('') || '<tr><td colspan="7" class="px-4 py-8 text-center text-gray-500">신청 내역이 없습니다</td></tr>';
+            }).join('') || '<tr><td colspan="8" class="px-4 py-8 text-center text-gray-500">신청 내역이 없습니다</td></tr>';
             
             // 시도 옵션 생성
             partners.forEach((p, index) => {
