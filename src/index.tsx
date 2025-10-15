@@ -7,7 +7,11 @@ import { getCookie, setCookie } from 'hono/cookie'
 const app = new Hono()
 
 const ADMIN_CONFIG = { password: '5874', sessionKey: 'admin_session' }
-const dataStore = { partners: [] as any[], familyCare: [] as any[] }
+const dataStore = { 
+  partners: [] as any[], 
+  familyCare: [] as any[],
+  regionalCenters: {} as Record<string, any[]> // 지역별 대표 상담센터 (최대 4개)
+}
 const sessions = new Set<string>()
 
 function isAdmin(c: any) {
@@ -105,6 +109,11 @@ app.get('/', (c) => {
                    class="flex items-center justify-center bg-white text-black border-2 border-black py-4 px-6 rounded-xl shadow-lg hover:bg-gray-50 transition-all duration-300 transform hover:scale-105">
                   <i class="fas fa-calculator mr-3"></i>실시간 견적 & 상담 신청하기
                 </a>
+                <button 
+                   onclick="document.getElementById('regionalCallModal').classList.remove('hidden')"
+                   class="flex items-center justify-center bg-gradient-to-r from-green-500 to-emerald-500 text-white py-4 px-6 rounded-xl shadow-lg hover:from-green-600 hover:to-emerald-600 transition-all duration-300 transform hover:scale-105">
+                  <i class="fas fa-phone-alt mr-3"></i>지역별 전화상담하기
+                </button>
               </div>
 
               <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 text-sm md:text-base text-gray-600">
@@ -368,8 +377,175 @@ app.get('/', (c) => {
         </div>
       </footer>
 
+      {/* 지역별 전화상담 모달 */}
+      <div id="regionalCallModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div class="sticky top-0 bg-gradient-to-r from-green-500 to-emerald-500 text-white p-6 rounded-t-2xl">
+            <div class="flex justify-between items-center">
+              <h3 class="text-2xl font-bold">
+                <i class="fas fa-phone-alt mr-2"></i>지역별 전화상담
+              </h3>
+              <button onclick="document.getElementById('regionalCallModal').classList.add('hidden')" 
+                      class="text-white hover:text-gray-200 text-2xl">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+            <p class="text-green-100 mt-2">내 지역의 대표 상담센터와 직접 통화하세요</p>
+          </div>
+
+          <div class="p-6 space-y-6">
+            {/* 지역 선택 */}
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                <i class="fas fa-map-marker-alt mr-1 text-green-500"></i>시/도 선택
+              </label>
+              <select id="sidoSelect" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500">
+                <option value="">시/도를 선택하세요</option>
+              </select>
+            </div>
+
+            <div id="sigunguContainer" class="hidden">
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                <i class="fas fa-map-marker-alt mr-1 text-emerald-500"></i>시/군/구 선택
+              </label>
+              <select id="sigunguSelect" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500">
+                <option value="">시/군/구를 선택하세요</option>
+              </select>
+            </div>
+
+            {/* 상담센터 목록 */}
+            <div id="centerListContainer" class="hidden">
+              <h4 class="text-lg font-bold text-gray-900 mb-4">
+                <i class="fas fa-building mr-2 text-green-600"></i>대표 상담센터
+              </h4>
+              <div id="centerList" class="space-y-3"></div>
+            </div>
+
+            {/* 안내 메시지 */}
+            <div id="noResultMessage" class="hidden">
+              <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <p class="text-yellow-800 text-center">
+                  <i class="fas fa-info-circle mr-2"></i>
+                  해당 지역에 등록된 상담센터가 없습니다.<br/>
+                  전체 상담은 <a href="tel:0507-1310-5873" class="text-blue-600 font-bold underline">0507-1310-5873</a>으로 연락주세요.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <script dangerouslySetInnerHTML={{
         __html: `
+        // 전국 시도 및 시군구 데이터
+        const regionData = {
+          "서울특별시": ["강남구", "강동구", "강북구", "강서구", "관악구", "광진구", "구로구", "금천구", "노원구", "도봉구", "동대문구", "동작구", "마포구", "서대문구", "서초구", "성동구", "성북구", "송파구", "양천구", "영등포구", "용산구", "은평구", "종로구", "중구", "중랑구"],
+          "부산광역시": ["강서구", "금정구", "기장군", "남구", "동구", "동래구", "부산진구", "북구", "사상구", "사하구", "서구", "수영구", "연제구", "영도구", "중구", "해운대구"],
+          "대구광역시": ["남구", "달서구", "달성군", "동구", "북구", "서구", "수성구", "중구"],
+          "인천광역시": ["강화군", "계양구", "남동구", "동구", "미추홀구", "부평구", "서구", "연수구", "옹진군", "중구"],
+          "광주광역시": ["광산구", "남구", "동구", "북구", "서구"],
+          "대전광역시": ["대덕구", "동구", "서구", "유성구", "중구"],
+          "울산광역시": ["남구", "동구", "북구", "울주군", "중구"],
+          "세종특별자치시": ["세종시"],
+          "경기도": ["가평군", "고양시", "과천시", "광명시", "광주시", "구리시", "군포시", "김포시", "남양주시", "동두천시", "부천시", "성남시", "수원시", "시흥시", "안산시", "안성시", "안양시", "양주시", "양평군", "여주시", "연천군", "오산시", "용인시", "의왕시", "의정부시", "이천시", "파주시", "평택시", "포천시", "하남시", "화성시"],
+          "강원도": ["강릉시", "고성군", "동해시", "삼척시", "속초시", "양구군", "양양군", "영월군", "원주시", "인제군", "정선군", "철원군", "춘천시", "태백시", "평창군", "홍천군", "화천군", "횡성군"],
+          "충청북도": ["괴산군", "단양군", "보은군", "영동군", "옥천군", "음성군", "제천시", "증평군", "진천군", "청주시", "충주시"],
+          "충청남도": ["계룡시", "공주시", "금산군", "논산시", "당진시", "보령시", "부여군", "서산시", "서천군", "아산시", "예산군", "천안시", "청양군", "태안군", "홍성군"],
+          "전라북도": ["고창군", "군산시", "김제시", "남원시", "무주군", "부안군", "순창군", "완주군", "익산시", "임실군", "장수군", "전주시", "정읍시", "진안군"],
+          "전라남도": ["강진군", "고흥군", "곡성군", "광양시", "구례군", "나주시", "담양군", "목포시", "무안군", "보성군", "순천시", "신안군", "여수시", "영광군", "영암군", "완도군", "장성군", "장흥군", "진도군", "함평군", "해남군", "화순군"],
+          "경상북도": ["경산시", "경주시", "고령군", "구미시", "군위군", "김천시", "문경시", "봉화군", "상주시", "성주군", "안동시", "영덕군", "영양군", "영주시", "영천시", "예천군", "울릉군", "울진군", "의성군", "청도군", "청송군", "칠곡군", "포항시"],
+          "경상남도": ["거제시", "거창군", "고성군", "김해시", "남해군", "밀양시", "사천시", "산청군", "양산시", "의령군", "진주시", "창녕군", "창원시", "통영시", "하동군", "함안군", "함양군", "합천군"],
+          "제주특별자치도": ["서귀포시", "제주시"]
+        };
+
+        // 시도 선택 옵션 생성
+        const sidoSelect = document.getElementById('sidoSelect');
+        Object.keys(regionData).forEach(sido => {
+          const option = document.createElement('option');
+          option.value = sido;
+          option.textContent = sido;
+          sidoSelect.appendChild(option);
+        });
+
+        // 시도 선택 시 시군구 로드
+        sidoSelect.addEventListener('change', function() {
+          const sigunguContainer = document.getElementById('sigunguContainer');
+          const sigunguSelect = document.getElementById('sigunguSelect');
+          const sido = this.value;
+          
+          // 이전 선택 초기화
+          sigunguSelect.innerHTML = '<option value="">시/군/구를 선택하세요</option>';
+          document.getElementById('centerListContainer').classList.add('hidden');
+          document.getElementById('noResultMessage').classList.add('hidden');
+          
+          if (sido) {
+            sigunguContainer.classList.remove('hidden');
+            regionData[sido].forEach(sigungu => {
+              const option = document.createElement('option');
+              option.value = sigungu;
+              option.textContent = sigungu;
+              sigunguSelect.appendChild(option);
+            });
+          } else {
+            sigunguContainer.classList.add('hidden');
+          }
+        });
+
+        // 시군구 선택 시 상담센터 로드
+        document.getElementById('sigunguSelect').addEventListener('change', async function() {
+          const sido = sidoSelect.value;
+          const sigungu = this.value;
+          
+          if (!sido || !sigungu) return;
+          
+          const regionKey = sido + '_' + sigungu;
+          
+          try {
+            const response = await axios.get('/api/regional-centers?region=' + encodeURIComponent(regionKey));
+            const centers = response.data.centers || [];
+            
+            const centerListContainer = document.getElementById('centerListContainer');
+            const centerList = document.getElementById('centerList');
+            const noResultMessage = document.getElementById('noResultMessage');
+            
+            if (centers.length > 0) {
+              centerList.innerHTML = centers.map(center => \`
+                <div class="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl p-4 hover:shadow-lg transition-shadow">
+                  <div class="flex items-start justify-between">
+                    <div class="flex-1">
+                      <h5 class="font-bold text-lg text-gray-900 mb-2">
+                        <i class="fas fa-building text-green-600 mr-2"></i>\${center.facilityName}
+                      </h5>
+                      <p class="text-sm text-gray-600 mb-3">
+                        <i class="fas fa-tag text-purple-500 mr-1"></i>\${center.facilityType}
+                      </p>
+                      <div class="flex items-center mb-2">
+                        <i class="fas fa-user text-blue-500 mr-2"></i>
+                        <span class="text-sm text-gray-700">\${center.managerName}</span>
+                      </div>
+                    </div>
+                    <a href="tel:\${center.managerPhone}" 
+                       class="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 py-3 rounded-lg hover:from-green-600 hover:to-emerald-600 transform hover:scale-105 transition-all shadow-md flex items-center">
+                      <i class="fas fa-phone-alt mr-2"></i>
+                      <span class="font-bold">\${center.managerPhone}</span>
+                    </a>
+                  </div>
+                </div>
+              \`).join('');
+              centerListContainer.classList.remove('hidden');
+              noResultMessage.classList.add('hidden');
+            } else {
+              centerListContainer.classList.add('hidden');
+              noResultMessage.classList.remove('hidden');
+            }
+          } catch (error) {
+            console.error('상담센터 로드 실패:', error);
+            document.getElementById('centerListContainer').classList.add('hidden');
+            document.getElementById('noResultMessage').classList.remove('hidden');
+          }
+        });
+
+        // 파트너 폼 제출
         document.getElementById('partnerForm').addEventListener('submit', async (e) => {
           e.preventDefault();
           const data = {
@@ -624,15 +800,18 @@ app.get('/admin/dashboard', (c) => {
         <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
           <h3 class="text-2xl font-bold mb-6 flex items-center">
             <i class="fas fa-handshake text-blue-600 mr-3"></i>파트너 신청 목록
+            <span class="ml-4 text-sm text-gray-500 font-normal">(지역별 대표 상담센터로 지정하려면 체크하세요 - 최대 4개)</span>
           </h3>
           <div class="overflow-x-auto">
             <table class="w-full">
               <thead class="bg-gray-50">
                 <tr>
+                  <th class="px-4 py-3 text-left">선택</th>
                   <th class="px-4 py-3 text-left">시설명</th>
                   <th class="px-4 py-3 text-left">유형</th>
                   <th class="px-4 py-3 text-left">담당자</th>
                   <th class="px-4 py-3 text-left">연락처</th>
+                  <th class="px-4 py-3 text-left">지역 설정</th>
                   <th class="px-4 py-3 text-left">신청일</th>
                 </tr>
               </thead>
@@ -666,24 +845,105 @@ app.get('/admin/dashboard', (c) => {
 
       <script dangerouslySetInnerHTML={{
         __html: `
+        // 지역 데이터
+        const regionData = {
+          "서울특별시": ["강남구", "강동구", "강북구", "강서구", "관악구", "광진구", "구로구", "금천구", "노원구", "도봉구", "동대문구", "동작구", "마포구", "서대문구", "서초구", "성동구", "성북구", "송파구", "양천구", "영등포구", "용산구", "은평구", "종로구", "중구", "중랑구"],
+          "부산광역시": ["강서구", "금정구", "기장군", "남구", "동구", "동래구", "부산진구", "북구", "사상구", "사하구", "서구", "수영구", "연제구", "영도구", "중구", "해운대구"],
+          "대구광역시": ["남구", "달서구", "달성군", "동구", "북구", "서구", "수성구", "중구"],
+          "인천광역시": ["강화군", "계양구", "남동구", "동구", "미추홀구", "부평구", "서구", "연수구", "옹진군", "중구"],
+          "광주광역시": ["광산구", "남구", "동구", "북구", "서구"],
+          "대전광역시": ["대덕구", "동구", "서구", "유성구", "중구"],
+          "울산광역시": ["남구", "동구", "북구", "울주군", "중구"],
+          "세종특별자치시": ["세종시"],
+          "경기도": ["가평군", "고양시", "과천시", "광명시", "광주시", "구리시", "군포시", "김포시", "남양주시", "동두천시", "부천시", "성남시", "수원시", "시흥시", "안산시", "안성시", "안양시", "양주시", "양평군", "여주시", "연천군", "오산시", "용인시", "의왕시", "의정부시", "이천시", "파주시", "평택시", "포천시", "하남시", "화성시"],
+          "강원도": ["강릉시", "고성군", "동해시", "삼척시", "속초시", "양구군", "양양군", "영월군", "원주시", "인제군", "정선군", "철원군", "춘천시", "태백시", "평창군", "홍천군", "화천군", "횡성군"],
+          "충청북도": ["괴산군", "단양군", "보은군", "영동군", "옥천군", "음성군", "제천시", "증평군", "진천군", "청주시", "충주시"],
+          "충청남도": ["계룡시", "공주시", "금산군", "논산시", "당진시", "보령시", "부여군", "서산시", "서천군", "아산시", "예산군", "천안시", "청양군", "태안군", "홍성군"],
+          "전라북도": ["고창군", "군산시", "김제시", "남원시", "무주군", "부안군", "순창군", "완주군", "익산시", "임실군", "장수군", "전주시", "정읍시", "진안군"],
+          "전라남도": ["강진군", "고흥군", "곡성군", "광양시", "구례군", "나주시", "담양군", "목포시", "무안군", "보성군", "순천시", "신안군", "여수시", "영광군", "영암군", "완도군", "장성군", "장흥군", "진도군", "함평군", "해남군", "화순군"],
+          "경상북도": ["경산시", "경주시", "고령군", "구미시", "군위군", "김천시", "문경시", "봉화군", "상주시", "성주군", "안동시", "영덕군", "영양군", "영주시", "영천시", "예천군", "울릉군", "울진군", "의성군", "청도군", "청송군", "칠곡군", "포항시"],
+          "경상남도": ["거제시", "거창군", "고성군", "김해시", "남해군", "밀양시", "사천시", "산청군", "양산시", "의령군", "진주시", "창녕군", "창원시", "통영시", "하동군", "함안군", "함양군", "합천군"],
+          "제주특별자치도": ["서귀포시", "제주시"]
+        };
+        
         async function loadData() {
           try {
             const response = await axios.get('/api/admin/data');
-            const { partners, familyCare } = response.data;
+            const { partners, familyCare, regionalCenters } = response.data;
             
             document.getElementById('partnerCount').textContent = partners.length;
             document.getElementById('familyCareCount').textContent = familyCare.length;
             
             const partnerList = document.getElementById('partnerList');
-            partnerList.innerHTML = partners.map(p => \`
-              <tr class="border-t hover:bg-gray-50">
+            partnerList.innerHTML = partners.map((p, index) => {
+              const regionKey = p.regionKey || '';
+              const isRegionalCenter = Object.values(regionalCenters).some(centers => 
+                centers.some(c => c.id === p.id)
+              );
+              
+              return \`
+              <tr class="border-t hover:bg-gray-50" id="partner-\${index}">
+                <td class="px-4 py-3">
+                  <input type="checkbox" 
+                         class="w-5 h-5 text-green-600" 
+                         \${isRegionalCenter ? 'checked' : ''}
+                         onchange="toggleRegionalCenter(\${index}, '\${p.id}', this.checked)" />
+                </td>
                 <td class="px-4 py-3">\${p.facilityName}</td>
                 <td class="px-4 py-3">\${p.facilityType}</td>
                 <td class="px-4 py-3">\${p.managerName}</td>
                 <td class="px-4 py-3">\${p.managerPhone}</td>
+                <td class="px-4 py-3">
+                  <div class="flex gap-2" id="region-selector-\${index}">
+                    <select class="text-sm p-2 border rounded" id="sido-\${index}">
+                      <option value="">시/도</option>
+                    </select>
+                    <select class="text-sm p-2 border rounded" id="sigungu-\${index}" disabled>
+                      <option value="">시/군/구</option>
+                    </select>
+                    <button onclick="saveRegion(\${index})" class="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600">
+                      저장
+                    </button>
+                  </div>
+                  <div class="text-sm text-gray-600 mt-1" id="current-region-\${index}">
+                    \${regionKey ? regionKey.replace('_', ' > ') : '미설정'}
+                  </div>
+                </td>
                 <td class="px-4 py-3">\${new Date(p.createdAt).toLocaleDateString('ko-KR')}</td>
               </tr>
-            \`).join('') || '<tr><td colspan="5" class="px-4 py-8 text-center text-gray-500">신청 내역이 없습니다</td></tr>';
+              \`;
+            }).join('') || '<tr><td colspan="7" class="px-4 py-8 text-center text-gray-500">신청 내역이 없습니다</td></tr>';
+            
+            // 시도 옵션 생성
+            partners.forEach((p, index) => {
+              const sidoSelect = document.getElementById('sido-' + index);
+              if (sidoSelect) {
+                Object.keys(regionData).forEach(sido => {
+                  const option = document.createElement('option');
+                  option.value = sido;
+                  option.textContent = sido;
+                  sidoSelect.appendChild(option);
+                });
+                
+                // 시도 변경 이벤트
+                sidoSelect.addEventListener('change', function() {
+                  const sigunguSelect = document.getElementById('sigungu-' + index);
+                  sigunguSelect.innerHTML = '<option value="">시/군/구</option>';
+                  sigunguSelect.disabled = false;
+                  
+                  if (this.value) {
+                    regionData[this.value].forEach(sigungu => {
+                      const option = document.createElement('option');
+                      option.value = sigungu;
+                      option.textContent = sigungu;
+                      sigunguSelect.appendChild(option);
+                    });
+                  } else {
+                    sigunguSelect.disabled = true;
+                  }
+                });
+              }
+            });
             
             const familyCareList = document.getElementById('familyCareList');
             familyCareList.innerHTML = familyCare.map(f => \`
@@ -701,6 +961,57 @@ app.get('/admin/dashboard', (c) => {
             console.error('데이터 로드 실패:', error);
           }
         }
+        
+        // 지역 저장 함수
+        window.saveRegion = async function(index) {
+          const sido = document.getElementById('sido-' + index).value;
+          const sigungu = document.getElementById('sigungu-' + index).value;
+          
+          if (!sido || !sigungu) {
+            alert('시/도와 시/군/구를 모두 선택해주세요.');
+            return;
+          }
+          
+          const regionKey = sido + '_' + sigungu;
+          
+          try {
+            const response = await axios.post('/api/admin/set-region', {
+              partnerIndex: index,
+              regionKey: regionKey
+            });
+            
+            if (response.data.success) {
+              alert('지역이 설정되었습니다.');
+              loadData();
+            }
+          } catch (error) {
+            alert('지역 설정 실패');
+          }
+        };
+        
+        // 대표 상담센터 토글
+        window.toggleRegionalCenter = async function(index, partnerId, isChecked) {
+          try {
+            const response = await axios.post('/api/admin/toggle-regional-center', {
+              partnerIndex: index,
+              isChecked: isChecked
+            });
+            
+            if (response.data.success) {
+              if (!isChecked) {
+                alert('대표 상담센터에서 제거되었습니다.');
+              } else if (response.data.message) {
+                alert(response.data.message);
+                loadData(); // 체크 해제를 위해 다시 로드
+              } else {
+                alert('대표 상담센터로 지정되었습니다. (지역을 설정해주세요)');
+              }
+            }
+          } catch (error) {
+            alert('설정 실패');
+            loadData();
+          }
+        };
         
         document.getElementById('logoutBtn').addEventListener('click', async () => {
           try {
@@ -723,9 +1034,13 @@ app.get('/admin/dashboard', (c) => {
 app.post('/api/partner', async (c) => {
   try {
     const data = await c.req.json()
+    const partnerId = 'partner_' + Date.now() + '_' + Math.random().toString(36).substring(2)
     dataStore.partners.push({
       ...data,
-      createdAt: new Date().toISOString()
+      id: partnerId,
+      createdAt: new Date().toISOString(),
+      regionKey: '',
+      isRegionalCenter: false
     })
     return c.json({ success: true, message: '파트너 등록이 완료되었습니다!' })
   } catch (error) {
@@ -778,6 +1093,103 @@ app.get('/api/admin/data', (c) => {
     return c.json({ error: 'Unauthorized' }, 401)
   }
   return c.json(dataStore)
+})
+
+// 지역 설정 API
+app.post('/api/admin/set-region', async (c) => {
+  if (!isAdmin(c)) {
+    return c.json({ error: 'Unauthorized' }, 401)
+  }
+  
+  try {
+    const { partnerIndex, regionKey } = await c.req.json()
+    if (dataStore.partners[partnerIndex]) {
+      dataStore.partners[partnerIndex].regionKey = regionKey
+      return c.json({ success: true })
+    }
+    return c.json({ success: false, message: '파트너를 찾을 수 없습니다.' }, 404)
+  } catch (error) {
+    return c.json({ success: false, message: '설정 실패' }, 500)
+  }
+})
+
+// 대표 상담센터 토글 API
+app.post('/api/admin/toggle-regional-center', async (c) => {
+  if (!isAdmin(c)) {
+    return c.json({ error: 'Unauthorized' }, 401)
+  }
+  
+  try {
+    const { partnerIndex, isChecked } = await c.req.json()
+    const partner = dataStore.partners[partnerIndex]
+    
+    if (!partner) {
+      return c.json({ success: false, message: '파트너를 찾을 수 없습니다.' }, 404)
+    }
+    
+    const regionKey = partner.regionKey
+    
+    if (isChecked) {
+      // 체크: 대표 상담센터로 추가
+      if (!regionKey) {
+        return c.json({ success: true, message: '먼저 지역을 설정해주세요.' })
+      }
+      
+      // 해당 지역의 대표 상담센터 목록 가져오기
+      if (!dataStore.regionalCenters[regionKey]) {
+        dataStore.regionalCenters[regionKey] = []
+      }
+      
+      // 최대 4개 제한
+      if (dataStore.regionalCenters[regionKey].length >= 4) {
+        return c.json({ 
+          success: false, 
+          message: '해당 지역은 이미 4개의 대표 상담센터가 등록되어 있습니다. 다른 센터를 제거한 후 추가해주세요.' 
+        })
+      }
+      
+      // 중복 체크
+      const exists = dataStore.regionalCenters[regionKey].some(c => c.id === partner.id)
+      if (!exists) {
+        dataStore.regionalCenters[regionKey].push({
+          id: partner.id,
+          facilityName: partner.facilityName,
+          facilityType: partner.facilityType,
+          managerName: partner.managerName,
+          managerPhone: partner.managerPhone
+        })
+      }
+      
+      partner.isRegionalCenter = true
+    } else {
+      // 체크 해제: 대표 상담센터에서 제거
+      if (regionKey && dataStore.regionalCenters[regionKey]) {
+        dataStore.regionalCenters[regionKey] = dataStore.regionalCenters[regionKey].filter(
+          c => c.id !== partner.id
+        )
+        if (dataStore.regionalCenters[regionKey].length === 0) {
+          delete dataStore.regionalCenters[regionKey]
+        }
+      }
+      partner.isRegionalCenter = false
+    }
+    
+    return c.json({ success: true })
+  } catch (error) {
+    return c.json({ success: false, message: '설정 실패' }, 500)
+  }
+})
+
+// 지역별 상담센터 조회 API
+app.get('/api/regional-centers', async (c) => {
+  const region = c.req.query('region')
+  
+  if (!region) {
+    return c.json({ centers: [] })
+  }
+  
+  const centers = dataStore.regionalCenters[region] || []
+  return c.json({ centers })
 })
 
 export default app
