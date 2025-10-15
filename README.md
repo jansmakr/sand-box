@@ -88,13 +88,26 @@
 - ✅ 특허 정보 표시
 
 ## 📊 데이터 아키텍처
+- **데이터베이스**: Cloudflare D1 (SQLite-based)
 - **데이터 모델**: 
-  - Partners (시설 파트너 신청) - id, facilitySido, facilitySigungu, facilityAddress, regionKey, isRegionalCenter 포함
-  - FamilyCare (가족 간병 신청)
-  - RegionalCenters (지역별 대표 상담센터) - 지역별 최대 4개
-  - Sessions (관리자 세션)
-- **저장 방식**: 메모리 기반 임시 저장 (dataStore)
-- **인증**: 세션 쿠키 기반 관리자 인증
+  - **partners** 테이블: 시설 파트너 신청 데이터
+    - id, facility_name, facility_type
+    - facility_sido, facility_sigungu, facility_address (주소 정보)
+    - manager_name, manager_phone
+    - region_key, is_regional_center (지역별 상담센터 설정)
+    - created_at, updated_at
+  - **family_care** 테이블: 가족 간병 신청 데이터
+    - id, guardian_name, guardian_phone
+    - patient_name, patient_age, region, requirements
+    - created_at
+  - **regional_centers** 테이블: 지역별 대표 상담센터 (최대 4개/지역)
+    - id, region_key, partner_id
+    - facility_name, facility_type, manager_name, manager_phone
+    - created_at
+  - **admin_sessions** 테이블: 관리자 세션 관리
+    - session_id, created_at, expires_at
+- **저장 방식**: ✅ **Cloudflare D1 영구 저장** (Worker 재시작 후에도 데이터 유지)
+- **인증**: 세션 쿠키 + D1 데이터베이스 기반 관리자 인증
 - **지역 데이터**: 전국 17개 시도 및 시군구 전체 데이터
 
 ## 🎨 디자인 시스템
@@ -114,17 +127,35 @@
 
 ## 🛠️ 개발 및 배포
 
-### 로컬 개발
+### 로컬 개발 (D1 로컬 모드)
 ```bash
 cd /home/user/webapp
+
+# D1 마이그레이션 적용 (최초 1회)
+npx wrangler d1 migrations apply carejoa-production --local
+
+# 빌드 및 실행
 npm run build
-pm2 start ecosystem.config.cjs
+pm2 start ecosystem.config.cjs  # --d1=carejoa-production --local 플래그 포함
 curl http://localhost:3000
+
+# D1 데이터 확인
+npx wrangler d1 execute carejoa-production --local --command="SELECT * FROM partners"
 ```
 
 ### Cloudflare Pages 배포
 ```bash
+# 1. Cloudflare API 설정
 export CLOUDFLARE_API_TOKEN="your-token"
+
+# 2. 프로덕션 D1 데이터베이스 생성 (최초 1회)
+npx wrangler d1 create carejoa-production
+# database_id를 wrangler.jsonc에 추가
+
+# 3. 프로덕션 마이그레이션 적용 (최초 1회 또는 스키마 변경 시)
+npx wrangler d1 migrations apply carejoa-production
+
+# 4. 빌드 및 배포
 npm run build
 npx wrangler pages deploy dist --project-name=carejoa-webapp
 ```
@@ -186,11 +217,15 @@ npx wrangler pages deploy dist --project-name=carejoa-webapp
 
 ## 🔄 배포 상태
 - ✅ **활성화**: Cloudflare Pages에 24/7 운영 중
-- ✅ **빌드 완료**: 최신 버전 배포됨 (시설 주소 입력 기능 추가)
+- ✅ **데이터베이스**: Cloudflare D1 통합 완료 - 영구 데이터 저장
+- ✅ **빌드 완료**: 최신 버전 배포됨 (D1 데이터베이스 통합)
 - ✅ **Git 저장소**: 초기화 및 커밋 완료
 - **마지막 업데이트**: 2025-10-15
-  - 지역별 전화상담 시스템 추가
-  - 요양시설 입점 신청 폼에 주소 입력 기능 추가 (시/도, 시/군/구, 상세주소)
+  - ✅ Cloudflare D1 데이터베이스 통합 (영구 저장)
+  - ✅ 지역별 전화상담 시스템 추가
+  - ✅ 요양시설 입점 신청 폼에 주소 입력 기능 추가 (시/도, 시/군/구, 상세주소)
+  - ✅ 모든 API를 D1 쿼리로 변환 (메모리 → D1)
+  - ✅ 로컬 환경 테스트 완료
 
 ## 📈 통계 (공식 데이터)
 - 월 10만+ 이용자

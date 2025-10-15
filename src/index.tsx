@@ -4,19 +4,25 @@ import { cors } from 'hono/cors'
 import { serveStatic } from 'hono/cloudflare-workers'
 import { getCookie, setCookie } from 'hono/cookie'
 
-const app = new Hono()
+type Bindings = {
+  DB: D1Database
+}
+
+const app = new Hono<{ Bindings: Bindings }>()
 
 const ADMIN_CONFIG = { password: '5874', sessionKey: 'admin_session' }
-const dataStore = { 
-  partners: [] as any[], 
-  familyCare: [] as any[],
-  regionalCenters: {} as Record<string, any[]> // 지역별 대표 상담센터 (최대 4개)
-}
-const sessions = new Set<string>()
 
-function isAdmin(c: any) {
+async function isAdmin(c: any) {
   const sessionId = getCookie(c, ADMIN_CONFIG.sessionKey)
-  return sessionId && sessions.has(sessionId)
+  if (!sessionId) return false
+  
+  const { DB } = c.env
+  const now = new Date().toISOString()
+  const result = await DB.prepare(
+    'SELECT session_id FROM admin_sessions WHERE session_id = ? AND expires_at > ?'
+  ).bind(sessionId, now).first()
+  
+  return !!result
 }
 
 function generateSessionId() {
@@ -750,8 +756,8 @@ app.get('/family-care-register', (c) => {
 })
 
 // 관리자 로그인 페이지
-app.get('/admin', (c) => {
-  if (isAdmin(c)) {
+app.get('/admin', async (c) => {
+  if (await isAdmin(c)) {
     return c.redirect('/admin/dashboard')
   }
   
@@ -819,8 +825,8 @@ app.get('/admin', (c) => {
 })
 
 // 관리자 대시보드
-app.get('/admin/dashboard', (c) => {
-  if (!isAdmin(c)) {
+app.get('/admin/dashboard', async (c) => {
+  if (!(await isAdmin(c))) {
     return c.redirect('/admin')
   }
   
@@ -1107,40 +1113,82 @@ app.get('/admin/dashboard', (c) => {
 // API 라우트
 app.post('/api/partner', async (c) => {
   try {
+    const { DB } = c.env
     const data = await c.req.json()
     const partnerId = 'partner_' + Date.now() + '_' + Math.random().toString(36).substring(2)
-    dataStore.partners.push({
-      ...data,
-      id: partnerId,
-      createdAt: new Date().toISOString(),
-      regionKey: '',
-      isRegionalCenter: false
-    })
+    const createdAt = new Date().toISOString()
+    
+    await DB.prepare(`
+      INSERT INTO partners (
+        id, facility_name, facility_type, facility_sido, facility_sigungu, 
+        facility_address, manager_name, manager_phone, region_key, 
+        is_regional_center, created_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).bind(
+      partnerId,
+      data.facilityName,
+      data.facilityType,
+      data.facilitySido || null,
+      data.facilitySigungu || null,
+      data.facilityAddress || null,
+      data.managerName,
+      data.managerPhone,
+      '', // region_key will be set by admin
+      0, // is_regional_center default false
+      createdAt
+    ).run()
+    
     return c.json({ success: true, message: '파트너 등록이 완료되었습니다!' })
   } catch (error) {
+    console.error('Partner registration error:', error)
     return c.json({ success: false, message: '등록 실패' }, 500)
   }
 })
 
 app.post('/api/family-care', async (c) => {
   try {
+    const { DB } = c.env
     const data = await c.req.json()
-    dataStore.familyCare.push({
-      ...data,
-      createdAt: new Date().toISOString()
-    })
+    const familyCareId = 'family_' + Date.now() + '_' + Math.random().toString(36).substring(2)
+    const createdAt = new Date().toISOString()
+    
+    await DB.prepare(`
+      INSERT INTO family_care (
+        id, guardian_name, guardian_phone, patient_name, patient_age, 
+        region, requirements, created_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `).bind(
+      familyCareId,
+      data.guardianName,
+      data.guardianPhone,
+      data.patientName,
+      parseInt(data.patientAge),
+      data.region,
+      data.requirements || null,
+      createdAt
+    ).run()
+    
     return c.json({ success: true, message: '가족 간병 신청이 완료되었습니다!' })
   } catch (error) {
+    console.error('Family care registration error:', error)
     return c.json({ success: false, message: '신청 실패' }, 500)
   }
 })
 
 app.post('/api/admin/login', async (c) => {
   try {
+    const { DB } = c.env
     const { password } = await c.req.json()
     if (password === ADMIN_CONFIG.password) {
       const sessionId = generateSessionId()
-      sessions.add(sessionId)
+      const createdAt = new Date().toISOString()
+      const expiresAt = new Date(Date.now() + 3600 * 1000).toISOString() // 1시간 후
+      
+      await DB.prepare(`
+        INSERT INTO admin_sessions (session_id, created_at, expires_at)
+        VALUES (?, ?, ?)
+      `).bind(sessionId, createdAt, expiresAt).run()
+      
       setCookie(c, ADMIN_CONFIG.sessionKey, sessionId, {
         httpOnly: true,
         maxAge: 3600
@@ -1149,59 +1197,151 @@ app.post('/api/admin/login', async (c) => {
     }
     return c.json({ success: false, message: '비밀번호가 올바르지 않습니다.' }, 401)
   } catch (error) {
+    console.error('Admin login error:', error)
     return c.json({ success: false, message: '로그인 실패' }, 500)
   }
 })
 
-app.post('/api/admin/logout', (c) => {
-  const sessionId = getCookie(c, ADMIN_CONFIG.sessionKey)
-  if (sessionId) {
-    sessions.delete(sessionId)
+app.post('/api/admin/logout', async (c) => {
+  try {
+    const { DB } = c.env
+    const sessionId = getCookie(c, ADMIN_CONFIG.sessionKey)
+    if (sessionId) {
+      await DB.prepare('DELETE FROM admin_sessions WHERE session_id = ?')
+        .bind(sessionId).run()
+    }
+    setCookie(c, ADMIN_CONFIG.sessionKey, '', { maxAge: 0 })
+    return c.json({ success: true })
+  } catch (error) {
+    console.error('Admin logout error:', error)
+    return c.json({ success: true }) // 로그아웃은 항상 성공으로 처리
   }
-  setCookie(c, ADMIN_CONFIG.sessionKey, '', { maxAge: 0 })
-  return c.json({ success: true })
 })
 
-app.get('/api/admin/data', (c) => {
-  if (!isAdmin(c)) {
-    return c.json({ error: 'Unauthorized' }, 401)
-  }
-  return c.json(dataStore)
-})
-
-// 지역 설정 API
-app.post('/api/admin/set-region', async (c) => {
-  if (!isAdmin(c)) {
+app.get('/api/admin/data', async (c) => {
+  if (!(await isAdmin(c))) {
     return c.json({ error: 'Unauthorized' }, 401)
   }
   
   try {
+    const { DB } = c.env
+    
+    // Partners 데이터 조회
+    const partnersResult = await DB.prepare(
+      'SELECT * FROM partners ORDER BY created_at DESC'
+    ).all()
+    
+    // Family care 데이터 조회
+    const familyCareResult = await DB.prepare(
+      'SELECT * FROM family_care ORDER BY created_at DESC'
+    ).all()
+    
+    // Regional centers 데이터 조회
+    const regionalCentersResult = await DB.prepare(
+      'SELECT * FROM regional_centers ORDER BY created_at DESC'
+    ).all()
+    
+    // Partners 데이터를 frontend 형식으로 변환
+    const partners = partnersResult.results.map((p: any) => ({
+      id: p.id,
+      facilityName: p.facility_name,
+      facilityType: p.facility_type,
+      facilitySido: p.facility_sido,
+      facilitySigungu: p.facility_sigungu,
+      facilityAddress: p.facility_address,
+      managerName: p.manager_name,
+      managerPhone: p.manager_phone,
+      regionKey: p.region_key,
+      isRegionalCenter: p.is_regional_center === 1,
+      createdAt: p.created_at
+    }))
+    
+    // Family care 데이터를 frontend 형식으로 변환
+    const familyCare = familyCareResult.results.map((f: any) => ({
+      id: f.id,
+      guardianName: f.guardian_name,
+      guardianPhone: f.guardian_phone,
+      patientName: f.patient_name,
+      patientAge: f.patient_age,
+      region: f.region,
+      requirements: f.requirements,
+      createdAt: f.created_at
+    }))
+    
+    // Regional centers를 regionKey별로 그룹화
+    const regionalCenters: Record<string, any[]> = {}
+    regionalCentersResult.results.forEach((rc: any) => {
+      if (!regionalCenters[rc.region_key]) {
+        regionalCenters[rc.region_key] = []
+      }
+      regionalCenters[rc.region_key].push({
+        id: rc.partner_id,
+        facilityName: rc.facility_name,
+        facilityType: rc.facility_type,
+        managerName: rc.manager_name,
+        managerPhone: rc.manager_phone
+      })
+    })
+    
+    return c.json({ partners, familyCare, regionalCenters })
+  } catch (error) {
+    console.error('Admin data fetch error:', error)
+    return c.json({ error: 'Data fetch failed' }, 500)
+  }
+})
+
+// 지역 설정 API
+app.post('/api/admin/set-region', async (c) => {
+  if (!(await isAdmin(c))) {
+    return c.json({ error: 'Unauthorized' }, 401)
+  }
+  
+  try {
+    const { DB } = c.env
     const { partnerIndex, regionKey } = await c.req.json()
-    if (dataStore.partners[partnerIndex]) {
-      dataStore.partners[partnerIndex].regionKey = regionKey
+    
+    // 모든 파트너 조회 (순서 유지를 위해)
+    const partnersResult = await DB.prepare(
+      'SELECT id FROM partners ORDER BY created_at DESC'
+    ).all()
+    
+    if (partnerIndex >= 0 && partnerIndex < partnersResult.results.length) {
+      const partnerId = partnersResult.results[partnerIndex].id
+      
+      await DB.prepare(
+        'UPDATE partners SET region_key = ?, updated_at = ? WHERE id = ?'
+      ).bind(regionKey, new Date().toISOString(), partnerId).run()
+      
       return c.json({ success: true })
     }
     return c.json({ success: false, message: '파트너를 찾을 수 없습니다.' }, 404)
   } catch (error) {
+    console.error('Set region error:', error)
     return c.json({ success: false, message: '설정 실패' }, 500)
   }
 })
 
 // 대표 상담센터 토글 API
 app.post('/api/admin/toggle-regional-center', async (c) => {
-  if (!isAdmin(c)) {
+  if (!(await isAdmin(c))) {
     return c.json({ error: 'Unauthorized' }, 401)
   }
   
   try {
+    const { DB } = c.env
     const { partnerIndex, isChecked } = await c.req.json()
-    const partner = dataStore.partners[partnerIndex]
     
-    if (!partner) {
+    // 모든 파트너 조회 (순서 유지를 위해)
+    const partnersResult = await DB.prepare(
+      'SELECT * FROM partners ORDER BY created_at DESC'
+    ).all()
+    
+    if (partnerIndex < 0 || partnerIndex >= partnersResult.results.length) {
       return c.json({ success: false, message: '파트너를 찾을 수 없습니다.' }, 404)
     }
     
-    const regionKey = partner.regionKey
+    const partner: any = partnersResult.results[partnerIndex]
+    const regionKey = partner.region_key
     
     if (isChecked) {
       // 체크: 대표 상담센터로 추가
@@ -1209,13 +1349,12 @@ app.post('/api/admin/toggle-regional-center', async (c) => {
         return c.json({ success: true, message: '먼저 지역을 설정해주세요.' })
       }
       
-      // 해당 지역의 대표 상담센터 목록 가져오기
-      if (!dataStore.regionalCenters[regionKey]) {
-        dataStore.regionalCenters[regionKey] = []
-      }
+      // 해당 지역의 대표 상담센터 개수 확인
+      const countResult = await DB.prepare(
+        'SELECT COUNT(*) as count FROM regional_centers WHERE region_key = ?'
+      ).bind(regionKey).first()
       
-      // 최대 4개 제한
-      if (dataStore.regionalCenters[regionKey].length >= 4) {
+      if (countResult && (countResult.count as number) >= 4) {
         return c.json({ 
           success: false, 
           message: '해당 지역은 이미 4개의 대표 상담센터가 등록되어 있습니다. 다른 센터를 제거한 후 추가해주세요.' 
@@ -1223,33 +1362,49 @@ app.post('/api/admin/toggle-regional-center', async (c) => {
       }
       
       // 중복 체크
-      const exists = dataStore.regionalCenters[regionKey].some(c => c.id === partner.id)
-      if (!exists) {
-        dataStore.regionalCenters[regionKey].push({
-          id: partner.id,
-          facilityName: partner.facilityName,
-          facilityType: partner.facilityType,
-          managerName: partner.managerName,
-          managerPhone: partner.managerPhone
-        })
-      }
+      const existsResult = await DB.prepare(
+        'SELECT id FROM regional_centers WHERE region_key = ? AND partner_id = ?'
+      ).bind(regionKey, partner.id).first()
       
-      partner.isRegionalCenter = true
+      if (!existsResult) {
+        // Regional centers 테이블에 추가
+        await DB.prepare(`
+          INSERT INTO regional_centers (
+            region_key, partner_id, facility_name, facility_type, 
+            manager_name, manager_phone, created_at
+          ) VALUES (?, ?, ?, ?, ?, ?, ?)
+        `).bind(
+          regionKey,
+          partner.id,
+          partner.facility_name,
+          partner.facility_type,
+          partner.manager_name,
+          partner.manager_phone,
+          new Date().toISOString()
+        ).run()
+        
+        // Partners 테이블의 is_regional_center 플래그 업데이트
+        await DB.prepare(
+          'UPDATE partners SET is_regional_center = 1, updated_at = ? WHERE id = ?'
+        ).bind(new Date().toISOString(), partner.id).run()
+      }
     } else {
       // 체크 해제: 대표 상담센터에서 제거
-      if (regionKey && dataStore.regionalCenters[regionKey]) {
-        dataStore.regionalCenters[regionKey] = dataStore.regionalCenters[regionKey].filter(
-          c => c.id !== partner.id
-        )
-        if (dataStore.regionalCenters[regionKey].length === 0) {
-          delete dataStore.regionalCenters[regionKey]
-        }
+      if (regionKey) {
+        await DB.prepare(
+          'DELETE FROM regional_centers WHERE region_key = ? AND partner_id = ?'
+        ).bind(regionKey, partner.id).run()
+        
+        // Partners 테이블의 is_regional_center 플래그 업데이트
+        await DB.prepare(
+          'UPDATE partners SET is_regional_center = 0, updated_at = ? WHERE id = ?'
+        ).bind(new Date().toISOString(), partner.id).run()
       }
-      partner.isRegionalCenter = false
     }
     
     return c.json({ success: true })
   } catch (error) {
+    console.error('Toggle regional center error:', error)
     return c.json({ success: false, message: '설정 실패' }, 500)
   }
 })
@@ -1262,8 +1417,24 @@ app.get('/api/regional-centers', async (c) => {
     return c.json({ centers: [] })
   }
   
-  const centers = dataStore.regionalCenters[region] || []
-  return c.json({ centers })
+  try {
+    const { DB } = c.env
+    const centersResult = await DB.prepare(
+      'SELECT * FROM regional_centers WHERE region_key = ? ORDER BY created_at ASC LIMIT 4'
+    ).bind(region).all()
+    
+    const centers = centersResult.results.map((rc: any) => ({
+      facilityName: rc.facility_name,
+      facilityType: rc.facility_type,
+      managerName: rc.manager_name,
+      managerPhone: rc.manager_phone
+    }))
+    
+    return c.json({ centers })
+  } catch (error) {
+    console.error('Regional centers fetch error:', error)
+    return c.json({ centers: [] })
+  }
 })
 
 export default app
