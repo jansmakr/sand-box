@@ -766,8 +766,18 @@ app.get('/facilities', (c) => {
   
   return c.render(
     <div>
-      {/* Kakao Maps API 스크립트 */}
-      <script type="text/javascript" src={`//dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoApiKey}`}></script>
+      {/* Kakao Maps API 스크립트를 head에 미리 로드 */}
+      <script dangerouslySetInnerHTML={{
+        __html: `
+        // 카카오맵 스크립트 동적 로드
+        (function() {
+          var script = document.createElement('script');
+          script.type = 'text/javascript';
+          script.src = '//dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoApiKey}&autoload=false';
+          document.head.appendChild(script);
+        })();
+        `
+      }} />
       
       <header class="bg-white shadow-sm border-b sticky top-0 z-10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -1193,27 +1203,28 @@ app.get('/facilities', (c) => {
           }, 3000);
         }
 
-        // 페이지 로드 시 지도 초기화 및 데이터 불러오기
-        window.addEventListener('load', function() {
-          // 카카오맵 스크립트 로드 확인
-          if (typeof kakao === 'undefined' || !kakao.maps) {
-            console.error('카카오맵 API가 로드되지 않았습니다.');
-            document.getElementById('map').innerHTML = \`
-              <div class="flex items-center justify-center h-full">
-                <div class="text-center text-red-500">
-                  <i class="fas fa-exclamation-triangle text-6xl mb-4"></i>
-                  <p class="text-lg font-medium">카카오맵 API 키가 설정되지 않았습니다</p>
-                  <p class="text-sm mt-2">관리자에게 문의하세요</p>
-                </div>
-              </div>
-            \`;
-          } else {
+        // 카카오맵 로드 대기 및 초기화
+        function waitForKakao() {
+          if (typeof kakao !== 'undefined' && kakao.maps) {
+            // 카카오맵 로드 완료
+            console.log('✅ 카카오맵 API 로드 완료');
             kakao.maps.load(function() {
               initKakaoMap();
               loadFacilitiesData();
             });
+          } else {
+            // 아직 로드 안됨, 100ms 후 재시도
+            console.log('⏳ 카카오맵 API 로딩 중...');
+            setTimeout(waitForKakao, 100);
           }
-        });
+        }
+
+        // 페이지 로드 시 카카오맵 로드 대기
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', waitForKakao);
+        } else {
+          waitForKakao();
+        }
         `
       }} />
     </div>
