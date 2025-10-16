@@ -2599,40 +2599,55 @@ app.post('/api/admin/import-csv', async (c) => {
       return c.json({ success: false, error: '유효한 시설 데이터가 없습니다' }, 400)
     }
     
+    console.log(`Starting import of ${facilities.length} facilities...`)
     let imported = 0
     let failed = 0
     
-    // 배치 처리 (100개씩)
-    for (let i = 0; i < facilities.length; i += 100) {
-      const batch = facilities.slice(i, i + 100)
+    // D1 batch API를 사용한 대량 INSERT (훨씬 빠름)
+    // 500개씩 배치 처리
+    for (let i = 0; i < facilities.length; i += 500) {
+      const batch = facilities.slice(i, i + 500)
+      const statements = []
       
       for (const facility of batch) {
         try {
-          await DB.prepare(`
-            INSERT INTO facilities (facility_type, name, postal_code, address, phone, latitude, longitude, sido, sigungu)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-          `).bind(
-            facility.facilityType,
-            facility.name,
-            facility.postalCode || '',
-            facility.address,
-            facility.phone || '',
-            facility.latitude,
-            facility.longitude,
-            facility.sido,
-            facility.sigungu
-          ).run()
-          
-          imported++
+          statements.push(
+            DB.prepare(`
+              INSERT INTO facilities (facility_type, name, postal_code, address, phone, latitude, longitude, sido, sigungu)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `).bind(
+              facility.facilityType,
+              facility.name,
+              facility.postalCode || '',
+              facility.address,
+              facility.phone || '',
+              facility.latitude,
+              facility.longitude,
+              facility.sido,
+              facility.sigungu
+            )
+          )
         } catch (err) {
+          console.error('Prepare error:', err)
           failed++
-          console.error('Import error:', err)
         }
+      }
+      
+      // 배치 실행
+      try {
+        await DB.batch(statements)
+        imported += statements.length
+        console.log(`Batch ${Math.floor(i/500) + 1}: Imported ${statements.length} facilities (Total: ${imported})`)
+      } catch (err) {
+        console.error('Batch import error:', err)
+        failed += statements.length
       }
     }
     
+    console.log(`Import completed: ${imported} success, ${failed} failed`)
     return c.json({ success: true, imported, failed, total: facilities.length })
   } catch (error: any) {
+    console.error('Import CSV error:', error)
     return c.json({ success: false, error: error.message }, 500)
   }
 })
