@@ -85,6 +85,13 @@
   - 시/도 및 시/군/구 지역 설정
   - 지역별 최대 4개 제한
   - 실시간 지역별 노출 관리
+- ✅ **요양시설 정보 관리 페이지** (NEW! 2025-10-16)
+  - 27,657개 전국 요양시설 데이터베이스 관리
+  - CSV 일괄 임포트 기능 (1-2분 소요)
+  - 시설 추가/수정/삭제 (전화번호 포함)
+  - 다중 필터 검색 (시도/시군구/유형/키워드)
+  - 페이지네이션 (50개씩)
+  - D1 데이터베이스 초기화 기능
 - ✅ 가족 간병 신청 목록 조회
 - ✅ 세션 기반 인증
 - ✅ 로그아웃 기능
@@ -122,15 +129,23 @@
     - id, region_key, partner_id
     - facility_name, facility_type, manager_name, manager_phone
     - created_at
+  - **facilities** 테이블: 전국 요양시설 정보 (NEW! 2025-10-16)
+    - id, facility_type, name, postal_code
+    - address, **phone** (전화번호 - 관리자가 추가 가능)
+    - latitude, longitude, sido, sigungu
+    - created_at, updated_at
+    - 인덱스: sido, sigungu, facility_type, name
   - **admin_sessions** 테이블: 관리자 세션 관리
     - session_id, created_at, expires_at
 - **저장 방식**: ✅ **Cloudflare D1 영구 저장** (Worker 재시작 후에도 데이터 유지)
 - **인증**: 세션 쿠키 + D1 데이터베이스 기반 관리자 인증
 - **지역 데이터**: 전국 17개 시도 및 시군구 전체 데이터
-- **요양시설 데이터** (NEW!):
+- **요양시설 데이터**:
   - 총 27,657개 시설 정보
-  - CSV 파일 (5.7MB) - 클라이언트 사이드 로딩
-  - 필드: 시설명, 유형, 주소, 시도, 시군구, 위도, 경도
+  - **이중 저장 방식**:
+    1. CSV 파일 (5.7MB) - 메인 검색 페이지에서 클라이언트 사이드 로딩
+    2. D1 데이터베이스 - 관리자가 CSV 임포트 후 수정/삭제 가능 (전화번호 추가 가능)
+  - 필드: 시설명, 유형, 주소, 시도, 시군구, 위도, 경도, **전화번호**(선택)
   - 시설 유형: 재가복지센터(17,449), 요양원(4,603), 주야간보호(2,995), 요양병원(2,610)
 
 ## 🎨 디자인 시스템
@@ -206,6 +221,7 @@ npx wrangler pages deploy dist --project-name=carejoa-webapp
 ### 관리자 페이지
 - `/admin` - 관리자 로그인
 - `/admin/dashboard` - 관리자 대시보드
+- `/admin/facilities` - 요양시설 정보 관리 (NEW! 2025-10-16)
 
 ### API 엔드포인트
 - `POST /api/partner` - 파트너 등록
@@ -213,9 +229,18 @@ npx wrangler pages deploy dist --project-name=carejoa-webapp
 - `POST /api/admin/login` - 관리자 로그인
 - `POST /api/admin/logout` - 관리자 로그아웃
 - `GET /api/admin/data` - 관리자 데이터 조회
-- `POST /api/admin/set-region` - 파트너 지역 설정 (NEW!)
-- `POST /api/admin/toggle-regional-center` - 대표 상담센터 지정/해제 (NEW!)
-- `GET /api/regional-centers?region={regionKey}` - 지역별 상담센터 조회 (NEW!)
+- `POST /api/admin/set-region` - 파트너 지역 설정
+- `POST /api/admin/toggle-regional-center` - 대표 상담센터 지정/해제
+- `GET /api/regional-centers?region={regionKey}` - 지역별 상담센터 조회
+- **시설 정보 관리 API** (NEW! 2025-10-16)
+  - `POST /api/admin/init-db` - D1 데이터베이스 초기화
+  - `POST /api/admin/import-csv` - CSV 데이터 일괄 임포트
+  - `GET /api/admin/facilities` - 시설 목록 조회 (페이징, 검색)
+  - `GET /api/admin/facilities/:id` - 시설 상세 조회
+  - `POST /api/admin/facilities` - 시설 추가
+  - `PUT /api/admin/facilities/:id` - 시설 정보 수정
+  - `DELETE /api/admin/facilities/:id` - 시설 삭제
+  - `GET /api/facilities-from-db` - D1에서 시설 데이터 조회 (메인 검색용)
 
 ## 📱 사용자 가이드
 
@@ -245,12 +270,19 @@ npx wrangler pages deploy dist --project-name=carejoa-webapp
 1. 우측 상단 또는 모바일 하단 "관리자" 버튼 클릭
 2. 비밀번호(5874) 입력
 3. 대시보드에서 신청 내역 확인
-4. **지역별 대표 상담센터 관리** (NEW!)
+4. **지역별 대표 상담센터 관리**
    - 파트너 목록에서 대표 센터로 지정할 시설 체크
    - 시/도 및 시/군/구 선택하여 지역 설정
    - "저장" 버튼으로 지역 설정 완료
    - 지역별 최대 4개까지 설정 가능
    - 설정된 센터는 해당 지역 사용자에게 노출됨
+5. **요양시설 정보 관리** (NEW! 2025-10-16)
+   - "시설 관리" 메뉴 클릭
+   - **최초 1회**: "DB 초기화" → "CSV 임포트" 버튼 클릭 (1-2분 소요)
+   - 시설 검색: 시도/시군구/유형/키워드로 필터링
+   - 시설 편집: 전화번호 등 정보 수정
+   - 시설 삭제: 불필요한 시설 제거
+   - 시설 추가: 새로운 시설 정보 입력
 
 ## 🔄 배포 상태
 - ✅ **활성화**: Cloudflare Pages에 24/7 운영 중
@@ -258,6 +290,12 @@ npx wrangler pages deploy dist --project-name=carejoa-webapp
 - ✅ **빌드 완료**: 최신 버전 배포됨 (D1 데이터베이스 통합 + Leaflet 지도)
 - ✅ **Git 저장소**: 초기화 및 커밋 완료
 - **마지막 업데이트**: 2025-10-16
+  - ✅ **관리자 시설 정보 관리 페이지 추가** (NEW!)
+    - D1 데이터베이스 기반 시설 정보 CRUD
+    - CSV 일괄 임포트 기능 (27,656개 시설)
+    - 전화번호 추가/수정 기능
+    - 다중 필터 검색 및 페이지네이션
+    - 시설 추가/수정/삭제 기능
   - ✅ **Leaflet.js 지도로 전환** (카카오맵 → Leaflet)
     - 로딩 속도 5-10배 향상 (3-5초 → 0.5초)
     - API 키 불필요, 완전 무료
