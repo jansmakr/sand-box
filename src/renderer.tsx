@@ -9,6 +9,9 @@ export const renderer = jsxRenderer(({ children }) => {
         <title>케어조아 - 실시간 요양시설 견적 플랫폼</title>
         <meta name="description" content="전국 어디서든 원하는 요양시설 찾기! 시설 정보 확인부터 맞춤 견적 요청까지 한 번에!" />
         
+        {/* 네이버 사이트 소유 확인 */}
+        <meta name="naver-site-verification" content="5cc01115b78cdcac6d30bc8ce080f4290c212043" />
+        
         {/* Favicon */}
         <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>❤️</text></svg>" />
         
