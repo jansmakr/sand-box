@@ -761,23 +761,17 @@ app.get('/family-care-register', (c) => {
 
 // 전국 요양시설 찾기 페이지
 app.get('/facilities', (c) => {
-  // Kakao Maps API 키 가져오기 (환경 변수에서)
-  const kakaoApiKey = c.env?.KAKAO_MAPS_API_KEY || 'YOUR_KAKAO_API_KEY_HERE';
-  
   return c.render(
     <div>
-      {/* Kakao Maps API 스크립트를 head에 미리 로드 */}
-      <script dangerouslySetInnerHTML={{
-        __html: `
-        // 카카오맵 스크립트 동적 로드
-        (function() {
-          var script = document.createElement('script');
-          script.type = 'text/javascript';
-          script.src = '//dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoApiKey}&autoload=false';
-          document.head.appendChild(script);
-        })();
-        `
-      }} />
+      {/* Leaflet CSS */}
+      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
+        crossorigin="" />
+      
+      {/* Leaflet JS */}
+      <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""></script>
       
       <header class="bg-white shadow-sm border-b sticky top-0 z-10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -940,20 +934,26 @@ app.get('/facilities', (c) => {
         let map = null;
         let markers = [];
 
-        // 카카오맵 초기화
-        function initKakaoMap() {
-          const container = document.getElementById('map');
-          const options = {
-            center: new kakao.maps.LatLng(37.5665, 126.9780), // 서울 중심 좌표
-            level: 8 // 확대 레벨 (1~14)
-          };
-          map = new kakao.maps.Map(container, options);
+        // Leaflet 지도 초기화
+        function initLeafletMap() {
+          console.log('🗺️ Leaflet 지도 초기화 시작');
+          
+          // 지도 생성 (서울 중심)
+          map = L.map('map').setView([37.5665, 126.9780], 7);
+          
+          // OpenStreetMap 타일 레이어 추가
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19
+          }).addTo(map);
+          
+          console.log('✅ Leaflet 지도 초기화 완료');
         }
 
         // 지도에 마커 표시
         function displayMarkersOnMap() {
           // 기존 마커 제거
-          markers.forEach(marker => marker.setMap(null));
+          markers.forEach(marker => map.removeLayer(marker));
           markers = [];
 
           // 최대 100개 마커 표시
@@ -961,50 +961,59 @@ app.get('/facilities', (c) => {
           
           if (displayList.length === 0) return;
 
+          // 시설 유형별 마커 색상
+          const typeColors = {
+            '요양병원': '#ef4444',    // 빨강
+            '요양원': '#3b82f6',       // 파랑
+            '재가복지센터': '#10b981', // 초록
+            '주야간보호': '#f59e0b'    // 주황
+          };
+
           displayList.forEach(facility => {
             if (!facility.lat || !facility.lng) return;
 
-            const position = new kakao.maps.LatLng(facility.lat, facility.lng);
-            
-            // 마커 생성
-            const marker = new kakao.maps.Marker({
-              position: position,
-              map: map
+            // 커스텀 마커 아이콘
+            const markerColor = typeColors[facility.type] || '#6b7280';
+            const markerIcon = L.divIcon({
+              className: 'custom-marker',
+              html: \`<div style="background-color: \${markerColor}; width: 24px; height: 24px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>\`,
+              iconSize: [24, 24],
+              iconAnchor: [12, 12]
             });
 
-            // 인포윈도우 생성
-            const infoContent = \`
-              <div style="padding:10px;min-width:200px;">
-                <div style="font-weight:bold;margin-bottom:5px;color:#7c3aed;">
+            // 마커 생성
+            const marker = L.marker([facility.lat, facility.lng], {
+              icon: markerIcon
+            }).addTo(map);
+
+            // 팝업 내용
+            const popupContent = \`
+              <div style="min-width:200px;">
+                <div style="font-weight:bold;margin-bottom:5px;color:\${markerColor};font-size:12px;">
                   \${facility.type}
                 </div>
-                <div style="font-size:14px;margin-bottom:5px;">
+                <div style="font-size:14px;margin-bottom:5px;font-weight:600;">
                   \${facility.name}
                 </div>
                 <div style="font-size:12px;color:#666;">
-                  \${facility.address}
+                  📍 \${facility.address}
+                </div>
+                <div style="font-size:11px;color:#999;margin-top:5px;">
+                  \${facility.sido} \${facility.sigungu}
                 </div>
               </div>
             \`;
 
-            const infowindow = new kakao.maps.InfoWindow({
-              content: infoContent
-            });
-
-            // 마커 클릭 이벤트
-            kakao.maps.event.addListener(marker, 'click', function() {
-              infowindow.open(map, marker);
-            });
-
+            marker.bindPopup(popupContent);
             markers.push(marker);
           });
 
           // 첫 번째 시설로 지도 중심 이동
           if (displayList.length > 0 && displayList[0].lat && displayList[0].lng) {
-            const firstPosition = new kakao.maps.LatLng(displayList[0].lat, displayList[0].lng);
-            map.setCenter(firstPosition);
-            map.setLevel(6);
+            map.setView([displayList[0].lat, displayList[0].lng], 12);
           }
+          
+          console.log(\`📍 \${displayList.length}개 마커 표시 완료\`);
         }
 
         // CSV 파일 로드
@@ -1173,57 +1182,37 @@ app.get('/facilities', (c) => {
             return;
           }
 
-          const position = new kakao.maps.LatLng(lat, lng);
-          map.setCenter(position);
-          map.setLevel(3); // 더 가까이 확대
+          // 지도 중심 이동 및 확대
+          map.setView([lat, lng], 16);
 
-          // 해당 위치에 인포윈도우 표시
-          const infoContent = \`
-            <div style="padding:15px;min-width:250px;">
-              <div style="font-weight:bold;font-size:16px;margin-bottom:8px;color:#7c3aed;">
-                \${name}
-              </div>
-              <div style="font-size:12px;color:#666;">
-                <i class="fas fa-map-marker-alt" style="color:#ef4444;"></i> 
-                위도: \${lat.toFixed(6)}, 경도: \${lng.toFixed(6)}
-              </div>
-            </div>
-          \`;
-
-          const infowindow = new kakao.maps.InfoWindow({
-            content: infoContent,
-            position: position
+          // 해당 위치 마커 찾기 및 팝업 열기
+          markers.forEach(marker => {
+            const markerLatLng = marker.getLatLng();
+            if (Math.abs(markerLatLng.lat - lat) < 0.0001 && Math.abs(markerLatLng.lng - lng) < 0.0001) {
+              marker.openPopup();
+            }
           });
-
-          infowindow.open(map);
-
-          // 3초 후 인포윈도우 닫기
-          setTimeout(() => {
-            infowindow.close();
-          }, 3000);
+          
+          console.log(\`🎯 지도 이동: \${name}\`);
         }
 
-        // 카카오맵 로드 대기 및 초기화
-        function waitForKakao() {
-          if (typeof kakao !== 'undefined' && kakao.maps) {
-            // 카카오맵 로드 완료
-            console.log('✅ 카카오맵 API 로드 완료');
-            kakao.maps.load(function() {
-              initKakaoMap();
-              loadFacilitiesData();
-            });
+        // Leaflet 로드 대기 및 초기화
+        function waitForLeaflet() {
+          if (typeof L !== 'undefined') {
+            console.log('✅ Leaflet 로드 완료');
+            initLeafletMap();
+            loadFacilitiesData();
           } else {
-            // 아직 로드 안됨, 100ms 후 재시도
-            console.log('⏳ 카카오맵 API 로딩 중...');
-            setTimeout(waitForKakao, 100);
+            console.log('⏳ Leaflet 로딩 중...');
+            setTimeout(waitForLeaflet, 100);
           }
         }
 
-        // 페이지 로드 시 카카오맵 로드 대기
+        // 페이지 로드 시 Leaflet 로드 대기
         if (document.readyState === 'loading') {
-          document.addEventListener('DOMContentLoaded', waitForKakao);
+          document.addEventListener('DOMContentLoaded', waitForLeaflet);
         } else {
-          waitForKakao();
+          waitForLeaflet();
         }
         `
       }} />
