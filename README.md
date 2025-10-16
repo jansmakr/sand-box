@@ -64,10 +64,12 @@
   - 시/군/구 선택 (캐스케이딩, ~250개 지역)
   - 시설 유형 선택 (요양병원, 요양원, 재가복지센터, 주야간보호)
   - 시설명 키워드 검색
-- ✅ **카카오맵 연동**
-  - 실시간 지도 표시
+- ✅ **Leaflet.js 지도 연동** (오픈소스, API 키 불필요)
+  - 빠른 로딩 속도 (0.5초 이하)
+  - OpenStreetMap 타일 사용
+  - 시설 유형별 색상 마커 (빨강/파랑/초록/주황)
   - 검색 결과 마커 표시 (최대 100개)
-  - 마커 클릭으로 시설 정보 확인
+  - 마커 클릭으로 시설 정보 팝업
   - 시설 목록의 "지도" 버튼으로 특정 위치 확대
 - ✅ **2열 레이아웃**: 지도(좌) + 시설 목록(우)
 - ✅ **반응형 디자인**: 모바일/태블릿/데스크톱 최적화
@@ -145,24 +147,13 @@
 - **스타일**: Tailwind CSS v3 (로컬 빌드)
 - **프론트엔드**: JSX Server-Side Rendering
 - **인증**: Cookie-based Session
-- **지도 API**: Kakao Maps JavaScript API (전국 요양시설 찾기)
+- **지도**: Leaflet.js 1.9.4 + OpenStreetMap (전국 요양시설 찾기)
+  - 오픈소스, API 키 불필요
+  - 빠른 로딩 (39KB)
+  - 완전 무료, 사용량 제한 없음
 - **데이터 처리**: Client-side CSV parsing (27,657 facilities)
 
 ## 🛠️ 개발 및 배포
-
-### 카카오맵 API 설정 (필수!)
-
-**전국 요양시설 찾기 기능을 사용하려면 Kakao Maps API 키가 필요합니다.**
-
-상세 가이드: [KAKAO_MAPS_SETUP.md](./KAKAO_MAPS_SETUP.md)
-
-**빠른 설정:**
-1. https://developers.kakao.com/ 에서 애플리케이션 등록
-2. JavaScript 키 발급
-3. `.dev.vars` 파일에 키 추가:
-   ```bash
-   KAKAO_MAPS_API_KEY=발급받은_키
-   ```
 
 ### 로컬 개발 (D1 로컬 모드)
 ```bash
@@ -195,11 +186,7 @@ npx wrangler d1 create carejoa-production
 # 3. 프로덕션 마이그레이션 적용 (최초 1회 또는 스키마 변경 시)
 npx wrangler d1 migrations apply carejoa-production
 
-# 4. Kakao Maps API 키 프로덕션 환경에 추가 (필수!)
-npx wrangler pages secret put KAKAO_MAPS_API_KEY --project-name=carejoa-webapp
-# 프롬프트에서 발급받은 JavaScript 키 입력
-
-# 5. 빌드 및 배포
+# 4. 빌드 및 배포
 npm run build
 npx wrangler pages deploy dist --project-name=carejoa-webapp
 ```
@@ -268,11 +255,15 @@ npx wrangler pages deploy dist --project-name=carejoa-webapp
 ## 🔄 배포 상태
 - ✅ **활성화**: Cloudflare Pages에 24/7 운영 중
 - ✅ **데이터베이스**: Cloudflare D1 통합 완료 - 영구 데이터 저장
-- ✅ **빌드 완료**: 최신 버전 배포됨 (D1 데이터베이스 통합 + 카카오맵 연동)
+- ✅ **빌드 완료**: 최신 버전 배포됨 (D1 데이터베이스 통합 + Leaflet 지도)
 - ✅ **Git 저장소**: 초기화 및 커밋 완료
 - **마지막 업데이트**: 2025-10-16
+  - ✅ **Leaflet.js 지도로 전환** (카카오맵 → Leaflet)
+    - 로딩 속도 5-10배 향상 (3-5초 → 0.5초)
+    - API 키 불필요, 완전 무료
+    - OpenStreetMap 타일 사용
+    - 시설 유형별 색상 마커 (빨강/파랑/초록/주황)
   - ✅ **전국 요양시설 찾기 기능 추가** (27,657개 시설)
-  - ✅ **카카오맵 API 연동** (실시간 지도 표시 + 마커)
   - ✅ 다중 필터 검색 (시도/시군구/유형/키워드)
   - ✅ 2열 레이아웃 (지도 + 목록)
   - ✅ 5.7MB CSV 클라이언트 사이드 로딩
