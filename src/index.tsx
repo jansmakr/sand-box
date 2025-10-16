@@ -2279,6 +2279,20 @@ app.post('/api/admin/login', async (c) => {
   try {
     const { DB } = c.env
     const { password } = await c.req.json()
+    
+    // admin_sessions 테이블이 없으면 생성
+    try {
+      await DB.prepare(`
+        CREATE TABLE IF NOT EXISTS admin_sessions (
+          session_id TEXT PRIMARY KEY,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          expires_at DATETIME NOT NULL
+        )
+      `).run()
+    } catch (err) {
+      console.log('Table creation skipped or already exists')
+    }
+    
     if (password === ADMIN_CONFIG.password) {
       const sessionId = generateSessionId()
       const createdAt = new Date().toISOString()
