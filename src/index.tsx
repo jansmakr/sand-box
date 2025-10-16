@@ -1016,6 +1016,29 @@ app.get('/facilities', (c) => {
           console.log(\`📍 \${displayList.length}개 마커 표시 완료\`);
         }
 
+        // CSV 파싱 함수 (따옴표 처리)
+        function parseCSVLine(line) {
+          const result = [];
+          let current = '';
+          let inQuotes = false;
+          
+          for (let i = 0; i < line.length; i++) {
+            const char = line[i];
+            
+            if (char === '"') {
+              inQuotes = !inQuotes;
+            } else if (char === ',' && !inQuotes) {
+              result.push(current.trim());
+              current = '';
+            } else {
+              current += char;
+            }
+          }
+          
+          result.push(current.trim());
+          return result;
+        }
+
         // CSV 파일 로드
         async function loadFacilitiesData() {
           try {
@@ -1024,16 +1047,15 @@ app.get('/facilities', (c) => {
             const response = await fetch('/static/facilities_data.csv');
             const csvText = await response.text();
             
-            // CSV 파싱
+            // CSV 파싱 (줄바꿈으로 분리)
             const lines = csvText.split('\\n');
-            const headers = lines[0].split(',');
             
             allFacilities = [];
             for (let i = 1; i < lines.length; i++) {
               if (!lines[i].trim()) continue;
               
-              const values = lines[i].split(',');
-              if (values.length < 7) continue;
+              const values = parseCSVLine(lines[i]);
+              if (values.length < 9) continue;
               
               allFacilities.push({
                 id: i,
@@ -1047,13 +1069,20 @@ app.get('/facilities', (c) => {
               });
             }
             
-            console.log('로드된 시설 수:', allFacilities.length);
+            console.log('✅ 로드된 시설 수:', allFacilities.length);
+            
+            // 데이터 검증 - 처음 5개 샘플 출력
+            console.log('📋 데이터 샘플 (처음 5개):');
+            allFacilities.slice(0, 5).forEach((f, idx) => {
+              console.log(\`  \${idx + 1}. \${f.name} | \${f.sido} \${f.sigungu} | \${f.type}\`);
+            });
+            
             filteredFacilities = allFacilities;
             
             document.getElementById('loadingSpinner').classList.add('hidden');
             displayResults();
           } catch (error) {
-            console.error('데이터 로드 실패:', error);
+            console.error('❌ 데이터 로드 실패:', error);
             document.getElementById('loadingSpinner').classList.add('hidden');
             alert('데이터를 불러오는데 실패했습니다.');
           }
@@ -1093,6 +1122,9 @@ app.get('/facilities', (c) => {
           const type = document.getElementById('filterType').value;
           const keyword = document.getElementById('searchKeyword').value.trim().toLowerCase();
 
+          console.log('🔍 검색 조건:', { sido, sigungu, type, keyword });
+          console.log('📊 전체 시설 수:', allFacilities.length);
+
           filteredFacilities = allFacilities.filter(facility => {
             if (sido && facility.sido !== sido) return false;
             if (sigungu && facility.sigungu !== sigungu) return false;
@@ -1100,6 +1132,22 @@ app.get('/facilities', (c) => {
             if (keyword && !facility.name.toLowerCase().includes(keyword)) return false;
             return true;
           });
+
+          console.log('✅ 필터링 결과:', filteredFacilities.length);
+          
+          // 필터링 결과가 0개이고 조건이 있을 때 샘플 데이터 확인
+          if (filteredFacilities.length === 0 && (sido || sigungu || type)) {
+            console.log('⚠️ 검색 결과 없음. 샘플 데이터 확인:');
+            const samples = allFacilities.slice(0, 3);
+            samples.forEach(s => {
+              console.log('샘플:', {
+                name: s.name,
+                sido: s.sido,
+                sigungu: s.sigungu,
+                type: s.type
+              });
+            });
+          }
 
           displayResults();
         }
