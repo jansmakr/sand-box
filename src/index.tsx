@@ -761,8 +761,14 @@ app.get('/family-care-register', (c) => {
 
 // 전국 요양시설 찾기 페이지
 app.get('/facilities', (c) => {
+  // Kakao Maps API 키 가져오기 (환경 변수에서)
+  const kakaoApiKey = c.env?.KAKAO_MAPS_API_KEY || 'YOUR_KAKAO_API_KEY_HERE';
+  
   return c.render(
     <div>
+      {/* Kakao Maps API 스크립트 */}
+      <script type="text/javascript" src={`//dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoApiKey}`}></script>
+      
       <header class="bg-white shadow-sm border-b sticky top-0 z-10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="flex justify-between items-center h-16">
@@ -866,13 +872,7 @@ app.get('/facilities', (c) => {
                   <i class="fas fa-map-marked-alt mr-2"></i>지도로 보기
                 </h3>
               </div>
-              <div id="map" class="w-full h-[600px] bg-gray-100 flex items-center justify-center">
-                <div class="text-center text-gray-500">
-                  <i class="fas fa-map text-6xl mb-4"></i>
-                  <p class="text-lg font-medium">지역을 선택하면 지도가 표시됩니다</p>
-                  <p class="text-sm mt-2">카카오맵 또는 네이버맵 API 연동 필요</p>
-                </div>
-              </div>
+              <div id="map" class="w-full h-[600px] bg-gray-100"></div>
             </div>
 
             {/* 리스트 영역 */}
@@ -927,6 +927,75 @@ app.get('/facilities', (c) => {
 
         let allFacilities = [];
         let filteredFacilities = [];
+        let map = null;
+        let markers = [];
+
+        // 카카오맵 초기화
+        function initKakaoMap() {
+          const container = document.getElementById('map');
+          const options = {
+            center: new kakao.maps.LatLng(37.5665, 126.9780), // 서울 중심 좌표
+            level: 8 // 확대 레벨 (1~14)
+          };
+          map = new kakao.maps.Map(container, options);
+        }
+
+        // 지도에 마커 표시
+        function displayMarkersOnMap() {
+          // 기존 마커 제거
+          markers.forEach(marker => marker.setMap(null));
+          markers = [];
+
+          // 최대 100개 마커 표시
+          const displayList = filteredFacilities.slice(0, 100);
+          
+          if (displayList.length === 0) return;
+
+          displayList.forEach(facility => {
+            if (!facility.lat || !facility.lng) return;
+
+            const position = new kakao.maps.LatLng(facility.lat, facility.lng);
+            
+            // 마커 생성
+            const marker = new kakao.maps.Marker({
+              position: position,
+              map: map
+            });
+
+            // 인포윈도우 생성
+            const infoContent = \`
+              <div style="padding:10px;min-width:200px;">
+                <div style="font-weight:bold;margin-bottom:5px;color:#7c3aed;">
+                  \${facility.type}
+                </div>
+                <div style="font-size:14px;margin-bottom:5px;">
+                  \${facility.name}
+                </div>
+                <div style="font-size:12px;color:#666;">
+                  \${facility.address}
+                </div>
+              </div>
+            \`;
+
+            const infowindow = new kakao.maps.InfoWindow({
+              content: infoContent
+            });
+
+            // 마커 클릭 이벤트
+            kakao.maps.event.addListener(marker, 'click', function() {
+              infowindow.open(map, marker);
+            });
+
+            markers.push(marker);
+          });
+
+          // 첫 번째 시설로 지도 중심 이동
+          if (displayList.length > 0 && displayList[0].lat && displayList[0].lng) {
+            const firstPosition = new kakao.maps.LatLng(displayList[0].lat, displayList[0].lng);
+            map.setCenter(firstPosition);
+            map.setLevel(6);
+          }
+        }
 
         // CSV 파일 로드
         async function loadFacilitiesData() {
@@ -1033,6 +1102,9 @@ app.get('/facilities', (c) => {
           // 결과 수 업데이트
           document.getElementById('resultCount').textContent = filteredFacilities.length.toLocaleString();
 
+          // 지도에 마커 표시
+          displayMarkersOnMap();
+
           // 리스트 표시 (최대 100개)
           const facilityList = document.getElementById('facilityList');
           const displayList = filteredFacilities.slice(0, 100);
@@ -1084,13 +1156,64 @@ app.get('/facilities', (c) => {
           }
         }
 
-        // 지도에 표시 (추후 카카오맵/네이버맵 연동)
+        // 특정 시설을 지도에 표시
         function showOnMap(lat, lng, name) {
-          alert(\`지도 기능은 카카오맵 또는 네이버맵 API 연동 후 사용 가능합니다.\\n\\n시설: \${name}\\n위도: \${lat}\\n경도: \${lng}\`);
+          if (!map) {
+            alert('지도를 초기화하는 중입니다. 잠시 후 다시 시도해주세요.');
+            return;
+          }
+
+          const position = new kakao.maps.LatLng(lat, lng);
+          map.setCenter(position);
+          map.setLevel(3); // 더 가까이 확대
+
+          // 해당 위치에 인포윈도우 표시
+          const infoContent = \`
+            <div style="padding:15px;min-width:250px;">
+              <div style="font-weight:bold;font-size:16px;margin-bottom:8px;color:#7c3aed;">
+                \${name}
+              </div>
+              <div style="font-size:12px;color:#666;">
+                <i class="fas fa-map-marker-alt" style="color:#ef4444;"></i> 
+                위도: \${lat.toFixed(6)}, 경도: \${lng.toFixed(6)}
+              </div>
+            </div>
+          \`;
+
+          const infowindow = new kakao.maps.InfoWindow({
+            content: infoContent,
+            position: position
+          });
+
+          infowindow.open(map);
+
+          // 3초 후 인포윈도우 닫기
+          setTimeout(() => {
+            infowindow.close();
+          }, 3000);
         }
 
-        // 페이지 로드 시 데이터 불러오기
-        window.addEventListener('load', loadFacilitiesData);
+        // 페이지 로드 시 지도 초기화 및 데이터 불러오기
+        window.addEventListener('load', function() {
+          // 카카오맵 스크립트 로드 확인
+          if (typeof kakao === 'undefined' || !kakao.maps) {
+            console.error('카카오맵 API가 로드되지 않았습니다.');
+            document.getElementById('map').innerHTML = \`
+              <div class="flex items-center justify-center h-full">
+                <div class="text-center text-red-500">
+                  <i class="fas fa-exclamation-triangle text-6xl mb-4"></i>
+                  <p class="text-lg font-medium">카카오맵 API 키가 설정되지 않았습니다</p>
+                  <p class="text-sm mt-2">관리자에게 문의하세요</p>
+                </div>
+              </div>
+            \`;
+          } else {
+            kakao.maps.load(function() {
+              initKakaoMap();
+              loadFacilitiesData();
+            });
+          }
+        });
         `
       }} />
     </div>

@@ -12,5 +12,10 @@
       "database_name": "carejoa-production",
       "database_id": "placeholder-will-use-local-for-now"
     }
-  ]
+  ],
+
+  // Environment variables
+  "vars": {
+    // KAKAO_MAPS_API_KEY는 .dev.vars (로컬) 또는 wrangler secret (프로덕션)에서 설정
+  }
 }

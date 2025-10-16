@@ -57,7 +57,23 @@
 - ✅ 원클릭 전화 연결 기능
 - ✅ 등록된 센터가 없을 경우 대표번호 안내
 
-### 7. 관리자 시스템
+### 7. 전국 요양시설 찾기 (NEW! 2025-10-16)
+- ✅ **27,657개** 전국 요양시설 데이터베이스
+- ✅ **다중 필터 검색**
+  - 시/도 선택 (18개 지역)
+  - 시/군/구 선택 (캐스케이딩, ~250개 지역)
+  - 시설 유형 선택 (요양병원, 요양원, 재가복지센터, 주야간보호)
+  - 시설명 키워드 검색
+- ✅ **카카오맵 연동**
+  - 실시간 지도 표시
+  - 검색 결과 마커 표시 (최대 100개)
+  - 마커 클릭으로 시설 정보 확인
+  - 시설 목록의 "지도" 버튼으로 특정 위치 확대
+- ✅ **2열 레이아웃**: 지도(좌) + 시설 목록(우)
+- ✅ **반응형 디자인**: 모바일/태블릿/데스크톱 최적화
+- ✅ **성능 최적화**: 5.7MB CSV 클라이언트 사이드 로딩
+
+### 8. 관리자 시스템
 - ✅ 관리자 로그인 (비밀번호: 5874)
 - ✅ 대시보드 통계
 - ✅ 파트너 신청 목록 조회
@@ -71,7 +87,7 @@
 - ✅ 세션 기반 인증
 - ✅ 로그아웃 기능
 
-### 8. 반응형 디자인
+### 9. 반응형 디자인
 - ✅ 모바일 하단 네비게이션 (5개 컬러 버튼)
   - 🔴 상급병원 (빨강)
   - 🔵 정부복지 (파랑)
@@ -81,7 +97,7 @@
 - ✅ 데스크톱 헤더 네비게이션
 - ✅ 모바일 최적화 레이아웃
 
-### 9. 푸터
+### 10. 푸터
 - ✅ 서비스 링크
 - ✅ 고객지원 (전화: 0507-1310-5873, 카카오톡, 이메일)
 - ✅ 앱 다운로드 링크
@@ -109,6 +125,11 @@
 - **저장 방식**: ✅ **Cloudflare D1 영구 저장** (Worker 재시작 후에도 데이터 유지)
 - **인증**: 세션 쿠키 + D1 데이터베이스 기반 관리자 인증
 - **지역 데이터**: 전국 17개 시도 및 시군구 전체 데이터
+- **요양시설 데이터** (NEW!):
+  - 총 27,657개 시설 정보
+  - CSV 파일 (5.7MB) - 클라이언트 사이드 로딩
+  - 필드: 시설명, 유형, 주소, 시도, 시군구, 위도, 경도
+  - 시설 유형: 재가복지센터(17,449), 요양원(4,603), 주야간보호(2,995), 요양병원(2,610)
 
 ## 🎨 디자인 시스템
 - **프레임워크**: Tailwind CSS v3
@@ -124,8 +145,24 @@
 - **스타일**: Tailwind CSS v3 (로컬 빌드)
 - **프론트엔드**: JSX Server-Side Rendering
 - **인증**: Cookie-based Session
+- **지도 API**: Kakao Maps JavaScript API (전국 요양시설 찾기)
+- **데이터 처리**: Client-side CSV parsing (27,657 facilities)
 
 ## 🛠️ 개발 및 배포
+
+### 카카오맵 API 설정 (필수!)
+
+**전국 요양시설 찾기 기능을 사용하려면 Kakao Maps API 키가 필요합니다.**
+
+상세 가이드: [KAKAO_MAPS_SETUP.md](./KAKAO_MAPS_SETUP.md)
+
+**빠른 설정:**
+1. https://developers.kakao.com/ 에서 애플리케이션 등록
+2. JavaScript 키 발급
+3. `.dev.vars` 파일에 키 추가:
+   ```bash
+   KAKAO_MAPS_API_KEY=발급받은_키
+   ```
 
 ### 로컬 개발 (D1 로컬 모드)
 ```bash
@@ -138,6 +175,9 @@ npx wrangler d1 migrations apply carejoa-production --local
 npm run build
 pm2 start ecosystem.config.cjs  # --d1=carejoa-production --local 플래그 포함
 curl http://localhost:3000
+
+# 전국 요양시설 찾기 페이지 테스트
+curl http://localhost:3000/facilities
 
 # D1 데이터 확인
 npx wrangler d1 execute carejoa-production --local --command="SELECT * FROM partners"
@@ -155,7 +195,11 @@ npx wrangler d1 create carejoa-production
 # 3. 프로덕션 마이그레이션 적용 (최초 1회 또는 스키마 변경 시)
 npx wrangler d1 migrations apply carejoa-production
 
-# 4. 빌드 및 배포
+# 4. Kakao Maps API 키 프로덕션 환경에 추가 (필수!)
+npx wrangler pages secret put KAKAO_MAPS_API_KEY --project-name=carejoa-webapp
+# 프롬프트에서 발급받은 JavaScript 키 입력
+
+# 5. 빌드 및 배포
 npm run build
 npx wrangler pages deploy dist --project-name=carejoa-webapp
 ```
@@ -169,6 +213,7 @@ npx wrangler pages deploy dist --project-name=carejoa-webapp
 ### 사용자 페이지
 - `/` - 메인 랜딩 페이지
 - `/family-care-register` - 가족 간병 등록
+- `/facilities` - 전국 요양시설 찾기 (NEW! 27,657개 시설 + 카카오맵)
 - `/#partner-section` - 파트너 입점 신청 섹션
 
 ### 관리자 페이지
@@ -189,12 +234,17 @@ npx wrangler pages deploy dist --project-name=carejoa-webapp
 
 ### 일반 사용자
 1. 메인 페이지에서 "실시간 견적 & 상담 신청하기" 클릭
-2. 또는 "지역별 전화상담하기" 버튼으로 내 지역 상담센터 찾기 (NEW!)
+2. 또는 "지역별 전화상담하기" 버튼으로 내 지역 상담센터 찾기
    - 시/도 선택 → 시/군/구 선택
    - 해당 지역 대표 상담센터 4개 표시
    - 원클릭으로 전화 연결
-3. 또는 Android 앱 다운로드
-4. 가족 간병이 필요한 경우 "가족간병등록" 버튼 클릭
+3. 또는 **"전국 요양시설 찾아보기"** 버튼으로 27,657개 시설 검색 (NEW! 2025-10-16)
+   - 시/도, 시/군/구, 시설 유형으로 필터링
+   - 카카오맵으로 위치 확인
+   - 시설명 키워드 검색
+   - 시설 목록에서 "지도" 버튼으로 상세 위치 확인
+4. 또는 Android 앱 다운로드
+5. 가족 간병이 필요한 경우 "가족간병등록" 버튼 클릭
 
 ### 파트너 (시설 담당자)
 1. 메인 페이지 하단 "요양시설 입점 신청" 섹션으로 이동
@@ -218,9 +268,16 @@ npx wrangler pages deploy dist --project-name=carejoa-webapp
 ## 🔄 배포 상태
 - ✅ **활성화**: Cloudflare Pages에 24/7 운영 중
 - ✅ **데이터베이스**: Cloudflare D1 통합 완료 - 영구 데이터 저장
-- ✅ **빌드 완료**: 최신 버전 배포됨 (D1 데이터베이스 통합)
+- ✅ **빌드 완료**: 최신 버전 배포됨 (D1 데이터베이스 통합 + 카카오맵 연동)
 - ✅ **Git 저장소**: 초기화 및 커밋 완료
-- **마지막 업데이트**: 2025-10-15
+- **마지막 업데이트**: 2025-10-16
+  - ✅ **전국 요양시설 찾기 기능 추가** (27,657개 시설)
+  - ✅ **카카오맵 API 연동** (실시간 지도 표시 + 마커)
+  - ✅ 다중 필터 검색 (시도/시군구/유형/키워드)
+  - ✅ 2열 레이아웃 (지도 + 목록)
+  - ✅ 5.7MB CSV 클라이언트 사이드 로딩
+  - ✅ 네이버 웹마스터 도구 인증 태그 추가
+- **이전 업데이트** (2025-10-15):
   - ✅ Cloudflare D1 데이터베이스 통합 (영구 저장)
   - ✅ 지역별 전화상담 시스템 추가
   - ✅ 요양시설 입점 신청 폼에 주소 입력 기능 추가 (시/도, 시/군/구, 상세주소)
