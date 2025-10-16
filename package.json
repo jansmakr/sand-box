@@ -7,7 +7,12 @@
     "build:css": "tailwindcss -i ./src/styles.css -o ./public/static/tailwind.css --minify",
     "preview": "wrangler pages dev",
     "deploy": "npm run build && wrangler pages deploy dist --project-name=carejoa-webapp",
-    "cf-typegen": "wrangler types --env-interface CloudflareBindings"
+    "cf-typegen": "wrangler types --env-interface CloudflareBindings",
+    "db:migrate:local": "wrangler d1 migrations apply carejoa-production --local",
+    "db:migrate:prod": "wrangler d1 migrations apply carejoa-production",
+    "db:console:local": "wrangler d1 execute carejoa-production --local",
+    "db:console:prod": "wrangler d1 execute carejoa-production",
+    "db:import": "node scripts/import-csv-to-d1.js"
   },
   "dependencies": {
     "hono": "^4.9.9"

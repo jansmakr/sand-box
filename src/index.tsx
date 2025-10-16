@@ -1352,9 +1352,17 @@ app.get('/admin/dashboard', async (c) => {
               <i class="fas fa-shield-alt text-2xl text-gray-900 mr-3"></i>
               <h1 class="text-2xl font-bold text-gray-900">케어조아 관리자</h1>
             </div>
-            <button id="logoutBtn" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
-              <i class="fas fa-sign-out-alt mr-2"></i>로그아웃
-            </button>
+            <div class="flex items-center space-x-4">
+              <a href="/admin/dashboard" class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100">
+                <i class="fas fa-home mr-2"></i>대시보드
+              </a>
+              <a href="/admin/facilities" class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100">
+                <i class="fas fa-hospital mr-2"></i>시설 관리
+              </a>
+              <button id="logoutBtn" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
+                <i class="fas fa-sign-out-alt mr-2"></i>로그아웃
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -1620,6 +1628,582 @@ app.get('/admin/dashboard', async (c) => {
         
         loadData();
         setInterval(loadData, 30000);
+        `
+      }} />
+    </div>
+  )
+})
+
+// ============================================
+// 관리자 - 시설 정보 관리 페이지
+// ============================================
+app.get('/admin/facilities', async (c) => {
+  if (!(await isAdmin(c))) {
+    return c.redirect('/admin')
+  }
+  
+  return c.render(
+    <div class="min-h-screen bg-gray-100">
+      <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex justify-between items-center h-16">
+            <div class="flex items-center">
+              <i class="fas fa-shield-alt text-2xl text-gray-900 mr-3"></i>
+              <h1 class="text-2xl font-bold text-gray-900">케어조아 관리자</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+              <a href="/admin/dashboard" class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100">
+                <i class="fas fa-home mr-2"></i>대시보드
+              </a>
+              <a href="/admin/facilities" class="bg-gray-200 text-gray-900 px-3 py-2 rounded-lg">
+                <i class="fas fa-hospital mr-2"></i>시설 관리
+              </a>
+              <button id="logoutBtn" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
+                <i class="fas fa-sign-out-alt mr-2"></i>로그아웃
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="max-w-7xl mx-auto px-4 py-8">
+        {/* 상단 통계 및 액션 */}
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+          <div class="flex justify-between items-center mb-6">
+            <div>
+              <h2 class="text-2xl font-bold text-gray-900">
+                <i class="fas fa-hospital text-blue-600 mr-2"></i>
+                요양시설 정보 관리
+              </h2>
+              <p class="text-gray-600 mt-1">총 <span id="totalCount" class="font-bold text-blue-600">0</span>개 시설</p>
+            </div>
+            <div class="flex space-x-3">
+              <button id="initDbBtn" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700">
+                <i class="fas fa-database mr-2"></i>DB 초기화
+              </button>
+              <button id="importCsvBtn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+                <i class="fas fa-file-upload mr-2"></i>CSV 임포트
+              </button>
+              <button id="addFacilityBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                <i class="fas fa-plus mr-2"></i>시설 추가
+              </button>
+            </div>
+          </div>
+
+          {/* 검색 필터 */}
+          <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <input 
+              type="text" 
+              id="searchInput" 
+              placeholder="시설명 또는 주소 검색..." 
+              class="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+            />
+            <select id="sidoFilter" class="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+              <option value="">전체 시도</option>
+            </select>
+            <select id="sigunguFilter" class="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+              <option value="">전체 시군구</option>
+            </select>
+            <select id="typeFilter" class="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+              <option value="">전체 유형</option>
+              <option value="요양병원">요양병원</option>
+              <option value="요양원">요양원</option>
+              <option value="재가복지센터">재가복지센터</option>
+              <option value="주야간보호">주야간보호</option>
+            </select>
+            <button id="searchBtn" class="bg-gray-800 text-white px-6 py-2 rounded-lg hover:bg-gray-900">
+              <i class="fas fa-search mr-2"></i>검색
+            </button>
+          </div>
+        </div>
+
+        {/* 시설 목록 테이블 */}
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="bg-gray-50 border-b">
+                <tr>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">시설 유형</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">시설명</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">전화번호</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">주소</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">시도</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">시군구</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">관리</th>
+                </tr>
+              </thead>
+              <tbody id="facilitiesTableBody" class="divide-y divide-gray-200">
+                <tr>
+                  <td colspan="8" class="px-4 py-8 text-center text-gray-500">
+                    <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+                    <p>데이터를 불러오는 중...</p>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          {/* 페이지네이션 */}
+          <div class="bg-gray-50 px-4 py-3 border-t flex items-center justify-between">
+            <div class="text-sm text-gray-700">
+              <span id="paginationInfo">페이지 1 / 1</span>
+            </div>
+            <div class="flex space-x-2" id="paginationButtons">
+              <button id="prevPageBtn" class="px-3 py-1 bg-white border rounded hover:bg-gray-50 disabled:opacity-50" disabled>
+                <i class="fas fa-chevron-left"></i>
+              </button>
+              <button id="nextPageBtn" class="px-3 py-1 bg-white border rounded hover:bg-gray-50 disabled:opacity-50" disabled>
+                <i class="fas fa-chevron-right"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 모달 - 시설 추가/수정 */}
+      <div id="facilityModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+          <div class="p-6">
+            <div class="flex justify-between items-center mb-6">
+              <h3 id="modalTitle" class="text-2xl font-bold">시설 추가</h3>
+              <button id="closeModalBtn" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times text-2xl"></i>
+              </button>
+            </div>
+
+            <form id="facilityForm" class="space-y-4">
+              <input type="hidden" id="facilityId" />
+              
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">시설 유형 *</label>
+                  <select id="facilityType" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                    <option value="">선택하세요</option>
+                    <option value="요양병원">요양병원</option>
+                    <option value="요양원">요양원</option>
+                    <option value="재가복지센터">재가복지센터</option>
+                    <option value="주야간보호">주야간보호</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">시설명 *</label>
+                  <input type="text" id="facilityName" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">전화번호</label>
+                  <input type="tel" id="facilityPhone" placeholder="02-1234-5678" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">우편번호</label>
+                  <input type="text" id="facilityPostalCode" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">주소 *</label>
+                <input type="text" id="facilityAddress" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+              </div>
+
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">시도 *</label>
+                  <select id="facilitySido" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                    <option value="">선택하세요</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">시군구 *</label>
+                  <select id="facilitySigungu" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                    <option value="">선택하세요</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">위도 *</label>
+                  <input type="number" id="facilityLatitude" required step="any" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">경도 *</label>
+                  <input type="number" id="facilityLongitude" required step="any" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+                </div>
+              </div>
+
+              <div class="flex justify-end space-x-3 pt-4">
+                <button type="button" id="cancelBtn" class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                  취소
+                </button>
+                <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                  <i class="fas fa-save mr-2"></i>저장
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      {/* Axios CDN */}
+      <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
+      
+      <script dangerouslySetInnerHTML={{
+        __html: `
+        // 지역 데이터
+        const regionData = {
+          "서울특별시": ["강남구", "강동구", "강북구", "강서구", "관악구", "광진구", "구로구", "금천구", "노원구", "도봉구", "동대문구", "동작구", "마포구", "서대문구", "서초구", "성동구", "성북구", "송파구", "양천구", "영등포구", "용산구", "은평구", "종로구", "중구", "중랑구"],
+          "부산광역시": ["강서구", "금정구", "기장군", "남구", "동구", "동래구", "부산진구", "북구", "사상구", "사하구", "서구", "수영구", "연제구", "영도구", "중구", "해운대구"],
+          "대구광역시": ["남구", "달서구", "달성군", "동구", "북구", "서구", "수성구", "중구"],
+          "인천광역시": ["강화군", "계양구", "남동구", "동구", "미추홀구", "부평구", "서구", "연수구", "옹진군", "중구"],
+          "광주광역시": ["광산구", "남구", "동구", "북구", "서구"],
+          "대전광역시": ["대덕구", "동구", "서구", "유성구", "중구"],
+          "울산광역시": ["남구", "동구", "북구", "울주군", "중구"],
+          "세종특별자치시": ["세종시"],
+          "경기도": ["가평군", "고양시", "과천시", "광명시", "광주시", "구리시", "군포시", "김포시", "남양주시", "동두천시", "부천시", "성남시", "수원시", "시흥시", "안산시", "안성시", "안양시", "양주시", "양평군", "여주시", "연천군", "오산시", "용인시", "의왕시", "의정부시", "이천시", "파주시", "평택시", "포천시", "하남시", "화성시"],
+          "강원도": ["강릉시", "고성군", "동해시", "삼척시", "속초시", "양구군", "양양군", "영월군", "원주시", "인제군", "정선군", "철원군", "춘천시", "태백시", "평창군", "홍천군", "화천군", "횡성군"],
+          "충청북도": ["괴산군", "단양군", "보은군", "영동군", "옥천군", "음성군", "제천시", "증평군", "진천군", "청주시", "충주시"],
+          "충청남도": ["계룡시", "공주시", "금산군", "논산시", "당진시", "보령시", "부여군", "서산시", "서천군", "아산시", "예산군", "천안시", "청양군", "태안군", "홍성군"],
+          "전라북도": ["고창군", "군산시", "김제시", "남원시", "무주군", "부안군", "순창군", "완주군", "익산시", "임실군", "장수군", "전주시", "정읍시", "진안군"],
+          "전라남도": ["강진군", "고흥군", "곡성군", "광양시", "구례군", "나주시", "담양군", "목포시", "무안군", "보성군", "순천시", "신안군", "여수시", "영광군", "영암군", "완도군", "장성군", "장흥군", "진도군", "함평군", "해남군", "화순군"],
+          "경상북도": ["경산시", "경주시", "고령군", "구미시", "군위군", "김천시", "문경시", "봉화군", "상주시", "성주군", "안동시", "영덕군", "영양군", "영주시", "영천시", "예천군", "울릉군", "울진군", "의성군", "청도군", "청송군", "칠곡군", "포항시"],
+          "경상남도": ["거제시", "거창군", "고성군", "김해시", "남해군", "밀양시", "사천시", "산청군", "양산시", "의령군", "진주시", "창녕군", "창원시", "통영시", "하동군", "함안군", "함양군", "합천군"],
+          "제주특별자치도": ["서귀포시", "제주시"]
+        };
+
+        let currentPage = 1;
+        let currentFilters = {};
+        let editingFacilityId = null;
+
+        // 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+          loadFacilities();
+          initFilters();
+          initModals();
+          initFormHandlers();
+        });
+
+        // 시설 목록 로드
+        async function loadFacilities(page = 1) {
+          currentPage = page;
+          
+          const params = new URLSearchParams({
+            page,
+            limit: 50,
+            ...currentFilters
+          });
+
+          try {
+            const response = await axios.get('/api/admin/facilities?' + params);
+            const { facilities, total, totalPages } = response.data;
+
+            document.getElementById('totalCount').textContent = total;
+            document.getElementById('paginationInfo').textContent = \`페이지 \${page} / \${totalPages}\`;
+
+            const tbody = document.getElementById('facilitiesTableBody');
+            if (facilities.length === 0) {
+              tbody.innerHTML = '<tr><td colspan="8" class="px-4 py-8 text-center text-gray-500">등록된 시설이 없습니다.</td></tr>';
+              return;
+            }
+
+            tbody.innerHTML = facilities.map(f => \`
+              <tr class="hover:bg-gray-50">
+                <td class="px-4 py-3 text-sm">\${f.id}</td>
+                <td class="px-4 py-3">
+                  <span class="px-2 py-1 text-xs font-semibold rounded-full \${getTypeColor(f.facility_type)}">
+                    \${f.facility_type}
+                  </span>
+                </td>
+                <td class="px-4 py-3 text-sm font-medium">\${f.name}</td>
+                <td class="px-4 py-3 text-sm">\${f.phone || '-'}</td>
+                <td class="px-4 py-3 text-sm text-gray-600">\${f.address.substring(0, 30)}\${f.address.length > 30 ? '...' : ''}</td>
+                <td class="px-4 py-3 text-sm">\${f.sido}</td>
+                <td class="px-4 py-3 text-sm">\${f.sigungu}</td>
+                <td class="px-4 py-3 text-sm">
+                  <button onclick="editFacility(\${f.id})" class="text-blue-600 hover:text-blue-800 mr-3">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button onclick="deleteFacility(\${f.id}, '\${f.name}')" class="text-red-600 hover:text-red-800">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </td>
+              </tr>
+            \`).join('');
+
+            // 페이지네이션 버튼
+            document.getElementById('prevPageBtn').disabled = page <= 1;
+            document.getElementById('nextPageBtn').disabled = page >= totalPages;
+          } catch (error) {
+            console.error('Load facilities error:', error);
+            alert('시설 목록을 불러오는 중 오류가 발생했습니다.');
+          }
+        }
+
+        function getTypeColor(type) {
+          const colors = {
+            '요양병원': 'bg-red-100 text-red-800',
+            '요양원': 'bg-blue-100 text-blue-800',
+            '재가복지센터': 'bg-green-100 text-green-800',
+            '주야간보호': 'bg-yellow-100 text-yellow-800'
+          };
+          return colors[type] || 'bg-gray-100 text-gray-800';
+        }
+
+        // 필터 초기화
+        function initFilters() {
+          const sidoFilter = document.getElementById('sidoFilter');
+          const sidoModal = document.getElementById('facilitySido');
+          
+          Object.keys(regionData).forEach(sido => {
+            sidoFilter.add(new Option(sido, sido));
+            sidoModal.add(new Option(sido, sido));
+          });
+
+          sidoFilter.addEventListener('change', function() {
+            const sigunguFilter = document.getElementById('sigunguFilter');
+            sigunguFilter.innerHTML = '<option value="">전체 시군구</option>';
+            
+            if (this.value && regionData[this.value]) {
+              regionData[this.value].forEach(sigungu => {
+                sigunguFilter.add(new Option(sigungu, sigungu));
+              });
+            }
+          });
+
+          document.getElementById('facilitySido').addEventListener('change', function() {
+            const sigunguModal = document.getElementById('facilitySigungu');
+            sigunguModal.innerHTML = '<option value="">선택하세요</option>';
+            
+            if (this.value && regionData[this.value]) {
+              regionData[this.value].forEach(sigungu => {
+                sigunguModal.add(new Option(sigungu, sigungu));
+              });
+            }
+          });
+
+          document.getElementById('searchBtn').addEventListener('click', function() {
+            currentFilters = {
+              search: document.getElementById('searchInput').value,
+              sido: document.getElementById('sidoFilter').value,
+              sigungu: document.getElementById('sigunguFilter').value,
+              type: document.getElementById('typeFilter').value
+            };
+            loadFacilities(1);
+          });
+
+          document.getElementById('prevPageBtn').addEventListener('click', () => loadFacilities(currentPage - 1));
+          document.getElementById('nextPageBtn').addEventListener('click', () => loadFacilities(currentPage + 1));
+        }
+
+        // 모달 초기화
+        function initModals() {
+          const modal = document.getElementById('facilityModal');
+          
+          document.getElementById('addFacilityBtn').addEventListener('click', function() {
+            editingFacilityId = null;
+            document.getElementById('modalTitle').textContent = '시설 추가';
+            document.getElementById('facilityForm').reset();
+            modal.classList.remove('hidden');
+          });
+
+          document.getElementById('closeModalBtn').addEventListener('click', () => modal.classList.add('hidden'));
+          document.getElementById('cancelBtn').addEventListener('click', () => modal.classList.add('hidden'));
+        }
+
+        // 폼 핸들러
+        function initFormHandlers() {
+          document.getElementById('facilityForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const data = {
+              facility_type: document.getElementById('facilityType').value,
+              name: document.getElementById('facilityName').value,
+              phone: document.getElementById('facilityPhone').value,
+              postal_code: document.getElementById('facilityPostalCode').value,
+              address: document.getElementById('facilityAddress').value,
+              sido: document.getElementById('facilitySido').value,
+              sigungu: document.getElementById('facilitySigungu').value,
+              latitude: parseFloat(document.getElementById('facilityLatitude').value),
+              longitude: parseFloat(document.getElementById('facilityLongitude').value)
+            };
+
+            try {
+              if (editingFacilityId) {
+                await axios.put(\`/api/admin/facilities/\${editingFacilityId}\`, data);
+                alert('시설 정보가 수정되었습니다.');
+              } else {
+                await axios.post('/api/admin/facilities', data);
+                alert('시설이 추가되었습니다.');
+              }
+              
+              document.getElementById('facilityModal').classList.add('hidden');
+              loadFacilities(currentPage);
+            } catch (error) {
+              console.error('Save facility error:', error);
+              alert('저장 중 오류가 발생했습니다.');
+            }
+          });
+
+          // DB 초기화
+          document.getElementById('initDbBtn').addEventListener('click', async function() {
+            if (!confirm('데이터베이스를 초기화하시겠습니까?')) return;
+            
+            try {
+              const response = await axios.post('/api/admin/init-db');
+              if (response.data.success) {
+                alert('데이터베이스가 초기화되었습니다.');
+              }
+            } catch (error) {
+              console.error('Init DB error:', error);
+              alert('DB 초기화 중 오류가 발생했습니다.');
+            }
+          });
+
+          // CSV 임포트
+          document.getElementById('importCsvBtn').addEventListener('click', async function() {
+            if (!confirm('CSV 데이터를 임포트하시겠습니까? (27,656개 시설, 약 1-2분 소요)')) return;
+            
+            this.disabled = true;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>임포트 중...';
+            
+            try {
+              // CSV 파일 로드
+              const csvResponse = await fetch('/static/facilities_data.csv');
+              const csvText = await csvResponse.text();
+              
+              // CSV 파싱
+              const lines = csvText.split('\\n').filter(line => line.trim());
+              const facilities = [];
+              
+              for (let i = 1; i < lines.length; i++) {
+                const cols = parseCSVLine(lines[i]);
+                if (cols.length < 9) continue;
+                
+                const [facilityType, name, postalCode, address, lat, lng, , sido, sigungu] = cols;
+                const latitude = parseFloat(lat);
+                const longitude = parseFloat(lng);
+                
+                if (isNaN(latitude) || isNaN(longitude)) continue;
+                
+                facilities.push({
+                  facilityType: facilityType.replace(/^"|"$/g, ''),
+                  name: name.replace(/^"|"$/g, ''),
+                  postalCode: postalCode.replace(/^"|"$/g, ''),
+                  address: address.replace(/^"|"$/g, ''),
+                  phone: '',
+                  latitude,
+                  longitude,
+                  sido: sido.replace(/^"|"$/g, ''),
+                  sigungu: sigungu.replace(/^"|"$/g, '')
+                });
+              }
+              
+              // 서버로 전송
+              const response = await axios.post('/api/admin/import-csv', { facilities });
+              
+              if (response.data.success) {
+                alert(\`임포트 완료: \${response.data.imported}개 성공, \${response.data.failed}개 실패\`);
+                loadFacilities(1);
+              }
+            } catch (error) {
+              console.error('Import CSV error:', error);
+              alert('CSV 임포트 중 오류가 발생했습니다.');
+            } finally {
+              this.disabled = false;
+              this.innerHTML = '<i class="fas fa-file-upload mr-2"></i>CSV 임포트';
+            }
+          });
+
+          // 로그아웃
+          document.getElementById('logoutBtn').addEventListener('click', async function() {
+            try {
+              await axios.post('/api/admin/logout');
+              window.location.href = '/admin';
+            } catch (error) {
+              window.location.href = '/admin';
+            }
+          });
+        }
+
+        // CSV 파싱 함수
+        function parseCSVLine(line) {
+          const result = [];
+          let current = '';
+          let inQuotes = false;
+          
+          for (let i = 0; i < line.length; i++) {
+            const char = line[i];
+            
+            if (char === '"') {
+              inQuotes = !inQuotes;
+            } else if (char === ',' && !inQuotes) {
+              result.push(current.trim());
+              current = '';
+            } else {
+              current += char;
+            }
+          }
+          
+          result.push(current.trim());
+          return result;
+        }
+
+        // 시설 편집
+        async function editFacility(id) {
+          try {
+            const response = await axios.get(\`/api/admin/facilities/\${id}\`);
+            const facility = response.data.facility;
+            
+            editingFacilityId = id;
+            document.getElementById('modalTitle').textContent = '시설 수정';
+            
+            document.getElementById('facilityId').value = facility.id;
+            document.getElementById('facilityType').value = facility.facility_type;
+            document.getElementById('facilityName').value = facility.name;
+            document.getElementById('facilityPhone').value = facility.phone || '';
+            document.getElementById('facilityPostalCode').value = facility.postal_code || '';
+            document.getElementById('facilityAddress').value = facility.address;
+            document.getElementById('facilitySido').value = facility.sido;
+            
+            // 시군구 로드
+            const sigunguSelect = document.getElementById('facilitySigungu');
+            sigunguSelect.innerHTML = '<option value="">선택하세요</option>';
+            if (regionData[facility.sido]) {
+              regionData[facility.sido].forEach(sigungu => {
+                sigunguSelect.add(new Option(sigungu, sigungu));
+              });
+            }
+            sigunguSelect.value = facility.sigungu;
+            
+            document.getElementById('facilityLatitude').value = facility.latitude;
+            document.getElementById('facilityLongitude').value = facility.longitude;
+            
+            document.getElementById('facilityModal').classList.remove('hidden');
+          } catch (error) {
+            console.error('Load facility error:', error);
+            alert('시설 정보를 불러오는 중 오류가 발생했습니다.');
+          }
+        }
+
+        // 시설 삭제
+        async function deleteFacility(id, name) {
+          if (!confirm(\`"\${name}" 시설을 삭제하시겠습니까?\`)) return;
+          
+          try {
+            await axios.delete(\`/api/admin/facilities/\${id}\`);
+            alert('시설이 삭제되었습니다.');
+            loadFacilities(currentPage);
+          } catch (error) {
+            console.error('Delete facility error:', error);
+            alert('시설 삭제 중 오류가 발생했습니다.');
+          }
+        }
         `
       }} />
     </div>
@@ -1950,6 +2534,288 @@ app.get('/api/regional-centers', async (c) => {
   } catch (error) {
     console.error('Regional centers fetch error:', error)
     return c.json({ centers: [] })
+  }
+})
+
+// ============================================
+// 관리자 API - 시설 정보 CRUD
+// ============================================
+
+// 데이터베이스 초기화 (테이블 생성)
+app.post('/api/admin/init-db', async (c) => {
+  try {
+    const { DB } = c.env
+    
+    // facilities 테이블 생성
+    await DB.prepare(`
+      CREATE TABLE IF NOT EXISTS facilities (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        facility_type TEXT NOT NULL,
+        name TEXT NOT NULL,
+        postal_code TEXT,
+        address TEXT NOT NULL,
+        phone TEXT,
+        latitude REAL NOT NULL,
+        longitude REAL NOT NULL,
+        sido TEXT NOT NULL,
+        sigungu TEXT NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `).run()
+    
+    // 인덱스 생성
+    await DB.prepare('CREATE INDEX IF NOT EXISTS idx_facilities_sido ON facilities(sido)').run()
+    await DB.prepare('CREATE INDEX IF NOT EXISTS idx_facilities_sigungu ON facilities(sigungu)').run()
+    await DB.prepare('CREATE INDEX IF NOT EXISTS idx_facilities_type ON facilities(facility_type)').run()
+    
+    return c.json({ success: true, message: '데이터베이스 초기화 완료' })
+  } catch (error: any) {
+    return c.json({ success: false, error: error.message }, 500)
+  }
+})
+
+// CSV 데이터 일괄 임포트
+app.post('/api/admin/import-csv', async (c) => {
+  try {
+    const { facilities } = await c.req.json()
+    const { DB } = c.env
+    
+    if (!Array.isArray(facilities) || facilities.length === 0) {
+      return c.json({ success: false, error: '유효한 시설 데이터가 없습니다' }, 400)
+    }
+    
+    let imported = 0
+    let failed = 0
+    
+    // 배치 처리 (100개씩)
+    for (let i = 0; i < facilities.length; i += 100) {
+      const batch = facilities.slice(i, i + 100)
+      
+      for (const facility of batch) {
+        try {
+          await DB.prepare(`
+            INSERT INTO facilities (facility_type, name, postal_code, address, phone, latitude, longitude, sido, sigungu)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+          `).bind(
+            facility.facilityType,
+            facility.name,
+            facility.postalCode || '',
+            facility.address,
+            facility.phone || '',
+            facility.latitude,
+            facility.longitude,
+            facility.sido,
+            facility.sigungu
+          ).run()
+          
+          imported++
+        } catch (err) {
+          failed++
+          console.error('Import error:', err)
+        }
+      }
+    }
+    
+    return c.json({ success: true, imported, failed, total: facilities.length })
+  } catch (error: any) {
+    return c.json({ success: false, error: error.message }, 500)
+  }
+})
+
+// 시설 목록 조회 (페이징, 검색)
+app.get('/api/admin/facilities', async (c) => {
+  try {
+    const { DB } = c.env
+    const page = parseInt(c.req.query('page') || '1')
+    const limit = parseInt(c.req.query('limit') || '50')
+    const search = c.req.query('search') || ''
+    const sido = c.req.query('sido') || ''
+    const sigungu = c.req.query('sigungu') || ''
+    const type = c.req.query('type') || ''
+    
+    const offset = (page - 1) * limit
+    
+    let whereClause = '1=1'
+    const bindings: any[] = []
+    
+    if (search) {
+      whereClause += ' AND (name LIKE ? OR address LIKE ?)'
+      bindings.push(`%${search}%`, `%${search}%`)
+    }
+    if (sido) {
+      whereClause += ' AND sido = ?'
+      bindings.push(sido)
+    }
+    if (sigungu) {
+      whereClause += ' AND sigungu = ?'
+      bindings.push(sigungu)
+    }
+    if (type) {
+      whereClause += ' AND facility_type = ?'
+      bindings.push(type)
+    }
+    
+    // 총 개수
+    const countResult = await DB.prepare(
+      `SELECT COUNT(*) as total FROM facilities WHERE ${whereClause}`
+    ).bind(...bindings).first()
+    
+    // 데이터 조회
+    const facilitiesResult = await DB.prepare(
+      `SELECT * FROM facilities WHERE ${whereClause} ORDER BY id DESC LIMIT ? OFFSET ?`
+    ).bind(...bindings, limit, offset).all()
+    
+    return c.json({
+      success: true,
+      facilities: facilitiesResult.results,
+      total: countResult?.total || 0,
+      page,
+      limit,
+      totalPages: Math.ceil((countResult?.total || 0) / limit)
+    })
+  } catch (error: any) {
+    return c.json({ success: false, error: error.message }, 500)
+  }
+})
+
+// 시설 상세 조회
+app.get('/api/admin/facilities/:id', async (c) => {
+  try {
+    const { DB } = c.env
+    const id = c.req.param('id')
+    
+    const facility = await DB.prepare(
+      'SELECT * FROM facilities WHERE id = ?'
+    ).bind(id).first()
+    
+    if (!facility) {
+      return c.json({ success: false, error: '시설을 찾을 수 없습니다' }, 404)
+    }
+    
+    return c.json({ success: true, facility })
+  } catch (error: any) {
+    return c.json({ success: false, error: error.message }, 500)
+  }
+})
+
+// 시설 정보 수정
+app.put('/api/admin/facilities/:id', async (c) => {
+  try {
+    const { DB } = c.env
+    const id = c.req.param('id')
+    const data = await c.req.json()
+    
+    await DB.prepare(`
+      UPDATE facilities SET
+        facility_type = ?,
+        name = ?,
+        postal_code = ?,
+        address = ?,
+        phone = ?,
+        latitude = ?,
+        longitude = ?,
+        sido = ?,
+        sigungu = ?,
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `).bind(
+      data.facility_type,
+      data.name,
+      data.postal_code || '',
+      data.address,
+      data.phone || '',
+      data.latitude,
+      data.longitude,
+      data.sido,
+      data.sigungu,
+      id
+    ).run()
+    
+    return c.json({ success: true, message: '시설 정보가 수정되었습니다' })
+  } catch (error: any) {
+    return c.json({ success: false, error: error.message }, 500)
+  }
+})
+
+// 시설 삭제
+app.delete('/api/admin/facilities/:id', async (c) => {
+  try {
+    const { DB } = c.env
+    const id = c.req.param('id')
+    
+    await DB.prepare('DELETE FROM facilities WHERE id = ?').bind(id).run()
+    
+    return c.json({ success: true, message: '시설이 삭제되었습니다' })
+  } catch (error: any) {
+    return c.json({ success: false, error: error.message }, 500)
+  }
+})
+
+// 시설 추가
+app.post('/api/admin/facilities', async (c) => {
+  try {
+    const { DB } = c.env
+    const data = await c.req.json()
+    
+    const result = await DB.prepare(`
+      INSERT INTO facilities (facility_type, name, postal_code, address, phone, latitude, longitude, sido, sigungu)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).bind(
+      data.facility_type,
+      data.name,
+      data.postal_code || '',
+      data.address,
+      data.phone || '',
+      data.latitude,
+      data.longitude,
+      data.sido,
+      data.sigungu
+    ).run()
+    
+    return c.json({ success: true, id: result.meta.last_row_id, message: '시설이 추가되었습니다' })
+  } catch (error: any) {
+    return c.json({ success: false, error: error.message }, 500)
+  }
+})
+
+// D1에서 시설 데이터 조회 (메인 검색 페이지용)
+app.get('/api/facilities-from-db', async (c) => {
+  try {
+    const { DB } = c.env
+    const sido = c.req.query('sido') || ''
+    const sigungu = c.req.query('sigungu') || ''
+    const type = c.req.query('type') || ''
+    const keyword = c.req.query('keyword') || ''
+    
+    let whereClause = '1=1'
+    const bindings: any[] = []
+    
+    if (sido) {
+      whereClause += ' AND sido = ?'
+      bindings.push(sido)
+    }
+    if (sigungu) {
+      whereClause += ' AND sigungu = ?'
+      bindings.push(sigungu)
+    }
+    if (type) {
+      whereClause += ' AND facility_type = ?'
+      bindings.push(type)
+    }
+    if (keyword) {
+      whereClause += ' AND name LIKE ?'
+      bindings.push(`%${keyword}%`)
+    }
+    
+    const result = await DB.prepare(
+      `SELECT * FROM facilities WHERE ${whereClause} LIMIT 1000`
+    ).bind(...bindings).all()
+    
+    return c.json({ success: true, facilities: result.results })
+  } catch (error: any) {
+    console.error('DB query error:', error)
+    return c.json({ success: false, error: error.message }, 500)
   }
 })
 
