@@ -895,16 +895,6 @@ app.get('/facilities', (c) => {
 
           {/* 지도 & 리스트 */}
           <div class="grid lg:grid-cols-2 gap-6">
-            {/* 지도 영역 */}
-            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-              <div class="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-4">
-                <h3 class="text-xl font-bold">
-                  <i class="fas fa-map-marked-alt mr-2"></i>지도로 보기
-                </h3>
-              </div>
-              <div id="map" class="w-full h-[600px] bg-gray-100"></div>
-            </div>
-
             {/* 리스트 영역 */}
             <div class="bg-white rounded-xl shadow-lg overflow-hidden">
               <div class="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-4">
@@ -918,6 +908,16 @@ app.get('/facilities', (c) => {
                   <p class="text-lg font-medium">검색 조건을 선택하고<br/>검색 버튼을 클릭하세요</p>
                 </div>
               </div>
+            </div>
+
+            {/* 지도 영역 */}
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+              <div class="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-4">
+                <h3 class="text-xl font-bold">
+                  <i class="fas fa-map-marked-alt mr-2"></i>지도로 보기
+                </h3>
+              </div>
+              <div id="map" class="w-full h-[600px] bg-gray-100"></div>
             </div>
           </div>
 
