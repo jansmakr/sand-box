@@ -3288,7 +3288,7 @@ app.get('/api/facilities-from-db', async (c) => {
     }
     
     const result = await DB.prepare(
-      `SELECT * FROM facilities WHERE ${whereClause} LIMIT 1000`
+      `SELECT * FROM facilities WHERE ${whereClause}`
     ).bind(...bindings).all()
     
     return c.json({ success: true, facilities: result.results })
