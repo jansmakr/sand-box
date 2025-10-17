@@ -292,7 +292,7 @@ app.get('/', (c) => {
         <div class="max-w-7xl mx-auto px-4">
           <div class="text-center mb-12">
             <h3 class="text-3xl font-bold text-gray-900 mb-4">
-              <i class="fas fa-handshake text-teal-600 mr-3"></i>요양시설 입점 신청
+              <i class="fas fa-handshake text-teal-600 mr-3"></i>요양시설 및 관련기관 입점신청
             </h3>
             <p class="text-lg text-gray-600">케어조아와 함께 더 많은 고객을 만나보세요</p>
           </div>
@@ -377,7 +377,7 @@ app.get('/', (c) => {
               
               <div class="text-center pt-6">
                 <button type="submit" class="bg-gradient-to-r from-teal-600 to-emerald-600 text-white px-12 py-4 rounded-lg hover:from-teal-700 hover:to-emerald-700 transform hover:scale-105 font-bold">
-                  <i class="fas fa-handshake mr-2"></i>요양시설 입점 신청
+                  <i class="fas fa-handshake mr-2"></i>요양시설 및 관련기관 입점신청
                 </button>
               </div>
             </form>
