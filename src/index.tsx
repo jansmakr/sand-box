@@ -29,6 +29,32 @@ function generateSessionId() {
   return 'session_' + Date.now() + '_' + Math.random().toString(36).substring(2)
 }
 
+// 데이터베이스 자동 초기화 미들웨어
+let dbInitialized = false
+app.use('*', async (c, next) => {
+  if (!dbInitialized && c.env.DB) {
+    try {
+      console.log('🔧 자동 데이터베이스 초기화 시작...')
+      const { DB } = c.env
+      
+      // 필수 테이블들 생성
+      await DB.prepare(`CREATE TABLE IF NOT EXISTS admin_sessions (session_id TEXT PRIMARY KEY, created_at DATETIME DEFAULT CURRENT_TIMESTAMP, expires_at DATETIME NOT NULL)`).run()
+      await DB.prepare(`CREATE TABLE IF NOT EXISTS partners (id TEXT PRIMARY KEY, facility_name TEXT NOT NULL, facility_type TEXT NOT NULL, facility_sido TEXT, facility_sigungu TEXT, facility_address TEXT, manager_name TEXT NOT NULL, manager_phone TEXT NOT NULL, region_key TEXT, is_regional_center INTEGER DEFAULT 0, created_at DATETIME DEFAULT CURRENT_TIMESTAMP, updated_at DATETIME DEFAULT CURRENT_TIMESTAMP)`).run()
+      await DB.prepare(`CREATE TABLE IF NOT EXISTS family_care (id TEXT PRIMARY KEY, guardian_name TEXT NOT NULL, guardian_phone TEXT NOT NULL, patient_name TEXT NOT NULL, patient_age INTEGER, region TEXT, requirements TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)`).run()
+      await DB.prepare(`CREATE TABLE IF NOT EXISTS regional_centers (id TEXT PRIMARY KEY, region_key TEXT NOT NULL, partner_id TEXT NOT NULL, facility_name TEXT NOT NULL, facility_type TEXT NOT NULL, manager_name TEXT NOT NULL, manager_phone TEXT NOT NULL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)`).run()
+      await DB.prepare(`CREATE TABLE IF NOT EXISTS facilities (id INTEGER PRIMARY KEY AUTOINCREMENT, facility_type TEXT NOT NULL, name TEXT NOT NULL, postal_code TEXT, address TEXT NOT NULL, phone TEXT, latitude REAL NOT NULL, longitude REAL NOT NULL, sido TEXT NOT NULL, sigungu TEXT NOT NULL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP, updated_at DATETIME DEFAULT CURRENT_TIMESTAMP)`).run()
+      
+      dbInitialized = true
+      console.log('✅ 데이터베이스 자동 초기화 완료')
+    } catch (error) {
+      console.error('⚠️ 데이터베이스 초기화 경고:', error)
+      // 초기화 실패해도 계속 진행 (테이블이 이미 존재할 수 있음)
+      dbInitialized = true
+    }
+  }
+  await next()
+})
+
 app.use('/api/*', cors())
 app.use('/static/*', serveStatic({ root: './public' }))
 app.use(renderer)
@@ -2560,7 +2586,68 @@ app.post('/api/admin/init-db', async (c) => {
   try {
     const { DB } = c.env
     
-    // facilities 테이블 생성
+    console.log('🔧 데이터베이스 초기화 시작...')
+    
+    // 1. admin_sessions 테이블 생성
+    await DB.prepare(`
+      CREATE TABLE IF NOT EXISTS admin_sessions (
+        session_id TEXT PRIMARY KEY,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        expires_at DATETIME NOT NULL
+      )
+    `).run()
+    console.log('✅ admin_sessions 테이블 생성')
+    
+    // 2. partners 테이블 생성 (파트너 신청)
+    await DB.prepare(`
+      CREATE TABLE IF NOT EXISTS partners (
+        id TEXT PRIMARY KEY,
+        facility_name TEXT NOT NULL,
+        facility_type TEXT NOT NULL,
+        facility_sido TEXT,
+        facility_sigungu TEXT,
+        facility_address TEXT,
+        manager_name TEXT NOT NULL,
+        manager_phone TEXT NOT NULL,
+        region_key TEXT,
+        is_regional_center INTEGER DEFAULT 0,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `).run()
+    console.log('✅ partners 테이블 생성')
+    
+    // 3. family_care 테이블 생성 (가족 간병 신청)
+    await DB.prepare(`
+      CREATE TABLE IF NOT EXISTS family_care (
+        id TEXT PRIMARY KEY,
+        guardian_name TEXT NOT NULL,
+        guardian_phone TEXT NOT NULL,
+        patient_name TEXT NOT NULL,
+        patient_age INTEGER,
+        region TEXT,
+        requirements TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `).run()
+    console.log('✅ family_care 테이블 생성')
+    
+    // 4. regional_centers 테이블 생성 (지역별 대표 상담센터)
+    await DB.prepare(`
+      CREATE TABLE IF NOT EXISTS regional_centers (
+        id TEXT PRIMARY KEY,
+        region_key TEXT NOT NULL,
+        partner_id TEXT NOT NULL,
+        facility_name TEXT NOT NULL,
+        facility_type TEXT NOT NULL,
+        manager_name TEXT NOT NULL,
+        manager_phone TEXT NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `).run()
+    console.log('✅ regional_centers 테이블 생성')
+    
+    // 5. facilities 테이블 생성 (요양시설 정보)
     await DB.prepare(`
       CREATE TABLE IF NOT EXISTS facilities (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -2577,14 +2664,24 @@ app.post('/api/admin/init-db', async (c) => {
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )
     `).run()
+    console.log('✅ facilities 테이블 생성')
     
     // 인덱스 생성
     await DB.prepare('CREATE INDEX IF NOT EXISTS idx_facilities_sido ON facilities(sido)').run()
     await DB.prepare('CREATE INDEX IF NOT EXISTS idx_facilities_sigungu ON facilities(sigungu)').run()
     await DB.prepare('CREATE INDEX IF NOT EXISTS idx_facilities_type ON facilities(facility_type)').run()
+    await DB.prepare('CREATE INDEX IF NOT EXISTS idx_partners_region ON partners(region_key)').run()
+    await DB.prepare('CREATE INDEX IF NOT EXISTS idx_regional_centers_region ON regional_centers(region_key)').run()
+    console.log('✅ 인덱스 생성 완료')
     
-    return c.json({ success: true, message: '데이터베이스 초기화 완료' })
+    console.log('🎉 데이터베이스 초기화 완료!')
+    return c.json({ 
+      success: true, 
+      message: '데이터베이스 초기화 완료 (5개 테이블 생성)',
+      tables: ['admin_sessions', 'partners', 'family_care', 'regional_centers', 'facilities']
+    })
   } catch (error: any) {
+    console.error('❌ 데이터베이스 초기화 실패:', error)
     return c.json({ success: false, error: error.message }, 500)
   }
 })
