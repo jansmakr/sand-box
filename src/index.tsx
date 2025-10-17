@@ -496,7 +496,7 @@ app.get('/', (c) => {
                 <p class="text-yellow-800 text-center">
                   <i class="fas fa-info-circle mr-2"></i>
                   해당 지역에 등록된 상담센터가 없습니다.<br/>
-                  전체 상담은 <a href="tel:0507-1310-5873" class="text-blue-600 font-bold underline">0507-1310-5873</a>으로 연락주세요.
+                  전체 상담은 <a href="tel:02-6677-4915" class="text-blue-600 font-bold underline">02-6677-4915</a>으로 연락주세요.
                 </p>
               </div>
             </div>
@@ -1688,14 +1688,8 @@ app.get('/admin/facilities', async (c) => {
               <button id="uploadExcelBtn" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
                 <i class="fas fa-upload mr-2"></i>엑셀 업로드
               </button>
-              <button id="initDbBtn" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700">
-                <i class="fas fa-database mr-2"></i>DB 초기화
-              </button>
               <button id="importCsvBtn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
                 <i class="fas fa-file-upload mr-2"></i>CSV 임포트
-              </button>
-              <button id="replaceHospitalsBtn" class="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700">
-                <i class="fas fa-hospital mr-2"></i>요양병원 교체
               </button>
               <button id="addFacilityBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
                 <i class="fas fa-plus mr-2"></i>시설 추가
@@ -2219,30 +2213,6 @@ app.get('/admin/facilities', async (c) => {
           });
 
           // DB 초기화
-          document.getElementById('initDbBtn').addEventListener('click', async function() {
-            if (!confirm('⚠️ 경고: 모든 시설 정보가 영구적으로 삭제됩니다!\\n\\n정말로 데이터베이스를 초기화하시겠습니까?')) return;
-            
-            if (!confirm('마지막 확인: 이 작업은 되돌릴 수 없습니다. 계속하시겠습니까?')) return;
-            
-            const btn = this;
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>삭제 중...';
-            
-            try {
-              const response = await axios.post('/api/admin/init-db');
-              if (response.data.success) {
-                alert('✅ ' + response.data.message);
-                loadFacilities(1);
-              }
-            } catch (error) {
-              console.error('Init DB error:', error);
-              alert('❌ DB 초기화 중 오류가 발생했습니다.');
-            } finally {
-              btn.disabled = false;
-              btn.innerHTML = '<i class="fas fa-database mr-2"></i>DB 초기화';
-            }
-          });
-
           // CSV 임포트
           document.getElementById('importCsvBtn').addEventListener('click', async function() {
             // 파일 입력 생성
@@ -2352,54 +2322,6 @@ app.get('/admin/facilities', async (c) => {
           });
 
           // 요양병원 교체 (엑셀 파일 업로드)
-          document.getElementById('replaceHospitalsBtn').addEventListener('click', async function() {
-            if (!confirm('기존 요양병원 데이터를 모두 삭제하고 새 데이터로 교체합니다. 계속하시겠습니까?')) {
-              return;
-            }
-            
-            // 파일 입력 엘리먼트 생성
-            const fileInput = document.createElement('input');
-            fileInput.type = 'file';
-            fileInput.accept = '.xlsx,.xls';
-            
-            fileInput.onchange = async function(e) {
-              const file = e.target.files[0];
-              if (!file) return;
-              
-              const btn = document.getElementById('replaceHospitalsBtn');
-              btn.disabled = true;
-              btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>처리 중...';
-              
-              try {
-                // 엑셀 파일을 서버로 전송하여 파싱 및 교체
-                const formData = new FormData();
-                formData.append('file', file);
-                
-                // 간단한 방법: hospitals_parsed.json을 직접 사용
-                // 실제로는 브라우저에서 XLSX 라이브러리로 파싱하거나 서버에서 처리
-                alert('서버의 hospitals_parsed.json 파일을 사용하여 교체합니다...');
-                
-                const response = await fetch('/static/hospitals_parsed.json');
-                const hospitals = await response.json();
-                
-                const result = await axios.post('/api/admin/replace-hospitals', { hospitals });
-                
-                if (result.data.success) {
-                  alert(\`교체 완료!\\n삭제: \${result.data.deleted}개\\n추가: \${result.data.imported}개\\n실패: \${result.data.failed}개\`);
-                  loadFacilities(1);
-                }
-              } catch (error) {
-                console.error('Replace hospitals error:', error);
-                alert('요양병원 교체 중 오류가 발생했습니다.');
-              } finally {
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-hospital mr-2"></i>요양병원 교체';
-              }
-            };
-            
-            fileInput.click();
-          });
-
           // 로그아웃
           document.getElementById('logoutBtn').addEventListener('click', async function() {
             try {
