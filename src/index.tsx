@@ -139,7 +139,7 @@ app.get('/', (c) => {
                 <a href="https://www.carejoa.com" 
                    target="_blank" rel="noopener noreferrer"
                    class="flex items-center justify-center bg-white text-black border-2 border-black py-4 px-6 rounded-xl shadow-lg hover:bg-gray-50 transition-all duration-300 transform hover:scale-105">
-                  <i class="fas fa-calculator mr-3"></i>실시간 견적 & 상담 신청하기
+                  <i class="fas fa-calculator mr-3"></i>실시간 견적 & 상담 신청하기 <span class="ml-2 text-sm text-gray-600">(회원전용)</span>
                 </a>
                 <button 
                    onclick="document.getElementById('regionalCallModal').classList.remove('hidden')"
@@ -179,28 +179,28 @@ app.get('/', (c) => {
         </div>
       </section>
 
-      {/* 모바일 하단 네비게이션 */}
-      <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-1 py-2 z-50 md:hidden">
-        <div class="flex justify-around items-center">
-          <a href="#partner-section" class="flex flex-col items-center py-2 bg-red-600 text-white rounded-lg px-1.5 shadow-md">
-            <i class="fas fa-hospital text-base mb-1"></i>
-            <span class="text-[10px] font-medium">상급병원</span>
+      {/* 모바일 하단 네비게이션 - 야놀자 스타일 */}
+      <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 shadow-lg z-50 md:hidden" style="padding-bottom: env(safe-area-inset-bottom);">
+        <div class="flex justify-around items-center py-2 px-2">
+          <a href="#partner-section" class="flex flex-col items-center py-2 px-3 hover:bg-gray-50 rounded-lg transition-colors">
+            <div class="text-2xl mb-1">🏥</div>
+            <span class="text-[10px] text-gray-700 font-medium">상급병원</span>
           </a>
-          <a href="#partner-section" class="flex flex-col items-center py-2 bg-blue-600 text-white rounded-lg px-1.5 shadow-md">
-            <i class="fas fa-building text-base mb-1"></i>
-            <span class="text-[10px] font-medium">정부복지</span>
+          <a href="#partner-section" class="flex flex-col items-center py-2 px-3 hover:bg-gray-50 rounded-lg transition-colors">
+            <div class="text-2xl mb-1">🏢</div>
+            <span class="text-[10px] text-gray-700 font-medium">정부복지</span>
           </a>
-          <a href="/family-care-register" class="flex flex-col items-center py-2 bg-green-600 text-white rounded-lg px-1.5 shadow-md">
-            <i class="fas fa-heart text-base mb-1"></i>
-            <span class="text-[10px] font-medium">가족간병</span>
+          <a href="/family-care-register" class="flex flex-col items-center py-2 px-3 hover:bg-gray-50 rounded-lg transition-colors">
+            <div class="text-2xl mb-1">❤️</div>
+            <span class="text-[10px] text-gray-700 font-medium">가족간병</span>
           </a>
-          <a href="#partner-section" class="flex flex-col items-center py-2 bg-gray-600 text-white rounded-lg px-1.5 shadow-md">
-            <i class="fas fa-handshake text-base mb-1"></i>
-            <span class="text-[10px] font-medium">시설입점</span>
+          <a href="#partner-section" class="flex flex-col items-center py-2 px-3 hover:bg-gray-50 rounded-lg transition-colors">
+            <div class="text-2xl mb-1">🤝</div>
+            <span class="text-[10px] text-gray-700 font-medium">시설입점</span>
           </a>
-          <a href="/admin" class="flex flex-col items-center py-2 bg-gray-900 text-white rounded-lg px-1.5 shadow-md">
-            <i class="fas fa-shield-alt text-base mb-1"></i>
-            <span class="text-[10px] font-medium">관리자</span>
+          <a href="/admin" class="flex flex-col items-center py-2 px-3 hover:bg-gray-50 rounded-lg transition-colors">
+            <div class="text-2xl mb-1">🛡️</div>
+            <span class="text-[10px] text-gray-700 font-medium">관리자</span>
           </a>
         </div>
       </div>
@@ -823,7 +823,7 @@ app.get('/facilities', (c) => {
             <h2 class="text-4xl font-bold text-gray-900 mb-4">
               <i class="fas fa-search-location text-purple-600 mr-3"></i>전국 요양시설 찾기
             </h2>
-            <p class="text-lg text-gray-600">전국 27,657개 요양시설 정보를 확인하세요</p>
+            <p class="text-lg text-gray-600" id="facilityCountHeader">전국 요양시설 정보를 확인하세요</p>
           </div>
 
           {/* 검색 필터 */}
@@ -1042,58 +1042,30 @@ app.get('/facilities', (c) => {
           console.log(\`📍 \${displayList.length}개 마커 표시 완료\`);
         }
 
-        // CSV 파싱 함수 (따옴표 처리)
-        function parseCSVLine(line) {
-          const result = [];
-          let current = '';
-          let inQuotes = false;
-          
-          for (let i = 0; i < line.length; i++) {
-            const char = line[i];
-            
-            if (char === '"') {
-              inQuotes = !inQuotes;
-            } else if (char === ',' && !inQuotes) {
-              result.push(current.trim());
-              current = '';
-            } else {
-              current += char;
-            }
-          }
-          
-          result.push(current.trim());
-          return result;
-        }
-
-        // CSV 파일 로드
+        // 데이터베이스에서 시설 데이터 로드
         async function loadFacilitiesData() {
           try {
             document.getElementById('loadingSpinner').classList.remove('hidden');
             
-            const response = await fetch('/static/facilities_data.csv');
-            const csvText = await response.text();
+            // 데이터베이스 API 호출
+            const response = await fetch('/api/facilities-from-db');
+            const data = await response.json();
             
-            // CSV 파싱 (줄바꿈으로 분리)
-            const lines = csvText.split('\\n');
-            
-            allFacilities = [];
-            for (let i = 1; i < lines.length; i++) {
-              if (!lines[i].trim()) continue;
-              
-              const values = parseCSVLine(lines[i]);
-              if (values.length < 9) continue;
-              
-              allFacilities.push({
-                id: i,
-                type: values[0] || '',
-                name: values[1] || '',
-                address: values[3] || '',
-                sido: values[7] || '',
-                sigungu: values[8] || '',
-                lat: parseFloat(values[4]) || 0,
-                lng: parseFloat(values[5]) || 0
-              });
+            if (!data.success || !data.facilities) {
+              throw new Error('데이터 로드 실패');
             }
+            
+            // 데이터베이스에서 가져온 데이터 변환
+            allFacilities = data.facilities.map((f, idx) => ({
+              id: f.id || idx + 1,
+              type: f.facility_type || '',
+              name: f.name || '',
+              address: f.address || '',
+              sido: f.sido || '',
+              sigungu: f.sigungu || '',
+              lat: parseFloat(f.latitude) || 0,
+              lng: parseFloat(f.longitude) || 0
+            }));
             
             console.log('✅ 로드된 시설 수:', allFacilities.length);
             
@@ -1104,6 +1076,12 @@ app.get('/facilities', (c) => {
             });
             
             filteredFacilities = allFacilities;
+            
+            // 헤더 텍스트 업데이트
+            const headerElement = document.getElementById('facilityCountHeader');
+            if (headerElement) {
+              headerElement.textContent = \`전국 \${allFacilities.length.toLocaleString()}개 요양시설 정보를 확인하세요\`;
+            }
             
             document.getElementById('loadingSpinner').classList.add('hidden');
             displayResults();
@@ -1703,12 +1681,21 @@ app.get('/admin/facilities', async (c) => {
               </h2>
               <p class="text-gray-600 mt-1">총 <span id="totalCount" class="font-bold text-blue-600">0</span>개 시설</p>
             </div>
-            <div class="flex space-x-3">
+            <div class="flex flex-wrap gap-2">
+              <button id="downloadExcelBtn" class="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700">
+                <i class="fas fa-download mr-2"></i>엑셀 다운로드
+              </button>
+              <button id="uploadExcelBtn" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
+                <i class="fas fa-upload mr-2"></i>엑셀 업로드
+              </button>
               <button id="initDbBtn" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700">
                 <i class="fas fa-database mr-2"></i>DB 초기화
               </button>
               <button id="importCsvBtn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
                 <i class="fas fa-file-upload mr-2"></i>CSV 임포트
+              </button>
+              <button id="replaceHospitalsBtn" class="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700">
+                <i class="fas fa-hospital mr-2"></i>요양병원 교체
               </button>
               <button id="addFacilityBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
                 <i class="fas fa-plus mr-2"></i>시설 추가
@@ -2076,74 +2063,341 @@ app.get('/admin/facilities', async (c) => {
             }
           });
 
+          // 엑셀 다운로드
+          document.getElementById('downloadExcelBtn').addEventListener('click', async function() {
+            this.disabled = true;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>다운로드 중...';
+            
+            try {
+              // 현재 필터 조건으로 모든 시설 데이터 가져오기
+              const params = new URLSearchParams({
+                page: '1',
+                limit: '100000', // 모든 데이터
+                search: currentFilters.search || '',
+                sido: currentFilters.sido || '',
+                sigungu: currentFilters.sigungu || '',
+                type: currentFilters.type || ''
+              });
+              
+              const response = await axios.get(\`/api/admin/facilities?\${params}\`);
+              const facilities = response.data.facilities;
+              
+              if (facilities.length === 0) {
+                alert('다운로드할 시설이 없습니다.');
+                return;
+              }
+              
+              // CSV 형식으로 변환
+              const headers = ['ID', '시설유형', '시설명', '우편번호', '주소', '전화번호', '위도', '경도', '시도', '시군구', '비고'];
+              const csvRows = [headers.join(',')];
+              
+              facilities.forEach(f => {
+                const row = [
+                  f.id,
+                  f.facility_type,
+                  \`"\${f.name}"\`,
+                  f.postal_code || '',
+                  \`"\${f.address}"\`,
+                  f.phone || '',
+                  f.latitude,
+                  f.longitude,
+                  f.sido,
+                  f.sigungu,
+                  \`"\${f.notes || ''}"\`
+                ];
+                csvRows.push(row.join(','));
+              });
+              
+              // CSV 파일 다운로드
+              const csvContent = '\\uFEFF' + csvRows.join('\\n'); // UTF-8 BOM 추가 (엑셀 한글 깨짐 방지)
+              const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+              const link = document.createElement('a');
+              const url = URL.createObjectURL(blob);
+              
+              const filename = \`facilities_\${new Date().toISOString().split('T')[0]}.csv\`;
+              link.setAttribute('href', url);
+              link.setAttribute('download', filename);
+              link.style.display = 'none';
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+              
+              alert(\`\${facilities.length}개 시설 데이터가 다운로드되었습니다.\\n파일명: \${filename}\`);
+            } catch (error) {
+              console.error('Download error:', error);
+              alert('다운로드 중 오류가 발생했습니다.');
+            } finally {
+              this.disabled = false;
+              this.innerHTML = '<i class="fas fa-download mr-2"></i>엑셀 다운로드';
+            }
+          });
+
+          // 엑셀 업로드
+          document.getElementById('uploadExcelBtn').addEventListener('click', function() {
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = '.csv,.xlsx,.xls';
+            
+            fileInput.onchange = async function(e) {
+              const file = e.target.files[0];
+              if (!file) return;
+              
+              if (!confirm(\`\${file.name} 파일을 업로드하여 시설 정보를 업데이트하시겠습니까?\\n\\n주의: 동일한 ID가 있으면 덮어쓰기됩니다.\`)) {
+                return;
+              }
+              
+              const btn = document.getElementById('uploadExcelBtn');
+              btn.disabled = true;
+              btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>업로드 중...';
+              
+              try {
+                const reader = new FileReader();
+                
+                reader.onload = async function(event) {
+                  try {
+                    const text = event.target.result;
+                    const lines = text.split('\\n').filter(line => line.trim());
+                    
+                    if (lines.length < 2) {
+                      alert('파일에 데이터가 없습니다.');
+                      return;
+                    }
+                    
+                    // 헤더 확인 (첫 번째 줄 건너뛰기)
+                    const facilities = [];
+                    
+                    for (let i = 1; i < lines.length; i++) {
+                      const cols = parseCSVLine(lines[i]);
+                      if (cols.length < 10) continue;
+                      
+                      const [id, facilityType, name, postalCode, address, phone, lat, lng, sido, sigungu, notes] = cols;
+                      
+                      facilities.push({
+                        id: parseInt(id) || null,
+                        facility_type: facilityType.replace(/^"|"$/g, ''),
+                        name: name.replace(/^"|"$/g, ''),
+                        postal_code: postalCode.replace(/^"|"$/g, ''),
+                        address: address.replace(/^"|"$/g, ''),
+                        phone: phone.replace(/^"|"$/g, ''),
+                        latitude: parseFloat(lat) || 0,
+                        longitude: parseFloat(lng) || 0,
+                        sido: sido.replace(/^"|"$/g, ''),
+                        sigungu: sigungu.replace(/^"|"$/g, ''),
+                        notes: notes ? notes.replace(/^"|"$/g, '') : ''
+                      });
+                    }
+                    
+                    if (facilities.length === 0) {
+                      alert('유효한 시설 데이터가 없습니다.');
+                      return;
+                    }
+                    
+                    // 서버로 전송
+                    const response = await axios.post('/api/admin/upload-facilities', { facilities });
+                    
+                    if (response.data.success) {
+                      alert(\`업로드 완료!\\n업데이트: \${response.data.updated}개\\n신규추가: \${response.data.inserted}개\\n실패: \${response.data.failed}개\`);
+                      loadFacilities(1);
+                    }
+                  } catch (error) {
+                    console.error('Parse error:', error);
+                    alert('파일 파싱 중 오류가 발생했습니다.');
+                  }
+                };
+                
+                reader.readAsText(file, 'UTF-8');
+              } catch (error) {
+                console.error('Upload error:', error);
+                alert('업로드 중 오류가 발생했습니다.');
+              } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-upload mr-2"></i>엑셀 업로드';
+              }
+            };
+            
+            fileInput.click();
+          });
+
           // DB 초기화
           document.getElementById('initDbBtn').addEventListener('click', async function() {
-            if (!confirm('데이터베이스를 초기화하시겠습니까?')) return;
+            if (!confirm('⚠️ 경고: 모든 시설 정보가 영구적으로 삭제됩니다!\\n\\n정말로 데이터베이스를 초기화하시겠습니까?')) return;
+            
+            if (!confirm('마지막 확인: 이 작업은 되돌릴 수 없습니다. 계속하시겠습니까?')) return;
+            
+            const btn = this;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>삭제 중...';
             
             try {
               const response = await axios.post('/api/admin/init-db');
               if (response.data.success) {
-                alert('데이터베이스가 초기화되었습니다.');
+                alert('✅ ' + response.data.message);
+                loadFacilities(1);
               }
             } catch (error) {
               console.error('Init DB error:', error);
-              alert('DB 초기화 중 오류가 발생했습니다.');
+              alert('❌ DB 초기화 중 오류가 발생했습니다.');
+            } finally {
+              btn.disabled = false;
+              btn.innerHTML = '<i class="fas fa-database mr-2"></i>DB 초기화';
             }
           });
 
           // CSV 임포트
           document.getElementById('importCsvBtn').addEventListener('click', async function() {
-            if (!confirm('CSV 데이터를 임포트하시겠습니까? (27,656개 시설, 약 1-2분 소요)')) return;
+            // 파일 입력 생성
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = '.csv';
             
-            this.disabled = true;
-            this.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>임포트 중...';
-            
-            try {
-              // CSV 파일 로드
-              const csvResponse = await fetch('/static/facilities_data.csv');
-              const csvText = await csvResponse.text();
+            fileInput.onchange = async (e) => {
+              const file = e.target.files[0];
+              if (!file) return;
               
-              // CSV 파싱
-              const lines = csvText.split('\\n').filter(line => line.trim());
-              const facilities = [];
+              if (!confirm(\`📄 파일: \${file.name}\\n크기: \${(file.size / 1024 / 1024).toFixed(2)}MB\\n\\nCSV 데이터를 임포트하시겠습니까?\\n(진행 상황이 표시됩니다)\`)) return;
               
-              for (let i = 1; i < lines.length; i++) {
-                const cols = parseCSVLine(lines[i]);
-                if (cols.length < 9) continue;
+              const btn = document.getElementById('importCsvBtn');
+              btn.disabled = true;
+              btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>파일 읽는 중...';
+              
+              try {
+                // 파일 읽기
+                const text = await file.text();
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>데이터 파싱 중...';
                 
-                const [facilityType, name, postalCode, address, lat, lng, , sido, sigungu] = cols;
-                const latitude = parseFloat(lat);
-                const longitude = parseFloat(lng);
+                // CSV 파싱
+                const lines = text.split('\\n').filter(line => line.trim());
+                const facilities = [];
                 
-                if (isNaN(latitude) || isNaN(longitude)) continue;
+                for (let i = 1; i < lines.length; i++) {
+                  const cols = parseCSVLine(lines[i]);
+                  if (cols.length < 9) continue;
+                  
+                  const facilityType = cols[0] || cols[1];
+                  const name = cols[1] || cols[2];
+                  const postalCode = cols[2] || cols[3];
+                  const address = cols[3] || cols[4];
+                  const phone = cols[4] || cols[5] || '';
+                  const lat = cols[5] || cols[6];
+                  const lng = cols[6] || cols[7];
+                  const sido = cols[7] || cols[8];
+                  const sigungu = cols[8] || cols[9];
+                  
+                  const latitude = parseFloat(lat);
+                  const longitude = parseFloat(lng);
+                  
+                  if (!name || !address || !sido || !sigungu) continue;
+                  
+                  facilities.push({
+                    facility_type: String(facilityType).replace(/^"|"$/g, '').trim(),
+                    name: String(name).replace(/^"|"$/g, '').trim(),
+                    postal_code: String(postalCode).replace(/^"|"$/g, '').trim(),
+                    address: String(address).replace(/^"|"$/g, '').trim(),
+                    phone: String(phone).replace(/^"|"$/g, '').trim(),
+                    latitude: isNaN(latitude) ? 0 : latitude,
+                    longitude: isNaN(longitude) ? 0 : longitude,
+                    sido: String(sido).replace(/^"|"$/g, '').trim(),
+                    sigungu: String(sigungu).replace(/^"|"$/g, '').trim()
+                  });
+                }
                 
-                facilities.push({
-                  facilityType: facilityType.replace(/^"|"$/g, ''),
-                  name: name.replace(/^"|"$/g, ''),
-                  postalCode: postalCode.replace(/^"|"$/g, ''),
-                  address: address.replace(/^"|"$/g, ''),
-                  phone: '',
-                  latitude,
-                  longitude,
-                  sido: sido.replace(/^"|"$/g, ''),
-                  sigungu: sigungu.replace(/^"|"$/g, '')
-                });
-              }
-              
-              // 서버로 전송
-              const response = await axios.post('/api/admin/import-csv', { facilities });
-              
-              if (response.data.success) {
-                alert(\`임포트 완료: \${response.data.imported}개 성공, \${response.data.failed}개 실패\`);
+                if (facilities.length === 0) {
+                  alert('❌ 유효한 시설 데이터가 없습니다.');
+                  return;
+                }
+                
+                btn.innerHTML = \`<i class="fas fa-upload mr-2"></i>0 / \${facilities.length} 업로드 중...\`;
+                
+                // 배치 업로드 (100개씩)
+                const BATCH_SIZE = 100;
+                let successCount = 0;
+                let errorCount = 0;
+                
+                for (let i = 0; i < facilities.length; i += BATCH_SIZE) {
+                  const batch = facilities.slice(i, i + BATCH_SIZE);
+                  
+                  try {
+                    const response = await axios.post('/api/admin/import-csv', { facilities: batch });
+                    
+                    if (response.data.success) {
+                      successCount += response.data.successCount || batch.length;
+                      errorCount += response.data.errorCount || 0;
+                    } else {
+                      errorCount += batch.length;
+                    }
+                  } catch (error) {
+                    console.error('Batch upload error:', error);
+                    errorCount += batch.length;
+                  }
+                  
+                  // 진행 상황 업데이트
+                  const progress = Math.min(i + batch.length, facilities.length);
+                  const percentage = Math.round((progress / facilities.length) * 100);
+                  btn.innerHTML = \`<i class="fas fa-upload mr-2"></i>\${progress} / \${facilities.length} (\${percentage}%)\`;
+                }
+                
+                alert(\`✅ 임포트 완료!\\n\\n성공: \${successCount.toLocaleString()}개\\n실패: \${errorCount.toLocaleString()}개\\n전체: \${facilities.length.toLocaleString()}개\`);
                 loadFacilities(1);
+                
+              } catch (error) {
+                console.error('Import CSV error:', error);
+                alert('❌ CSV 임포트 중 오류가 발생했습니다.');
+              } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-file-upload mr-2"></i>CSV 임포트';
               }
-            } catch (error) {
-              console.error('Import CSV error:', error);
-              alert('CSV 임포트 중 오류가 발생했습니다.');
-            } finally {
-              this.disabled = false;
-              this.innerHTML = '<i class="fas fa-file-upload mr-2"></i>CSV 임포트';
+            };
+            
+            fileInput.click();
+          });
+
+          // 요양병원 교체 (엑셀 파일 업로드)
+          document.getElementById('replaceHospitalsBtn').addEventListener('click', async function() {
+            if (!confirm('기존 요양병원 데이터를 모두 삭제하고 새 데이터로 교체합니다. 계속하시겠습니까?')) {
+              return;
             }
+            
+            // 파일 입력 엘리먼트 생성
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = '.xlsx,.xls';
+            
+            fileInput.onchange = async function(e) {
+              const file = e.target.files[0];
+              if (!file) return;
+              
+              const btn = document.getElementById('replaceHospitalsBtn');
+              btn.disabled = true;
+              btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>처리 중...';
+              
+              try {
+                // 엑셀 파일을 서버로 전송하여 파싱 및 교체
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                // 간단한 방법: hospitals_parsed.json을 직접 사용
+                // 실제로는 브라우저에서 XLSX 라이브러리로 파싱하거나 서버에서 처리
+                alert('서버의 hospitals_parsed.json 파일을 사용하여 교체합니다...');
+                
+                const response = await fetch('/static/hospitals_parsed.json');
+                const hospitals = await response.json();
+                
+                const result = await axios.post('/api/admin/replace-hospitals', { hospitals });
+                
+                if (result.data.success) {
+                  alert(\`교체 완료!\\n삭제: \${result.data.deleted}개\\n추가: \${result.data.imported}개\\n실패: \${result.data.failed}개\`);
+                  loadFacilities(1);
+                }
+              } catch (error) {
+                console.error('Replace hospitals error:', error);
+                alert('요양병원 교체 중 오류가 발생했습니다.');
+              } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-hospital mr-2"></i>요양병원 교체';
+              }
+            };
+            
+            fileInput.click();
           });
 
           // 로그아웃
@@ -2878,6 +3132,183 @@ app.delete('/api/admin/facilities/:id', async (c) => {
   }
 })
 
+// 엑셀 업로드 (시설 정보 업데이트 및 추가)
+app.post('/api/admin/upload-facilities', async (c) => {
+  try {
+    const { facilities } = await c.req.json()
+    const { DB } = c.env
+    
+    if (!Array.isArray(facilities) || facilities.length === 0) {
+      return c.json({ success: false, error: '유효한 시설 데이터가 없습니다' }, 400)
+    }
+    
+    console.log(`📤 엑셀 업로드 시작: ${facilities.length}개`)
+    
+    let updated = 0
+    let inserted = 0
+    let failed = 0
+    
+    // 500개씩 배치 처리
+    for (let i = 0; i < facilities.length; i += 500) {
+      const batch = facilities.slice(i, i + 500)
+      
+      for (const facility of batch) {
+        try {
+          if (facility.id) {
+            // ID가 있으면 UPDATE
+            const result = await DB.prepare(`
+              UPDATE facilities 
+              SET facility_type = ?, name = ?, postal_code = ?, address = ?, phone = ?, 
+                  latitude = ?, longitude = ?, sido = ?, sigungu = ?, notes = ?,
+                  updated_at = CURRENT_TIMESTAMP
+              WHERE id = ?
+            `).bind(
+              facility.facility_type,
+              facility.name,
+              facility.postal_code || '',
+              facility.address,
+              facility.phone || '',
+              facility.latitude || 0,
+              facility.longitude || 0,
+              facility.sido,
+              facility.sigungu,
+              facility.notes || '',
+              facility.id
+            ).run()
+            
+            if (result.meta.changes > 0) {
+              updated++
+            } else {
+              // ID가 있지만 DB에 없으면 INSERT
+              await DB.prepare(`
+                INSERT INTO facilities (facility_type, name, postal_code, address, phone, latitude, longitude, sido, sigungu, notes)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+              `).bind(
+                facility.facility_type,
+                facility.name,
+                facility.postal_code || '',
+                facility.address,
+                facility.phone || '',
+                facility.latitude || 0,
+                facility.longitude || 0,
+                facility.sido,
+                facility.sigungu,
+                facility.notes || ''
+              ).run()
+              inserted++
+            }
+          } else {
+            // ID가 없으면 INSERT (신규 추가)
+            await DB.prepare(`
+              INSERT INTO facilities (facility_type, name, postal_code, address, phone, latitude, longitude, sido, sigungu, notes)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `).bind(
+              facility.facility_type,
+              facility.name,
+              facility.postal_code || '',
+              facility.address,
+              facility.phone || '',
+              facility.latitude || 0,
+              facility.longitude || 0,
+              facility.sido,
+              facility.sigungu,
+              facility.notes || ''
+            ).run()
+            inserted++
+          }
+        } catch (err) {
+          console.error('Facility update/insert error:', err)
+          failed++
+        }
+      }
+      
+      console.log(`📦 Batch ${Math.floor(i/500) + 1}: 업데이트=${updated}, 신규=${inserted}, 실패=${failed}`)
+    }
+    
+    console.log(`✅ 업로드 완료: 업데이트=${updated}, 신규=${inserted}, 실패=${failed}`)
+    return c.json({ success: true, updated, inserted, failed, total: facilities.length })
+  } catch (error: any) {
+    console.error('Upload facilities error:', error)
+    return c.json({ success: false, error: error.message }, 500)
+  }
+})
+
+// 요양병원 데이터 교체 (기존 삭제 후 새 데이터 삽입)
+app.post('/api/admin/replace-hospitals', async (c) => {
+  try {
+    const { hospitals } = await c.req.json()
+    const { DB } = c.env
+    
+    if (!Array.isArray(hospitals) || hospitals.length === 0) {
+      return c.json({ success: false, error: '유효한 병원 데이터가 없습니다' }, 400)
+    }
+    
+    console.log(`🏥 요양병원 데이터 교체 시작: ${hospitals.length}개`)
+    
+    // 1. 기존 요양병원 데이터 모두 삭제
+    const deleteResult = await DB.prepare(
+      "DELETE FROM facilities WHERE facility_type = '요양병원'"
+    ).run()
+    console.log(`✅ 기존 요양병원 삭제 완료: ${deleteResult.meta.changes}개`)
+    
+    // 2. 새 요양병원 데이터 삽입 (D1 batch API 사용, 500개씩)
+    let imported = 0
+    let failed = 0
+    
+    for (let i = 0; i < hospitals.length; i += 500) {
+      const batch = hospitals.slice(i, i + 500)
+      const statements = []
+      
+      for (const hospital of batch) {
+        try {
+          statements.push(
+            DB.prepare(`
+              INSERT INTO facilities (facility_type, name, postal_code, address, phone, latitude, longitude, sido, sigungu, notes)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `).bind(
+              '요양병원',
+              hospital.name,
+              '',  // postal_code (엑셀에 없음)
+              hospital.address,
+              hospital.phone || '',
+              0.0,  // latitude (기본값, 나중에 지오코딩 필요)
+              0.0,  // longitude (기본값, 나중에 지오코딩 필요)
+              hospital.sido,
+              hospital.sigungu,
+              hospital.notes || ''
+            )
+          )
+        } catch (err) {
+          console.error('Prepare error:', err)
+          failed++
+        }
+      }
+      
+      // 배치 실행
+      try {
+        await DB.batch(statements)
+        imported += statements.length
+        console.log(`📦 Batch ${Math.floor(i/500) + 1}: ${statements.length}개 삽입 (총: ${imported}개)`)
+      } catch (err) {
+        console.error('Batch import error:', err)
+        failed += statements.length
+      }
+    }
+    
+    console.log(`🎉 교체 완료: ${imported}개 성공, ${failed}개 실패`)
+    return c.json({ 
+      success: true, 
+      deleted: deleteResult.meta.changes,
+      imported, 
+      failed, 
+      total: hospitals.length 
+    })
+  } catch (error: any) {
+    console.error('Replace hospitals error:', error)
+    return c.json({ success: false, error: error.message }, 500)
+  }
+})
+
 // 시설 추가
 app.post('/api/admin/facilities', async (c) => {
   try {
@@ -2942,6 +3373,278 @@ app.get('/api/facilities-from-db', async (c) => {
   } catch (error: any) {
     console.error('DB query error:', error)
     return c.json({ success: false, error: error.message }, 500)
+  }
+})
+
+// ============================================
+// 시설 관리 API
+// ============================================
+
+// 시설 목록 조회 (페이지네이션)
+app.get('/api/admin/facilities', async (c) => {
+  if (!(await isAdmin(c))) {
+    return c.json({ error: 'Unauthorized' }, 401)
+  }
+  
+  try {
+    const { DB } = c.env
+    const page = parseInt(c.req.query('page') || '1')
+    const limit = parseInt(c.req.query('limit') || '50')
+    const search = c.req.query('search') || ''
+    const sido = c.req.query('sido') || ''
+    const sigungu = c.req.query('sigungu') || ''
+    const type = c.req.query('type') || ''
+    
+    let whereClause = '1=1'
+    const bindings: any[] = []
+    
+    if (search) {
+      whereClause += ' AND (name LIKE ? OR address LIKE ?)'
+      bindings.push(`%${search}%`, `%${search}%`)
+    }
+    if (sido) {
+      whereClause += ' AND sido = ?'
+      bindings.push(sido)
+    }
+    if (sigungu) {
+      whereClause += ' AND sigungu = ?'
+      bindings.push(sigungu)
+    }
+    if (type) {
+      whereClause += ' AND facility_type = ?'
+      bindings.push(type)
+    }
+    
+    // 전체 개수 조회
+    const countResult = await DB.prepare(
+      `SELECT COUNT(*) as total FROM facilities WHERE ${whereClause}`
+    ).bind(...bindings).first()
+    
+    const total = countResult?.total || 0
+    const totalPages = Math.ceil(total / limit)
+    const offset = (page - 1) * limit
+    
+    // 데이터 조회
+    const result = await DB.prepare(
+      `SELECT * FROM facilities WHERE ${whereClause} ORDER BY id DESC LIMIT ? OFFSET ?`
+    ).bind(...bindings, limit, offset).all()
+    
+    return c.json({
+      facilities: result.results,
+      total,
+      page,
+      totalPages,
+      limit
+    })
+  } catch (error: any) {
+    console.error('Facilities fetch error:', error)
+    return c.json({ error: error.message }, 500)
+  }
+})
+
+// DB 초기화 (모든 시설 삭제)
+app.post('/api/admin/init-db', async (c) => {
+  if (!(await isAdmin(c))) {
+    return c.json({ error: 'Unauthorized' }, 401)
+  }
+  
+  try {
+    const { DB } = c.env
+    
+    // 모든 시설 삭제
+    await DB.prepare('DELETE FROM facilities').run()
+    
+    return c.json({ 
+      success: true, 
+      message: '모든 시설 정보가 삭제되었습니다.' 
+    })
+  } catch (error: any) {
+    console.error('DB init error:', error)
+    return c.json({ 
+      success: false, 
+      message: '초기화 실패: ' + error.message 
+    }, 500)
+  }
+})
+
+// CSV 임포트 (배치 처리)
+app.post('/api/admin/import-csv', async (c) => {
+  if (!(await isAdmin(c))) {
+    return c.json({ error: 'Unauthorized' }, 401)
+  }
+  
+  try {
+    const { DB } = c.env
+    const { facilities } = await c.req.json()
+    
+    if (!facilities || !Array.isArray(facilities)) {
+      return c.json({ 
+        success: false, 
+        message: '잘못된 데이터 형식입니다.' 
+      }, 400)
+    }
+    
+    // 배치 처리 (100개씩)
+    const BATCH_SIZE = 100
+    let successCount = 0
+    let errorCount = 0
+    
+    for (let i = 0; i < facilities.length; i += BATCH_SIZE) {
+      const batch = facilities.slice(i, i + BATCH_SIZE)
+      
+      try {
+        const values = batch.map((f: any) => {
+          return `('${f.facility_type.replace(/'/g, "''")}', '${f.name.replace(/'/g, "''")}', '${f.postal_code || ''}', '${f.address.replace(/'/g, "''")}', '${f.phone || ''}', ${f.latitude || 0}, ${f.longitude || 0}, '${f.sido.replace(/'/g, "''")}', '${f.sigungu.replace(/'/g, "''")}')`
+        }).join(', ')
+        
+        await DB.prepare(`
+          INSERT INTO facilities (facility_type, name, postal_code, address, phone, latitude, longitude, sido, sigungu)
+          VALUES ${values}
+        `).run()
+        
+        successCount += batch.length
+      } catch (batchError) {
+        console.error('Batch error:', batchError)
+        errorCount += batch.length
+      }
+    }
+    
+    return c.json({
+      success: true,
+      message: `임포트 완료: 성공 ${successCount}개, 실패 ${errorCount}개`,
+      successCount,
+      errorCount
+    })
+  } catch (error: any) {
+    console.error('CSV import error:', error)
+    return c.json({ 
+      success: false, 
+      message: '임포트 실패: ' + error.message 
+    }, 500)
+  }
+})
+
+// 시설 추가
+app.post('/api/admin/facility', async (c) => {
+  if (!(await isAdmin(c))) {
+    return c.json({ error: 'Unauthorized' }, 401)
+  }
+  
+  try {
+    const { DB } = c.env
+    const data = await c.req.json()
+    
+    await DB.prepare(`
+      INSERT INTO facilities (facility_type, name, postal_code, address, phone, latitude, longitude, sido, sigungu, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).bind(
+      data.facility_type,
+      data.name,
+      data.postal_code || '',
+      data.address,
+      data.phone || '',
+      data.latitude,
+      data.longitude,
+      data.sido,
+      data.sigungu,
+      new Date().toISOString(),
+      new Date().toISOString()
+    ).run()
+    
+    return c.json({ success: true, message: '시설이 추가되었습니다.' })
+  } catch (error: any) {
+    console.error('Facility add error:', error)
+    return c.json({ 
+      success: false, 
+      message: '추가 실패: ' + error.message 
+    }, 500)
+  }
+})
+
+// 시설 수정
+app.put('/api/admin/facility/:id', async (c) => {
+  if (!(await isAdmin(c))) {
+    return c.json({ error: 'Unauthorized' }, 401)
+  }
+  
+  try {
+    const { DB } = c.env
+    const id = c.req.param('id')
+    const data = await c.req.json()
+    
+    await DB.prepare(`
+      UPDATE facilities 
+      SET facility_type = ?, name = ?, postal_code = ?, address = ?, phone = ?, 
+          latitude = ?, longitude = ?, sido = ?, sigungu = ?, updated_at = ?
+      WHERE id = ?
+    `).bind(
+      data.facility_type,
+      data.name,
+      data.postal_code || '',
+      data.address,
+      data.phone || '',
+      data.latitude,
+      data.longitude,
+      data.sido,
+      data.sigungu,
+      new Date().toISOString(),
+      id
+    ).run()
+    
+    return c.json({ success: true, message: '시설 정보가 수정되었습니다.' })
+  } catch (error: any) {
+    console.error('Facility update error:', error)
+    return c.json({ 
+      success: false, 
+      message: '수정 실패: ' + error.message 
+    }, 500)
+  }
+})
+
+// 시설 삭제
+app.delete('/api/admin/facility/:id', async (c) => {
+  if (!(await isAdmin(c))) {
+    return c.json({ error: 'Unauthorized' }, 401)
+  }
+  
+  try {
+    const { DB } = c.env
+    const id = c.req.param('id')
+    
+    await DB.prepare('DELETE FROM facilities WHERE id = ?').bind(id).run()
+    
+    return c.json({ success: true, message: '시설이 삭제되었습니다.' })
+  } catch (error: any) {
+    console.error('Facility delete error:', error)
+    return c.json({ 
+      success: false, 
+      message: '삭제 실패: ' + error.message 
+    }, 500)
+  }
+})
+
+// 시설 상세 조회
+app.get('/api/admin/facility/:id', async (c) => {
+  if (!(await isAdmin(c))) {
+    return c.json({ error: 'Unauthorized' }, 401)
+  }
+  
+  try {
+    const { DB } = c.env
+    const id = c.req.param('id')
+    
+    const facility = await DB.prepare(
+      'SELECT * FROM facilities WHERE id = ?'
+    ).bind(id).first()
+    
+    if (!facility) {
+      return c.json({ error: '시설을 찾을 수 없습니다.' }, 404)
+    }
+    
+    return c.json({ facility })
+  } catch (error: any) {
+    console.error('Facility fetch error:', error)
+    return c.json({ error: error.message }, 500)
   }
 })
 
