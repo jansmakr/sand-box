@@ -2420,6 +2420,11 @@ app.post('/api/partner', async (c) => {
     const partnerId = 'partner_' + Date.now() + '_' + Math.random().toString(36).substring(2)
     const createdAt = new Date().toISOString()
     
+    // 자동으로 region_key 생성 (시도_시군구 형식)
+    const regionKey = (data.facilitySido && data.facilitySigungu) 
+      ? `${data.facilitySido}_${data.facilitySigungu}` 
+      : ''
+    
     await DB.prepare(`
       INSERT INTO partners (
         id, facility_name, facility_type, facility_sido, facility_sigungu, 
@@ -2435,7 +2440,7 @@ app.post('/api/partner', async (c) => {
       data.facilityAddress || null,
       data.managerName,
       data.managerPhone,
-      '', // region_key will be set by admin
+      regionKey, // 자동 생성된 region_key
       0, // is_regional_center default false
       createdAt
     ).run()
