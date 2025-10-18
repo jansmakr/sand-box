@@ -287,6 +287,34 @@ app.get('/', (c) => {
         </div>
       </section>
 
+      {/* 유튜브 소개 영상 */}
+      <section class="py-12 bg-white">
+        <div class="max-w-7xl mx-auto px-4">
+          <div class="flex justify-center">
+            <a href="https://youtu.be/lUQkWC8PRrM?si=l-AOOz72I0z0oWE1" 
+               target="_blank" 
+               rel="noopener noreferrer"
+               class="group relative block rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 w-full max-w-sm">
+              <img 
+                src="https://img.youtube.com/vi/lUQkWC8PRrM/hqdefault.jpg" 
+                alt="케어조아 소개 영상"
+                class="w-full h-auto"
+              />
+              <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
+                <div class="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center opacity-90 group-hover:opacity-100 transition-opacity">
+                  <i class="fas fa-play text-white text-2xl ml-1"></i>
+                </div>
+              </div>
+              <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
+                <p class="text-white text-sm font-semibold">
+                  <i class="fab fa-youtube text-red-500 mr-2"></i>케어조아 소개 영상 보기
+                </p>
+              </div>
+            </a>
+          </div>
+        </div>
+      </section>
+
       {/* 요양시설 입점 섹션 */}
       <section id="partner-section" class="py-20 bg-gradient-to-br from-teal-50 to-emerald-50">
         <div class="max-w-7xl mx-auto px-4">
@@ -496,7 +524,7 @@ app.get('/', (c) => {
                 <p class="text-yellow-800 text-center">
                   <i class="fas fa-info-circle mr-2"></i>
                   해당 지역에 등록된 상담센터가 없습니다.<br/>
-                  전체 상담은 <a href="tel:02-6677-4915" class="text-blue-600 font-bold underline">02-6677-4915</a>으로 연락주세요.
+                  전체 상담은 <a href="tel:02-6677-4915" class="text-blue-600 font-bold underline">02-6677-4915</a>로 연락주세요.
                 </p>
               </div>
             </div>
