@@ -6,11 +6,12 @@ import { getCookie, setCookie } from 'hono/cookie'
 
 type Bindings = {
   DB: D1Database
+  ADMIN_PASSWORD: string
 }
 
 const app = new Hono<{ Bindings: Bindings }>()
 
-const ADMIN_CONFIG = { password: '5874', sessionKey: 'admin_session' }
+const ADMIN_CONFIG = { sessionKey: 'admin_session' }
 
 async function isAdmin(c: any) {
   const sessionId = getCookie(c, ADMIN_CONFIG.sessionKey)
@@ -2528,7 +2529,7 @@ app.post('/api/admin/login', async (c) => {
       console.log('Table creation skipped or already exists')
     }
     
-    if (password === ADMIN_CONFIG.password) {
+    if (password === c.env.ADMIN_PASSWORD) {
       const sessionId = generateSessionId()
       const createdAt = new Date().toISOString()
       const expiresAt = new Date(Date.now() + 3600 * 1000).toISOString() // 1시간 후
