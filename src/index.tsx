@@ -148,7 +148,7 @@ app.get('/', (c) => {
                   <a href="https://www.carejoa.com" 
                      target="_blank" rel="noopener noreferrer"
                      class="flex flex-col items-center justify-center bg-gradient-to-br from-white to-gray-50 text-gray-900 p-6 md:p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-gray-200">
-                    <span class="text-5xl md:text-6xl mb-3">💰</span>
+                    <span class="text-5xl md:text-6xl mb-3">📋</span>
                     <span class="text-sm md:text-lg font-bold text-center">실시간 견적</span>
                     <span class="text-xs md:text-base font-medium text-center text-gray-600">상담 신청</span>
                   </a>
@@ -1122,10 +1122,10 @@ app.get('/facilities', (c) => {
             
             filteredFacilities = allFacilities;
             
-            // 헤더 텍스트 업데이트
+            // 헤더 텍스트 업데이트 (시설 수 숨김)
             const headerElement = document.getElementById('facilityCountHeader');
             if (headerElement) {
-              headerElement.textContent = \`전국 \${allFacilities.length.toLocaleString()}개 요양시설 정보를 확인하세요\`;
+              headerElement.textContent = \`전국 요양시설 정보를 확인하세요\`;
             }
             
             document.getElementById('loadingSpinner').classList.add('hidden');
@@ -1215,8 +1215,21 @@ app.get('/facilities', (c) => {
 
         // 결과 표시
         function displayResults() {
-          // 결과 수 업데이트
-          document.getElementById('resultCount').textContent = filteredFacilities.length.toLocaleString();
+          // 결과 수 업데이트 (전체 시설 수 숨김 - 검색 결과만 표시)
+          const resultCountElement = document.getElementById('resultCount');
+          if (resultCountElement) {
+            // 필터가 적용된 경우에만 개수 표시
+            const sido = document.getElementById('sidoFilter').value;
+            const sigungu = document.getElementById('sigunguFilter').value;
+            const type = document.getElementById('typeFilter').value;
+            const keyword = document.getElementById('searchKeyword').value.trim();
+            
+            if (sido || sigungu || type || keyword) {
+              resultCountElement.textContent = filteredFacilities.length.toLocaleString();
+            } else {
+              resultCountElement.textContent = '전체';
+            }
+          }
 
           // 지도에 마커 표시
           displayMarkersOnMap();
