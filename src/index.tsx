@@ -99,14 +99,7 @@ app.get('/', (c) => {
 
       {/* 메인 섹션 */}
       <section class="relative bg-white">
-        <div class="bg-gray-50 border-b border-gray-100 py-3 px-4">
-          <div class="max-w-6xl mx-auto flex items-center justify-center">
-            <div class="flex items-center text-sm text-gray-600">
-              <div class="w-2 h-2 bg-orange-400 rounded-full mr-2"></div>
-              <span class="font-medium">🏆 특허기반 실시간 요양 견적 및 상담 플랫폼</span>
-            </div>
-          </div>
-        </div>
+        {/* 상단 안내 메시지 제거 - 하단에 동일 내용 있음 */}
 
         <div class="max-w-6xl mx-auto px-4 py-8 md:py-16">
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
@@ -180,28 +173,24 @@ app.get('/', (c) => {
         </div>
       </section>
 
-      {/* 모바일 하단 네비게이션 - 야놀자 스타일 */}
+      {/* 모바일 하단 네비게이션 */}
       <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 shadow-lg z-50 md:hidden" style="padding-bottom: env(safe-area-inset-bottom);">
         <div class="flex justify-around items-center py-2 px-2">
-          <a href="#partner-section" class="flex flex-col items-center py-2 px-3 hover:bg-gray-50 rounded-lg transition-colors">
-            <div class="text-2xl mb-1">🏥</div>
-            <span class="text-[10px] text-gray-700 font-medium">상급병원</span>
+          <a href="https://www.carejoa.com" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center py-2 px-3 hover:bg-gray-50 rounded-lg transition-colors">
+            <div class="text-2xl mb-1">📋</div>
+            <span class="text-[10px] text-gray-700 font-medium">견적&상담</span>
           </a>
-          <a href="#partner-section" class="flex flex-col items-center py-2 px-3 hover:bg-gray-50 rounded-lg transition-colors">
-            <div class="text-2xl mb-1">🏢</div>
-            <span class="text-[10px] text-gray-700 font-medium">정부복지</span>
+          <button onclick="document.getElementById('regionalCallModal').classList.remove('hidden')" class="flex flex-col items-center py-2 px-3 hover:bg-gray-50 rounded-lg transition-colors">
+            <div class="text-2xl mb-1">📞</div>
+            <span class="text-[10px] text-gray-700 font-medium">전화상담</span>
+          </button>
+          <a href="http://pf.kakao.com/_TxogQn/chat" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center py-2 px-3 hover:bg-gray-50 rounded-lg transition-colors">
+            <div class="text-2xl mb-1">💬</div>
+            <span class="text-[10px] text-gray-700 font-medium">채팅</span>
           </a>
-          <a href="/family-care-register" class="flex flex-col items-center py-2 px-3 hover:bg-gray-50 rounded-lg transition-colors">
-            <div class="text-2xl mb-1">❤️</div>
-            <span class="text-[10px] text-gray-700 font-medium">가족간병</span>
-          </a>
-          <a href="#partner-section" class="flex flex-col items-center py-2 px-3 hover:bg-gray-50 rounded-lg transition-colors">
-            <div class="text-2xl mb-1">🤝</div>
-            <span class="text-[10px] text-gray-700 font-medium">시설입점</span>
-          </a>
-          <a href="/admin" class="flex flex-col items-center py-2 px-3 hover:bg-gray-50 rounded-lg transition-colors">
-            <div class="text-2xl mb-1">🛡️</div>
-            <span class="text-[10px] text-gray-700 font-medium">관리자</span>
+          <a href="https://www.carejoa.com" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center py-2 px-3 hover:bg-gray-50 rounded-lg transition-colors">
+            <div class="text-2xl mb-1">👤</div>
+            <span class="text-[10px] text-gray-700 font-medium">마이페이지</span>
           </a>
         </div>
       </div>
