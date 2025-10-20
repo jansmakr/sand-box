@@ -131,32 +131,41 @@ app.get('/', (c) => {
                 </div>
               </div>
 
-              <div class="flex flex-col gap-3 md:gap-4 mb-8">
+              {/* 카드형 2x2 그리드 레이아웃 */}
+              <div class="grid grid-cols-2 gap-3 md:gap-4 mb-8">
+                {/* Android 앱 다운로드 */}
                 <a href="https://play.google.com/store/apps/details?id=app.netlify.std_care_joa.twa" 
                    target="_blank" rel="noopener noreferrer"
-                   class="flex flex-col md:flex-row items-center justify-center bg-blue-500 text-white py-3 md:py-4 px-4 md:px-6 rounded-xl shadow-lg hover:bg-blue-600 transition-all duration-300 transform hover:scale-105 text-center md:text-left">
-                  <span class="text-2xl mb-1 md:mb-0 md:mr-3">📱</span>
-                  <span class="text-sm md:text-base font-medium">Android 앱 다운로드</span>
+                   class="flex flex-col items-center justify-center bg-gradient-to-br from-blue-500 to-blue-600 text-white p-4 md:p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                  <span class="text-4xl md:text-5xl mb-2">📱</span>
+                  <span class="text-xs md:text-base font-bold text-center">Android</span>
+                  <span class="text-xs md:text-sm font-medium text-center text-blue-100">앱 다운로드</span>
                 </a>
+
+                {/* 실시간 견적 & 상담 */}
                 <a href="https://www.carejoa.com" 
                    target="_blank" rel="noopener noreferrer"
-                   class="flex flex-col md:flex-row items-center justify-center bg-white text-black border-2 border-black py-3 md:py-4 px-4 md:px-6 rounded-xl shadow-lg hover:bg-gray-50 transition-all duration-300 transform hover:scale-105 text-center md:text-left">
-                  <span class="text-2xl mb-1 md:mb-0 md:mr-3">💰</span>
-                  <div class="flex flex-col md:flex-row items-center">
-                    <span class="text-sm md:text-base font-medium">실시간 견적 & 상담 신청</span>
-                    <span class="text-xs md:text-sm text-gray-600 md:ml-2">(회원전용)</span>
-                  </div>
+                   class="flex flex-col items-center justify-center bg-gradient-to-br from-white to-gray-50 text-gray-900 p-4 md:p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-gray-200">
+                  <span class="text-4xl md:text-5xl mb-2">💰</span>
+                  <span class="text-xs md:text-base font-bold text-center">실시간 견적</span>
+                  <span class="text-xs md:text-sm font-medium text-center text-gray-600">상담 신청</span>
                 </a>
+
+                {/* 지역별 전화상담 */}
                 <button 
                    onclick="document.getElementById('regionalCallModal').classList.remove('hidden')"
-                   class="flex flex-col md:flex-row items-center justify-center bg-gradient-to-r from-green-500 to-emerald-500 text-white py-3 md:py-4 px-4 md:px-6 rounded-xl shadow-lg hover:from-green-600 hover:to-emerald-600 transition-all duration-300 transform hover:scale-105 text-center md:text-left">
-                  <span class="text-2xl mb-1 md:mb-0 md:mr-3">📞</span>
-                  <span class="text-sm md:text-base font-medium">지역별 전화상담하기</span>
+                   class="flex flex-col items-center justify-center bg-gradient-to-br from-green-500 to-emerald-600 text-white p-4 md:p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                  <span class="text-4xl md:text-5xl mb-2">📞</span>
+                  <span class="text-xs md:text-base font-bold text-center">지역별</span>
+                  <span class="text-xs md:text-sm font-medium text-center text-green-100">전화상담</span>
                 </button>
+
+                {/* 전국 요양시설 찾기 */}
                 <a href="/facilities" 
-                   class="flex flex-col md:flex-row items-center justify-center bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 md:py-4 px-4 md:px-6 rounded-xl shadow-lg hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105 text-center md:text-left">
-                  <span class="text-2xl mb-1 md:mb-0 md:mr-3">🔍</span>
-                  <span class="text-sm md:text-base font-medium">전국 요양시설 찾아보기</span>
+                   class="flex flex-col items-center justify-center bg-gradient-to-br from-purple-500 to-pink-500 text-white p-4 md:p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                  <span class="text-4xl md:text-5xl mb-2">🔍</span>
+                  <span class="text-xs md:text-base font-bold text-center">전국 시설</span>
+                  <span class="text-xs md:text-sm font-medium text-center text-purple-100">찾아보기</span>
                 </a>
               </div>
 
