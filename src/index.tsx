@@ -135,13 +135,13 @@ app.get('/', (c) => {
                 <a href="https://play.google.com/store/apps/details?id=app.netlify.std_care_joa.twa" 
                    target="_blank" rel="noopener noreferrer"
                    class="flex flex-col md:flex-row items-center justify-center bg-blue-500 text-white py-3 md:py-4 px-4 md:px-6 rounded-xl shadow-lg hover:bg-blue-600 transition-all duration-300 transform hover:scale-105 text-center md:text-left">
-                  <i class="fas fa-download mb-1 md:mb-0 md:mr-3 text-lg md:text-base"></i>
+                  <span class="text-2xl mb-1 md:mb-0 md:mr-3">📱</span>
                   <span class="text-sm md:text-base font-medium">Android 앱 다운로드</span>
                 </a>
                 <a href="https://www.carejoa.com" 
                    target="_blank" rel="noopener noreferrer"
                    class="flex flex-col md:flex-row items-center justify-center bg-white text-black border-2 border-black py-3 md:py-4 px-4 md:px-6 rounded-xl shadow-lg hover:bg-gray-50 transition-all duration-300 transform hover:scale-105 text-center md:text-left">
-                  <i class="fas fa-calculator mb-1 md:mb-0 md:mr-3 text-lg md:text-base"></i>
+                  <span class="text-2xl mb-1 md:mb-0 md:mr-3">💰</span>
                   <div class="flex flex-col md:flex-row items-center">
                     <span class="text-sm md:text-base font-medium">실시간 견적 & 상담 신청</span>
                     <span class="text-xs md:text-sm text-gray-600 md:ml-2">(회원전용)</span>
@@ -150,27 +150,27 @@ app.get('/', (c) => {
                 <button 
                    onclick="document.getElementById('regionalCallModal').classList.remove('hidden')"
                    class="flex flex-col md:flex-row items-center justify-center bg-gradient-to-r from-green-500 to-emerald-500 text-white py-3 md:py-4 px-4 md:px-6 rounded-xl shadow-lg hover:from-green-600 hover:to-emerald-600 transition-all duration-300 transform hover:scale-105 text-center md:text-left">
-                  <i class="fas fa-phone-alt mb-1 md:mb-0 md:mr-3 text-lg md:text-base"></i>
+                  <span class="text-2xl mb-1 md:mb-0 md:mr-3">📞</span>
                   <span class="text-sm md:text-base font-medium">지역별 전화상담하기</span>
                 </button>
                 <a href="/facilities" 
                    class="flex flex-col md:flex-row items-center justify-center bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 md:py-4 px-4 md:px-6 rounded-xl shadow-lg hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105 text-center md:text-left">
-                  <i class="fas fa-search-location mb-1 md:mb-0 md:mr-3 text-lg md:text-base"></i>
+                  <span class="text-2xl mb-1 md:mb-0 md:mr-3">🔍</span>
                   <span class="text-sm md:text-base font-medium">전국 요양시설 찾아보기</span>
                 </a>
               </div>
 
               <div class="grid grid-cols-3 sm:flex sm:flex-row items-center gap-2 sm:gap-6 text-xs md:text-base text-gray-600">
                 <div class="flex flex-col sm:flex-row items-center text-center sm:text-left">
-                  <i class="fas fa-users text-blue-500 mb-1 sm:mb-0 sm:mr-2 text-base md:text-lg"></i>
+                  <span class="text-xl md:text-2xl mb-1 sm:mb-0 sm:mr-2">👥</span>
                   <span class="font-medium whitespace-nowrap">월 10만+<br class="sm:hidden" />이용자</span>
                 </div>
                 <div class="flex flex-col sm:flex-row items-center text-center sm:text-left">
-                  <i class="fas fa-building text-blue-500 mb-1 sm:mb-0 sm:mr-2 text-base md:text-lg"></i>
+                  <span class="text-xl md:text-2xl mb-1 sm:mb-0 sm:mr-2">🏥</span>
                   <span class="font-medium whitespace-nowrap">3,000+<br class="sm:hidden" />등록시설</span>
                 </div>
                 <div class="flex flex-col sm:flex-row items-center text-center sm:text-left">
-                  <i class="fas fa-star text-yellow-500 mb-1 sm:mb-0 sm:mr-2 text-base md:text-lg"></i>
+                  <span class="text-xl md:text-2xl mb-1 sm:mb-0 sm:mr-2">⭐</span>
                   <span class="font-medium whitespace-nowrap">평균 4.5점<br class="sm:hidden" />우수</span>
                 </div>
               </div>
