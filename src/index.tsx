@@ -110,16 +110,23 @@ app.get('/', (c) => {
                   <span class="text-red-600">고르세요</span><br />
                   <span class="text-blue-600">케어조아</span>
                 </h1>
-                <p class="text-lg md:text-xl text-gray-600 mb-6 md:mb-8">
-                  희망하는 지역의, 희망하는 시설만! 입력하면<br />
-                  그 지역 <strong class="text-blue-600">모든 시설의 정보를</strong> 실시간으로 받아볼 수 있어요
+                <p class="text-base md:text-xl text-gray-600 mb-6 md:mb-8 leading-relaxed">
+                  희망하는 지역의, 희망하는 시설만!<br class="md:hidden" />
+                  <span class="hidden md:inline"> </span>입력하면<br />
+                  그 지역 <strong class="text-blue-600">모든 시설의 정보를</strong><br class="md:hidden" />
+                  <span class="hidden md:inline"> </span>실시간으로 받아볼 수 있어요
                 </p>
                 
-                <div class="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-xl p-4 mb-6">
-                  <div class="flex items-center justify-center text-sm md:text-base">
-                    <i class="fas fa-certificate text-blue-600 mr-2"></i>
-                    <span class="text-blue-800 font-semibold">특허기반 실시간 요양 견적 및 상담 플랫폼</span>
-                    <i class="fas fa-check-circle text-green-600 ml-2"></i>
+                <div class="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-xl p-3 md:p-4 mb-6">
+                  <div class="flex flex-col md:flex-row items-center justify-center text-center gap-1 md:gap-0">
+                    <div class="flex items-center text-xs md:text-base">
+                      <i class="fas fa-certificate text-blue-600 mr-1 md:mr-2 text-sm md:text-base"></i>
+                      <span class="text-blue-800 font-semibold">특허기반 실시간 요양</span>
+                    </div>
+                    <div class="flex items-center text-xs md:text-base">
+                      <span class="text-blue-800 font-semibold">견적 및 상담 플랫폼</span>
+                      <i class="fas fa-check-circle text-green-600 ml-1 md:ml-2 text-sm md:text-base"></i>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -127,37 +134,44 @@ app.get('/', (c) => {
               <div class="flex flex-col gap-3 md:gap-4 mb-8">
                 <a href="https://play.google.com/store/apps/details?id=app.netlify.std_care_joa.twa" 
                    target="_blank" rel="noopener noreferrer"
-                   class="flex items-center justify-center bg-blue-500 text-white py-4 px-6 rounded-xl shadow-lg hover:bg-blue-600 transition-all duration-300 transform hover:scale-105">
-                  <i class="fas fa-download mr-3"></i>Android 앱 다운로드
+                   class="flex flex-col md:flex-row items-center justify-center bg-blue-500 text-white py-3 md:py-4 px-4 md:px-6 rounded-xl shadow-lg hover:bg-blue-600 transition-all duration-300 transform hover:scale-105 text-center md:text-left">
+                  <i class="fas fa-download mb-1 md:mb-0 md:mr-3 text-lg md:text-base"></i>
+                  <span class="text-sm md:text-base font-medium">Android 앱 다운로드</span>
                 </a>
                 <a href="https://www.carejoa.com" 
                    target="_blank" rel="noopener noreferrer"
-                   class="flex items-center justify-center bg-white text-black border-2 border-black py-4 px-6 rounded-xl shadow-lg hover:bg-gray-50 transition-all duration-300 transform hover:scale-105">
-                  <i class="fas fa-calculator mr-3"></i>실시간 견적 & 상담 신청하기 <span class="ml-2 text-sm text-gray-600">(회원전용)</span>
+                   class="flex flex-col md:flex-row items-center justify-center bg-white text-black border-2 border-black py-3 md:py-4 px-4 md:px-6 rounded-xl shadow-lg hover:bg-gray-50 transition-all duration-300 transform hover:scale-105 text-center md:text-left">
+                  <i class="fas fa-calculator mb-1 md:mb-0 md:mr-3 text-lg md:text-base"></i>
+                  <div class="flex flex-col md:flex-row items-center">
+                    <span class="text-sm md:text-base font-medium">실시간 견적 & 상담 신청</span>
+                    <span class="text-xs md:text-sm text-gray-600 md:ml-2">(회원전용)</span>
+                  </div>
                 </a>
                 <button 
                    onclick="document.getElementById('regionalCallModal').classList.remove('hidden')"
-                   class="flex items-center justify-center bg-gradient-to-r from-green-500 to-emerald-500 text-white py-4 px-6 rounded-xl shadow-lg hover:from-green-600 hover:to-emerald-600 transition-all duration-300 transform hover:scale-105">
-                  <i class="fas fa-phone-alt mr-3"></i>지역별 전화상담하기
+                   class="flex flex-col md:flex-row items-center justify-center bg-gradient-to-r from-green-500 to-emerald-500 text-white py-3 md:py-4 px-4 md:px-6 rounded-xl shadow-lg hover:from-green-600 hover:to-emerald-600 transition-all duration-300 transform hover:scale-105 text-center md:text-left">
+                  <i class="fas fa-phone-alt mb-1 md:mb-0 md:mr-3 text-lg md:text-base"></i>
+                  <span class="text-sm md:text-base font-medium">지역별 전화상담하기</span>
                 </button>
                 <a href="/facilities" 
-                   class="flex items-center justify-center bg-gradient-to-r from-purple-500 to-pink-500 text-white py-4 px-6 rounded-xl shadow-lg hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105">
-                  <i class="fas fa-search-location mr-3"></i>전국 요양시설 찾아보기
+                   class="flex flex-col md:flex-row items-center justify-center bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 md:py-4 px-4 md:px-6 rounded-xl shadow-lg hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105 text-center md:text-left">
+                  <i class="fas fa-search-location mb-1 md:mb-0 md:mr-3 text-lg md:text-base"></i>
+                  <span class="text-sm md:text-base font-medium">전국 요양시설 찾아보기</span>
                 </a>
               </div>
 
-              <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 text-sm md:text-base text-gray-600">
-                <div class="flex items-center">
-                  <i class="fas fa-users text-blue-500 mr-2"></i>
-                  <span class="font-medium">월 10만+ 이용자</span>
+              <div class="grid grid-cols-3 sm:flex sm:flex-row items-center gap-2 sm:gap-6 text-xs md:text-base text-gray-600">
+                <div class="flex flex-col sm:flex-row items-center text-center sm:text-left">
+                  <i class="fas fa-users text-blue-500 mb-1 sm:mb-0 sm:mr-2 text-base md:text-lg"></i>
+                  <span class="font-medium whitespace-nowrap">월 10만+<br class="sm:hidden" />이용자</span>
                 </div>
-                <div class="flex items-center">
-                  <i class="fas fa-building text-blue-500 mr-2"></i>
-                  <span class="font-medium">3,000+ 등록 시설</span>
+                <div class="flex flex-col sm:flex-row items-center text-center sm:text-left">
+                  <i class="fas fa-building text-blue-500 mb-1 sm:mb-0 sm:mr-2 text-base md:text-lg"></i>
+                  <span class="font-medium whitespace-nowrap">3,000+<br class="sm:hidden" />등록시설</span>
                 </div>
-                <div class="flex items-center">
-                  <i class="fas fa-star text-yellow-500 mr-2"></i>
-                  <span class="font-medium">평균 4.5점 우수</span>
+                <div class="flex flex-col sm:flex-row items-center text-center sm:text-left">
+                  <i class="fas fa-star text-yellow-500 mb-1 sm:mb-0 sm:mr-2 text-base md:text-lg"></i>
+                  <span class="font-medium whitespace-nowrap">평균 4.5점<br class="sm:hidden" />우수</span>
                 </div>
               </div>
             </div>
@@ -175,22 +189,22 @@ app.get('/', (c) => {
 
       {/* 모바일 하단 네비게이션 */}
       <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 shadow-lg z-50 md:hidden" style="padding-bottom: env(safe-area-inset-bottom);">
-        <div class="flex justify-around items-center py-2 px-2">
-          <a href="https://www.carejoa.com" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center py-2 px-3 hover:bg-gray-50 rounded-lg transition-colors">
-            <div class="text-2xl mb-1">📋</div>
-            <span class="text-[10px] text-gray-700 font-medium">견적&상담</span>
+        <div class="flex justify-around items-center py-2 px-1">
+          <a href="https://www.carejoa.com" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center py-2 px-2 hover:bg-gray-50 rounded-lg transition-colors min-w-0 flex-1">
+            <div class="text-xl mb-1">📋</div>
+            <span class="text-[9px] text-gray-700 font-medium whitespace-nowrap">견적상담</span>
           </a>
-          <button onclick="document.getElementById('regionalCallModal').classList.remove('hidden')" class="flex flex-col items-center py-2 px-3 hover:bg-gray-50 rounded-lg transition-colors">
-            <div class="text-2xl mb-1">📞</div>
-            <span class="text-[10px] text-gray-700 font-medium">전화상담</span>
+          <button onclick="document.getElementById('regionalCallModal').classList.remove('hidden')" class="flex flex-col items-center py-2 px-2 hover:bg-gray-50 rounded-lg transition-colors min-w-0 flex-1">
+            <div class="text-xl mb-1">📞</div>
+            <span class="text-[9px] text-gray-700 font-medium whitespace-nowrap">전화상담</span>
           </button>
-          <a href="http://pf.kakao.com/_TxogQn/chat" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center py-2 px-3 hover:bg-gray-50 rounded-lg transition-colors">
-            <div class="text-2xl mb-1">💬</div>
-            <span class="text-[10px] text-gray-700 font-medium">채팅</span>
+          <a href="http://pf.kakao.com/_TxogQn/chat" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center py-2 px-2 hover:bg-gray-50 rounded-lg transition-colors min-w-0 flex-1">
+            <div class="text-xl mb-1">💬</div>
+            <span class="text-[9px] text-gray-700 font-medium whitespace-nowrap">채팅</span>
           </a>
-          <a href="https://www.carejoa.com" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center py-2 px-3 hover:bg-gray-50 rounded-lg transition-colors">
-            <div class="text-2xl mb-1">👤</div>
-            <span class="text-[10px] text-gray-700 font-medium">마이페이지</span>
+          <a href="https://www.carejoa.com" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center py-2 px-2 hover:bg-gray-50 rounded-lg transition-colors min-w-0 flex-1">
+            <div class="text-xl mb-1">👤</div>
+            <span class="text-[9px] text-gray-700 font-medium whitespace-nowrap">마이페이지</span>
           </a>
         </div>
       </div>
