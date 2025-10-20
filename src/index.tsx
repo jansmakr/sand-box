@@ -198,9 +198,9 @@ app.get('/', (c) => {
             <div class="text-xl mb-1">📞</div>
             <span class="text-[9px] text-gray-700 font-medium whitespace-nowrap">전화상담</span>
           </button>
-          <a href="http://pf.kakao.com/_TxogQn/chat" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center py-2 px-2 hover:bg-gray-50 rounded-lg transition-colors min-w-0 flex-1">
+          <a href="https://open.kakao.com/o/siR7YBUh" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center py-2 px-2 hover:bg-gray-50 rounded-lg transition-colors min-w-0 flex-1">
             <div class="text-xl mb-1">💬</div>
-            <span class="text-[9px] text-gray-700 font-medium whitespace-nowrap">채팅</span>
+            <span class="text-[9px] text-gray-700 font-medium whitespace-nowrap">채팅문의</span>
           </a>
           <a href="https://www.carejoa.com" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center py-2 px-2 hover:bg-gray-50 rounded-lg transition-colors min-w-0 flex-1">
             <div class="text-xl mb-1">👤</div>
