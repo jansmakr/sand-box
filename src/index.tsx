@@ -1218,11 +1218,16 @@ app.get('/facilities', (c) => {
           // 결과 수 업데이트 (전체 시설 수 숨김 - 검색 결과만 표시)
           const resultCountElement = document.getElementById('resultCount');
           if (resultCountElement) {
-            // 필터가 적용된 경우에만 개수 표시
-            const sido = document.getElementById('sidoFilter').value;
-            const sigungu = document.getElementById('sigunguFilter').value;
-            const type = document.getElementById('typeFilter').value;
-            const keyword = document.getElementById('searchKeyword').value.trim();
+            // 필터 요소들이 존재하는지 확인 후 값 가져오기
+            const sidoElement = document.getElementById('sidoFilter');
+            const sigunguElement = document.getElementById('sigunguFilter');
+            const typeElement = document.getElementById('typeFilter');
+            const keywordElement = document.getElementById('searchKeyword');
+            
+            const sido = sidoElement ? sidoElement.value : '';
+            const sigungu = sigunguElement ? sigunguElement.value : '';
+            const type = typeElement ? typeElement.value : '';
+            const keyword = keywordElement ? keywordElement.value.trim() : '';
             
             if (sido || sigungu || type || keyword) {
               resultCountElement.textContent = filteredFacilities.length.toLocaleString();
