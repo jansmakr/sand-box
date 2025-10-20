@@ -131,42 +131,46 @@ app.get('/', (c) => {
                 </div>
               </div>
 
-              {/* 카드형 2x2 그리드 레이아웃 */}
-              <div class="grid grid-cols-2 gap-3 md:gap-4 mb-8">
-                {/* Android 앱 다운로드 */}
-                <a href="https://play.google.com/store/apps/details?id=app.netlify.std_care_joa.twa" 
-                   target="_blank" rel="noopener noreferrer"
-                   class="flex flex-col items-center justify-center bg-gradient-to-br from-blue-500 to-blue-600 text-white p-4 md:p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
-                  <span class="text-4xl md:text-5xl mb-2">📱</span>
-                  <span class="text-xs md:text-base font-bold text-center">Android</span>
-                  <span class="text-xs md:text-sm font-medium text-center text-blue-100">앱 다운로드</span>
-                </a>
+              {/* C형: 혼합형 레이아웃 - 위 2개 큰 카드 + 아래 2개 작은 카드 */}
+              <div class="flex flex-col gap-3 md:gap-4 mb-8">
+                {/* 상단: 2개 큰 카드 */}
+                <div class="grid grid-cols-2 gap-3 md:gap-4">
+                  {/* Android 앱 다운로드 */}
+                  <a href="https://play.google.com/store/apps/details?id=app.netlify.std_care_joa.twa" 
+                     target="_blank" rel="noopener noreferrer"
+                     class="flex flex-col items-center justify-center bg-gradient-to-br from-blue-500 to-blue-600 text-white p-6 md:p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                    <span class="text-5xl md:text-6xl mb-3">📱</span>
+                    <span class="text-sm md:text-lg font-bold text-center">Android</span>
+                    <span class="text-xs md:text-base font-medium text-center text-blue-100">앱 다운로드</span>
+                  </a>
 
-                {/* 실시간 견적 & 상담 */}
-                <a href="https://www.carejoa.com" 
-                   target="_blank" rel="noopener noreferrer"
-                   class="flex flex-col items-center justify-center bg-gradient-to-br from-white to-gray-50 text-gray-900 p-4 md:p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-gray-200">
-                  <span class="text-4xl md:text-5xl mb-2">💰</span>
-                  <span class="text-xs md:text-base font-bold text-center">실시간 견적</span>
-                  <span class="text-xs md:text-sm font-medium text-center text-gray-600">상담 신청</span>
-                </a>
+                  {/* 실시간 견적 & 상담 */}
+                  <a href="https://www.carejoa.com" 
+                     target="_blank" rel="noopener noreferrer"
+                     class="flex flex-col items-center justify-center bg-gradient-to-br from-white to-gray-50 text-gray-900 p-6 md:p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-gray-200">
+                    <span class="text-5xl md:text-6xl mb-3">💰</span>
+                    <span class="text-sm md:text-lg font-bold text-center">실시간 견적</span>
+                    <span class="text-xs md:text-base font-medium text-center text-gray-600">상담 신청</span>
+                  </a>
+                </div>
 
-                {/* 지역별 전화상담 */}
-                <button 
-                   onclick="document.getElementById('regionalCallModal').classList.remove('hidden')"
-                   class="flex flex-col items-center justify-center bg-gradient-to-br from-green-500 to-emerald-600 text-white p-4 md:p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
-                  <span class="text-4xl md:text-5xl mb-2">📞</span>
-                  <span class="text-xs md:text-base font-bold text-center">지역별</span>
-                  <span class="text-xs md:text-sm font-medium text-center text-green-100">전화상담</span>
-                </button>
+                {/* 하단: 2개 작은 카드 */}
+                <div class="grid grid-cols-2 gap-3 md:gap-4">
+                  {/* 지역별 전화상담 */}
+                  <button 
+                     onclick="document.getElementById('regionalCallModal').classList.remove('hidden')"
+                     class="flex flex-col items-center justify-center bg-gradient-to-br from-green-500 to-emerald-600 text-white p-4 md:p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                    <span class="text-3xl md:text-4xl mb-2">📞</span>
+                    <span class="text-xs md:text-base font-bold text-center">지역별 전화상담</span>
+                  </button>
 
-                {/* 전국 요양시설 찾기 */}
-                <a href="/facilities" 
-                   class="flex flex-col items-center justify-center bg-gradient-to-br from-purple-500 to-pink-500 text-white p-4 md:p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
-                  <span class="text-4xl md:text-5xl mb-2">🔍</span>
-                  <span class="text-xs md:text-base font-bold text-center">전국 시설</span>
-                  <span class="text-xs md:text-sm font-medium text-center text-purple-100">찾아보기</span>
-                </a>
+                  {/* 전국 요양시설 찾기 */}
+                  <a href="/facilities" 
+                     class="flex flex-col items-center justify-center bg-gradient-to-br from-purple-500 to-pink-500 text-white p-4 md:p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                    <span class="text-3xl md:text-4xl mb-2">🔍</span>
+                    <span class="text-xs md:text-base font-bold text-center">전국 시설 찾기</span>
+                  </a>
+                </div>
               </div>
 
               <div class="grid grid-cols-3 sm:flex sm:flex-row items-center gap-2 sm:gap-6 text-xs md:text-base text-gray-600">
