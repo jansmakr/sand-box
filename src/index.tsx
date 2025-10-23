@@ -294,134 +294,34 @@ app.get('/', (c) => {
         <div class="max-w-4xl mx-auto px-4">
           <div class="bg-white rounded-3xl shadow-2xl p-6 md:p-10">
             <div class="text-center mb-6 md:mb-8">
-              <div class="inline-block bg-gradient-to-r from-orange-400 to-red-500 text-white text-xs md:text-sm font-bold px-4 py-2 rounded-full mb-4 animate-pulse">
-                ⚡ 30초 만에 견적 받기
+              <div class="inline-block bg-gradient-to-r from-gray-400 to-gray-500 text-white text-xs md:text-sm font-bold px-4 py-2 rounded-full mb-4">
+                🚧 준비중
               </div>
               <h3 class="text-2xl md:text-4xl font-bold text-gray-900 mb-3">
                 무료 맞춤 견적 신청
               </h3>
               <p class="text-sm md:text-lg text-gray-600">
-                간단한 정보만 입력하시면 <strong class="text-teal-600">전문 상담사</strong>가 직접 연락드립니다
+                더 나은 서비스 제공을 위해 <strong class="text-teal-600">준비중</strong>입니다
               </p>
             </div>
 
-            <form id="quickEstimateForm" class="space-y-4 md:space-y-6">
-              <div class="grid md:grid-cols-2 gap-4 md:gap-6">
-                {/* 이름 */}
-                <div>
-                  <label class="block text-sm font-semibold text-gray-700 mb-2">
-                    <i class="fas fa-user text-teal-500 mr-2"></i>보호자 성함*
-                  </label>
-                  <input 
-                    type="text" 
-                    id="quickName" 
-                    required 
-                    class="w-full p-3 md:p-4 border-2 border-gray-200 rounded-xl focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all"
-                    placeholder="홍길동"
-                  />
-                </div>
-
-                {/* 전화번호 */}
-                <div>
-                  <label class="block text-sm font-semibold text-gray-700 mb-2">
-                    <i class="fas fa-phone text-teal-500 mr-2"></i>연락처*
-                  </label>
-                  <input 
-                    type="tel" 
-                    id="quickPhone" 
-                    required 
-                    class="w-full p-3 md:p-4 border-2 border-gray-200 rounded-xl focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all"
-                    placeholder="010-0000-0000"
-                  />
-                </div>
-              </div>
-
-              <div class="grid md:grid-cols-2 gap-4 md:gap-6">
-                {/* 시/도 선택 */}
-                <div>
-                  <label class="block text-sm font-semibold text-gray-700 mb-2">
-                    <i class="fas fa-map-marker-alt text-teal-500 mr-2"></i>시/도*
-                  </label>
-                  <select 
-                    id="quickSido" 
-                    required 
-                    class="w-full p-3 md:p-4 border-2 border-gray-200 rounded-xl focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all"
-                  >
-                    <option value="">시/도를 선택하세요</option>
-                    <option value="서울특별시">서울특별시</option>
-                    <option value="부산광역시">부산광역시</option>
-                    <option value="대구광역시">대구광역시</option>
-                    <option value="인천광역시">인천광역시</option>
-                    <option value="광주광역시">광주광역시</option>
-                    <option value="대전광역시">대전광역시</option>
-                    <option value="울산광역시">울산광역시</option>
-                    <option value="세종특별자치시">세종특별자치시</option>
-                    <option value="경기도">경기도</option>
-                    <option value="강원도">강원도</option>
-                    <option value="충청북도">충청북도</option>
-                    <option value="충청남도">충청남도</option>
-                    <option value="전라북도">전라북도</option>
-                    <option value="전라남도">전라남도</option>
-                    <option value="경상북도">경상북도</option>
-                    <option value="경상남도">경상남도</option>
-                    <option value="제주특별자치도">제주특별자치도</option>
-                  </select>
-                </div>
-
-                {/* 시/군/구 선택 */}
-                <div>
-                  <label class="block text-sm font-semibold text-gray-700 mb-2">
-                    <i class="fas fa-map-pin text-teal-500 mr-2"></i>시/군/구*
-                  </label>
-                  <select 
-                    id="quickSigungu" 
-                    required 
-                    disabled
-                    class="w-full p-3 md:p-4 border-2 border-gray-200 rounded-xl focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
-                  >
-                    <option value="">먼저 시/도를 선택하세요</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="grid md:grid-cols-2 gap-4 md:gap-6">
-                {/* 시설 유형 */}
-                <div>
-                  <label class="block text-sm font-semibold text-gray-700 mb-2">
-                    <i class="fas fa-hospital text-teal-500 mr-2"></i>원하는 시설
-                  </label>
-                  <select 
-                    id="quickFacilityType" 
-                    class="w-full p-3 md:p-4 border-2 border-gray-200 rounded-xl focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all"
-                  >
-                    <option value="">아직 모르겠어요</option>
-                    <option value="요양병원">요양병원</option>
-                    <option value="요양원">요양원</option>
-                    <option value="주간보호센터">주간보호센터</option>
-                    <option value="재가복지센터">재가복지센터</option>
-                  </select>
-                </div>
-
-                {/* 빈 공간 (레이아웃 유지) */}
-                <div></div>
-              </div>
-
-              {/* 제출 버튼 */}
-              <div class="text-center pt-4">
-                <button 
-                  type="submit" 
-                  class="w-full md:w-auto bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white text-lg md:text-xl font-bold px-12 md:px-16 py-4 md:py-5 rounded-xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300"
-                  onclick="if(window.trackEvent) trackEvent('quick_estimate_submit', {form_location: 'main_page'})"
-                >
-                  <i class="fas fa-paper-plane mr-2"></i>
-                  무료 견적 받기 (30초 소요)
-                </button>
-                <p class="text-xs md:text-sm text-gray-500 mt-3">
-                  <i class="fas fa-lock mr-1"></i>
-                  개인정보는 안전하게 보호되며, 상담 목적으로만 사용됩니다
+            {/* 준비중 메시지 */}
+            <div class="text-center py-12 md:py-16">
+              <div class="text-6xl md:text-8xl mb-6">🔧</div>
+              <h4 class="text-xl md:text-2xl font-bold text-gray-800 mb-4">
+                곧 만나요!
+              </h4>
+              <p class="text-base md:text-lg text-gray-600 mb-6">
+                무료 맞춤 견적 신청 서비스를 준비하고 있습니다.<br/>
+                빠른 시일 내에 더 좋은 모습으로 찾아뵙겠습니다.
+              </p>
+              <div class="inline-block bg-gray-100 rounded-xl px-6 py-4">
+                <p class="text-sm text-gray-700">
+                  <i class="fas fa-phone text-teal-500 mr-2"></i>
+                  급한 상담이 필요하신가요? <strong>1234-5678</strong>로 연락주세요
                 </p>
               </div>
-            </form>
+            </div>
           </div>
 
           {/* 간편 신청 혜택 */}
