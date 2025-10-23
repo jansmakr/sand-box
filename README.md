@@ -6,14 +6,15 @@
 - **특징**: 특허기반 요양시설 매칭 서비스
 
 ## 🌐 배포 URL
-- **최신 배포**: https://cf35b893.carejoa-webapp.pages.dev
-- **프로젝트**: https://carejoa-webapp.pages.dev
-- **샌드박스 (SEO 최적화)**: https://3000-ic0ndu0vzhirrcffo6tky-6532622b.e2b.dev
+- **최신 배포**: https://63a58900.carejoa-kr.pages.dev
+- **프로덕션**: https://carejoa-kr.pages.dev
+- **프로젝트명**: carejoa-kr
+- **로컬 개발**: http://localhost:3000
 - **Android 앱**: https://play.google.com/store/apps/details?id=app.netlify.std_care_joa.twa
 - **공식 웹사이트**: https://www.carejoa.com
 - **SEO 파일**:
-  - robots.txt: https://carejoa.kr/robots.txt
-  - sitemap.xml: https://carejoa.kr/sitemap.xml
+  - robots.txt: https://carejoa-kr.pages.dev/robots.txt
+  - sitemap.xml: https://carejoa-kr.pages.dev/sitemap.xml
 
 ## ✅ 완료된 기능
 
@@ -61,7 +62,7 @@
 - ✅ 등록된 센터가 없을 경우 대표번호 안내
 
 ### 7. 전국 요양시설 찾기 (NEW! 2025-10-16)
-- ✅ **27,657개** 전국 요양시설 데이터베이스
+- ✅ **20,432개** 전국 요양시설 데이터베이스 (Cloudflare D1)
 - ✅ **다중 필터 검색**
   - 시/도 선택 (18개 지역)
   - 시/군/구 선택 (캐스케이딩, ~250개 지역)
@@ -317,11 +318,12 @@ npx wrangler pages deploy dist --project-name=carejoa-webapp
 
 ## 🔄 배포 상태
 - ✅ **활성화**: Cloudflare Pages에 24/7 운영 중
-- ✅ **데이터베이스**: Cloudflare D1 통합 완료 - 영구 데이터 저장
-- ✅ **빌드 완료**: 최신 버전 배포됨 (D1 데이터베이스 통합 + Leaflet 지도 + SEO 최적화)
-- ✅ **Git 저장소**: 초기화 및 커밋 완료
+- ✅ **데이터베이스**: Cloudflare D1 통합 완료 - 20,432개 시설 데이터 저장
+- ✅ **빌드 완료**: 최신 버전 배포됨 (D1 + Leaflet 지도 + SEO 최적화)
+- ✅ **Git 저장소**: GitHub 동기화 완료 (jansmakr/sand-box)
 - ✅ **SEO 최적화**: 검색 엔진 최적화 완료
-- **마지막 업데이트**: 2025-10-23
+- ✅ **견적 신청 폼**: 삭제 완료 (2025-10-23)
+- **마지막 업데이트**: 2025-10-23 04:10 GMT
   - ✅ **SEO 최적화 완료** (NEW!)
     - 기본 SEO 메타 태그 추가 (title, description, keywords)
     - Open Graph 태그 (Facebook, 카카오톡 공유 최적화)
