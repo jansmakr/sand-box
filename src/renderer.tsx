@@ -33,6 +33,11 @@ export const renderer = jsxRenderer(({ children }) => {
         
         {/* 모바일 웹앱 설정 */}
         <meta name="theme-color" content="#0d9488" />
+        
+        {/* 표준 모바일 웹앱 메타 태그 (모든 플랫폼) */}
+        <meta name="mobile-web-app-capable" content="yes" />
+        
+        {/* iOS 웹앱 메타 태그 (iOS 호환성) */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="케어조아" />
