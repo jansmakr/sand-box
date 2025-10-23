@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "carejoa-webapp",
+  "name": "carejoa-kr",
   "compatibility_date": "2025-10-03",
   "pages_build_output_dir": "./dist",
   "compatibility_flags": ["nodejs_compat"],
