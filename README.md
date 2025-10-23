@@ -8,9 +8,12 @@
 ## 🌐 배포 URL
 - **최신 배포**: https://cf35b893.carejoa-webapp.pages.dev
 - **프로젝트**: https://carejoa-webapp.pages.dev
-- **샌드박스**: https://3000-ic0ndu0vzhirrcffo6tky-6532622b.e2b.dev
+- **샌드박스 (SEO 최적화)**: https://3000-ic0ndu0vzhirrcffo6tky-6532622b.e2b.dev
 - **Android 앱**: https://play.google.com/store/apps/details?id=app.netlify.std_care_joa.twa
 - **공식 웹사이트**: https://www.carejoa.com
+- **SEO 파일**:
+  - robots.txt: https://carejoa.kr/robots.txt
+  - sitemap.xml: https://carejoa.kr/sitemap.xml
 
 ## ✅ 완료된 기능
 
@@ -111,6 +114,34 @@
 - ✅ 고객지원 (전화: 0507-1310-5873, 카카오톡, 이메일)
 - ✅ 앱 다운로드 링크
 - ✅ 특허 정보 표시
+
+### 11. SEO 최적화 (NEW! 2025-10-23)
+- ✅ **기본 SEO 메타 태그**
+  - title: "케어조아 - 전국 요양원/요양병원 실시간 비교 견적"
+  - description: "전국 14,000개 이상의 요양원, 요양병원, 노인요양시설을 한눈에 비교하고 실시간 견적을 받아보세요..."
+  - keywords: 요양원, 요양병원, 노인요양시설, 실버타운, 장기요양보험 등
+  - author, canonical URL
+- ✅ **Open Graph 태그** (Facebook, 카카오톡 공유)
+  - og:type, og:site_name, og:title, og:description
+  - og:url, og:image (1200x630), og:locale
+- ✅ **Twitter Card 태그**
+  - twitter:card (summary_large_image)
+  - twitter:title, twitter:description, twitter:image
+- ✅ **모바일 웹앱 메타 태그**
+  - theme-color (#0d9488)
+  - apple-mobile-web-app-capable
+  - apple-mobile-web-app-title
+- ✅ **JSON-LD 구조화 데이터** (Schema.org)
+  - WebSite: 검색 엔진에 사이트 정보 제공
+  - Organization: 케어조아 조직 정보
+  - Service: 무료 요양시설 비교/견적 서비스
+- ✅ **robots.txt**: 검색 엔진 크롤링 제어
+  - 모든 검색 엔진 허용 (Googlebot, Yeti, Bingbot, Slurp)
+  - 관리자 페이지 차단 (/admin, /api/admin/*)
+  - Crawl-delay: 1초
+- ✅ **sitemap.xml**: 사이트맵 제공
+  - 5개 주요 페이지 (/, /search, /family-care-register, /partner-register, /regional-partner-register)
+  - 우선순위 및 업데이트 빈도 설정
 
 ## 📊 데이터 아키텍처
 - **데이터베이스**: Cloudflare D1 (SQLite-based)
@@ -287,9 +318,19 @@ npx wrangler pages deploy dist --project-name=carejoa-webapp
 ## 🔄 배포 상태
 - ✅ **활성화**: Cloudflare Pages에 24/7 운영 중
 - ✅ **데이터베이스**: Cloudflare D1 통합 완료 - 영구 데이터 저장
-- ✅ **빌드 완료**: 최신 버전 배포됨 (D1 데이터베이스 통합 + Leaflet 지도)
+- ✅ **빌드 완료**: 최신 버전 배포됨 (D1 데이터베이스 통합 + Leaflet 지도 + SEO 최적화)
 - ✅ **Git 저장소**: 초기화 및 커밋 완료
-- **마지막 업데이트**: 2025-10-16
+- ✅ **SEO 최적화**: 검색 엔진 최적화 완료
+- **마지막 업데이트**: 2025-10-23
+  - ✅ **SEO 최적화 완료** (NEW!)
+    - 기본 SEO 메타 태그 추가 (title, description, keywords)
+    - Open Graph 태그 (Facebook, 카카오톡 공유 최적화)
+    - Twitter Card 태그
+    - JSON-LD 구조화 데이터 (WebSite, Organization, Service)
+    - robots.txt 생성 (검색 엔진 크롤링 제어)
+    - sitemap.xml 생성 (5개 주요 페이지)
+    - 모바일 웹앱 메타 태그 (theme-color, apple-mobile-web-app)
+- **이전 업데이트** (2025-10-16):
   - ✅ **관리자 시설 정보 관리 페이지 추가** (NEW!)
     - D1 데이터베이스 기반 시설 정보 CRUD
     - CSV 일괄 임포트 기능 (27,656개 시설)
