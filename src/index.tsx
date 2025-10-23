@@ -289,59 +289,6 @@ app.get('/', (c) => {
         </div>
       </section>
 
-      {/* 간편 견적 신청 폼 (30초 견적 받기) */}
-      <section class="py-12 md:py-16 bg-gradient-to-br from-teal-500 to-emerald-600">
-        <div class="max-w-4xl mx-auto px-4">
-          <div class="bg-white rounded-3xl shadow-2xl p-6 md:p-10">
-            <div class="text-center mb-6 md:mb-8">
-              <div class="inline-block bg-gradient-to-r from-gray-400 to-gray-500 text-white text-xs md:text-sm font-bold px-4 py-2 rounded-full mb-4">
-                🚧 준비중
-              </div>
-              <h3 class="text-2xl md:text-4xl font-bold text-gray-900 mb-3">
-                무료 맞춤 견적 신청
-              </h3>
-              <p class="text-sm md:text-lg text-gray-600">
-                더 나은 서비스 제공을 위해 <strong class="text-teal-600">준비중</strong>입니다
-              </p>
-            </div>
-
-            {/* 준비중 메시지 */}
-            <div class="text-center py-12 md:py-16">
-              <div class="text-6xl md:text-8xl mb-6">🔧</div>
-              <h4 class="text-xl md:text-2xl font-bold text-gray-800 mb-4">
-                곧 만나요!
-              </h4>
-              <p class="text-base md:text-lg text-gray-600 mb-6">
-                무료 맞춤 견적 신청 서비스를 준비하고 있습니다.<br/>
-                빠른 시일 내에 더 좋은 모습으로 찾아뵙겠습니다.
-              </p>
-              <div class="inline-block bg-gray-100 rounded-xl px-6 py-4">
-                <p class="text-sm text-gray-700">
-                  <i class="fas fa-phone text-teal-500 mr-2"></i>
-                  급한 상담이 필요하신가요? <strong>1234-5678</strong>로 연락주세요
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* 간편 신청 혜택 */}
-          <div class="mt-6 md:mt-8 grid grid-cols-3 gap-3 md:gap-4 text-center">
-            <div class="bg-white bg-opacity-20 backdrop-blur-sm rounded-xl p-3 md:p-4 text-white">
-              <div class="text-2xl md:text-3xl mb-2">⚡</div>
-              <div class="text-xs md:text-sm font-semibold">30초 신청</div>
-            </div>
-            <div class="bg-white bg-opacity-20 backdrop-blur-sm rounded-xl p-3 md:p-4 text-white">
-              <div class="text-2xl md:text-3xl mb-2">💯</div>
-              <div class="text-xs md:text-sm font-semibold">100% 무료</div>
-            </div>
-            <div class="bg-white bg-opacity-20 backdrop-blur-sm rounded-xl p-3 md:p-4 text-white">
-              <div class="text-2xl md:text-3xl mb-2">📞</div>
-              <div class="text-xs md:text-sm font-semibold">즉시 상담</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* 모바일 하단 네비게이션 */}
       <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 shadow-lg z-50 md:hidden" style="padding-bottom: env(safe-area-inset-bottom);">
         <div class="flex justify-around items-center py-2 px-1">
