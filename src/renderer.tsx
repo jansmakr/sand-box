@@ -41,13 +41,13 @@ export const renderer = jsxRenderer(({ children }) => {
         <meta name="naver-site-verification" content="5cc01115b78cdcac6d30bc8ce080f4290c212043" />
         
         {/* Google Analytics 4 */}
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-KWGGQN7LR3"></script>
         <script dangerouslySetInnerHTML={{
           __html: `
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', 'G-XXXXXXXXXX', {
+            gtag('config', 'G-KWGGQN7LR3', {
               page_path: window.location.pathname,
               send_page_view: true
             });
