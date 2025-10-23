@@ -673,7 +673,7 @@ app.get('/', (c) => {
               <ul class="space-y-3 text-sm text-gray-400">
                 <li class="flex items-center">
                   <i class="fas fa-phone mr-2 text-teal-400"></i>
-                  <a href="tel:0507-1310-5873">0507-1310-5873</a>
+                  <a href="tel:07070045902">070-7004-5902</a>
                 </li>
                 <li>
                   <a href="https://open.kakao.com/o/siR7YBUh" target="_blank" class="flex items-center">
@@ -703,7 +703,7 @@ app.get('/', (c) => {
             <p class="text-sm text-blue-400 font-medium mb-3">
               <i class="fas fa-certificate mr-1"></i>특허기반 실시간 요양 견적 및 상담 플랫폼
             </p>
-            <p class="text-xs text-gray-400">© 2024 케어조아. All rights reserved.</p>
+            <p class="text-xs text-gray-400">© 2025 케어조아. All rights reserved.</p>
           </div>
         </div>
       </footer>
@@ -2222,7 +2222,7 @@ app.get('/admin/facilities', async (c) => {
                 
               } catch (error) {
                 console.error('견적 신청 오류:', error);
-                alert('❌ 신청 중 오류가 발생했습니다.\\n\\n잠시 후 다시 시도해주시거나\\n전화(0507-1310-5873)로 문의해주세요.');
+                alert('❌ 신청 중 오류가 발생했습니다.\\n\\n잠시 후 다시 시도해주시거나\\n전화(070-7004-5902)로 문의해주세요.');
                 
                 // 버튼 복원
                 const submitBtn = quickEstimateForm.querySelector('button[type="submit"]');
