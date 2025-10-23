@@ -337,37 +337,54 @@ app.get('/', (c) => {
               </div>
 
               <div class="grid md:grid-cols-2 gap-4 md:gap-6">
-                {/* 지역 */}
+                {/* 시/도 선택 */}
                 <div>
                   <label class="block text-sm font-semibold text-gray-700 mb-2">
-                    <i class="fas fa-map-marker-alt text-teal-500 mr-2"></i>희망 지역*
+                    <i class="fas fa-map-marker-alt text-teal-500 mr-2"></i>시/도*
                   </label>
                   <select 
-                    id="quickRegion" 
+                    id="quickSido" 
                     required 
                     class="w-full p-3 md:p-4 border-2 border-gray-200 rounded-xl focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all"
                   >
-                    <option value="">지역을 선택하세요</option>
-                    <option value="서울">서울특별시</option>
-                    <option value="부산">부산광역시</option>
-                    <option value="대구">대구광역시</option>
-                    <option value="인천">인천광역시</option>
-                    <option value="광주">광주광역시</option>
-                    <option value="대전">대전광역시</option>
-                    <option value="울산">울산광역시</option>
-                    <option value="세종">세종특별자치시</option>
-                    <option value="경기">경기도</option>
-                    <option value="강원">강원특별자치도</option>
-                    <option value="충북">충청북도</option>
-                    <option value="충남">충청남도</option>
-                    <option value="전북">전북특별자치도</option>
-                    <option value="전남">전라남도</option>
-                    <option value="경북">경상북도</option>
-                    <option value="경남">경상남도</option>
-                    <option value="제주">제주특별자치도</option>
+                    <option value="">시/도를 선택하세요</option>
+                    <option value="서울특별시">서울특별시</option>
+                    <option value="부산광역시">부산광역시</option>
+                    <option value="대구광역시">대구광역시</option>
+                    <option value="인천광역시">인천광역시</option>
+                    <option value="광주광역시">광주광역시</option>
+                    <option value="대전광역시">대전광역시</option>
+                    <option value="울산광역시">울산광역시</option>
+                    <option value="세종특별자치시">세종특별자치시</option>
+                    <option value="경기도">경기도</option>
+                    <option value="강원도">강원도</option>
+                    <option value="충청북도">충청북도</option>
+                    <option value="충청남도">충청남도</option>
+                    <option value="전라북도">전라북도</option>
+                    <option value="전라남도">전라남도</option>
+                    <option value="경상북도">경상북도</option>
+                    <option value="경상남도">경상남도</option>
+                    <option value="제주특별자치도">제주특별자치도</option>
                   </select>
                 </div>
 
+                {/* 시/군/구 선택 */}
+                <div>
+                  <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    <i class="fas fa-map-pin text-teal-500 mr-2"></i>시/군/구*
+                  </label>
+                  <select 
+                    id="quickSigungu" 
+                    required 
+                    disabled
+                    class="w-full p-3 md:p-4 border-2 border-gray-200 rounded-xl focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
+                  >
+                    <option value="">먼저 시/도를 선택하세요</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="grid md:grid-cols-2 gap-4 md:gap-6">
                 {/* 시설 유형 */}
                 <div>
                   <label class="block text-sm font-semibold text-gray-700 mb-2">
@@ -384,6 +401,9 @@ app.get('/', (c) => {
                     <option value="재가복지센터">재가복지센터</option>
                   </select>
                 </div>
+
+                {/* 빈 공간 (레이아웃 유지) */}
+                <div></div>
               </div>
 
               {/* 제출 버튼 */}
