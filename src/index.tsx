@@ -289,6 +289,139 @@ app.get('/', (c) => {
         </div>
       </section>
 
+      {/* 간편 견적 신청 폼 (30초 견적 받기) */}
+      <section class="py-12 md:py-16 bg-gradient-to-br from-teal-500 to-emerald-600">
+        <div class="max-w-4xl mx-auto px-4">
+          <div class="bg-white rounded-3xl shadow-2xl p-6 md:p-10">
+            <div class="text-center mb-6 md:mb-8">
+              <div class="inline-block bg-gradient-to-r from-orange-400 to-red-500 text-white text-xs md:text-sm font-bold px-4 py-2 rounded-full mb-4 animate-pulse">
+                ⚡ 30초 만에 견적 받기
+              </div>
+              <h3 class="text-2xl md:text-4xl font-bold text-gray-900 mb-3">
+                무료 맞춤 견적 신청
+              </h3>
+              <p class="text-sm md:text-lg text-gray-600">
+                간단한 정보만 입력하시면 <strong class="text-teal-600">전문 상담사</strong>가 직접 연락드립니다
+              </p>
+            </div>
+
+            <form id="quickEstimateForm" class="space-y-4 md:space-y-6">
+              <div class="grid md:grid-cols-2 gap-4 md:gap-6">
+                {/* 이름 */}
+                <div>
+                  <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    <i class="fas fa-user text-teal-500 mr-2"></i>보호자 성함*
+                  </label>
+                  <input 
+                    type="text" 
+                    id="quickName" 
+                    required 
+                    class="w-full p-3 md:p-4 border-2 border-gray-200 rounded-xl focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all"
+                    placeholder="홍길동"
+                  />
+                </div>
+
+                {/* 전화번호 */}
+                <div>
+                  <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    <i class="fas fa-phone text-teal-500 mr-2"></i>연락처*
+                  </label>
+                  <input 
+                    type="tel" 
+                    id="quickPhone" 
+                    required 
+                    class="w-full p-3 md:p-4 border-2 border-gray-200 rounded-xl focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all"
+                    placeholder="010-0000-0000"
+                  />
+                </div>
+              </div>
+
+              <div class="grid md:grid-cols-2 gap-4 md:gap-6">
+                {/* 지역 */}
+                <div>
+                  <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    <i class="fas fa-map-marker-alt text-teal-500 mr-2"></i>희망 지역*
+                  </label>
+                  <select 
+                    id="quickRegion" 
+                    required 
+                    class="w-full p-3 md:p-4 border-2 border-gray-200 rounded-xl focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all"
+                  >
+                    <option value="">지역을 선택하세요</option>
+                    <option value="서울">서울특별시</option>
+                    <option value="부산">부산광역시</option>
+                    <option value="대구">대구광역시</option>
+                    <option value="인천">인천광역시</option>
+                    <option value="광주">광주광역시</option>
+                    <option value="대전">대전광역시</option>
+                    <option value="울산">울산광역시</option>
+                    <option value="세종">세종특별자치시</option>
+                    <option value="경기">경기도</option>
+                    <option value="강원">강원특별자치도</option>
+                    <option value="충북">충청북도</option>
+                    <option value="충남">충청남도</option>
+                    <option value="전북">전북특별자치도</option>
+                    <option value="전남">전라남도</option>
+                    <option value="경북">경상북도</option>
+                    <option value="경남">경상남도</option>
+                    <option value="제주">제주특별자치도</option>
+                  </select>
+                </div>
+
+                {/* 시설 유형 */}
+                <div>
+                  <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    <i class="fas fa-hospital text-teal-500 mr-2"></i>원하는 시설
+                  </label>
+                  <select 
+                    id="quickFacilityType" 
+                    class="w-full p-3 md:p-4 border-2 border-gray-200 rounded-xl focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all"
+                  >
+                    <option value="">아직 모르겠어요</option>
+                    <option value="요양병원">요양병원</option>
+                    <option value="요양원">요양원</option>
+                    <option value="주간보호센터">주간보호센터</option>
+                    <option value="재가복지센터">재가복지센터</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* 제출 버튼 */}
+              <div class="text-center pt-4">
+                <button 
+                  type="submit" 
+                  class="w-full md:w-auto bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white text-lg md:text-xl font-bold px-12 md:px-16 py-4 md:py-5 rounded-xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300"
+                  onclick="if(window.trackEvent) trackEvent('quick_estimate_submit', {form_location: 'main_page'})"
+                >
+                  <i class="fas fa-paper-plane mr-2"></i>
+                  무료 견적 받기 (30초 소요)
+                </button>
+                <p class="text-xs md:text-sm text-gray-500 mt-3">
+                  <i class="fas fa-lock mr-1"></i>
+                  개인정보는 안전하게 보호되며, 상담 목적으로만 사용됩니다
+                </p>
+              </div>
+            </form>
+          </div>
+
+          {/* 간편 신청 혜택 */}
+          <div class="mt-6 md:mt-8 grid grid-cols-3 gap-3 md:gap-4 text-center">
+            <div class="bg-white bg-opacity-20 backdrop-blur-sm rounded-xl p-3 md:p-4 text-white">
+              <div class="text-2xl md:text-3xl mb-2">⚡</div>
+              <div class="text-xs md:text-sm font-semibold">30초 신청</div>
+            </div>
+            <div class="bg-white bg-opacity-20 backdrop-blur-sm rounded-xl p-3 md:p-4 text-white">
+              <div class="text-2xl md:text-3xl mb-2">💯</div>
+              <div class="text-xs md:text-sm font-semibold">100% 무료</div>
+            </div>
+            <div class="bg-white bg-opacity-20 backdrop-blur-sm rounded-xl p-3 md:p-4 text-white">
+              <div class="text-2xl md:text-3xl mb-2">📞</div>
+              <div class="text-xs md:text-sm font-semibold">즉시 상담</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* 모바일 하단 네비게이션 */}
       <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 shadow-lg z-50 md:hidden" style="padding-bottom: env(safe-area-inset-bottom);">
         <div class="flex justify-around items-center py-2 px-1">
@@ -388,6 +521,134 @@ app.get('/', (c) => {
               </div>
               <h4 class="text-xl font-bold mb-4">전문 상담</h4>
               <p class="text-gray-600">전문 상담사와 1:1 맞춤 상담</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 고객 후기 섹션 */}
+      <section class="py-16 md:py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4">
+          <div class="text-center mb-12 md:mb-16">
+            <div class="inline-block bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs md:text-sm font-bold px-4 py-2 rounded-full mb-4">
+              ⭐ 실제 이용 고객님들의 생생한 후기
+            </div>
+            <h3 class="text-2xl md:text-4xl font-bold text-gray-900 mb-4">
+              케어조아와 함께한 <span class="text-teal-600">따뜻한 이야기</span>
+            </h3>
+            <p class="text-sm md:text-lg text-gray-600">
+              10만 명 이상의 고객님들이 케어조아를 통해 최적의 요양시설을 찾으셨습니다
+            </p>
+          </div>
+
+          <div class="grid md:grid-cols-3 gap-6 md:gap-8">
+            {/* 후기 1 */}
+            <div class="bg-gradient-to-br from-blue-50 to-white rounded-2xl p-6 md:p-8 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+              <div class="flex items-center mb-4">
+                <div class="flex text-yellow-400 text-xl md:text-2xl">
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                </div>
+                <span class="ml-2 text-sm md:text-base font-bold text-gray-700">5.0</span>
+              </div>
+              
+              <p class="text-sm md:text-base text-gray-700 leading-relaxed mb-6">
+                "어머니께 맞는 요양원을 찾느라 몇 달을 고민했는데, 케어조아 덕분에 단 3일 만에 완벽한 곳을 찾았습니다. 
+                상담사님이 정말 친절하고 전문적이셨어요. 어머니도 너무 만족하고 계십니다."
+              </p>
+              
+              <div class="flex items-center">
+                <div class="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                  김
+                </div>
+                <div class="ml-3">
+                  <div class="font-bold text-gray-900">김민지 님</div>
+                  <div class="text-xs md:text-sm text-gray-500">서울 강남구 · 요양원</div>
+                </div>
+              </div>
+            </div>
+
+            {/* 후기 2 */}
+            <div class="bg-gradient-to-br from-green-50 to-white rounded-2xl p-6 md:p-8 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+              <div class="flex items-center mb-4">
+                <div class="flex text-yellow-400 text-xl md:text-2xl">
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                </div>
+                <span class="ml-2 text-sm md:text-base font-bold text-gray-700">5.0</span>
+              </div>
+              
+              <p class="text-sm md:text-base text-gray-700 leading-relaxed mb-6">
+                "여러 요양병원을 직접 방문하는 것도 힘들고 비교하기도 어려웠는데, 케어조아에서 한 번에 비교하고 
+                견적까지 받을 수 있어서 너무 편했습니다. 시간과 비용을 많이 절약했어요!"
+              </p>
+              
+              <div class="flex items-center">
+                <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                  이
+                </div>
+                <div class="ml-3">
+                  <div class="font-bold text-gray-900">이정훈 님</div>
+                  <div class="text-xs md:text-sm text-gray-500">부산 해운대구 · 요양병원</div>
+                </div>
+              </div>
+            </div>
+
+            {/* 후기 3 */}
+            <div class="bg-gradient-to-br from-purple-50 to-white rounded-2xl p-6 md:p-8 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+              <div class="flex items-center mb-4">
+                <div class="flex text-yellow-400 text-xl md:text-2xl">
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                </div>
+                <span class="ml-2 text-sm md:text-base font-bold text-gray-700">5.0</span>
+              </div>
+              
+              <p class="text-sm md:text-base text-gray-700 leading-relaxed mb-6">
+                "처음에는 온라인으로 이런 중요한 결정을 하는 게 걱정됐는데, 상담사님이 직접 시설을 방문한 경험을 
+                바탕으로 상세하게 설명해주셔서 안심이 되었습니다. 정말 감사드립니다."
+              </p>
+              
+              <div class="flex items-center">
+                <div class="w-12 h-12 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                  박
+                </div>
+                <div class="ml-3">
+                  <div class="font-bold text-gray-900">박수진 님</div>
+                  <div class="text-xs md:text-sm text-gray-500">경기 성남시 · 주간보호센터</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 통계 요약 */}
+          <div class="mt-12 md:mt-16 bg-gradient-to-r from-teal-500 to-emerald-600 rounded-2xl p-6 md:p-10">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 text-center text-white">
+              <div>
+                <div class="text-3xl md:text-5xl font-bold mb-2">4.8<span class="text-2xl md:text-3xl">/5.0</span></div>
+                <div class="text-xs md:text-sm opacity-90">평균 만족도</div>
+              </div>
+              <div>
+                <div class="text-3xl md:text-5xl font-bold mb-2">10만+</div>
+                <div class="text-xs md:text-sm opacity-90">누적 이용자</div>
+              </div>
+              <div>
+                <div class="text-3xl md:text-5xl font-bold mb-2">3,000+</div>
+                <div class="text-xs md:text-sm opacity-90">등록 시설</div>
+              </div>
+              <div>
+                <div class="text-3xl md:text-5xl font-bold mb-2">95%</div>
+                <div class="text-xs md:text-sm opacity-90">재이용 의향</div>
+              </div>
             </div>
           </div>
         </div>
@@ -579,6 +840,22 @@ app.get('/', (c) => {
           </div>
         </div>
       </footer>
+
+      {/* 카카오톡 플로팅 버튼 (우측 하단) */}
+      <a href="https://open.kakao.com/o/siR7YBUh" 
+         target="_blank" 
+         rel="noopener noreferrer"
+         class="fixed bottom-20 md:bottom-6 right-4 md:right-6 z-40 bg-yellow-400 hover:bg-yellow-500 text-gray-900 w-14 h-14 md:w-16 md:h-16 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 transform hover:scale-110 group"
+         onclick="if(window.trackEvent) trackEvent('kakao_chat_click', {location: 'floating_button'})">
+        <i class="fas fa-comment-dots text-2xl md:text-3xl"></i>
+        <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full animate-pulse">
+          1:1
+        </span>
+        <div class="absolute bottom-full right-0 mb-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+          카카오톡 상담
+          <div class="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+        </div>
+      </a>
 
       {/* 지역별 전화상담 모달 */}
       <div id="regionalCallModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
@@ -2012,6 +2289,84 @@ app.get('/admin/facilities', async (c) => {
 
       {/* Axios CDN */}
       <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
+      
+      {/* 간편 견적 폼 처리 스크립트 */}
+      <script dangerouslySetInnerHTML={{
+        __html: `
+        // 간편 견적 폼 제출
+        document.addEventListener('DOMContentLoaded', function() {
+          const quickEstimateForm = document.getElementById('quickEstimateForm');
+          if (quickEstimateForm) {
+            quickEstimateForm.addEventListener('submit', async function(e) {
+              e.preventDefault();
+              
+              const name = document.getElementById('quickName').value.trim();
+              const phone = document.getElementById('quickPhone').value.trim();
+              const region = document.getElementById('quickRegion').value;
+              const facilityType = document.getElementById('quickFacilityType').value || '미정';
+              
+              if (!name || !phone || !region) {
+                alert('필수 항목을 모두 입력해주세요.');
+                return;
+              }
+              
+              // 전화번호 형식 검증
+              const phoneRegex = /^01[0-9]-?[0-9]{3,4}-?[0-9]{4}$/;
+              if (!phoneRegex.test(phone)) {
+                alert('올바른 전화번호 형식을 입력해주세요. (예: 010-0000-0000)');
+                return;
+              }
+              
+              try {
+                // 제출 버튼 비활성화
+                const submitBtn = quickEstimateForm.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>처리중...';
+                
+                // API 호출
+                const response = await axios.post('/api/family-care', {
+                  guardian_name: name,
+                  guardian_phone: phone,
+                  patient_name: '환자정보 미입력',
+                  patient_age: 0,
+                  region: region,
+                  requirements: '간편 견적 신청 / 원하는 시설: ' + facilityType
+                });
+                
+                if (response.data.success) {
+                  // GA4 이벤트 트래킹
+                  if (window.trackEvent) {
+                    window.trackEvent('quick_estimate_success', {
+                      region: region,
+                      facility_type: facilityType
+                    });
+                  }
+                  
+                  alert('✅ 견적 신청이 완료되었습니다!\\n\\n전문 상담사가 곧 연락드리겠습니다.\\n감사합니다.');
+                  quickEstimateForm.reset();
+                } else {
+                  throw new Error('신청 실패');
+                }
+                
+                // 버튼 복원
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+                
+              } catch (error) {
+                console.error('견적 신청 오류:', error);
+                alert('❌ 신청 중 오류가 발생했습니다.\\n\\n잠시 후 다시 시도해주시거나\\n전화(0507-1310-5873)로 문의해주세요.');
+                
+                // 버튼 복원
+                const submitBtn = quickEstimateForm.querySelector('button[type="submit"]');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+              }
+            });
+          }
+        });
+        `
+      }} />
       
       <script dangerouslySetInnerHTML={{
         __html: `

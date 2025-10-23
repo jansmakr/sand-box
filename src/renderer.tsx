@@ -40,6 +40,25 @@ export const renderer = jsxRenderer(({ children }) => {
         {/* 네이버 사이트 소유 확인 */}
         <meta name="naver-site-verification" content="5cc01115b78cdcac6d30bc8ce080f4290c212043" />
         
+        {/* Google Analytics 4 */}
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+        <script dangerouslySetInnerHTML={{
+          __html: `
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-XXXXXXXXXX', {
+              page_path: window.location.pathname,
+              send_page_view: true
+            });
+            
+            // 커스텀 이벤트 함수
+            window.trackEvent = function(eventName, eventParams) {
+              gtag('event', eventName, eventParams);
+            };
+          `
+        }} />
+        
         {/* Favicon */}
         <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>❤️</text></svg>" />
         
