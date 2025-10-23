@@ -58,6 +58,95 @@ app.use('*', async (c, next) => {
 
 app.use('/api/*', cors())
 app.use('/static/*', serveStatic({ root: './public' }))
+
+// SEO 파일 서빙 (robots.txt, sitemap.xml)
+app.get('/robots.txt', (c) => {
+  const robotsTxt = `# robots.txt for carejoa.kr
+
+# 모든 검색 엔진 허용
+User-agent: *
+Allow: /
+
+# 크롤링 속도 제한 (초당 1회)
+Crawl-delay: 1
+
+# 관리자 페이지 차단
+Disallow: /admin
+Disallow: /api/admin/*
+
+# 사이트맵 위치
+Sitemap: https://carejoa.kr/sitemap.xml
+
+# 주요 검색엔진별 설정
+User-agent: Googlebot
+Allow: /
+
+User-agent: Yeti
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /`
+  return c.text(robotsTxt, 200, {
+    'Content-Type': 'text/plain; charset=utf-8'
+  })
+})
+
+app.get('/sitemap.xml', (c) => {
+  const sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+  
+  <!-- 메인 페이지 -->
+  <url>
+    <loc>https://carejoa.kr/</loc>
+    <lastmod>2025-10-23</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  
+  <!-- 요양시설 검색 페이지 -->
+  <url>
+    <loc>https://carejoa.kr/search</loc>
+    <lastmod>2025-10-23</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  
+  <!-- 가족간병 등록 페이지 -->
+  <url>
+    <loc>https://carejoa.kr/family-care-register</loc>
+    <lastmod>2025-10-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <!-- 파트너 등록 페이지 -->
+  <url>
+    <loc>https://carejoa.kr/partner-register</loc>
+    <lastmod>2025-10-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <!-- 지역 파트너 등록 페이지 -->
+  <url>
+    <loc>https://carejoa.kr/regional-partner-register</loc>
+    <lastmod>2025-10-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+</urlset>`
+  return c.text(sitemapXml, 200, {
+    'Content-Type': 'application/xml; charset=utf-8'
+  })
+})
+
 app.use(renderer)
 
 // 메인 페이지 (전체 디자인)
