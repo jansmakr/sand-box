@@ -200,6 +200,25 @@
   - 완전 무료, 사용량 제한 없음
 - **데이터 처리**: Client-side CSV parsing (27,657 facilities)
 
+## 📚 매뉴얼 및 문서
+
+### 관리자 매뉴얼
+- **[배포 매뉴얼](/home/user/webapp/ADMIN_DEPLOYMENT_MANUAL.md)** - 배포 방법 및 설정 완벽 가이드
+  - 수동 배포 방법 (현재 방식)
+  - Git 자동 배포 설정 방법
+  - Cloudflare Pages 설정 네비게이션
+  - 배포 방식 비교 및 추천
+  - 도메인 연결 가이드
+  - 환경 변수 설정
+  - 자주 묻는 질문 (FAQ)
+  - 문제 해결 가이드
+
+### 프로젝트 문서
+- **[프로젝트 설정](/home/user/webapp/PROJECT_CONFIGURATION.md)** - 전체 설정 정보
+- **[빠른 참조](/home/user/webapp/QUICK_REFERENCE.md)** - 자주 쓰는 명령어
+
+---
+
 ## 🛠️ 개발 및 배포
 
 ### 로컬 개발 (D1 로컬 모드)
@@ -367,7 +386,7 @@ npx wrangler pages deploy dist --project-name=carejoa-webapp
 - CORS 활성화 (API 라우트)
 
 ## 📞 연락처
-- **전화**: 0507-1310-5873
+- **전화**: 070-7004-5902
 - **카카오톡**: https://open.kakao.com/o/siR7YBUh
 - **이메일**: utuber@kakao.com
 
@@ -376,4 +395,4 @@ npx wrangler pages deploy dist --project-name=carejoa-webapp
 
 ---
 
-© 2024 케어조아. All rights reserved.
+© 2025 케어조아. All rights reserved.
