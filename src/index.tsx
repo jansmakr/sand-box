@@ -3425,19 +3425,27 @@ app.get('/api/admin/facilities', async (c) => {
       `SELECT * FROM facilities WHERE ${whereClause} ORDER BY id DESC LIMIT ? OFFSET ?`
     ).bind(...bindings, limit, offset).all()
     
-    // 각 시설의 대표센터 여부 확인
-    const facilities = await Promise.all(
-      facilitiesResult.results.map(async (facility: any) => {
-        const regionalCenterCheck = await DB.prepare(
-          'SELECT COUNT(*) as count FROM regional_centers WHERE facility_id = ?'
-        ).bind(facility.id).first()
-        
-        return {
-          ...facility,
-          is_regional_center: (regionalCenterCheck?.count as number) > 0
-        }
-      })
-    )
+    // 한 번의 쿼리로 모든 대표센터 정보 가져오기 (성능 최적화)
+    const facilityIds = facilitiesResult.results.map((f: any) => f.id)
+    let regionalCenterIds: Set<number> = new Set()
+    
+    if (facilityIds.length > 0) {
+      // IN 절을 사용하여 한 번에 조회
+      const placeholders = facilityIds.map(() => '?').join(',')
+      const regionalCentersResult = await DB.prepare(
+        `SELECT DISTINCT facility_id FROM regional_centers WHERE facility_id IN (${placeholders})`
+      ).bind(...facilityIds).all()
+      
+      regionalCenterIds = new Set(
+        regionalCentersResult.results.map((rc: any) => rc.facility_id)
+      )
+    }
+    
+    // 대표센터 여부를 추가하여 반환
+    const facilities = facilitiesResult.results.map((facility: any) => ({
+      ...facility,
+      is_regional_center: regionalCenterIds.has(facility.id)
+    }))
     
     return c.json({
       success: true,
