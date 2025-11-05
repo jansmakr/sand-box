@@ -42,8 +42,17 @@ app.use('*', async (c, next) => {
       await DB.prepare(`CREATE TABLE IF NOT EXISTS admin_sessions (session_id TEXT PRIMARY KEY, created_at DATETIME DEFAULT CURRENT_TIMESTAMP, expires_at DATETIME NOT NULL)`).run()
       await DB.prepare(`CREATE TABLE IF NOT EXISTS partners (id TEXT PRIMARY KEY, facility_name TEXT NOT NULL, facility_type TEXT NOT NULL, facility_sido TEXT, facility_sigungu TEXT, facility_address TEXT, manager_name TEXT NOT NULL, manager_phone TEXT NOT NULL, region_key TEXT, is_regional_center INTEGER DEFAULT 0, created_at DATETIME DEFAULT CURRENT_TIMESTAMP, updated_at DATETIME DEFAULT CURRENT_TIMESTAMP)`).run()
       await DB.prepare(`CREATE TABLE IF NOT EXISTS family_care (id TEXT PRIMARY KEY, guardian_name TEXT NOT NULL, guardian_phone TEXT NOT NULL, patient_name TEXT NOT NULL, patient_age INTEGER, region TEXT, requirements TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)`).run()
-      await DB.prepare(`CREATE TABLE IF NOT EXISTS regional_centers (id TEXT PRIMARY KEY, region_key TEXT NOT NULL, partner_id TEXT NOT NULL, facility_name TEXT NOT NULL, facility_type TEXT NOT NULL, manager_name TEXT NOT NULL, manager_phone TEXT NOT NULL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)`).run()
+      await DB.prepare(`CREATE TABLE IF NOT EXISTS regional_centers (id TEXT PRIMARY KEY, region_key TEXT NOT NULL, partner_id TEXT NOT NULL, facility_id INTEGER, facility_name TEXT NOT NULL, facility_type TEXT NOT NULL, manager_name TEXT NOT NULL, manager_phone TEXT NOT NULL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)`).run()
       await DB.prepare(`CREATE TABLE IF NOT EXISTS facilities (id INTEGER PRIMARY KEY AUTOINCREMENT, facility_type TEXT NOT NULL, name TEXT NOT NULL, postal_code TEXT, address TEXT NOT NULL, phone TEXT, latitude REAL NOT NULL, longitude REAL NOT NULL, sido TEXT NOT NULL, sigungu TEXT NOT NULL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP, updated_at DATETIME DEFAULT CURRENT_TIMESTAMP)`).run()
+      
+      // regional_centers 테이블에 facility_id 컬럼이 없으면 추가
+      try {
+        await DB.prepare(`ALTER TABLE regional_centers ADD COLUMN facility_id INTEGER`).run()
+        console.log('✅ regional_centers 테이블에 facility_id 컬럼 추가됨')
+      } catch (error) {
+        // 컬럼이 이미 존재하면 에러 무시
+        console.log('ℹ️ regional_centers.facility_id 컬럼이 이미 존재합니다')
+      }
       
       dbInitialized = true
       console.log('✅ 데이터베이스 자동 초기화 완료')
@@ -2033,12 +2042,13 @@ app.get('/admin/facilities', async (c) => {
                   <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">주소</th>
                   <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">시도</th>
                   <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">시군구</th>
+                  <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">대표센터</th>
                   <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">관리</th>
                 </tr>
               </thead>
               <tbody id="facilitiesTableBody" class="divide-y divide-gray-200">
                 <tr>
-                  <td colspan="8" class="px-4 py-8 text-center text-gray-500">
+                  <td colspan="9" class="px-4 py-8 text-center text-gray-500">
                     <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
                     <p>데이터를 불러오는 중...</p>
                   </td>
@@ -2289,7 +2299,7 @@ app.get('/admin/facilities', async (c) => {
 
             const tbody = document.getElementById('facilitiesTableBody');
             if (facilities.length === 0) {
-              tbody.innerHTML = '<tr><td colspan="8" class="px-4 py-8 text-center text-gray-500">등록된 시설이 없습니다.</td></tr>';
+              tbody.innerHTML = '<tr><td colspan="9" class="px-4 py-8 text-center text-gray-500">등록된 시설이 없습니다.</td></tr>';
               return;
             }
 
@@ -2306,6 +2316,15 @@ app.get('/admin/facilities', async (c) => {
                 <td class="px-4 py-3 text-sm text-gray-600">\${f.address.substring(0, 30)}\${f.address.length > 30 ? '...' : ''}</td>
                 <td class="px-4 py-3 text-sm">\${f.sido}</td>
                 <td class="px-4 py-3 text-sm">\${f.sigungu}</td>
+                <td class="px-4 py-3 text-center">
+                  <button 
+                    onclick="toggleRegionalCenter(\${f.id}, '\${f.name}', '\${f.sido}', '\${f.sigungu}', \${f.is_regional_center || false})" 
+                    class="px-3 py-1 text-xs font-semibold rounded-full transition-colors \${f.is_regional_center ? 'bg-teal-100 text-teal-800 hover:bg-teal-200' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}"
+                    title="\${f.is_regional_center ? '대표센터 지정됨' : '대표센터로 지정하기'}"
+                  >
+                    \${f.is_regional_center ? '<i class="fas fa-star mr-1"></i>지정됨' : '<i class="far fa-star mr-1"></i>미지정'}
+                  </button>
+                </td>
                 <td class="px-4 py-3 text-sm">
                   <button onclick="editFacility(\${f.id})" class="text-blue-600 hover:text-blue-800 mr-3">
                     <i class="fas fa-edit"></i>
@@ -2780,6 +2799,55 @@ app.get('/admin/facilities', async (c) => {
             alert('시설 삭제 중 오류가 발생했습니다.');
           }
         }
+
+        // 대표 상담센터 지정/해제
+        async function toggleRegionalCenter(facilityId, facilityName, sido, sigungu, isCurrentlyRegional) {
+          const regionKey = \`\${sido}_\${sigungu}\`;
+          
+          if (isCurrentlyRegional) {
+            // 대표센터 해제
+            if (!confirm(\`"\${facilityName}"을(를) 대표 상담센터에서 해제하시겠습니까?\`)) return;
+            
+            try {
+              const response = await axios.post('/api/admin/facilities/toggle-regional-center', {
+                facilityId,
+                regionKey,
+                isRegionalCenter: false
+              });
+              
+              if (response.data.success) {
+                alert('대표 상담센터에서 해제되었습니다.');
+                loadFacilities(currentPage);
+              } else {
+                alert(response.data.message || '해제 실패');
+              }
+            } catch (error) {
+              console.error('Toggle regional center error:', error);
+              alert('대표센터 해제 중 오류가 발생했습니다.');
+            }
+          } else {
+            // 대표센터 지정
+            if (!confirm(\`"\${facilityName}"을(를) \${sido} \${sigungu}의 대표 상담센터로 지정하시겠습니까?\\n\\n※ 한 지역당 최대 4개까지 지정 가능합니다.\`)) return;
+            
+            try {
+              const response = await axios.post('/api/admin/facilities/toggle-regional-center', {
+                facilityId,
+                regionKey,
+                isRegionalCenter: true
+              });
+              
+              if (response.data.success) {
+                alert('대표 상담센터로 지정되었습니다.');
+                loadFacilities(currentPage);
+              } else {
+                alert(response.data.message || '지정 실패');
+              }
+            } catch (error) {
+              console.error('Toggle regional center error:', error);
+              alert('대표센터 지정 중 오류가 발생했습니다.');
+            }
+          }
+        }
         `
       }} />
     </div>
@@ -3193,6 +3261,7 @@ app.post('/api/admin/init-db', async (c) => {
         id TEXT PRIMARY KEY,
         region_key TEXT NOT NULL,
         partner_id TEXT NOT NULL,
+        facility_id INTEGER,
         facility_name TEXT NOT NULL,
         facility_type TEXT NOT NULL,
         manager_name TEXT NOT NULL,
@@ -3201,6 +3270,15 @@ app.post('/api/admin/init-db', async (c) => {
       )
     `).run()
     console.log('✅ regional_centers 테이블 생성')
+    
+    // regional_centers 테이블에 facility_id 컬럼 추가 (기존 테이블용)
+    try {
+      await DB.prepare(`ALTER TABLE regional_centers ADD COLUMN facility_id INTEGER`).run()
+      console.log('✅ regional_centers 테이블에 facility_id 컬럼 추가됨')
+    } catch (error) {
+      // 컬럼이 이미 존재하면 에러 무시
+      console.log('ℹ️ regional_centers.facility_id 컬럼이 이미 존재합니다')
+    }
     
     // 5. facilities 테이블 생성 (요양시설 정보)
     await DB.prepare(`
@@ -3347,9 +3425,23 @@ app.get('/api/admin/facilities', async (c) => {
       `SELECT * FROM facilities WHERE ${whereClause} ORDER BY id DESC LIMIT ? OFFSET ?`
     ).bind(...bindings, limit, offset).all()
     
+    // 각 시설의 대표센터 여부 확인
+    const facilities = await Promise.all(
+      facilitiesResult.results.map(async (facility: any) => {
+        const regionalCenterCheck = await DB.prepare(
+          'SELECT COUNT(*) as count FROM regional_centers WHERE facility_id = ?'
+        ).bind(facility.id).first()
+        
+        return {
+          ...facility,
+          is_regional_center: (regionalCenterCheck?.count as number) > 0
+        }
+      })
+    )
+    
     return c.json({
       success: true,
-      facilities: facilitiesResult.results,
+      facilities,
       total: countResult?.total || 0,
       page,
       limit,
@@ -3425,11 +3517,91 @@ app.delete('/api/admin/facilities/:id', async (c) => {
     const { DB } = c.env
     const id = c.req.param('id')
     
+    // 대표센터로 지정된 경우 regional_centers에서도 제거
+    await DB.prepare('DELETE FROM regional_centers WHERE facility_id = ?').bind(id).run()
+    
     await DB.prepare('DELETE FROM facilities WHERE id = ?').bind(id).run()
     
     return c.json({ success: true, message: '시설이 삭제되었습니다' })
   } catch (error: any) {
     return c.json({ success: false, error: error.message }, 500)
+  }
+})
+
+// 시설 대표 상담센터 지정/해제
+app.post('/api/admin/facilities/toggle-regional-center', async (c) => {
+  if (!(await isAdmin(c))) {
+    return c.json({ error: 'Unauthorized' }, 401)
+  }
+  
+  try {
+    const { DB } = c.env
+    const { facilityId, regionKey, isRegionalCenter } = await c.req.json()
+    
+    // 시설 정보 조회
+    const facility: any = await DB.prepare(
+      'SELECT * FROM facilities WHERE id = ?'
+    ).bind(facilityId).first()
+    
+    if (!facility) {
+      return c.json({ success: false, message: '시설을 찾을 수 없습니다.' }, 404)
+    }
+    
+    if (isRegionalCenter) {
+      // 대표센터로 지정
+      
+      // 해당 지역의 대표 상담센터 개수 확인
+      const countResult = await DB.prepare(
+        'SELECT COUNT(*) as count FROM regional_centers WHERE region_key = ?'
+      ).bind(regionKey).first()
+      
+      if (countResult && (countResult.count as number) >= 4) {
+        return c.json({ 
+          success: false, 
+          message: '해당 지역은 이미 4개의 대표 상담센터가 등록되어 있습니다. 다른 센터를 제거한 후 추가해주세요.' 
+        })
+      }
+      
+      // 중복 체크
+      const existsResult = await DB.prepare(
+        'SELECT id FROM regional_centers WHERE region_key = ? AND facility_id = ?'
+      ).bind(regionKey, facilityId).first()
+      
+      if (existsResult) {
+        return c.json({ success: false, message: '이미 대표센터로 지정되어 있습니다.' })
+      }
+      
+      // Regional centers 테이블에 추가
+      const rcId = 'rc_facility_' + Date.now() + '_' + Math.random().toString(36).substring(2)
+      await DB.prepare(`
+        INSERT INTO regional_centers (
+          id, region_key, partner_id, facility_id, facility_name, facility_type, 
+          manager_name, manager_phone, created_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `).bind(
+        rcId,
+        regionKey,
+        'facility_' + facilityId, // partner_id를 facility ID로 대체
+        facilityId, // facility_id 추가
+        facility.name,
+        facility.facility_type,
+        '', // manager_name (facilities에는 없음)
+        facility.phone || '연락처 없음',
+        new Date().toISOString()
+      ).run()
+      
+      return c.json({ success: true, message: '대표 상담센터로 지정되었습니다.' })
+    } else {
+      // 대표센터 해제
+      await DB.prepare(
+        'DELETE FROM regional_centers WHERE region_key = ? AND facility_id = ?'
+      ).bind(regionKey, facilityId).run()
+      
+      return c.json({ success: true, message: '대표 상담센터에서 해제되었습니다.' })
+    }
+  } catch (error) {
+    console.error('Toggle regional center error:', error)
+    return c.json({ success: false, message: '설정 실패' }, 500)
   }
 })
 
