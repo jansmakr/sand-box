@@ -2003,7 +2003,7 @@ app.get('/admin/facilities', async (c) => {
           </div>
 
           {/* 검색 필터 */}
-          <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+          <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
             <input 
               type="text" 
               id="searchInput" 
@@ -2022,6 +2022,11 @@ app.get('/admin/facilities', async (c) => {
               <option value="요양원">요양원</option>
               <option value="재가복지센터">재가복지센터</option>
               <option value="주야간보호">주야간보호</option>
+            </select>
+            <select id="regionalFilter" class="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 bg-teal-50">
+              <option value="">전체 시설</option>
+              <option value="true">대표센터만</option>
+              <option value="false">일반시설만</option>
             </select>
             <button id="searchBtn" class="bg-gray-800 text-white px-6 py-2 rounded-lg hover:bg-gray-900">
               <i class="fas fa-search mr-2"></i>검색
@@ -2392,7 +2397,8 @@ app.get('/admin/facilities', async (c) => {
               search: document.getElementById('searchInput').value,
               sido: document.getElementById('sidoFilter').value,
               sigungu: document.getElementById('sigunguFilter').value,
-              type: document.getElementById('typeFilter').value
+              type: document.getElementById('typeFilter').value,
+              isRegionalCenter: document.getElementById('regionalFilter').value
             };
             loadFacilities(1);
           });
@@ -3392,6 +3398,7 @@ app.get('/api/admin/facilities', async (c) => {
     const sido = c.req.query('sido') || ''
     const sigungu = c.req.query('sigungu') || ''
     const type = c.req.query('type') || ''
+    const isRegionalCenter = c.req.query('isRegionalCenter') || ''
     
     const offset = (page - 1) * limit
     
@@ -3399,30 +3406,43 @@ app.get('/api/admin/facilities', async (c) => {
     const bindings: any[] = []
     
     if (search) {
-      whereClause += ' AND (name LIKE ? OR address LIKE ?)'
+      whereClause += ' AND (f.name LIKE ? OR f.address LIKE ?)'
       bindings.push(`%${search}%`, `%${search}%`)
     }
     if (sido) {
-      whereClause += ' AND sido = ?'
+      whereClause += ' AND f.sido = ?'
       bindings.push(sido)
     }
     if (sigungu) {
-      whereClause += ' AND sigungu = ?'
+      whereClause += ' AND f.sigungu = ?'
       bindings.push(sigungu)
     }
     if (type) {
-      whereClause += ' AND facility_type = ?'
+      whereClause += ' AND f.facility_type = ?'
       bindings.push(type)
+    }
+    
+    // 대표센터 필터 적용
+    let joinClause = ''
+    let additionalWhere = ''
+    
+    if (isRegionalCenter === 'true') {
+      // 대표센터만 조회
+      joinClause = ' INNER JOIN regional_centers rc ON f.id = rc.facility_id'
+    } else if (isRegionalCenter === 'false') {
+      // 일반시설만 조회 (대표센터 제외)
+      joinClause = ' LEFT JOIN regional_centers rc ON f.id = rc.facility_id'
+      additionalWhere = ' AND rc.facility_id IS NULL'
     }
     
     // 총 개수
     const countResult = await DB.prepare(
-      `SELECT COUNT(*) as total FROM facilities WHERE ${whereClause}`
+      `SELECT COUNT(*) as total FROM facilities f${joinClause} WHERE ${whereClause}${additionalWhere}`
     ).bind(...bindings).first()
     
     // 데이터 조회
     const facilitiesResult = await DB.prepare(
-      `SELECT * FROM facilities WHERE ${whereClause} ORDER BY id DESC LIMIT ? OFFSET ?`
+      `SELECT f.* FROM facilities f${joinClause} WHERE ${whereClause}${additionalWhere} ORDER BY f.id DESC LIMIT ? OFFSET ?`
     ).bind(...bindings, limit, offset).all()
     
     // 한 번의 쿼리로 모든 대표센터 정보 가져오기 (성능 최적화)
