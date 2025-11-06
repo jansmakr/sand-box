@@ -3423,26 +3423,22 @@ app.get('/api/admin/facilities', async (c) => {
     }
     
     // 대표센터 필터 적용
-    let query = `SELECT * FROM facilities WHERE ${whereClause}`
-    let countQuery = `SELECT COUNT(*) as total FROM facilities WHERE ${whereClause}`
+    let query = `SELECT f.* FROM facilities f`
+    let countQuery = `SELECT COUNT(*) as total FROM facilities f`
+    let joinClause = ''
+    let finalWhereClause = whereClause
     
     if (isRegionalCenter === 'true') {
       // 대표센터만 조회
-      query = `SELECT f.* FROM facilities f 
-               INNER JOIN regional_centers rc ON f.id = rc.facility_id 
-               WHERE ${whereClause}`
-      countQuery = `SELECT COUNT(*) as total FROM facilities f 
-                    INNER JOIN regional_centers rc ON f.id = rc.facility_id 
-                    WHERE ${whereClause}`
+      joinClause = ' INNER JOIN regional_centers rc ON f.id = rc.facility_id'
     } else if (isRegionalCenter === 'false') {
       // 일반시설만 조회 (대표센터 제외)
-      query = `SELECT f.* FROM facilities f 
-               LEFT JOIN regional_centers rc ON f.id = rc.facility_id 
-               WHERE ${whereClause} AND rc.facility_id IS NULL`
-      countQuery = `SELECT COUNT(*) as total FROM facilities f 
-                    LEFT JOIN regional_centers rc ON f.id = rc.facility_id 
-                    WHERE ${whereClause} AND rc.facility_id IS NULL`
+      joinClause = ' LEFT JOIN regional_centers rc ON f.id = rc.facility_id'
+      finalWhereClause += ' AND rc.facility_id IS NULL'
     }
+    
+    query = `SELECT f.* FROM facilities f${joinClause} WHERE ${finalWhereClause}`
+    countQuery = `SELECT COUNT(*) as total FROM facilities f${joinClause} WHERE ${finalWhereClause}`
     
     // 총 개수
     const countResult = await DB.prepare(countQuery).bind(...bindings).first()
