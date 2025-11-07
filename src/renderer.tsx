@@ -43,7 +43,7 @@ export const renderer = jsxRenderer(({ children }) => {
         <meta name="apple-mobile-web-app-title" content="케어조아" />
         
         {/* 네이버 사이트 소유 확인 */}
-        <meta name="naver-site-verification" content="5cc01115b78cdcac6d30bc8ce080f4290c212043" />
+        <meta name="naver-site-verification" content="dc43a9599c76357b725d565f539f29ee2d907b81" />
         
         {/* Google Analytics 4 */}
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-KWGGQN7LR3"></script>
