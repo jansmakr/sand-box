@@ -867,25 +867,21 @@ app.get('/', (c) => {
             if (centers.length > 0) {
               centerList.innerHTML = centers.map(center => \`
                 <div class="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl p-4 hover:shadow-lg transition-shadow">
-                  <div class="flex items-start justify-between">
-                    <div class="flex-1">
-                      <h5 class="font-bold text-lg text-gray-900 mb-2">
-                        <i class="fas fa-building text-green-600 mr-2"></i>\${center.facilityName}
-                      </h5>
-                      <p class="text-sm text-gray-600 mb-3">
-                        <i class="fas fa-tag text-purple-500 mr-1"></i>\${center.facilityType}
-                      </p>
-                      <div class="flex items-center mb-2">
-                        <i class="fas fa-user text-blue-500 mr-2"></i>
-                        <span class="text-sm text-gray-700">\${center.managerName}</span>
-                      </div>
-                    </div>
-                    <a href="tel:\${center.managerPhone}" 
-                       class="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 py-3 rounded-lg hover:from-green-600 hover:to-emerald-600 transform hover:scale-105 transition-all shadow-md flex items-center">
-                      <i class="fas fa-phone-alt mr-2"></i>
-                      <span class="font-bold">\${center.managerPhone}</span>
-                    </a>
+                  <h5 class="font-bold text-lg text-gray-900 mb-2">
+                    <i class="fas fa-building text-green-600 mr-2"></i>\${center.facilityName}
+                  </h5>
+                  <p class="text-sm text-gray-600 mb-2">
+                    <i class="fas fa-tag text-purple-500 mr-1"></i>\${center.facilityType}
+                  </p>
+                  <div class="flex items-center mb-3">
+                    <i class="fas fa-user text-blue-500 mr-2"></i>
+                    <span class="text-sm text-gray-700">\${center.managerName}</span>
                   </div>
+                  <a href="tel:\${center.managerPhone}" 
+                     class="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 py-3 rounded-lg hover:from-green-600 hover:to-emerald-600 transform hover:scale-105 transition-all shadow-md flex items-center justify-center w-full">
+                    <i class="fas fa-phone-alt mr-2"></i>
+                    <span class="font-bold">\${center.managerPhone}</span>
+                  </a>
                 </div>
               \`).join('');
               centerListContainer.classList.remove('hidden');
