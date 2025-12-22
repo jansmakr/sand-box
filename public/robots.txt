@@ -1,0 +1,28 @@
+# robots.txt for carejoa.kr
+
+# 모든 검색 엔진 허용
+User-agent: *
+Allow: /
+
+# 크롤링 속도 제한 (초당 1회)
+Crawl-delay: 1
+
+# 관리자 페이지 차단
+Disallow: /admin
+Disallow: /api/admin/*
+
+# 사이트맵 위치
+Sitemap: https://carejoa.kr/sitemap.xml
+
+# 주요 검색엔진별 설정
+User-agent: Googlebot
+Allow: /
+
+User-agent: Yeti
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /

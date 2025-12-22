@@ -1,0 +1,225 @@
+🚀 지역별 대표시설 자동 지정 시작
+
+📍 전체 시도/시군구 목록 가져오는 중...
+  진행중: 450개 시설 로딩...
+  진행중: 950개 시설 로딩...
+  진행중: 1450개 시설 로딩...
+  진행중: 1950개 시설 로딩...
+  진행중: 2450개 시설 로딩...
+  진행중: 2950개 시설 로딩...
+  진행중: 3450개 시설 로딩...
+  진행중: 3950개 시설 로딩...
+  진행중: 4450개 시설 로딩...
+  진행중: 4950개 시설 로딩...
+  진행중: 5450개 시설 로딩...
+  진행중: 5950개 시설 로딩...
+  진행중: 6450개 시설 로딩...
+  진행중: 6950개 시설 로딩...
+  진행중: 7450개 시설 로딩...
+  진행중: 7950개 시설 로딩...
+  진행중: 8450개 시설 로딩...
+  진행중: 8950개 시설 로딩...
+  진행중: 9450개 시설 로딩...
+  진행중: 9950개 시설 로딩...
+  진행중: 10450개 시설 로딩...
+  진행중: 10950개 시설 로딩...
+  진행중: 11450개 시설 로딩...
+  진행중: 11950개 시설 로딩...
+  진행중: 12450개 시설 로딩...
+  진행중: 12950개 시설 로딩...
+  진행중: 13450개 시설 로딩...
+  진행중: 13950개 시설 로딩...
+  진행중: 14450개 시설 로딩...
+  진행중: 14950개 시설 로딩...
+  진행중: 15450개 시설 로딩...
+  진행중: 15950개 시설 로딩...
+  진행중: 16450개 시설 로딩...
+  진행중: 16950개 시설 로딩...
+  진행중: 17450개 시설 로딩...
+  진행중: 17950개 시설 로딩...
+  진행중: 18450개 시설 로딩...
+  진행중: 18950개 시설 로딩...
+  진행중: 19450개 시설 로딩...
+  진행중: 19950개 시설 로딩...
+  진행중: 20433개 시설 로딩...
+  ✅ 총 20433개 시설 로딩 완료
+  ✅ 고유 지역 257개 발견
+✅ 총 257개 지역 발견
+
+
+📌 처리중: 경기도 안산시
+  ❌ 요양병원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 요양원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 재가복지센터: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 주야간보호: 오류 - Unexpected non-whitespace character after JSON at position 4
+
+📌 처리중: 제주특별자치도 서귀포시
+  ⚠️  요양병원: 시설 없음
+  ❌ 요양원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 재가복지센터: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 주야간보호: 오류 - Unexpected non-whitespace character after JSON at position 4
+
+📌 처리중: 제주특별자치도 제주시
+  ❌ 요양병원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 요양원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 재가복지센터: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 주야간보호: 오류 - Unexpected non-whitespace character after JSON at position 4
+
+📌 처리중: 광주광역시 광산구
+  ❌ 요양병원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 요양원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 재가복지센터: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 주야간보호: 오류 - Unexpected non-whitespace character after JSON at position 4
+
+📌 처리중: 광주광역시 서구
+  ❌ 요양병원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 요양원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 재가복지센터: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 주야간보호: 오류 - Unexpected non-whitespace character after JSON at position 4
+
+📌 처리중: 광주광역시 남구
+  ❌ 요양병원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 요양원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 재가복지센터: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 주야간보호: 오류 - Unexpected non-whitespace character after JSON at position 4
+
+📌 처리중: 광주광역시 동구
+  ❌ 요양병원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 요양원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 재가복지센터: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 주야간보호: 오류 - Unexpected non-whitespace character after JSON at position 4
+
+📌 처리중: 광주광역시 북구
+  ❌ 요양병원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 요양원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 재가복지센터: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 주야간보호: 오류 - Unexpected non-whitespace character after JSON at position 4
+
+📌 처리중: 전라남도 여수시
+  ❌ 요양병원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 요양원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 재가복지센터: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 주야간보호: 오류 - Unexpected non-whitespace character after JSON at position 4
+
+📌 처리중: 전라남도 고흥군
+  ❌ 요양병원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 요양원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 재가복지센터: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 주야간보호: 오류 - Unexpected non-whitespace character after JSON at position 4
+
+📌 처리중: 전라남도 보성군
+  ❌ 요양병원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 요양원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 재가복지센터: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 주야간보호: 오류 - Unexpected non-whitespace character after JSON at position 4
+
+📌 처리중: 전라남도 장흥군
+  ⚠️  요양병원: 시설 없음
+  ❌ 요양원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 재가복지센터: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 주야간보호: 오류 - Unexpected non-whitespace character after JSON at position 4
+
+📌 처리중: 전라남도 해남군
+  ⚠️  요양병원: 시설 없음
+  ❌ 요양원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 재가복지센터: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 주야간보호: 오류 - Unexpected non-whitespace character after JSON at position 4
+
+📌 처리중: 전라남도 신안군
+  ❌ 요양병원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 요양원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 재가복지센터: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 주야간보호: 오류 - Unexpected non-whitespace character after JSON at position 4
+
+📌 처리중: 전라남도 목포시
+  ❌ 요양병원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 요양원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 재가복지센터: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 주야간보호: 오류 - Unexpected non-whitespace character after JSON at position 4
+
+📌 처리중: 전라남도 무안군
+  ❌ 요양병원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 요양원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 재가복지센터: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 주야간보호: 오류 - Unexpected non-whitespace character after JSON at position 4
+
+📌 처리중: 전라남도 영암군
+  ❌ 요양병원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 요양원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 재가복지센터: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 주야간보호: 오류 - Unexpected non-whitespace character after JSON at position 4
+
+📌 처리중: 전라남도 나주시
+  ❌ 요양병원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 요양원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 재가복지센터: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 주야간보호: 오류 - Unexpected non-whitespace character after JSON at position 4
+
+📌 처리중: 전라남도 화순군
+  ❌ 요양병원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 요양원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 재가복지센터: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 주야간보호: 오류 - Unexpected non-whitespace character after JSON at position 4
+
+📌 처리중: 전라남도 순천시
+  ❌ 요양병원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 요양원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 재가복지센터: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 주야간보호: 오류 - Unexpected non-whitespace character after JSON at position 4
+
+📌 처리중: 전라남도 광양시
+  ❌ 요양병원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 요양원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 재가복지센터: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 주야간보호: 오류 - Unexpected non-whitespace character after JSON at position 4
+
+📌 처리중: 전라남도 담양군
+  ❌ 요양병원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 요양원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 재가복지센터: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 주야간보호: 오류 - Unexpected non-whitespace character after JSON at position 4
+
+📌 처리중: 전라남도 장성군
+  ❌ 요양병원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 요양원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 재가복지센터: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 주야간보호: 오류 - Unexpected non-whitespace character after JSON at position 4
+
+📌 처리중: 전라남도 함평군
+  ❌ 요양병원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 요양원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 재가복지센터: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 주야간보호: 오류 - Unexpected non-whitespace character after JSON at position 4
+
+📌 처리중: 전라남도 영광군
+  ❌ 요양병원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 요양원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 재가복지센터: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 주야간보호: 오류 - Unexpected non-whitespace character after JSON at position 4
+
+📌 처리중: 전북특별자치도 고창군
+  ⚠️  요양병원: 시설 없음
+  ❌ 요양원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 재가복지센터: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 주야간보호: 오류 - Unexpected non-whitespace character after JSON at position 4
+
+📌 처리중: 전북특별자치도 부안군
+  ⚠️  요양병원: 시설 없음
+  ❌ 요양원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 재가복지센터: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 주야간보호: 오류 - Unexpected non-whitespace character after JSON at position 4
+
+📌 처리중: 전북특별자치도 정읍시
+  ❌ 요양병원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 요양원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 재가복지센터: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 주야간보호: 오류 - Unexpected non-whitespace character after JSON at position 4
+
+📌 처리중: 전북특별자치도 순창군
+  ⚠️  요양병원: 시설 없음
+  ❌ 요양원: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 재가복지센터: 오류 - Unexpected non-whitespace character after JSON at position 4
+  ❌ 주야간보호: 오류 - Unexpected non-whitespace character after JSON at position 4
+
+📌 처리중: 전북특별자치도 임실군
+  ⚠️  요양병원: 시설 없음
