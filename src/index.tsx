@@ -100,10 +100,9 @@ app.get('/', (c) => {
                    class="flex items-center justify-center bg-blue-500 text-white py-4 px-6 rounded-xl shadow-lg hover:bg-blue-600 transition-all duration-300 transform hover:scale-105">
                   <i class="fas fa-download mr-3"></i>Android 앱 다운로드
                 </a>
-                <a href="https://www.carejoa.com" 
-                   target="_blank" rel="noopener noreferrer"
-                   class="flex items-center justify-center bg-white text-black border-2 border-black py-4 px-6 rounded-xl shadow-lg hover:bg-gray-50 transition-all duration-300 transform hover:scale-105">
-                  <i class="fas fa-calculator mr-3"></i>실시간 견적 & 상담 신청하기
+                <a href="/quote-request"
+                   class="flex items-center justify-center bg-gradient-to-r from-teal-500 to-teal-600 text-white py-4 px-6 rounded-xl shadow-lg hover:from-teal-600 hover:to-teal-700 transition-all duration-300 transform hover:scale-105">
+                  <i class="fas fa-calculator mr-3"></i>실시간 견적 플랫폼
                 </a>
               </div>
 
@@ -778,6 +777,790 @@ app.get('/api/admin/data', (c) => {
     return c.json({ error: 'Unauthorized' }, 401)
   }
   return c.json(dataStore)
+})
+
+// 실시간 견적 플랫폼 페이지
+app.get('/quote-request', (c) => {
+  return c.render(
+    <div class="min-h-screen bg-gray-50">
+      {/* 헤더 */}
+      <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex justify-between items-center h-16">
+            <div class="flex items-center">
+              <a href="/" class="flex items-center">
+                <img 
+                  src="https://page.gensparksite.com/v1/base64_upload/b39dca8586af1dacd6d8417554313896" 
+                  alt="케어조아 로고"
+                  class="h-8 w-auto mr-3"
+                />
+                <h1 class="text-2xl font-bold text-teal-600">케어조아</h1>
+              </a>
+            </div>
+            <a href="/" class="text-gray-600 hover:text-gray-900">
+              <i class="fas fa-home mr-2"></i>홈으로
+            </a>
+          </div>
+        </div>
+      </header>
+
+      <div class="max-w-7xl mx-auto px-4 py-8">
+        {/* 타이틀 */}
+        <div class="text-center mb-8">
+          <h2 class="text-4xl font-bold text-gray-900 mb-4">
+            <i class="fas fa-calculator text-teal-600 mr-3"></i>
+            실시간 요양 견적
+          </h2>
+          <p class="text-xl text-gray-600">
+            3가지 방법으로 빠르고 정확한 견적을 받아보세요
+          </p>
+        </div>
+
+        {/* 탭 네비게이션 */}
+        <div class="flex justify-center mb-8 border-b border-gray-200">
+          <button 
+            id="tab-urgent" 
+            class="tab-btn px-8 py-4 text-lg font-semibold border-b-4 border-teal-600 text-teal-600"
+            onclick="switchTab('urgent')"
+          >
+            <i class="fas fa-bolt mr-2"></i>급한 견적 신청
+          </button>
+          <button 
+            id="tab-calculate" 
+            class="tab-btn px-8 py-4 text-lg font-semibold text-gray-500 hover:text-gray-700"
+            onclick="switchTab('calculate')"
+          >
+            <i class="fas fa-calculator mr-2"></i>자가 견적 계산
+          </button>
+          <button 
+            id="tab-matching" 
+            class="tab-btn px-8 py-4 text-lg font-semibold text-gray-500 hover:text-gray-700"
+            onclick="switchTab('matching')"
+          >
+            <i class="fas fa-robot mr-2"></i>AI 스마트 매칭
+          </button>
+        </div>
+
+        {/* 탭 1: 급한 견적 신청 */}
+        <div id="content-urgent" class="tab-content">
+          <div class="bg-white rounded-xl shadow-lg p-8 max-w-4xl mx-auto">
+            <div class="bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-lg p-4 mb-6">
+              <h3 class="text-lg font-bold text-red-800 mb-2">
+                <i class="fas fa-bolt mr-2"></i>급한 견적 신청이란?
+              </h3>
+              <p class="text-red-700">
+                간단한 정보만 입력하면 <strong>선택하신 지역의 모든 등록 시설</strong>에 자동으로 견적 요청이 전송됩니다. 
+                시설들이 직접 견적서를 작성하여 회신하면 비교하실 수 있습니다.
+              </p>
+            </div>
+
+            <form id="urgentForm" class="space-y-6">
+              {/* 고객 정보 */}
+              <div class="border-b pb-6">
+                <h4 class="text-xl font-bold mb-4">
+                  <i class="fas fa-user mr-2 text-teal-600"></i>고객 정보
+                </h4>
+                <div class="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">보호자 성함 *</label>
+                    <input type="text" name="customer_name" required
+                      class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500" />
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">연락처 *</label>
+                    <input type="tel" name="customer_phone" required placeholder="010-1234-5678"
+                      class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500" />
+                  </div>
+                  <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">이메일 (선택)</label>
+                    <input type="email" name="customer_email"
+                      class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500" />
+                  </div>
+                </div>
+              </div>
+
+              {/* 환자 정보 */}
+              <div class="border-b pb-6">
+                <h4 class="text-xl font-bold mb-4">
+                  <i class="fas fa-hospital-user mr-2 text-teal-600"></i>환자 정보
+                </h4>
+                <div class="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">환자 성함 *</label>
+                    <input type="text" name="patient_name" required
+                      class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500" />
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">나이 *</label>
+                    <input type="number" name="patient_age" required min="1" max="120"
+                      class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500" />
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">성별</label>
+                    <select name="patient_gender" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500">
+                      <option value="">선택</option>
+                      <option value="남성">남성</option>
+                      <option value="여성">여성</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">장기요양등급</label>
+                    <select name="care_level" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500">
+                      <option value="">선택</option>
+                      <option value="1등급">1등급</option>
+                      <option value="2등급">2등급</option>
+                      <option value="3등급">3등급</option>
+                      <option value="4등급">4등급</option>
+                      <option value="5등급">5등급</option>
+                      <option value="인지지원등급">인지지원등급</option>
+                    </select>
+                  </div>
+                  <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">환자 상태 (상세하게 작성해주세요)</label>
+                    <textarea name="patient_condition" rows="3" placeholder="예: 거동 가능 여부, 주요 질환, 특이사항 등"
+                      class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500"></textarea>
+                  </div>
+                </div>
+              </div>
+
+              {/* 희망 시설 */}
+              <div class="border-b pb-6">
+                <h4 class="text-xl font-bold mb-4">
+                  <i class="fas fa-building mr-2 text-teal-600"></i>희망 시설 정보
+                </h4>
+                <div class="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">시/도 *</label>
+                    <select name="sido" id="urgent-sido" required 
+                      class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500">
+                      <option value="">선택</option>
+                      <option value="서울특별시">서울특별시</option>
+                      <option value="경기도">경기도</option>
+                      <option value="인천광역시">인천광역시</option>
+                      <option value="부산광역시">부산광역시</option>
+                      <option value="대구광역시">대구광역시</option>
+                      <option value="대전광역시">대전광역시</option>
+                      <option value="광주광역시">광주광역시</option>
+                      <option value="울산광역시">울산광역시</option>
+                      <option value="세종특별자치시">세종특별자치시</option>
+                      <option value="강원도">강원도</option>
+                      <option value="충청북도">충청북도</option>
+                      <option value="충청남도">충청남도</option>
+                      <option value="전라북도">전라북도</option>
+                      <option value="전라남도">전라남도</option>
+                      <option value="경상북도">경상북도</option>
+                      <option value="경상남도">경상남도</option>
+                      <option value="제주특별자치도">제주특별자치도</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">시/군/구 *</label>
+                    <select name="sigungu" id="urgent-sigungu" required
+                      class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500">
+                      <option value="">시/도를 먼저 선택해주세요</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">시설 유형 *</label>
+                    <select name="facility_type" required
+                      class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500">
+                      <option value="">선택</option>
+                      <option value="요양병원">요양병원</option>
+                      <option value="요양원">요양원</option>
+                      <option value="주야간보호">주야간보호</option>
+                      <option value="재가복지센터">재가복지센터</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">희망 병실</label>
+                    <select name="room_type" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500">
+                      <option value="">선택</option>
+                      <option value="1인실">1인실</option>
+                      <option value="2인실">2인실</option>
+                      <option value="3인실">3인실</option>
+                      <option value="4인실이상">4인실 이상</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* 예산 */}
+              <div class="border-b pb-6">
+                <h4 class="text-xl font-bold mb-4">
+                  <i class="fas fa-won-sign mr-2 text-teal-600"></i>예산 (선택)
+                </h4>
+                <div class="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">최소 예산 (월)</label>
+                    <input type="number" name="budget_min" placeholder="1000000" step="100000"
+                      class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500" />
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">최대 예산 (월)</label>
+                    <input type="number" name="budget_max" placeholder="3000000" step="100000"
+                      class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500" />
+                  </div>
+                </div>
+              </div>
+
+              {/* 기타 요구사항 */}
+              <div>
+                <h4 class="text-xl font-bold mb-4">
+                  <i class="fas fa-clipboard-list mr-2 text-teal-600"></i>기타 요구사항
+                </h4>
+                <textarea name="special_requirements" rows="4" 
+                  placeholder="특별히 원하시는 사항이나 문의사항을 자유롭게 작성해주세요"
+                  class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500"></textarea>
+              </div>
+
+              {/* 제출 버튼 */}
+              <div class="flex justify-center pt-6">
+                <button type="submit" 
+                  class="bg-gradient-to-r from-teal-500 to-teal-600 text-white px-12 py-4 rounded-xl text-lg font-bold hover:from-teal-600 hover:to-teal-700 shadow-lg transform hover:scale-105 transition-all">
+                  <i class="fas fa-paper-plane mr-2"></i>
+                  모든 시설에 견적 요청하기
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        {/* 탭 2: 자가 견적 계산 */}
+        <div id="content-calculate" class="tab-content hidden">
+          <div class="bg-white rounded-xl shadow-lg p-8 max-w-4xl mx-auto">
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4 mb-6">
+              <h3 class="text-lg font-bold text-blue-800 mb-2">
+                <i class="fas fa-calculator mr-2"></i>자가 견적 계산이란?
+              </h3>
+              <p class="text-blue-700">
+                조건을 입력하시면 <strong>예상 비용을 즉시 계산</strong>해드립니다. 
+                대략적인 비용을 먼저 확인하신 후 정식 견적을 요청하실 수 있습니다.
+              </p>
+            </div>
+
+            {/* 계산기 폼 */}
+            <form id="calculateForm" class="space-y-6">
+              <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">장기요양등급 *</label>
+                  <select name="care_level" id="calc-care-level" required
+                    class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                    <option value="">선택</option>
+                    <option value="1">1등급</option>
+                    <option value="2">2등급</option>
+                    <option value="3">3등급</option>
+                    <option value="4">4등급</option>
+                    <option value="5">5등급</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">시설 유형 *</label>
+                  <select name="facility_type" id="calc-facility-type" required
+                    class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                    <option value="">선택</option>
+                    <option value="요양병원">요양병원</option>
+                    <option value="요양원">요양원</option>
+                    <option value="주야간보호">주야간보호</option>
+                    <option value="재가복지센터">재가복지센터</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">병실 유형 *</label>
+                  <select name="room_type" id="calc-room-type" required
+                    class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                    <option value="">선택</option>
+                    <option value="1인실">1인실</option>
+                    <option value="2인실">2인실</option>
+                    <option value="3인실">3인실</option>
+                    <option value="4인실이상">4인실 이상</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">지역 *</label>
+                  <select name="region" id="calc-region" required
+                    class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                    <option value="">선택</option>
+                    <option value="서울">서울</option>
+                    <option value="경기">경기</option>
+                    <option value="인천">인천</option>
+                    <option value="기타">기타 지역</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="flex justify-center">
+                <button type="submit" 
+                  class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-10 py-3 rounded-xl text-lg font-bold hover:from-blue-600 hover:to-blue-700 shadow-lg">
+                  <i class="fas fa-calculator mr-2"></i>
+                  예상 비용 계산하기
+                </button>
+              </div>
+            </form>
+
+            {/* 계산 결과 */}
+            <div id="calculateResult" class="hidden mt-8 p-6 bg-gradient-to-r from-green-50 to-teal-50 rounded-xl border-2 border-green-200">
+              <h3 class="text-2xl font-bold text-green-800 mb-4">
+                <i class="fas fa-check-circle mr-2"></i>예상 비용 계산 완료
+              </h3>
+              <div class="space-y-3">
+                <div class="flex justify-between text-lg">
+                  <span class="font-medium">기본 비용 (월):</span>
+                  <span id="result-basic" class="font-bold text-blue-600"></span>
+                </div>
+                <div class="flex justify-between text-lg">
+                  <span class="font-medium">식사비 (월):</span>
+                  <span id="result-meal" class="font-bold text-blue-600"></span>
+                </div>
+                <div class="flex justify-between text-lg">
+                  <span class="font-medium">간호비 (월):</span>
+                  <span id="result-nursing" class="font-bold text-blue-600"></span>
+                </div>
+                <div class="flex justify-between text-lg border-t-2 border-green-300 pt-3">
+                  <span class="font-bold text-xl">예상 총액 (월):</span>
+                  <span id="result-total" class="font-bold text-2xl text-green-700"></span>
+                </div>
+              </div>
+              <div class="mt-6 bg-white p-4 rounded-lg">
+                <p class="text-sm text-gray-600 mb-3">
+                  <i class="fas fa-info-circle text-blue-500 mr-1"></i>
+                  이 비용은 평균적인 예상 금액이며, 실제 시설마다 차이가 있을 수 있습니다.
+                </p>
+                <button onclick="requestQuoteFromCalculator()" 
+                  class="w-full bg-teal-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-teal-700">
+                  정확한 견적 요청하기
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 탭 3: AI 매칭 */}
+        <div id="content-matching" class="tab-content hidden">
+          <div class="bg-white rounded-xl shadow-lg p-8 max-w-4xl mx-auto">
+            <div class="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-4 mb-6">
+              <h3 class="text-lg font-bold text-purple-800 mb-2">
+                <i class="fas fa-robot mr-2"></i>AI 스마트 매칭이란?
+              </h3>
+              <p class="text-purple-700">
+                입력하신 조건을 AI가 분석하여 <strong>가장 적합한 시설 TOP 10</strong>을 추천해드립니다. 
+                추천된 시설에만 선택적으로 견적을 요청하실 수 있습니다.
+              </p>
+            </div>
+
+            {/* AI 매칭 폼 */}
+            <form id="matchingForm" class="space-y-6">
+              {/* 기본 정보 */}
+              <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">장기요양등급 *</label>
+                  <select name="care_level" required
+                    class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500">
+                    <option value="">선택</option>
+                    <option value="1">1등급</option>
+                    <option value="2">2등급</option>
+                    <option value="3">3등급</option>
+                    <option value="4">4등급</option>
+                    <option value="5">5등급</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">환자 나이 *</label>
+                  <input type="number" name="patient_age" required min="1" max="120"
+                    class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500" />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">시/도 *</label>
+                  <select name="sido" id="matching-sido" required
+                    class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500">
+                      <option value="">선택</option>
+                      <option value="서울특별시">서울특별시</option>
+                      <option value="경기도">경기도</option>
+                      <option value="인천광역시">인천광역시</option>
+                    </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">시/군/구 *</label>
+                  <select name="sigungu" id="matching-sigungu" required
+                    class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500">
+                    <option value="">시/도를 먼저 선택해주세요</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">월 예산 *</label>
+                  <input type="number" name="budget" required placeholder="2000000" step="100000"
+                    class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500" />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">병실 선호</label>
+                  <select name="room_type"
+                    class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500">
+                    <option value="">상관없음</option>
+                    <option value="1인실">1인실</option>
+                    <option value="2인실">2인실</option>
+                    <option value="3인실">3인실</option>
+                    <option value="4인실이상">4인실 이상</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* 중요 요소 선택 */}
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">중요하게 생각하는 요소 (복수 선택 가능)</label>
+                <div class="grid md:grid-cols-3 gap-3">
+                  <label class="flex items-center p-3 border rounded-lg hover:bg-purple-50 cursor-pointer">
+                    <input type="checkbox" name="priorities[]" value="거리" class="mr-2" />
+                    <span>집과의 거리</span>
+                  </label>
+                  <label class="flex items-center p-3 border rounded-lg hover:bg-purple-50 cursor-pointer">
+                    <input type="checkbox" name="priorities[]" value="비용" class="mr-2" />
+                    <span>저렴한 비용</span>
+                  </label>
+                  <label class="flex items-center p-3 border rounded-lg hover:bg-purple-50 cursor-pointer">
+                    <input type="checkbox" name="priorities[]" value="시설" class="mr-2" />
+                    <span>시설 설비</span>
+                  </label>
+                  <label class="flex items-center p-3 border rounded-lg hover:bg-purple-50 cursor-pointer">
+                    <input type="checkbox" name="priorities[]" value="의료" class="mr-2" />
+                    <span>의료 서비스</span>
+                  </label>
+                  <label class="flex items-center p-3 border rounded-lg hover:bg-purple-50 cursor-pointer">
+                    <input type="checkbox" name="priorities[]" value="평판" class="mr-2" />
+                    <span>평판/후기</span>
+                  </label>
+                  <label class="flex items-center p-3 border rounded-lg hover:bg-purple-50 cursor-pointer">
+                    <input type="checkbox" name="priorities[]" value="규모" class="mr-2" />
+                    <span>시설 규모</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="flex justify-center">
+                <button type="submit" 
+                  class="bg-gradient-to-r from-purple-500 to-pink-600 text-white px-10 py-3 rounded-xl text-lg font-bold hover:from-purple-600 hover:to-pink-700 shadow-lg">
+                  <i class="fas fa-magic mr-2"></i>
+                  AI 추천 받기
+                </button>
+              </div>
+            </form>
+
+            {/* AI 매칭 결과 */}
+            <div id="matchingResult" class="hidden mt-8">
+              <h3 class="text-2xl font-bold text-purple-800 mb-6 flex items-center">
+                <i class="fas fa-star mr-3 text-yellow-500"></i>
+                맞춤 추천 시설 TOP 10
+              </h3>
+              <div id="matchingList" class="space-y-4">
+                {/* 동적으로 채워짐 */}
+              </div>
+              <div class="mt-6 text-center">
+                <button onclick="requestQuoteFromMatching()" 
+                  class="bg-teal-600 text-white px-10 py-3 rounded-xl font-bold hover:bg-teal-700">
+                  선택한 시설에 견적 요청하기
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* JavaScript */}
+      <script dangerouslySetInnerHTML={{__html: `
+        // 탭 전환
+        function switchTab(tabName) {
+          // 모든 탭 버튼 비활성화
+          document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('border-teal-600', 'text-teal-600');
+            btn.classList.add('text-gray-500', 'border-transparent');
+          });
+          
+          // 선택된 탭 활성화
+          document.getElementById('tab-' + tabName).classList.add('border-teal-600', 'text-teal-600');
+          document.getElementById('tab-' + tabName).classList.remove('text-gray-500', 'border-transparent');
+          
+          // 모든 콘텐츠 숨기기
+          document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.add('hidden');
+          });
+          
+          // 선택된 콘텐츠 표시
+          document.getElementById('content-' + tabName).classList.remove('hidden');
+        }
+
+        // 시군구 데이터
+        const sigunguData = {
+          "서울특별시": ["강남구", "강동구", "강북구", "강서구", "관악구", "광진구", "구로구", "금천구", "노원구", "도봉구", "동대문구", "동작구", "마포구", "서대문구", "서초구", "성동구", "성북구", "송파구", "양천구", "영등포구", "용산구", "은평구", "종로구", "중구", "중랑구"],
+          "경기도": ["고양시", "과천시", "광명시", "광주시", "구리시", "군포시", "김포시", "남양주시", "동두천시", "부천시", "성남시", "수원시", "시흥시", "안산시", "안성시", "안양시", "양주시", "여주시", "오산시", "용인시", "의왕시", "의정부시", "이천시", "파주시", "평택시", "포천시", "하남시", "화성시"],
+          "인천광역시": ["강화군", "계양구", "남동구", "동구", "미추홀구", "부평구", "서구", "연수구", "옹진군", "중구"]
+        };
+
+        // 시도 선택 시 시군구 업데이트
+        document.getElementById('urgent-sido').addEventListener('change', function() {
+          updateSigungu('urgent-sigungu', this.value);
+        });
+
+        document.getElementById('matching-sido').addEventListener('change', function() {
+          updateSigungu('matching-sigungu', this.value);
+        });
+
+        function updateSigungu(selectId, sido) {
+          const sigunguSelect = document.getElementById(selectId);
+          sigunguSelect.innerHTML = '<option value="">선택</option>';
+          
+          if (sigunguData[sido]) {
+            sigunguData[sido].forEach(sigungu => {
+              const option = document.createElement('option');
+              option.value = sigungu;
+              option.textContent = sigungu;
+              sigunguSelect.appendChild(option);
+            });
+          }
+        }
+
+        // 폼 제출 처리
+        document.getElementById('urgentForm').addEventListener('submit', async function(e) {
+          e.preventDefault();
+          
+          const formData = new FormData(this);
+          const data = Object.fromEntries(formData.entries());
+          data.request_type = 'urgent';
+          
+          try {
+            const response = await axios.post('/api/quote-request', data);
+            if (response.data.success) {
+              alert('견적 요청이 완료되었습니다! 해당 지역 ' + response.data.sent_count + '개 시설에 전송되었습니다.');
+              this.reset();
+            }
+          } catch (error) {
+            console.error('요청 실패:', error);
+            alert('견적 요청에 실패했습니다. 다시 시도해주세요.');
+          }
+        });
+
+        document.getElementById('calculateForm').addEventListener('submit', async function(e) {
+          e.preventDefault();
+          
+          const formData = new FormData(this);
+          const data = Object.fromEntries(formData.entries());
+          
+          try {
+            const response = await axios.post('/api/calculate-cost', data);
+            if (response.data.success) {
+              document.getElementById('result-basic').textContent = response.data.basic.toLocaleString() + '원';
+              document.getElementById('result-meal').textContent = response.data.meal.toLocaleString() + '원';
+              document.getElementById('result-nursing').textContent = response.data.nursing.toLocaleString() + '원';
+              document.getElementById('result-total').textContent = response.data.total.toLocaleString() + '원';
+              document.getElementById('calculateResult').classList.remove('hidden');
+            }
+          } catch (error) {
+            console.error('계산 실패:', error);
+            alert('계산에 실패했습니다. 다시 시도해주세요.');
+          }
+        });
+
+        document.getElementById('matchingForm').addEventListener('submit', async function(e) {
+          e.preventDefault();
+          
+          const formData = new FormData(this);
+          const data = Object.fromEntries(formData.entries());
+          data.request_type = 'ai_matching';
+          
+          // 우선순위 배열 처리
+          const priorities = [];
+          document.querySelectorAll('input[name="priorities[]"]:checked').forEach(el => {
+            priorities.push(el.value);
+          });
+          data.priorities = JSON.stringify(priorities);
+          
+          try {
+            const response = await axios.post('/api/ai-matching', data);
+            if (response.data.success) {
+              displayMatchingResults(response.data.facilities);
+              document.getElementById('matchingResult').classList.remove('hidden');
+            }
+          } catch (error) {
+            console.error('매칭 실패:', error);
+            alert('AI 매칭에 실패했습니다. 다시 시도해주세요.');
+          }
+        });
+
+        function displayMatchingResults(facilities) {
+          const listEl = document.getElementById('matchingList');
+          listEl.innerHTML = facilities.map((facility, index) => \`
+            <div class="border-2 border-purple-200 rounded-lg p-4 hover:shadow-lg transition-shadow">
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center">
+                  <span class="bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold text-lg w-10 h-10 rounded-full flex items-center justify-center mr-3">
+                    \${index + 1}
+                  </span>
+                  <div>
+                    <h4 class="text-lg font-bold">\${facility.name}</h4>
+                    <p class="text-sm text-gray-600">\${facility.address}</p>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <p class="text-sm text-gray-600">매칭 점수</p>
+                  <p class="text-2xl font-bold text-purple-600">\${facility.score}%</p>
+                </div>
+              </div>
+              <div class="flex gap-2 mb-2">
+                <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">\${facility.type}</span>
+                <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">예상: \${facility.estimated_cost.toLocaleString()}원/월</span>
+              </div>
+              <label class="flex items-center mt-3">
+                <input type="checkbox" class="facility-select mr-2" value="\${facility.id}" checked />
+                <span class="text-sm">이 시설에 견적 요청</span>
+              </label>
+            </div>
+          \`).join('');
+        }
+
+        function requestQuoteFromCalculator() {
+          // 계산 결과에서 견적 요청으로 전환
+          switchTab('urgent');
+          window.scrollTo(0, 0);
+        }
+
+        function requestQuoteFromMatching() {
+          const selectedFacilities = [];
+          document.querySelectorAll('.facility-select:checked').forEach(el => {
+            selectedFacilities.push(el.value);
+          });
+          
+          if (selectedFacilities.length === 0) {
+            alert('최소 1개 이상의 시설을 선택해주세요.');
+            return;
+          }
+          
+          alert(selectedFacilities.length + '개 시설에 견적 요청이 완료되었습니다!');
+        }
+      `}} />
+    </div>
+  )
+})
+
+// 견적 요청 API
+app.post('/api/quote-request', async (c) => {
+  try {
+    const data = await c.req.json()
+    
+    // TODO: D1에 저장하고 해당 지역 시설들에게 알림
+    // 임시로 메모리에 저장
+    const requestId = Date.now()
+    const sentCount = Math.floor(Math.random() * 20) + 10 // 임시: 10-30개 시설
+    
+    return c.json({ 
+      success: true, 
+      request_id: requestId,
+      sent_count: sentCount,
+      message: '견적 요청이 전송되었습니다.'
+    })
+  } catch (error) {
+    return c.json({ success: false, message: '요청 처리 실패' }, 500)
+  }
+})
+
+// 자가 견적 계산 API
+app.post('/api/calculate-cost', async (c) => {
+  try {
+    const data = await c.req.json()
+    
+    // 간단한 견적 계산 로직
+    const careLevel = parseInt(data.care_level)
+    const facilityType = data.facility_type
+    const roomType = data.room_type
+    const region = data.region
+    
+    // 기본료 (등급별)
+    const basicCost = {
+      1: 1800000,
+      2: 1600000,
+      3: 1400000,
+      4: 1200000,
+      5: 1000000
+    }[careLevel] || 1000000
+    
+    // 시설 유형별 추가
+    const facilityExtra = {
+      '요양병원': 500000,
+      '요양원': 200000,
+      '주야간보호': -300000,
+      '재가복지센터': -400000
+    }[facilityType] || 0
+    
+    // 병실 유형별 추가
+    const roomExtra = {
+      '1인실': 500000,
+      '2인실': 200000,
+      '3인실': 0,
+      '4인실이상': -100000
+    }[roomType] || 0
+    
+    // 지역별 추가
+    const regionExtra = {
+      '서울': 300000,
+      '경기': 100000,
+      '인천': 50000,
+      '기타': 0
+    }[region] || 0
+    
+    const basic = basicCost + facilityExtra + roomExtra + regionExtra
+    const meal = 300000
+    const nursing = 200000
+    const total = basic + meal + nursing
+    
+    return c.json({
+      success: true,
+      basic,
+      meal,
+      nursing,
+      total
+    })
+  } catch (error) {
+    return c.json({ success: false, message: '계산 실패' }, 500)
+  }
+})
+
+// AI 매칭 API
+app.post('/api/ai-matching', async (c) => {
+  try {
+    const data = await c.req.json()
+    
+    // TODO: 실제 AI 매칭 로직 구현
+    // 임시로 더미 데이터 반환
+    const dummyFacilities = [
+      {
+        id: 1,
+        name: '서울 요양병원',
+        address: '서울특별시 강남구',
+        type: '요양병원',
+        score: 95,
+        estimated_cost: 2500000
+      },
+      {
+        id: 2,
+        name: '행복 요양원',
+        address: '서울특별시 서초구',
+        type: '요양원',
+        score: 92,
+        estimated_cost: 2200000
+      },
+      {
+        id: 3,
+        name: '사랑 재가복지센터',
+        address: '서울특별시 송파구',
+        type: '재가복지센터',
+        score: 88,
+        estimated_cost: 1800000
+      }
+    ]
+    
+    return c.json({
+      success: true,
+      facilities: dummyFacilities
+    })
+  } catch (error) {
+    return c.json({ success: false, message: '매칭 실패' }, 500)
+  }
 })
 
 export default app
