@@ -46,7 +46,7 @@ export const renderer = jsxRenderer(({ children }) => {
         <meta name="naver-site-verification" content="dc43a9599c76357b725d565f539f29ee2d907b81" />
         
         {/* Content Security Policy */}
-        <meta httpEquiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://cdn.jsdelivr.net https://unpkg.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; img-src 'self' data: https:; font-src 'self' data: https://cdn.jsdelivr.net; connect-src 'self' https://www.google-analytics.com https://www.genspark.ai https://cloudflareinsights.com; frame-src 'self';" />
+        <meta httpEquiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://cdn.jsdelivr.net https://unpkg.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; img-src 'self' data: https:; font-src 'self' data: https://cdn.jsdelivr.net; connect-src 'self' https://www.google-analytics.com https://www.genspark.ai https://cloudflareinsights.com https://cdn.jsdelivr.net; frame-src 'self';" />
         
         {/* Google Analytics 4 */}
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-KWGGQN7LR3"></script>

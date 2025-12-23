@@ -2,8 +2,8 @@ module.exports = {
   apps: [
     {
       name: 'carejoa-webapp',
-      script: 'npm',
-      args: 'run dev',
+      script: 'npx',
+      args: 'wrangler pages dev dist --d1=carejoa-production --local --ip 0.0.0.0 --port 3000',
       env: {
         NODE_ENV: 'development',
         PORT: 3000
