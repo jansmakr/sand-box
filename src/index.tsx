@@ -320,6 +320,300 @@ app.post('/api/auth/logout', (c) => {
   return c.json({ success: true, message: '로그아웃되었습니다.' })
 })
 
+// 회원가입 페이지
+app.get('/register', (c) => {
+  return c.html(`
+    <!DOCTYPE html>
+    <html lang="ko">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>회원가입 - 케어조아</title>
+      <script src="https://cdn.tailwindcss.com"></script>
+      <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+    </head>
+    <body class="bg-gradient-to-br from-teal-50 to-blue-50 min-h-screen">
+      <div class="container mx-auto px-4 py-8">
+        <div class="text-center mb-8">
+          <a href="/" class="inline-flex items-center">
+            <img 
+              src="https://page.gensparksite.com/v1/base64_upload/b39dca8586af1dacd6d8417554313896" 
+              alt="케어조아 로고"
+              class="h-12 w-auto mr-3"
+            />
+            <h1 class="text-4xl font-bold text-teal-600">케어조아</h1>
+          </a>
+          <p class="text-gray-600 mt-2">케어조아에 오신 것을 환영합니다!</p>
+        </div>
+
+        <div class="max-w-2xl mx-auto">
+          <div class="bg-white rounded-2xl shadow-xl p-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">
+              <i class="fas fa-user-plus text-teal-600 mr-2"></i>
+              회원가입
+            </h2>
+
+            <!-- 사용자 유형 선택 -->
+            <div class="mb-6">
+              <label class="block text-sm font-medium text-gray-700 mb-3">가입 유형</label>
+              <div class="grid grid-cols-2 gap-3">
+                <button type="button" id="btnCustomer" onclick="selectUserType('customer')"
+                  class="px-4 py-3 border-2 border-teal-600 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-medium">
+                  <i class="fas fa-user mr-2"></i>고객
+                </button>
+                <button type="button" id="btnFacility" onclick="selectUserType('facility')"
+                  class="px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-teal-600 hover:text-teal-600 transition-colors font-medium">
+                  <i class="fas fa-building mr-2"></i>시설
+                </button>
+              </div>
+            </div>
+
+            <!-- 회원가입 폼 -->
+            <form id="registerForm" onsubmit="handleRegister(event)">
+              <!-- 공통 정보 -->
+              <div class="space-y-4 mb-6">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-envelope text-gray-400 mr-1"></i>이메일 *
+                  </label>
+                  <input type="email" id="email" required placeholder="example@email.com"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent" />
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-lock text-gray-400 mr-1"></i>비밀번호 *
+                  </label>
+                  <input type="password" id="password" required placeholder="8자 이상 입력"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent" />
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-lock text-gray-400 mr-1"></i>비밀번호 확인 *
+                  </label>
+                  <input type="password" id="passwordConfirm" required placeholder="비밀번호 재입력"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent" />
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-user text-gray-400 mr-1"></i>이름 *
+                  </label>
+                  <input type="text" id="name" required placeholder="홍길동"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent" />
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-phone text-gray-400 mr-1"></i>연락처 *
+                  </label>
+                  <input type="tel" id="phone" required placeholder="010-1234-5678"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent" />
+                </div>
+              </div>
+
+              <!-- 시설 전용 정보 (숨김 처리) -->
+              <div id="facilityFields" style="display: none;" class="space-y-4 mb-6 p-4 bg-blue-50 rounded-lg">
+                <h3 class="font-bold text-gray-800 mb-3">
+                  <i class="fas fa-building text-teal-600 mr-2"></i>시설 정보
+                </h3>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">시설 유형 *</label>
+                  <select id="facilityType"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent">
+                    <option value="">선택하세요</option>
+                    <option value="요양병원">요양병원</option>
+                    <option value="요양원">요양원</option>
+                    <option value="주야간보호">주야간보호</option>
+                    <option value="재가복지센터">재가복지센터</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">시설 주소 *</label>
+                  <input type="text" id="address" placeholder="서울특별시 강남구"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent" />
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">사업자등록번호</label>
+                  <input type="text" id="businessNumber" placeholder="123-45-67890"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent" />
+                </div>
+              </div>
+
+              <!-- 약관 동의 -->
+              <div class="space-y-3 mb-6">
+                <label class="flex items-start">
+                  <input type="checkbox" id="agreeAll" onchange="toggleAllAgreements()"
+                    class="mt-1 rounded border-gray-300 text-teal-600 focus:ring-teal-500 mr-2">
+                  <span class="text-sm font-bold text-gray-700">전체 동의</span>
+                </label>
+                <div class="border-t pt-3 space-y-2">
+                  <label class="flex items-start">
+                    <input type="checkbox" required class="agree-checkbox mt-1 rounded border-gray-300 text-teal-600 focus:ring-teal-500 mr-2">
+                    <span class="text-sm text-gray-600">[필수] 이용약관 동의</span>
+                  </label>
+                  <label class="flex items-start">
+                    <input type="checkbox" required class="agree-checkbox mt-1 rounded border-gray-300 text-teal-600 focus:ring-teal-500 mr-2">
+                    <span class="text-sm text-gray-600">[필수] 개인정보 처리방침 동의</span>
+                  </label>
+                  <label class="flex items-start">
+                    <input type="checkbox" class="agree-checkbox mt-1 rounded border-gray-300 text-teal-600 focus:ring-teal-500 mr-2">
+                    <span class="text-sm text-gray-600">[선택] 마케팅 정보 수신 동의</span>
+                  </label>
+                </div>
+              </div>
+
+              <button type="submit"
+                class="w-full bg-teal-600 text-white py-3 rounded-lg hover:bg-teal-700 transition-colors font-semibold text-lg">
+                <i class="fas fa-user-plus mr-2"></i>회원가입
+              </button>
+            </form>
+
+            <div class="mt-6 text-center">
+              <p class="text-gray-600">
+                이미 계정이 있으신가요? 
+                <a href="/login" class="text-teal-600 hover:text-teal-700 font-medium ml-1">로그인</a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        let selectedUserType = 'customer';
+
+        function selectUserType(type) {
+          selectedUserType = type;
+          const btnCustomer = document.getElementById('btnCustomer');
+          const btnFacility = document.getElementById('btnFacility');
+          const facilityFields = document.getElementById('facilityFields');
+
+          if (type === 'customer') {
+            btnCustomer.className = 'px-4 py-3 border-2 border-teal-600 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-medium';
+            btnFacility.className = 'px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-teal-600 hover:text-teal-600 transition-colors font-medium';
+            facilityFields.style.display = 'none';
+          } else {
+            btnFacility.className = 'px-4 py-3 border-2 border-teal-600 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-medium';
+            btnCustomer.className = 'px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-teal-600 hover:text-teal-600 transition-colors font-medium';
+            facilityFields.style.display = 'block';
+          }
+        }
+
+        function toggleAllAgreements() {
+          const agreeAll = document.getElementById('agreeAll');
+          const checkboxes = document.querySelectorAll('.agree-checkbox');
+          checkboxes.forEach(cb => cb.checked = agreeAll.checked);
+        }
+
+        async function handleRegister(event) {
+          event.preventDefault();
+          
+          const email = document.getElementById('email').value;
+          const password = document.getElementById('password').value;
+          const passwordConfirm = document.getElementById('passwordConfirm').value;
+          const name = document.getElementById('name').value;
+          const phone = document.getElementById('phone').value;
+
+          if (password !== passwordConfirm) {
+            alert('비밀번호가 일치하지 않습니다.');
+            return;
+          }
+
+          if (password.length < 8) {
+            alert('비밀번호는 8자 이상이어야 합니다.');
+            return;
+          }
+
+          const data = {
+            email,
+            password,
+            name,
+            phone,
+            type: selectedUserType
+          };
+
+          if (selectedUserType === 'facility') {
+            const facilityType = document.getElementById('facilityType').value;
+            const address = document.getElementById('address').value;
+            const businessNumber = document.getElementById('businessNumber').value;
+
+            if (!facilityType || !address) {
+              alert('시설 유형과 주소를 입력해주세요.');
+              return;
+            }
+
+            data.facilityType = facilityType;
+            data.address = address;
+            data.businessNumber = businessNumber;
+          }
+
+          try {
+            const response = await fetch('/api/auth/register', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+              alert('회원가입이 완료되었습니다! 로그인해주세요.');
+              window.location.href = '/login';
+            } else {
+              alert(result.message || '회원가입 실패');
+            }
+          } catch (error) {
+            alert('회원가입 중 오류가 발생했습니다.');
+            console.error(error);
+          }
+        }
+      </script>
+    </body>
+    </html>
+  `)
+})
+
+// 회원가입 API
+app.post('/api/auth/register', async (c) => {
+  const data = await c.req.json()
+  
+  // 이메일 중복 체크
+  const existingUser = dataStore.users.find(u => u.email === data.email)
+  if (existingUser) {
+    return c.json({ success: false, message: '이미 사용 중인 이메일입니다.' })
+  }
+
+  // 새 사용자 생성
+  const newUser = {
+    id: `user_${Date.now()}_${Math.random().toString(36).substring(2)}`,
+    email: data.email,
+    password: data.password, // 실제로는 해시화 필요
+    name: data.name,
+    phone: data.phone,
+    type: data.type,
+    createdAt: new Date().toISOString()
+  }
+
+  // 시설인 경우 추가 정보
+  if (data.type === 'facility') {
+    newUser.facilityType = data.facilityType
+    newUser.address = data.address
+    newUser.businessNumber = data.businessNumber
+  }
+
+  dataStore.users.push(newUser)
+
+  return c.json({ 
+    success: true, 
+    message: '회원가입이 완료되었습니다.',
+    userId: newUser.id
+  })
+})
+
 // ========== 대시보드 라우트 ========== (대시보드는 다음에 구현)
 
 // 메인 페이지 (전체 디자인)
@@ -4595,6 +4889,9 @@ app.get('/dashboard/customer', (c) => {
                 <i class="fas fa-user-circle text-teal-600 mr-2"></i>
                 <strong>${user.name}</strong>님
               </span>
+              <a href="/profile" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700">
+                <i class="fas fa-user-cog mr-1"></i>프로필
+              </a>
               <button onclick="handleLogout()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
                 <i class="fas fa-sign-out-alt mr-1"></i>로그아웃
               </button>
@@ -4753,6 +5050,9 @@ app.get('/dashboard/facility', (c) => {
                 <strong>${user.name}</strong>
                 <span class="text-sm text-gray-500 ml-2">(${user.facilityType})</span>
               </span>
+              <a href="/profile" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700">
+                <i class="fas fa-user-cog mr-1"></i>프로필
+              </a>
               <button onclick="handleLogout()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
                 <i class="fas fa-sign-out-alt mr-1"></i>로그아웃
               </button>
@@ -4897,6 +5197,287 @@ app.get('/dashboard/facility', (c) => {
     </body>
     </html>
   `)
+})
+
+// ========== 프로필 관리 ==========
+
+// 프로필 조회 페이지
+app.get('/profile', (c) => {
+  const user = getUser(c)
+  
+  if (!user) {
+    return c.redirect('/login')
+  }
+
+  const userTypeLabel = user.type === 'customer' ? '고객' : '시설'
+  const dashboardUrl = user.type === 'customer' ? '/dashboard/customer' : '/dashboard/facility'
+
+  return c.html(`
+    <!DOCTYPE html>
+    <html lang="ko">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>프로필 관리 - 케어조아</title>
+      <script src="https://cdn.tailwindcss.com"></script>
+      <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+    </head>
+    <body class="bg-gray-50">
+      <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex justify-between items-center h-16">
+            <div class="flex items-center">
+              <img src="https://page.gensparksite.com/v1/base64_upload/b39dca8586af1dacd6d8417554313896" 
+                   alt="케어조아 로고" class="h-8 w-auto mr-3" />
+              <h1 class="text-2xl font-bold text-teal-600">케어조아</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+              <a href="${dashboardUrl}" class="text-gray-600 hover:text-gray-900">
+                <i class="fas fa-arrow-left mr-1"></i>대시보드로
+              </a>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="max-w-4xl mx-auto px-4 py-8">
+        <h2 class="text-3xl font-bold text-gray-800 mb-8">
+          <i class="fas fa-user-cog text-teal-600 mr-3"></i>
+          프로필 관리
+        </h2>
+
+        <div class="bg-white rounded-xl shadow-md p-8 mb-6">
+          <h3 class="text-xl font-bold text-gray-800 mb-6">기본 정보</h3>
+          
+          <form id="profileForm" onsubmit="handleUpdateProfile(event)">
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">가입 유형</label>
+                <input type="text" value="${userTypeLabel}" disabled
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100" />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">이메일</label>
+                <input type="email" value="${user.email}" disabled
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100" />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">이름 *</label>
+                <input type="text" id="name" value="${user.name}" required
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500" />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">연락처 *</label>
+                <input type="tel" id="phone" value="${user.phone}" required
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500" />
+              </div>
+
+              ${user.type === 'facility' ? `
+              <div class="pt-4 border-t">
+                <h4 class="font-bold text-gray-800 mb-4">시설 정보</h4>
+                
+                <div class="space-y-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">시설 유형</label>
+                    <input type="text" value="${user.facilityType || ''}" disabled
+                      class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100" />
+                  </div>
+
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">시설 주소 *</label>
+                    <input type="text" id="address" value="${user.address || ''}" required
+                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500" />
+                  </div>
+
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">사업자등록번호</label>
+                    <input type="text" id="businessNumber" value="${user.businessNumber || ''}"
+                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500" />
+                  </div>
+                </div>
+              </div>
+              ` : ''}
+
+              <div class="flex gap-4 pt-6">
+                <button type="submit"
+                  class="flex-1 bg-teal-600 text-white py-3 rounded-lg hover:bg-teal-700 transition-colors font-semibold">
+                  <i class="fas fa-save mr-2"></i>저장
+                </button>
+                <button type="button" onclick="window.location.href='${dashboardUrl}'"
+                  class="flex-1 bg-gray-500 text-white py-3 rounded-lg hover:bg-gray-600 transition-colors font-semibold">
+                  <i class="fas fa-times mr-2"></i>취소
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-md p-8">
+          <h3 class="text-xl font-bold text-gray-800 mb-6">비밀번호 변경</h3>
+          
+          <form id="passwordForm" onsubmit="handleChangePassword(event)">
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">현재 비밀번호 *</label>
+                <input type="password" id="currentPassword" required
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500" />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">새 비밀번호 *</label>
+                <input type="password" id="newPassword" required minlength="8"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500" />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">새 비밀번호 확인 *</label>
+                <input type="password" id="newPasswordConfirm" required minlength="8"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500" />
+              </div>
+
+              <button type="submit"
+                class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold">
+                <i class="fas fa-key mr-2"></i>비밀번호 변경
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <script>
+        async function handleUpdateProfile(event) {
+          event.preventDefault();
+
+          const data = {
+            name: document.getElementById('name').value,
+            phone: document.getElementById('phone').value
+          };
+
+          const addressField = document.getElementById('address');
+          const businessNumberField = document.getElementById('businessNumber');
+          
+          if (addressField) {
+            data.address = addressField.value;
+          }
+          if (businessNumberField) {
+            data.businessNumber = businessNumberField.value;
+          }
+
+          try {
+            const response = await fetch('/api/profile/update', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+              alert('프로필이 업데이트되었습니다.');
+              location.reload();
+            } else {
+              alert(result.message || '프로필 업데이트 실패');
+            }
+          } catch (error) {
+            alert('프로필 업데이트 중 오류가 발생했습니다.');
+            console.error(error);
+          }
+        }
+
+        async function handleChangePassword(event) {
+          event.preventDefault();
+
+          const currentPassword = document.getElementById('currentPassword').value;
+          const newPassword = document.getElementById('newPassword').value;
+          const newPasswordConfirm = document.getElementById('newPasswordConfirm').value;
+
+          if (newPassword !== newPasswordConfirm) {
+            alert('새 비밀번호가 일치하지 않습니다.');
+            return;
+          }
+
+          try {
+            const response = await fetch('/api/profile/change-password', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ currentPassword, newPassword })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+              alert('비밀번호가 변경되었습니다.');
+              document.getElementById('passwordForm').reset();
+            } else {
+              alert(result.message || '비밀번호 변경 실패');
+            }
+          } catch (error) {
+            alert('비밀번호 변경 중 오류가 발생했습니다.');
+            console.error(error);
+          }
+        }
+      </script>
+    </body>
+    </html>
+  `)
+})
+
+// 프로필 업데이트 API
+app.post('/api/profile/update', async (c) => {
+  const user = getUser(c)
+  if (!user) {
+    return c.json({ success: false, message: '로그인이 필요합니다.' }, 401)
+  }
+
+  const data = await c.req.json()
+  
+  // 실제 사용자 객체 찾기 및 업데이트
+  const userIndex = dataStore.users.findIndex(u => u.id === user.id)
+  if (userIndex === -1) {
+    return c.json({ success: false, message: '사용자를 찾을 수 없습니다.' })
+  }
+
+  dataStore.users[userIndex].name = data.name
+  dataStore.users[userIndex].phone = data.phone
+  
+  if (user.type === 'facility') {
+    if (data.address) dataStore.users[userIndex].address = data.address
+    if (data.businessNumber) dataStore.users[userIndex].businessNumber = data.businessNumber
+  }
+
+  // 세션 업데이트
+  const sessionId = getCookie(c, 'user_session')
+  if (sessionId) {
+    dataStore.userSessions.set(sessionId, dataStore.users[userIndex])
+  }
+
+  return c.json({ success: true, message: '프로필이 업데이트되었습니다.' })
+})
+
+// 비밀번호 변경 API
+app.post('/api/profile/change-password', async (c) => {
+  const user = getUser(c)
+  if (!user) {
+    return c.json({ success: false, message: '로그인이 필요합니다.' }, 401)
+  }
+
+  const { currentPassword, newPassword } = await c.req.json()
+  
+  const userIndex = dataStore.users.findIndex(u => u.id === user.id)
+  if (userIndex === -1) {
+    return c.json({ success: false, message: '사용자를 찾을 수 없습니다.' })
+  }
+
+  if (dataStore.users[userIndex].password !== currentPassword) {
+    return c.json({ success: false, message: '현재 비밀번호가 일치하지 않습니다.' })
+  }
+
+  dataStore.users[userIndex].password = newPassword
+
+  return c.json({ success: true, message: '비밀번호가 변경되었습니다.' })
 })
 
 export default app
