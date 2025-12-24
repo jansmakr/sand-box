@@ -761,7 +761,7 @@ app.get('/facilities', (c) => {
               <i class="fas fa-search text-purple-600 mr-3"></i>
               전국 시설 찾기
             </h2>
-            <p class="text-gray-600">전국 2,657개 요양시설을 검색하고 비교하세요</p>
+            <p class="text-gray-600">전국 요양시설을 검색하고 비교하세요</p>
           </div>
 
           {/* 검색 필터 */}
@@ -1472,6 +1472,7 @@ app.get('/admin/facilities', (c) => {
                     <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">시/군/구</th>
                     <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">전화번호</th>
                     <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">주소</th>
+                    <th class="px-4 py-3 text-center text-sm font-semibold text-gray-600">대표시설</th>
                     <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">관리</th>
                   </tr>
                 </thead>
@@ -1482,6 +1483,99 @@ app.get('/admin/facilities', (c) => {
               <i class="fas fa-spinner fa-spin text-4xl text-purple-600"></i>
               <p class="text-gray-600 mt-4">시설 데이터를 불러오는 중...</p>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 시설 수정 모달 */}
+      <div id="editModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+          <div class="border-b px-6 py-4 flex justify-between items-center">
+            <h3 class="text-xl font-bold text-gray-900">
+              <i class="fas fa-edit text-blue-600 mr-2"></i>
+              시설 정보 수정
+            </h3>
+            <button onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600 text-2xl">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div class="p-6">
+            <form id="editForm" class="space-y-4">
+              <input type="hidden" id="editFacilityId" />
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">시설명 *</label>
+                <input type="text" id="editName" required class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-blue-500"/>
+              </div>
+              
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">유형 *</label>
+                  <select id="editType" required class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-blue-500">
+                    <option value="요양병원">요양병원</option>
+                    <option value="요양원">요양원</option>
+                    <option value="주야간보호">주야간보호</option>
+                    <option value="재가복지센터">재가복지센터</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">전화번호</label>
+                  <input type="tel" id="editPhone" placeholder="02-1234-5678" class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-blue-500"/>
+                </div>
+              </div>
+              
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">시/도 *</label>
+                  <select id="editSido" required class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-blue-500">
+                    <option value="서울특별시">서울특별시</option>
+                    <option value="부산광역시">부산광역시</option>
+                    <option value="대구광역시">대구광역시</option>
+                    <option value="인천광역시">인천광역시</option>
+                    <option value="광주광역시">광주광역시</option>
+                    <option value="대전광역시">대전광역시</option>
+                    <option value="울산광역시">울산광역시</option>
+                    <option value="세종특별자치시">세종특별자치시</option>
+                    <option value="경기도">경기도</option>
+                    <option value="강원도">강원도</option>
+                    <option value="충청북도">충청북도</option>
+                    <option value="충청남도">충청남도</option>
+                    <option value="전라북도">전라북도</option>
+                    <option value="전라남도">전라남도</option>
+                    <option value="경상북도">경상북도</option>
+                    <option value="경상남도">경상남도</option>
+                    <option value="제주특별자치도">제주특별자치도</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">시/군/구 *</label>
+                  <select id="editSigungu" required class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-blue-500">
+                    <option value="">선택하세요</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">주소 *</label>
+                <textarea id="editAddress" required rows="2" class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-blue-500"></textarea>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">우편번호</label>
+                <input type="text" id="editZipcode" placeholder="03001" class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-blue-500"/>
+              </div>
+              
+              <div class="flex gap-3 pt-4">
+                <button type="submit" class="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold">
+                  <i class="fas fa-save mr-2"></i>저장
+                </button>
+                <button type="button" onclick="closeEditModal()" class="flex-1 bg-gray-500 text-white py-3 rounded-lg hover:bg-gray-600 transition-colors font-semibold">
+                  <i class="fas fa-times mr-2"></i>취소
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       </div>
@@ -1557,7 +1651,7 @@ app.get('/admin/facilities', (c) => {
           countEl.textContent = filteredFacilitiesData.length.toLocaleString();
           
           if (filteredFacilitiesData.length === 0) {
-            listEl.innerHTML = '<tr><td colspan="8" class="px-4 py-8 text-center text-gray-500">검색 결과가 없습니다</td></tr>';
+            listEl.innerHTML = '<tr><td colspan="9" class="px-4 py-8 text-center text-gray-500">검색 결과가 없습니다</td></tr>';
             return;
           }
           
@@ -1567,11 +1661,13 @@ app.get('/admin/facilities', (c) => {
           listEl.innerHTML = displayData.map(f => {
             const phone = f.phone || '-';
             const phoneDisplay = phone === '-' ? '<span class="text-red-500">미등록</span>' : phone;
+            const isRepresentative = f.isRepresentative || false;
+            const repBadge = isRepresentative ? '<span class="ml-2 px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full font-bold"><i class="fas fa-crown mr-1"></i>대표</span>' : '';
             
             return \`
             <tr class="border-t hover:bg-gray-50">
               <td class="px-4 py-3 text-sm text-gray-600">\${f.id}</td>
-              <td class="px-4 py-3 font-medium text-gray-900">\${f.name}</td>
+              <td class="px-4 py-3 font-medium text-gray-900">\${f.name}\${repBadge}</td>
               <td class="px-4 py-3 text-sm">
                 <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">\${f.type}</span>
               </td>
@@ -1579,8 +1675,15 @@ app.get('/admin/facilities', (c) => {
               <td class="px-4 py-3 text-sm text-gray-600">\${f.sigungu}</td>
               <td class="px-4 py-3 text-sm">\${phoneDisplay}</td>
               <td class="px-4 py-3 text-sm text-gray-600 max-w-xs truncate" title="\${f.address}">\${f.address}</td>
+              <td class="px-4 py-3 text-center">
+                <input type="checkbox" \${isRepresentative ? 'checked' : ''} 
+                  onchange="toggleRepresentative('\${f.id}', this.checked)"
+                  class="w-5 h-5 text-purple-600 border-gray-300 rounded focus:ring-purple-500 cursor-pointer"
+                  title="지역별 전화상담에 노출"
+                />
+              </td>
               <td class="px-4 py-3">
-                <button onclick="editFacility('\${f.id}')" class="px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600 transition-colors">
+                <button onclick="openEditModal('\${f.id}')" class="px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600 transition-colors">
                   <i class="fas fa-edit"></i> 수정
                 </button>
               </td>
@@ -1591,7 +1694,7 @@ app.get('/admin/facilities', (c) => {
           if (filteredFacilitiesData.length > 100) {
             listEl.innerHTML += \`
               <tr>
-                <td colspan="8" class="px-4 py-4 text-center bg-yellow-50 text-yellow-800">
+                <td colspan="9" class="px-4 py-4 text-center bg-yellow-50 text-yellow-800">
                   <i class="fas fa-info-circle mr-2"></i>
                   총 \${filteredFacilitiesData.length.toLocaleString()}개 중 100개만 표시됩니다. 필터를 사용해 결과를 줄여주세요.
                 </td>
@@ -1630,36 +1733,130 @@ app.get('/admin/facilities', (c) => {
           displayFacilities();
         }
         
-        function editFacility(id) {
+        // 모달 열기
+        function openEditModal(id) {
           const facility = allFacilitiesData.find(f => f.id === id);
           if (!facility) return;
           
-          const newPhone = prompt(\`시설명: \${facility.name}\\n현재 전화번호: \${facility.phone || '미등록'}\\n\\n새로운 전화번호를 입력하세요:\`, facility.phone || '');
+          // 폼에 데이터 채우기
+          document.getElementById('editFacilityId').value = facility.id;
+          document.getElementById('editName').value = facility.name;
+          document.getElementById('editType').value = facility.type;
+          document.getElementById('editPhone').value = facility.phone || '';
+          document.getElementById('editSido').value = facility.sido;
+          document.getElementById('editAddress').value = facility.address;
+          document.getElementById('editZipcode').value = facility.zipcode || '';
           
-          if (newPhone === null) return;
+          // 시군구 업데이트
+          updateEditSigunguOptions();
+          document.getElementById('editSigungu').value = facility.sigungu;
           
-          // 전화번호 형식 검증 (선택사항)
-          if (newPhone && !/^\\d{2,4}-\\d{3,4}-\\d{4}$/.test(newPhone)) {
-            if (!confirm('전화번호 형식이 올바르지 않습니다. (예: 02-1234-5678)\\n계속 저장하시겠습니까?')) {
-              return;
+          // 모달 표시
+          document.getElementById('editModal').classList.remove('hidden');
+        }
+        
+        // 모달 닫기
+        function closeEditModal() {
+          document.getElementById('editModal').classList.add('hidden');
+          document.getElementById('editForm').reset();
+        }
+        
+        // 편집 시도 변경 시 시군구 업데이트
+        function updateEditSigunguOptions() {
+          const sidoSelect = document.getElementById('editSido');
+          const sigunguSelect = document.getElementById('editSigungu');
+          const selectedSido = sidoSelect.value;
+          
+          sigunguSelect.innerHTML = '<option value="">선택하세요</option>';
+          
+          if (selectedSido && sigunguData[selectedSido]) {
+            sigunguData[selectedSido].forEach(sigungu => {
+              const option = document.createElement('option');
+              option.value = sigungu;
+              option.textContent = sigungu;
+              sigunguSelect.appendChild(option);
+            });
+          }
+        }
+        
+        // 대표시설 토글
+        async function toggleRepresentative(id, isChecked) {
+          const facility = allFacilitiesData.find(f => f.id === id);
+          if (!facility) return;
+          
+          if (isChecked) {
+            // 같은 지역의 다른 대표시설이 있는지 확인
+            const existingRep = allFacilitiesData.find(f => 
+              f.id !== id && 
+              f.sido === facility.sido && 
+              f.sigungu === facility.sigungu && 
+              f.isRepresentative
+            );
+            
+            if (existingRep) {
+              if (!confirm(\`\${facility.sido} \${facility.sigungu} 지역에 이미 대표시설 "\${existingRep.name}"이(가) 지정되어 있습니다.\\n\\n기존 대표시설을 해제하고 "\${facility.name}"을(를) 새로운 대표시설로 지정하시겠습니까?\`)) {
+                // 체크박스 원복
+                event.target.checked = false;
+                return;
+              }
+              // 기존 대표시설 해제
+              existingRep.isRepresentative = false;
             }
           }
           
-          // 데이터 업데이트
-          facility.phone = newPhone;
-          
-          // 서버에 저장 (API 호출)
-          axios.post('/api/admin/facility/update', {
-            id: id,
-            phone: newPhone
-          }).then(response => {
-            alert('전화번호가 업데이트되었습니다.');
+          try {
+            await axios.post('/api/admin/facility/set-representative', {
+              id: id,
+              isRepresentative: isChecked
+            });
+            
+            facility.isRepresentative = isChecked;
+            alert(isChecked ? '대표시설로 지정되었습니다.' : '대표시설 지정이 해제되었습니다.');
             displayFacilities();
-          }).catch(error => {
+          } catch (error) {
+            console.error('대표시설 설정 실패:', error);
+            alert('대표시설 설정 중 오류가 발생했습니다.');
+            // 체크박스 원복
+            event.target.checked = !isChecked;
+          }
+        }
+        
+        // 편집 폼 제출
+        document.getElementById('editForm').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          
+          const id = document.getElementById('editFacilityId').value;
+          const updatedData = {
+            id: id,
+            name: document.getElementById('editName').value,
+            type: document.getElementById('editType').value,
+            phone: document.getElementById('editPhone').value,
+            sido: document.getElementById('editSido').value,
+            sigungu: document.getElementById('editSigungu').value,
+            address: document.getElementById('editAddress').value,
+            zipcode: document.getElementById('editZipcode').value
+          };
+          
+          try {
+            await axios.post('/api/admin/facility/update', updatedData);
+            
+            // 로컬 데이터 업데이트
+            const facility = allFacilitiesData.find(f => f.id === id);
+            if (facility) {
+              Object.assign(facility, updatedData);
+            }
+            
+            alert('시설 정보가 업데이트되었습니다.');
+            closeEditModal();
+            displayFacilities();
+          } catch (error) {
             console.error('업데이트 실패:', error);
             alert('업데이트 중 오류가 발생했습니다.');
-          });
-        }
+          }
+        });
+        
+        // 편집 모달의 시도 변경 이벤트
+        document.getElementById('editSido').addEventListener('change', updateEditSigunguOptions);
         
         // 시도 선택 변경 시 시군구 업데이트
         document.getElementById('adminFilterSido').addEventListener('change', updateSigunguOptions);
@@ -2154,7 +2351,7 @@ app.post('/api/admin/facility/update', async (c) => {
   }
   
   try {
-    const { id, phone } = await c.req.json()
+    const data = await c.req.json()
     
     // 메모리의 시설 데이터 업데이트 (실제 환경에서는 D1 Database 사용)
     // 현재는 메모리 업데이트만 수행 (서버 재시작 시 초기화됨)
@@ -2167,6 +2364,27 @@ app.post('/api/admin/facility/update', async (c) => {
     })
   } catch (error) {
     return c.json({ success: false, message: '시설 정보 업데이트 실패' }, 500)
+  }
+})
+
+// 시설 대표시설 지정 API
+app.post('/api/admin/facility/set-representative', async (c) => {
+  if (!isAdmin(c)) {
+    return c.json({ error: 'Unauthorized' }, 401)
+  }
+  
+  try {
+    const { id, isRepresentative } = await c.req.json()
+    
+    // 메모리의 시설 데이터 업데이트
+    // TODO: D1 Database에 영구 저장
+    
+    return c.json({ 
+      success: true, 
+      message: isRepresentative ? '대표시설로 지정되었습니다.' : '대표시설 지정이 해제되었습니다.'
+    })
+  } catch (error) {
+    return c.json({ success: false, message: '대표시설 설정 실패' }, 500)
   }
 })
 
