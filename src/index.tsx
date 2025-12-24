@@ -220,19 +220,6 @@ app.get('/login', (c) => {
                 </a>
               </div>
             </form>
-
-            <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <p class="text-sm font-bold text-blue-800 mb-2">
-                <i class="fas fa-info-circle mr-1"></i>테스트 계정
-              </p>
-              <div class="text-xs text-blue-700 space-y-1">
-                <p><strong>고객:</strong> customer@test.com / 1234</p>
-                <p><strong>요양병원:</strong> hospital@test.com / 1234</p>
-                <p><strong>요양원:</strong> care@test.com / 1234</p>
-                <p><strong>주야간보호:</strong> daycare@test.com / 1234</p>
-                <p><strong>재가복지센터:</strong> homecare@test.com / 1234</p>
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -2891,6 +2878,84 @@ app.get('/admin/dashboard', (c) => {
                 <i class="fas fa-heart text-3xl text-green-600"></i>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* 테스트 계정 정보 */}
+        <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl shadow-lg p-6 mb-8 border-2 border-purple-200">
+          <h3 class="text-xl font-bold text-purple-800 mb-4 flex items-center">
+            <i class="fas fa-user-shield mr-2"></i>
+            테스트 계정 정보
+            <span class="ml-3 text-sm text-purple-600 font-normal">(개발/테스트 전용)</span>
+          </h3>
+          
+          <div class="grid md:grid-cols-2 gap-6">
+            {/* 고객 계정 */}
+            <div class="bg-white rounded-lg p-4 border border-purple-200">
+              <h4 class="font-bold text-gray-800 mb-3 flex items-center">
+                <i class="fas fa-user text-blue-600 mr-2"></i>
+                고객 계정
+              </h4>
+              <div class="space-y-2 text-sm">
+                <div class="flex justify-between items-center p-2 bg-blue-50 rounded">
+                  <span class="text-gray-600">이메일:</span>
+                  <code class="font-mono text-blue-700">customer@test.com</code>
+                </div>
+                <div class="flex justify-between items-center p-2 bg-blue-50 rounded">
+                  <span class="text-gray-600">비밀번호:</span>
+                  <code class="font-mono text-blue-700">1234</code>
+                </div>
+                <div class="flex justify-between items-center p-2 bg-gray-50 rounded">
+                  <span class="text-gray-600">이름:</span>
+                  <span class="text-gray-800">김철수</span>
+                </div>
+              </div>
+            </div>
+
+            {/* 시설 계정들 */}
+            <div class="bg-white rounded-lg p-4 border border-purple-200">
+              <h4 class="font-bold text-gray-800 mb-3 flex items-center">
+                <i class="fas fa-building text-teal-600 mr-2"></i>
+                시설 계정
+              </h4>
+              <div class="space-y-3 text-xs">
+                <div class="p-2 bg-teal-50 rounded">
+                  <div class="font-semibold text-teal-800 mb-1">요양병원 (서울요양병원)</div>
+                  <div class="flex justify-between">
+                    <code class="text-teal-700">hospital@test.com</code>
+                    <code class="text-teal-700">/ 1234</code>
+                  </div>
+                </div>
+                <div class="p-2 bg-teal-50 rounded">
+                  <div class="font-semibold text-teal-800 mb-1">요양원 (행복요양원)</div>
+                  <div class="flex justify-between">
+                    <code class="text-teal-700">care@test.com</code>
+                    <code class="text-teal-700">/ 1234</code>
+                  </div>
+                </div>
+                <div class="p-2 bg-teal-50 rounded">
+                  <div class="font-semibold text-teal-800 mb-1">주야간보호 (사랑주야간보호센터)</div>
+                  <div class="flex justify-between">
+                    <code class="text-teal-700">daycare@test.com</code>
+                    <code class="text-teal-700">/ 1234</code>
+                  </div>
+                </div>
+                <div class="p-2 bg-teal-50 rounded">
+                  <div class="font-semibold text-teal-800 mb-1">재가복지센터 (편안한재가복지센터)</div>
+                  <div class="flex justify-between">
+                    <code class="text-teal-700">homecare@test.com</code>
+                    <code class="text-teal-700">/ 1234</code>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p class="text-sm text-yellow-800 flex items-start">
+              <i class="fas fa-exclamation-triangle mr-2 mt-0.5"></i>
+              <span><strong>주의:</strong> 이 계정들은 테스트/개발 목적으로만 사용하세요. 프로덕션 환경에서는 삭제하거나 비활성화해야 합니다.</span>
+            </p>
           </div>
         </div>
 
