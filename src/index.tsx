@@ -102,15 +102,56 @@ app.get('/', (c) => {
                 </div>
               </div>
 
-              <div class="flex flex-col gap-3 md:gap-4 mb-8">
+              {/* 특허기반 실시간 요양견적 및 상담 플랫폼 안내 */}
+              <div class="bg-gradient-to-r from-blue-50 to-teal-50 border-2 border-blue-200 rounded-2xl p-6 mb-6 shadow-lg">
+                <div class="flex items-center justify-center text-center">
+                  <div>
+                    <div class="flex items-center justify-center mb-2">
+                      <i class="fas fa-certificate text-blue-600 text-2xl mr-2"></i>
+                      <span class="text-lg font-bold text-blue-800">특허기반 실시간 요양견적 및 상담 플랫폼</span>
+                    </div>
+                    <p class="text-sm text-gray-600">희망하는 지역의 모든 시설 정보를 실시간으로 받아볼 수 있어요</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* 주요 액션 버튼 그리드 (2x2) */}
+              <div class="grid grid-cols-2 gap-3 md:gap-4 mb-8">
+                {/* 1. Android 앱 다운로드 */}
                 <a href="https://play.google.com/store/apps/details?id=app.netlify.std_care_joa.twa" 
                    target="_blank" rel="noopener noreferrer"
-                   class="flex items-center justify-center bg-blue-500 text-white py-4 px-6 rounded-xl shadow-lg hover:bg-blue-600 transition-all duration-300 transform hover:scale-105">
-                  <i class="fas fa-download mr-3"></i>Android 앱 다운로드
+                   class="flex flex-col items-center justify-center bg-gradient-to-br from-blue-500 to-blue-600 text-white py-6 px-4 rounded-2xl shadow-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 min-h-[120px]">
+                  <div class="bg-white bg-opacity-20 rounded-xl p-3 mb-3">
+                    <i class="fas fa-mobile-alt text-3xl"></i>
+                  </div>
+                  <span class="font-bold text-center">Android<br/>앱 다운로드</span>
                 </a>
+
+                {/* 2. 실시간 견적 */}
                 <a href="/quote-request"
-                   class="flex items-center justify-center bg-gradient-to-r from-teal-500 to-teal-600 text-white py-4 px-6 rounded-xl shadow-lg hover:from-teal-600 hover:to-teal-700 transition-all duration-300 transform hover:scale-105">
-                  <i class="fas fa-calculator mr-3"></i>실시간 견적 플랫폼
+                   class="flex flex-col items-center justify-center bg-gradient-to-br from-amber-100 to-orange-100 text-gray-800 border-2 border-orange-200 py-6 px-4 rounded-2xl shadow-lg hover:from-amber-200 hover:to-orange-200 transition-all duration-300 transform hover:scale-105 min-h-[120px]">
+                  <div class="bg-orange-200 rounded-xl p-3 mb-3">
+                    <i class="fas fa-clipboard text-3xl text-orange-600"></i>
+                  </div>
+                  <span class="font-bold text-center">실시간 견적<br/>상담 신청</span>
+                </a>
+
+                {/* 3. 지역별 전화상담 */}
+                <a href="/regional-consultation"
+                   class="flex flex-col items-center justify-center bg-gradient-to-br from-green-500 to-emerald-600 text-white py-6 px-4 rounded-2xl shadow-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 min-h-[120px]">
+                  <div class="bg-white bg-opacity-20 rounded-xl p-3 mb-3">
+                    <i class="fas fa-phone-alt text-3xl"></i>
+                  </div>
+                  <span class="font-bold text-center">지역별<br/>전화상담</span>
+                </a>
+
+                {/* 4. 전국 시설 찾기 */}
+                <a href="/facilities"
+                   class="flex flex-col items-center justify-center bg-gradient-to-br from-purple-500 to-pink-600 text-white py-6 px-4 rounded-2xl shadow-lg hover:from-purple-600 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 min-h-[120px]">
+                  <div class="bg-white bg-opacity-20 rounded-xl p-3 mb-3">
+                    <i class="fas fa-search text-3xl"></i>
+                  </div>
+                  <span class="font-bold text-center">전국<br/>시설 찾기</span>
                 </a>
               </div>
 
@@ -690,6 +731,247 @@ app.get('/family-care-register', (c) => {
   )
 })
 
+// 지역별 전화상담 페이지
+app.get('/regional-consultation', (c) => {
+  return c.render(
+    <div>
+      <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex justify-between items-center h-16">
+            <a href="/" class="flex items-center">
+              <img 
+                src="https://page.gensparksite.com/v1/base64_upload/b39dca8586af1dacd6d8417554313896" 
+                alt="케어조아 로고"
+                class="h-8 w-auto mr-3"
+              />
+              <h1 class="text-2xl font-bold text-teal-600">케어조아</h1>
+            </a>
+            <a href="/" class="text-gray-600 hover:text-gray-900">
+              <i class="fas fa-home mr-1"></i>홈으로
+            </a>
+          </div>
+        </div>
+      </header>
+
+      <section class="py-16 bg-gradient-to-br from-green-50 to-emerald-50 min-h-screen">
+        <div class="max-w-6xl mx-auto px-4">
+          {/* 페이지 헤더 */}
+          <div class="text-center mb-12">
+            <div class="inline-block bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-semibold mb-4">
+              <i class="fas fa-phone-alt mr-2"></i>전문 상담사 연결
+            </div>
+            <h2 class="text-4xl font-bold text-gray-900 mb-4">
+              지역별 전화상담
+            </h2>
+            <p class="text-lg text-gray-600">희망하는 지역을 선택하시면 해당 지역 전문 상담사와 바로 연결됩니다</p>
+          </div>
+
+          {/* 지역 선택 폼 */}
+          <div class="bg-white p-8 rounded-2xl shadow-lg mb-8">
+            <div class="grid md:grid-cols-2 gap-6 mb-6">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  <i class="fas fa-map-marker-alt mr-1 text-red-500"></i>시/도 선택*
+                </label>
+                <select id="consultSido" required class="w-full p-4 border-2 border-gray-300 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all">
+                  <option value="">시/도를 선택하세요</option>
+                  <option value="서울특별시">서울특별시</option>
+                  <option value="부산광역시">부산광역시</option>
+                  <option value="대구광역시">대구광역시</option>
+                  <option value="인천광역시">인천광역시</option>
+                  <option value="광주광역시">광주광역시</option>
+                  <option value="대전광역시">대전광역시</option>
+                  <option value="울산광역시">울산광역시</option>
+                  <option value="세종특별자치시">세종특별자치시</option>
+                  <option value="경기도">경기도</option>
+                  <option value="강원도">강원도</option>
+                  <option value="충청북도">충청북도</option>
+                  <option value="충청남도">충청남도</option>
+                  <option value="전라북도">전라북도</option>
+                  <option value="전라남도">전라남도</option>
+                  <option value="경상북도">경상북도</option>
+                  <option value="경상남도">경상남도</option>
+                  <option value="제주특별자치도">제주특별자치도</option>
+                </select>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  <i class="fas fa-map-pin mr-1 text-blue-500"></i>시/군/구 선택*
+                </label>
+                <select id="consultSigungu" required class="w-full p-4 border-2 border-gray-300 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all">
+                  <option value="">먼저 시/도를 선택하세요</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="text-center">
+              <button 
+                id="searchConsultBtn"
+                class="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-12 py-4 rounded-xl hover:from-green-600 hover:to-emerald-700 transform hover:scale-105 font-bold text-lg shadow-lg transition-all duration-300"
+              >
+                <i class="fas fa-search mr-2"></i>상담센터 찾기
+              </button>
+            </div>
+          </div>
+
+          {/* 상담센터 결과 표시 영역 */}
+          <div id="consultResults" class="hidden">
+            <div class="bg-gradient-to-r from-blue-50 to-green-50 border-2 border-green-200 rounded-2xl p-6 mb-6">
+              <div class="flex items-center justify-center text-center">
+                <i class="fas fa-info-circle text-green-600 text-2xl mr-3"></i>
+                <p class="text-gray-700">
+                  선택하신 <strong id="selectedRegion" class="text-green-700"></strong> 지역의 상담센터를 안내해 드립니다
+                </p>
+              </div>
+            </div>
+
+            <div id="consultCentersList" class="grid md:grid-cols-2 gap-6">
+              {/* 상담센터 카드들이 동적으로 삽입됩니다 */}
+            </div>
+          </div>
+
+          {/* 대표 상담 안내 */}
+          <div class="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-300 rounded-2xl p-8 text-center shadow-lg">
+            <div class="flex items-center justify-center mb-4">
+              <i class="fas fa-headset text-yellow-600 text-4xl mr-3"></i>
+              <h3 class="text-2xl font-bold text-gray-800">24시간 대표 상담</h3>
+            </div>
+            <p class="text-gray-600 mb-6">지역 상담센터 외에도 케어조아 대표 상담사가 24시간 대기하고 있습니다</p>
+            <a href="tel:0507-1310-5873" class="inline-flex items-center bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-8 py-4 rounded-xl hover:from-yellow-600 hover:to-orange-600 transform hover:scale-105 font-bold text-xl shadow-lg transition-all duration-300">
+              <i class="fas fa-phone-alt mr-3"></i>0507-1310-5873
+            </a>
+            <p class="text-sm text-gray-500 mt-4">
+              <i class="fas fa-clock mr-1"></i>운영시간: 24시간 365일 | 상담료: 무료
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* JavaScript for Regional Consultation */}
+      <script dangerouslySetInnerHTML={{__html: `
+        // 시도별 시군구 데이터 (동일한 데이터)
+        const sigunguData = {
+          '서울특별시': ['강남구', '강동구', '강북구', '강서구', '관악구', '광진구', '구로구', '금천구', '노원구', '도봉구', '동대문구', '동작구', '마포구', '서대문구', '서초구', '성동구', '성북구', '송파구', '양천구', '영등포구', '용산구', '은평구', '종로구', '중구', '중랑구'],
+          '부산광역시': ['강서구', '금정구', '기장군', '남구', '동구', '동래구', '부산진구', '북구', '사상구', '사하구', '서구', '수영구', '연제구', '영도구', '중구', '해운대구'],
+          '대구광역시': ['남구', '달서구', '달성군', '동구', '북구', '서구', '수성구', '중구'],
+          '인천광역시': ['강화군', '계양구', '남동구', '동구', '미추홀구', '부평구', '서구', '연수구', '옹진군', '중구'],
+          '광주광역시': ['광산구', '남구', '동구', '북구', '서구'],
+          '대전광역시': ['대덕구', '동구', '서구', '유성구', '중구'],
+          '울산광역시': ['남구', '동구', '북구', '울주군', '중구'],
+          '세종특별자치시': ['세종시'],
+          '경기도': ['가평군', '고양시', '과천시', '광명시', '광주시', '구리시', '군포시', '김포시', '남양주시', '동두천시', '부천시', '성남시', '수원시', '시흥시', '안산시', '안성시', '안양시', '양주시', '양평군', '여주시', '연천군', '오산시', '용인시', '의왕시', '의정부시', '이천시', '파주시', '평택시', '포천시', '하남시', '화성시'],
+          '강원도': ['강릉시', '고성군', '동해시', '삼척시', '속초시', '양구군', '양양군', '영월군', '원주시', '인제군', '정선군', '철원군', '춘천시', '태백시', '평창군', '홍천군', '화천군', '횡성군'],
+          '충청북도': ['괴산군', '단양군', '보은군', '영동군', '옥천군', '음성군', '제천시', '증평군', '진천군', '청주시', '충주시'],
+          '충청남도': ['계룡시', '공주시', '금산군', '논산시', '당진시', '보령시', '부여군', '서산시', '서천군', '아산시', '예산군', '천안시', '청양군', '태안군', '홍성군'],
+          '전라북도': ['고창군', '군산시', '김제시', '남원시', '무주군', '부안군', '순창군', '완주군', '익산시', '임실군', '장수군', '전주시', '정읍시', '진안군'],
+          '전라남도': ['강진군', '고흥군', '곡성군', '광양시', '구례군', '나주시', '담양군', '목포시', '무안군', '보성군', '순천시', '신안군', '여수시', '영광군', '영암군', '완도군', '장성군', '장흥군', '진도군', '함평군', '해남군', '화순군'],
+          '경상북도': ['경산시', '경주시', '고령군', '구미시', '군위군', '김천시', '문경시', '봉화군', '상주시', '성주군', '안동시', '영덕군', '영양군', '영주시', '영천시', '예천군', '울릉군', '울진군', '의성군', '청도군', '청송군', '칠곡군', '포항시'],
+          '경상남도': ['거제시', '거창군', '고성군', '김해시', '남해군', '밀양시', '사천시', '산청군', '양산시', '의령군', '진주시', '창녕군', '창원시', '통영시', '하동군', '함안군', '함양군', '합천군'],
+          '제주특별자치도': ['서귀포시', '제주시']
+        };
+
+        // 시도 변경 시 시군구 업데이트
+        document.getElementById('consultSido').addEventListener('change', function() {
+          const sido = this.value;
+          const sigunguSelect = document.getElementById('consultSigungu');
+          
+          sigunguSelect.innerHTML = '<option value="">시/군/구 선택</option>';
+          
+          if (sido && sigunguData[sido]) {
+            sigunguData[sido].forEach(sigungu => {
+              const option = document.createElement('option');
+              option.value = sigungu;
+              option.textContent = sigungu;
+              sigunguSelect.appendChild(option);
+            });
+          }
+        });
+
+        // 상담센터 찾기 버튼 클릭
+        document.getElementById('searchConsultBtn').addEventListener('click', async function() {
+          const sido = document.getElementById('consultSido').value;
+          const sigungu = document.getElementById('consultSigungu').value;
+          
+          if (!sido || !sigungu) {
+            alert('시/도와 시/군/구를 모두 선택해주세요.');
+            return;
+          }
+
+          try {
+            const response = await axios.get('/api/regional-centers', {
+              params: { sido, sigungu }
+            });
+
+            // 선택한 지역 표시
+            document.getElementById('selectedRegion').textContent = sido + ' ' + sigungu;
+            
+            // 결과 영역 표시
+            document.getElementById('consultResults').classList.remove('hidden');
+            
+            // 상담센터 목록 생성
+            const centersList = document.getElementById('consultCentersList');
+            
+            if (response.data.centers && response.data.centers.length > 0) {
+              centersList.innerHTML = response.data.centers.map(center => \`
+                <div class="bg-white rounded-2xl shadow-lg p-6 border-2 border-green-200 hover:border-green-400 transition-all duration-300 transform hover:scale-105">
+                  <div class="flex items-start justify-between mb-4">
+                    <div>
+                      <h4 class="text-xl font-bold text-gray-900 mb-2">\${center.facilityName}</h4>
+                      <span class="inline-block bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-semibold">
+                        \${center.facilityType}
+                      </span>
+                    </div>
+                    <i class="fas fa-hospital text-green-500 text-3xl"></i>
+                  </div>
+                  
+                  <div class="space-y-3 mb-6">
+                    <div class="flex items-center text-gray-600">
+                      <i class="fas fa-map-marker-alt text-red-500 mr-2 w-5"></i>
+                      <span class="text-sm">\${center.facilitySido} \${center.facilitySigungu}</span>
+                    </div>
+                    <div class="flex items-center text-gray-600">
+                      <i class="fas fa-user text-blue-500 mr-2 w-5"></i>
+                      <span class="text-sm">담당자: \${center.managerName}</span>
+                    </div>
+                    <div class="flex items-center text-gray-900 font-semibold">
+                      <i class="fas fa-phone text-green-500 mr-2 w-5"></i>
+                      <span>\${center.managerPhone}</span>
+                    </div>
+                  </div>
+                  
+                  <a href="tel:\${center.managerPhone}" 
+                     class="block w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-3 rounded-xl hover:from-green-600 hover:to-emerald-700 text-center font-bold transition-all duration-300">
+                    <i class="fas fa-phone-alt mr-2"></i>전화 상담하기
+                  </a>
+                </div>
+              \`).join('');
+            } else {
+              centersList.innerHTML = \`
+                <div class="col-span-2 bg-yellow-50 border-2 border-yellow-300 rounded-2xl p-8 text-center">
+                  <i class="fas fa-info-circle text-yellow-600 text-4xl mb-4"></i>
+                  <h4 class="text-xl font-bold text-gray-800 mb-3">해당 지역 상담센터 준비 중</h4>
+                  <p class="text-gray-600 mb-6">선택하신 지역의 전문 상담센터를 준비 중입니다.<br/>케어조아 대표 상담센터로 연결해 드리겠습니다.</p>
+                  <a href="tel:0507-1310-5873" 
+                     class="inline-flex items-center bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-8 py-3 rounded-xl hover:from-yellow-600 hover:to-orange-600 font-bold transition-all duration-300">
+                    <i class="fas fa-phone-alt mr-2"></i>0507-1310-5873
+                  </a>
+                </div>
+              \`;
+            }
+
+            // 결과 영역으로 스크롤
+            document.getElementById('consultResults').scrollIntoView({ behavior: 'smooth', block: 'start' });
+          } catch (error) {
+            console.error('상담센터 검색 오류:', error);
+            alert('상담센터 정보를 불러오는데 실패했습니다. 대표번호(0507-1310-5873)로 연락해 주세요.');
+          }
+        });
+      `}} />
+    </div>
+  )
+})
+
 // 관리자 로그인 페이지
 app.get('/admin', (c) => {
   if (isAdmin(c)) {
@@ -1041,6 +1323,35 @@ app.post('/api/admin/logout', (c) => {
   }
   setCookie(c, ADMIN_CONFIG.sessionKey, '', { maxAge: 0 })
   return c.json({ success: true })
+})
+
+// 지역별 상담센터 조회 API
+app.get('/api/regional-centers', (c) => {
+  const sido = c.req.query('sido')
+  const sigungu = c.req.query('sigungu')
+  
+  if (!sido || !sigungu) {
+    return c.json({ error: 'Missing parameters' }, 400)
+  }
+  
+  // dataStore.partners에서 승인된 상담센터만 필터링
+  // 상급종합병원, 주민센터사회복지 유형과 해당 지역의 시설을 찾습니다
+  const regionalCenters = dataStore.partners
+    .filter(partner => 
+      partner.approvalStatus === 'approved' && 
+      partner.facilitySido === sido && 
+      partner.facilitySigungu === sigungu &&
+      (partner.facilityType === '상급종합병원' || 
+       partner.facilityType === '주민센터사회복지' ||
+       partner.facilityType === '요양원' ||
+       partner.facilityType === '요양병원')
+    )
+    .slice(0, 4) // 최대 4개까지만 반환
+  
+  return c.json({ 
+    centers: regionalCenters,
+    count: regionalCenters.length
+  })
 })
 
 app.get('/api/admin/data', (c) => {
