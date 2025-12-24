@@ -400,6 +400,99 @@ app.get('/', (c) => {
         </div>
       </section>
 
+      {/* 견적 테스트 섹션 */}
+      <section class="py-16 bg-gradient-to-br from-yellow-50 to-orange-50 border-t-4 border-yellow-400">
+        <div class="max-w-7xl mx-auto px-4">
+          <div class="text-center mb-8">
+            <div class="inline-block bg-yellow-100 text-yellow-800 px-4 py-2 rounded-full text-sm font-semibold mb-4">
+              <i class="fas fa-flask mr-2"></i>테스트 버전
+            </div>
+            <h3 class="text-3xl font-bold text-gray-900 mb-4">
+              <i class="fas fa-vial text-yellow-600 mr-3"></i>견적 테스트
+            </h3>
+            <p class="text-lg text-gray-600">새로운 견적 시스템을 테스트해보세요 (개발 중)</p>
+          </div>
+          
+          <div class="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            {/* 간편견적 테스트 */}
+            <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 border-2 border-blue-200">
+              <div class="text-center">
+                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <i class="fas fa-bolt text-3xl text-blue-600"></i>
+                </div>
+                <h4 class="text-xl font-bold text-gray-900 mb-2">간편견적</h4>
+                <p class="text-sm text-gray-600 mb-6">5분 이내 빠른 신청</p>
+                <a href="/quote-simple" 
+                   class="block bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                  <i class="fas fa-arrow-right mr-2"></i>테스트 시작
+                </a>
+              </div>
+            </div>
+
+            {/* 상세견적 테스트 */}
+            <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 border-2 border-green-200">
+              <div class="text-center">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <i class="fas fa-file-alt text-3xl text-green-600"></i>
+                </div>
+                <h4 class="text-xl font-bold text-gray-900 mb-2">상세견적</h4>
+                <p class="text-sm text-gray-600 mb-6">3가지 견적 방식</p>
+                <a href="/quote-request" 
+                   class="block bg-green-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-green-700 transition-colors">
+                  <i class="fas fa-arrow-right mr-2"></i>테스트 시작
+                </a>
+              </div>
+            </div>
+
+            {/* 관리자 테스트 */}
+            <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 border-2 border-purple-200">
+              <div class="text-center">
+                <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <i class="fas fa-shield-alt text-3xl text-purple-600"></i>
+                </div>
+                <h4 class="text-xl font-bold text-gray-900 mb-2">관리자</h4>
+                <p class="text-sm text-gray-600 mb-6">승인/거부 시스템</p>
+                <a href="/admin" 
+                   class="block bg-purple-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-purple-700 transition-colors">
+                  <i class="fas fa-arrow-right mr-2"></i>테스트 시작
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* 테스트 안내 */}
+          <div class="mt-8 bg-yellow-100 border-l-4 border-yellow-500 p-4 rounded max-w-3xl mx-auto">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <i class="fas fa-info-circle text-yellow-600 text-xl"></i>
+              </div>
+              <div class="ml-3">
+                <p class="text-sm text-yellow-800">
+                  <strong class="font-semibold">테스트 기능:</strong> 견적 신청, 파트너 승인/거부, 지역 필터링이 구현되었습니다.
+                  테스트 완료 후 메인 버튼으로 교체 예정입니다.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* 테스트 통계 (선택사항) */}
+          <div class="mt-8 grid grid-cols-3 gap-4 max-w-2xl mx-auto">
+            <div class="bg-white rounded-lg p-4 text-center shadow">
+              <div class="text-2xl font-bold text-blue-600">NEW</div>
+              <div class="text-xs text-gray-600 mt-1">간편견적</div>
+            </div>
+            <div class="bg-white rounded-lg p-4 text-center shadow">
+              <div class="text-2xl font-bold text-green-600">NEW</div>
+              <div class="text-xs text-gray-600 mt-1">승인시스템</div>
+            </div>
+            <div class="bg-white rounded-lg p-4 text-center shadow">
+              <div class="text-2xl font-bold text-purple-600">NEW</div>
+              <div class="text-xs text-gray-600 mt-1">지역필터</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* 푸터 */}
       <footer class="bg-gray-900 text-white py-12">
         <div class="max-w-7xl mx-auto px-4">
@@ -1059,20 +1152,6 @@ app.get('/regional-consultation', (c) => {
             </div>
           </div>
 
-          {/* 대표 상담 안내 */}
-          <div class="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-300 rounded-2xl p-8 text-center shadow-lg">
-            <div class="flex items-center justify-center mb-4">
-              <i class="fas fa-headset text-yellow-600 text-4xl mr-3"></i>
-              <h3 class="text-2xl font-bold text-gray-800">24시간 대표 상담</h3>
-            </div>
-            <p class="text-gray-600 mb-6">지역 상담센터 외에도 케어조아 대표 상담사가 24시간 대기하고 있습니다</p>
-            <a href="tel:0507-1310-5873" class="inline-flex items-center bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-8 py-4 rounded-xl hover:from-yellow-600 hover:to-orange-600 transform hover:scale-105 font-bold text-xl shadow-lg transition-all duration-300">
-              <i class="fas fa-phone-alt mr-3"></i>0507-1310-5873
-            </a>
-            <p class="text-sm text-gray-500 mt-4">
-              <i class="fas fa-clock mr-1"></i>운영시간: 24시간 365일 | 상담료: 무료
-            </p>
-          </div>
         </div>
       </section>
 
