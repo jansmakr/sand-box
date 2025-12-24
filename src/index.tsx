@@ -2248,7 +2248,7 @@ app.post('/api/family-care', async (c) => {
   }
 })
 
-// 견적 요청 API
+// 견적 요청 API (기존)
 app.post('/api/quote-request', async (c) => {
   try {
     const data = await c.req.json()
@@ -2274,6 +2274,90 @@ app.post('/api/quote-request', async (c) => {
   } catch (error) {
     console.error('Quote request error:', error)
     return c.json({ success: false, message: '견적 신청 실패' }, 500)
+  }
+})
+
+// 새로운 다단계 견적 신청 API
+app.post('/api/quote/submit-new', async (c) => {
+  try {
+    const data = await c.req.json()
+    
+    // 견적 요청 ID 생성
+    const quoteId = 'QN' + Date.now()
+    
+    // 견적 요청 객체 생성
+    const quoteRequest = {
+      id: quoteId,
+      facilityType: data.facilityType,
+      patientName: data.patientName,
+      age: data.age,
+      gender: data.gender,
+      sido: data.sido,
+      sigungu: data.sigungu,
+      
+      // 요양병원 전용 필드
+      birthYear: data.birthYear || null,
+      birthMonth: data.birthMonth || null,
+      birthDay: data.birthDay || null,
+      patientGender: data.patientGender || null,
+      careLevel: data.careLevel || null,
+      beneficiaryType: data.beneficiaryType || null,
+      diagnosis: data.diagnosis || [],
+      adl: data.adl || null,
+      dementia: data.dementia || null,
+      
+      // 재가복지 전용 필드
+      serviceType: data.serviceType || null,
+      homecareLevel: data.homecareLevel || null,
+      weeklyHours: data.weeklyHours || null,
+      
+      // 보호자 정보
+      guardianAge: data.guardianAge || null,
+      spouseAge: data.spouseAge || null,
+      guardianPhone: data.guardianPhone || null,
+      housingType: data.housingType || null,
+      
+      // 추가 정보
+      diseases: data.diseases || [],
+      personalities: data.personalities || [],
+      specialNotes: data.specialNotes || '',
+      
+      // 메타데이터
+      status: 'pending', // pending, matched, completed, cancelled
+      matchedFacilities: [], // 매칭된 시설 목록
+      receivedQuotes: [], // 받은 견적서 목록
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    }
+    
+    // 메모리에 저장
+    dataStore.quoteRequests.push(quoteRequest)
+    
+    // TODO: D1 Database에 영구 저장
+    // await DB.prepare(\`
+    //   INSERT INTO quote_requests (id, facility_type, patient_name, ...) 
+    //   VALUES (?, ?, ?, ...)
+    // \`).bind(...).run()
+    
+    // TODO: 해당 지역의 시설들에게 알림 전송
+    // 1. facilities.json에서 해당 지역 시설 필터링
+    // 2. 시설 대시보드에 새 견적 요청 표시
+    // 3. 이메일/SMS 알림 (optional)
+    
+    console.log('New quote request:', quoteId, data.facilityType, data.sido, data.sigungu)
+    
+    return c.json({ 
+      success: true, 
+      message: '견적 신청이 완료되었습니다! 선택하신 지역의 시설들이 견적서를 작성하여 회신합니다.',
+      quoteId: quoteId,
+      estimatedResponse: '24-48시간 이내'
+    })
+  } catch (error) {
+    console.error('Quote submission error:', error)
+    return c.json({ 
+      success: false, 
+      message: '견적 신청 중 오류가 발생했습니다. 다시 시도해주세요.' 
+    }, 500)
   }
 })
 
@@ -3666,6 +3750,943 @@ app.get('/quote-simple', (c) => {
         });
         `
       }} />
+    </div>
+  )
+})
+
+// 새로운 다단계 견적 신청 페이지
+app.get('/quote-new', (c) => {
+  return c.render(
+    <div class="min-h-screen bg-gray-50">
+      {/* 헤더 */}
+      <header class="bg-white shadow-sm border-b">
+        <div class="max-w-4xl mx-auto px-4 py-4">
+          <div class="flex justify-between items-center">
+            <div class="flex items-center">
+              <img 
+                src="https://page.gensparksite.com/v1/base64_upload/b39dca8586af1dacd6d8417554313896" 
+                alt="케어조아 로고"
+                class="h-8 w-auto mr-3"
+              />
+              <h1 class="text-xl font-bold text-teal-600">케어조아</h1>
+            </div>
+            <a href="/" class="text-sm text-gray-600 hover:text-gray-900">
+              <i class="fas fa-times"></i>
+            </a>
+          </div>
+        </div>
+      </header>
+
+      {/* 프로그레스 바 */}
+      <div class="bg-white border-b">
+        <div class="max-w-4xl mx-auto px-4 py-4">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex-1">
+              <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div id="progressBar" class="h-full bg-teal-500 transition-all duration-300" style="width: 14%"></div>
+              </div>
+            </div>
+          </div>
+          <div class="flex justify-between text-xs text-gray-600">
+            <span id="stepIndicator">1/7 단계</span>
+            <span id="stepTitle">견적서 전체 선택</span>
+          </div>
+        </div>
+      </div>
+
+      {/* 메인 컨텐츠 */}
+      <div class="max-w-4xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-xl shadow-lg p-6 md:p-8">
+          
+          {/* Step 1: 견적서 전체 선택 */}
+          <div id="step1" class="step-content">
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">견적서 전체 선택</h2>
+            <p class="text-sm text-gray-600 mb-6">
+              계속 진행할 견적서를 선택하세요<br/>
+              견적을 진행한 시설은 내시설목록에서 삭제되지 않습니다
+            </p>
+            
+            <div class="space-y-3">
+              <button type="button" onclick="selectFacilityType('nursing_hospital')" 
+                class="w-full p-4 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-left transition-all">
+                <div class="flex items-center">
+                  <div class="w-6 h-6 rounded-full border-2 border-gray-400 mr-3 facility-radio" data-type="nursing_hospital"></div>
+                  <span class="font-medium text-gray-900">요양병원</span>
+                </div>
+              </button>
+              
+              <button type="button" onclick="selectFacilityType('home_care')" 
+                class="w-full p-4 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-left transition-all">
+                <div class="flex items-center">
+                  <div class="w-6 h-6 rounded-full border-2 border-gray-400 mr-3 facility-radio" data-type="home_care"></div>
+                  <span class="font-medium text-gray-900">재가복지 (방문요양/주야간보호)</span>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          {/* Step 2: 신청 정보 입력 */}
+          <div id="step2" class="step-content hidden">
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">신청 정보 입력</h2>
+            <p class="text-sm text-gray-600 mb-6">신청자의 기본 정보를 입력해주세요</p>
+            
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">1. 성함 (어르신 성함)</label>
+                <input type="text" id="patientName" required
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500" />
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">2. 연령대</label>
+                <div class="grid grid-cols-3 gap-3">
+                  <button type="button" onclick="selectAge('60대 이상')" 
+                    class="age-btn px-4 py-3 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 transition-all">
+                    60대 이상
+                  </button>
+                  <button type="button" onclick="selectAge('70대 이상')" 
+                    class="age-btn px-4 py-3 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 transition-all">
+                    70대 이상
+                  </button>
+                  <button type="button" onclick="selectAge('80대 이상')" 
+                    class="age-btn px-4 py-3 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 transition-all">
+                    80대 이상
+                  </button>
+                </div>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">3. 성별</label>
+                <div class="grid grid-cols-2 gap-3">
+                  <button type="button" onclick="selectGender('남성')" 
+                    class="gender-btn px-4 py-3 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 transition-all">
+                    남성
+                  </button>
+                  <button type="button" onclick="selectGender('여성')" 
+                    class="gender-btn px-4 py-3 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 transition-all">
+                    여성
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Step 3: 지역 선택 */}
+          <div id="step3" class="step-content hidden">
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">지역 선택</h2>
+            <p class="text-sm text-gray-600 mb-6">희망하시는 시설의 지역을 선택해주세요</p>
+            
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">시/도 *</label>
+                <select id="quoteNewSido" onchange="updateQuoteNewSigungu()" required
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500">
+                  <option value="">선택하세요</option>
+                  <option value="서울특별시">서울특별시</option>
+                  <option value="경기도">경기도</option>
+                  <option value="인천광역시">인천광역시</option>
+                  <option value="부산광역시">부산광역시</option>
+                  <option value="대구광역시">대구광역시</option>
+                  <option value="대전광역시">대전광역시</option>
+                  <option value="광주광역시">광주광역시</option>
+                  <option value="울산광역시">울산광역시</option>
+                  <option value="세종특별자치시">세종특별자치시</option>
+                  <option value="강원도">강원도</option>
+                  <option value="충청북도">충청북도</option>
+                  <option value="충청남도">충청남도</option>
+                  <option value="전라북도">전라북도</option>
+                  <option value="전라남도">전라남도</option>
+                  <option value="경상북도">경상북도</option>
+                  <option value="경상남도">경상남도</option>
+                  <option value="제주특별자치도">제주특별자치도</option>
+                </select>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">시/군/구 *</label>
+                <select id="quoteNewSigungu" required
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500">
+                  <option value="">먼저 시/도를 선택하세요</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Step 4: 환자 정보 상세 (요양병원) */}
+          <div id="step4-hospital" class="step-content hidden">
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">환자 정보 입력</h2>
+            <p class="text-sm text-gray-600 mb-6">환자분의 상세 정보를 입력해주세요</p>
+            
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">1. 환자의 생년월일을 알려주세요</label>
+                <div class="grid grid-cols-3 gap-3">
+                  <input type="number" id="birthYear" placeholder="년도 (예: 1945)" min="1900" max="2024"
+                    class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500" />
+                  <input type="number" id="birthMonth" placeholder="월 (1-12)" min="1" max="12"
+                    class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500" />
+                  <input type="number" id="birthDay" placeholder="일 (1-31)" min="1" max="31"
+                    class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500" />
+                </div>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">2. 환자 성별</label>
+                <div class="grid grid-cols-2 gap-3">
+                  <button type="button" onclick="selectPatientGender('남성')" 
+                    class="patient-gender-btn px-4 py-3 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50">
+                    남성
+                  </button>
+                  <button type="button" onclick="selectPatientGender('여성')" 
+                    class="patient-gender-btn px-4 py-3 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50">
+                    여성
+                  </button>
+                </div>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">3. 장기요양등급 (선택사항)</label>
+                <div class="grid grid-cols-3 gap-2">
+                  <button type="button" onclick="selectCareLevel('1등급')" 
+                    class="care-level-btn px-3 py-2 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-sm">
+                    1등급
+                  </button>
+                  <button type="button" onclick="selectCareLevel('2등급')" 
+                    class="care-level-btn px-3 py-2 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-sm">
+                    2등급
+                  </button>
+                  <button type="button" onclick="selectCareLevel('3등급')" 
+                    class="care-level-btn px-3 py-2 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-sm">
+                    3등급
+                  </button>
+                  <button type="button" onclick="selectCareLevel('4등급')" 
+                    class="care-level-btn px-3 py-2 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-sm">
+                    4등급
+                  </button>
+                  <button type="button" onclick="selectCareLevel('5등급')" 
+                    class="care-level-btn px-3 py-2 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-sm">
+                    5등급
+                  </button>
+                  <button type="button" onclick="selectCareLevel('등급없음')" 
+                    class="care-level-btn px-3 py-2 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-sm">
+                    등급없음
+                  </button>
+                </div>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">4. 수급자 유형 *</label>
+                <div class="space-y-2">
+                  <button type="button" onclick="selectBeneficiaryType('기초수급자')" 
+                    class="w-full beneficiary-type-btn px-4 py-3 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-left">
+                    기초수급자
+                  </button>
+                  <button type="button" onclick="selectBeneficiaryType('차상위계층')" 
+                    class="w-full beneficiary-type-btn px-4 py-3 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-left">
+                    차상위계층
+                  </button>
+                  <button type="button" onclick="selectBeneficiaryType('건강보험')" 
+                    class="w-full beneficiary-type-btn px-4 py-3 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-left">
+                    건강보험
+                  </button>
+                  <button type="button" onclick="selectBeneficiaryType('일반')" 
+                    class="w-full beneficiary-type-btn px-4 py-3 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-left">
+                    일반
+                  </button>
+                </div>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">5. 진단명 (중복선택 가능)</label>
+                <div class="grid grid-cols-2 gap-2">
+                  <button type="button" onclick="toggleDiagnosis('치매')" 
+                    class="diagnosis-btn px-3 py-2 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-sm">
+                    치매
+                  </button>
+                  <button type="button" onclick="toggleDiagnosis('중풍')" 
+                    class="diagnosis-btn px-3 py-2 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-sm">
+                    중풍
+                  </button>
+                  <button type="button" onclick="toggleDiagnosis('암환자')" 
+                    class="diagnosis-btn px-3 py-2 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-sm">
+                    암환자
+                  </button>
+                  <button type="button" onclick="toggleDiagnosis('당뇨')" 
+                    class="diagnosis-btn px-3 py-2 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-sm">
+                    당뇨
+                  </button>
+                  <button type="button" onclick="toggleDiagnosis('고혈압')" 
+                    class="diagnosis-btn px-3 py-2 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-sm">
+                    고혈압
+                  </button>
+                  <button type="button" onclick="toggleDiagnosis('기타')" 
+                    class="diagnosis-btn px-3 py-2 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-sm">
+                    기타
+                  </button>
+                </div>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">6. ADL (일상생활수행능력)</label>
+                <div class="grid grid-cols-3 gap-2">
+                  <button type="button" onclick="selectADL('상')" 
+                    class="adl-btn px-3 py-2 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-sm">
+                    상
+                  </button>
+                  <button type="button" onclick="selectADL('중')" 
+                    class="adl-btn px-3 py-2 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-sm">
+                    중
+                  </button>
+                  <button type="button" onclick="selectADL('하')" 
+                    class="adl-btn px-3 py-2 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-sm">
+                    하
+                  </button>
+                </div>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">7. 치매 (인지상태)</label>
+                <div class="grid grid-cols-3 gap-2">
+                  <button type="button" onclick="selectDementia('경증')" 
+                    class="dementia-btn px-3 py-2 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-sm">
+                    경증
+                  </button>
+                  <button type="button" onclick="selectDementia('중등도')" 
+                    class="dementia-btn px-3 py-2 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-sm">
+                    중등도
+                  </button>
+                  <button type="button" onclick="selectDementia('중증')" 
+                    class="dementia-btn px-3 py-2 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-sm">
+                    중증
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Step 4: 환자 정보 상세 (재가복지) */}
+          <div id="step4-homecare" class="step-content hidden">
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">서비스 정보 입력</h2>
+            <p class="text-sm text-gray-600 mb-6">필요하신 서비스 정보를 입력해주세요</p>
+            
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">1. 서비스 유형 *</label>
+                <div class="space-y-2">
+                  <button type="button" onclick="selectServiceType('방문요양')" 
+                    class="w-full service-type-btn px-4 py-3 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-left">
+                    방문요양
+                  </button>
+                  <button type="button" onclick="selectServiceType('방문목욕')" 
+                    class="w-full service-type-btn px-4 py-3 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-left">
+                    방문목욕
+                  </button>
+                  <button type="button" onclick="selectServiceType('주야간보호')" 
+                    class="w-full service-type-btn px-4 py-3 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-left">
+                    주야간보호
+                  </button>
+                  <button type="button" onclick="selectServiceType('단기보호')" 
+                    class="w-full service-type-btn px-4 py-3 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-left">
+                    단기보호
+                  </button>
+                </div>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">2. 장기요양등급 *</label>
+                <div class="grid grid-cols-3 gap-2">
+                  <button type="button" onclick="selectHomeCareLevel('1등급')" 
+                    class="homecare-level-btn px-3 py-2 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-sm">
+                    1등급
+                  </button>
+                  <button type="button" onclick="selectHomeCareLevel('2등급')" 
+                    class="homecare-level-btn px-3 py-2 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-sm">
+                    2등급
+                  </button>
+                  <button type="button" onclick="selectHomeCareLevel('3등급')" 
+                    class="homecare-level-btn px-3 py-2 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-sm">
+                    3등급
+                  </button>
+                  <button type="button" onclick="selectHomeCareLevel('4등급')" 
+                    class="homecare-level-btn px-3 py-2 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-sm">
+                    4등급
+                  </button>
+                  <button type="button" onclick="selectHomeCareLevel('5등급')" 
+                    class="homecare-level-btn px-3 py-2 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-sm">
+                    5등급
+                  </button>
+                  <button type="button" onclick="selectHomeCareLevel('인지지원등급')" 
+                    class="homecare-level-btn px-3 py-2 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-sm">
+                    인지지원등급
+                  </button>
+                </div>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">3. 주간 이용 시간</label>
+                <select id="weeklyHours" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500">
+                  <option value="">선택하세요</option>
+                  <option value="주 1회">주 1회</option>
+                  <option value="주 2회">주 2회</option>
+                  <option value="주 3회">주 3회</option>
+                  <option value="주 4회">주 4회</option>
+                  <option value="주 5회">주 5회</option>
+                  <option value="매일">매일</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Step 5: 본인/배우자 정보 */}
+          <div id="step5" class="step-content hidden">
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">본인/배우자 정보</h2>
+            <p class="text-sm text-gray-600 mb-6">보호자의 정보를 입력해주세요</p>
+            
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">1. 본인 나이를 선택하세요</label>
+                <div class="grid grid-cols-4 gap-2">
+                  <button type="button" onclick="selectGuardianAge('30대')" 
+                    class="guardian-age-btn px-3 py-2 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-sm">
+                    30대
+                  </button>
+                  <button type="button" onclick="selectGuardianAge('40대')" 
+                    class="guardian-age-btn px-3 py-2 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-sm">
+                    40대
+                  </button>
+                  <button type="button" onclick="selectGuardianAge('50대')" 
+                    class="guardian-age-btn px-3 py-2 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-sm">
+                    50대
+                  </button>
+                  <button type="button" onclick="selectGuardianAge('60대 이상')" 
+                    class="guardian-age-btn px-3 py-2 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-sm">
+                    60대+
+                  </button>
+                </div>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">2. 배우자 나이를 선택하세요</label>
+                <div class="grid grid-cols-4 gap-2">
+                  <button type="button" onclick="selectSpouseAge('30대')" 
+                    class="spouse-age-btn px-3 py-2 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-sm">
+                    30대
+                  </button>
+                  <button type="button" onclick="selectSpouseAge('40대')" 
+                    class="spouse-age-btn px-3 py-2 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-sm">
+                    40대
+                  </button>
+                  <button type="button" onclick="selectSpouseAge('50대')" 
+                    class="spouse-age-btn px-3 py-2 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-sm">
+                    50대
+                  </button>
+                  <button type="button" onclick="selectSpouseAge('60대 이상')" 
+                    class="spouse-age-btn px-3 py-2 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-sm">
+                    60대+
+                  </button>
+                </div>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">3. 연락처 (선택)</label>
+                <input type="tel" id="guardianPhone" placeholder="010-0000-0000"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500" />
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">4. 주거형태</label>
+                <div class="grid grid-cols-2 gap-2">
+                  <button type="button" onclick="selectHousingType('자가')" 
+                    class="housing-type-btn px-3 py-2 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-sm">
+                    자가
+                  </button>
+                  <button type="button" onclick="selectHousingType('전세')" 
+                    class="housing-type-btn px-3 py-2 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-sm">
+                    전세
+                  </button>
+                  <button type="button" onclick="selectHousingType('월세')" 
+                    class="housing-type-btn px-3 py-2 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-sm">
+                    월세
+                  </button>
+                  <button type="button" onclick="selectHousingType('기타')" 
+                    class="housing-type-btn px-3 py-2 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-sm">
+                    기타
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Step 6: 질환/선호사항 */}
+          <div id="step6" class="step-content hidden">
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">질환/선호사항</h2>
+            <p class="text-sm text-gray-600 mb-6">추가 정보를 입력해주세요</p>
+            
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">1. 질병 (중복선택 가능)</label>
+                <div class="grid grid-cols-2 gap-2">
+                  <button type="button" onclick="toggleDisease('고혈압')" 
+                    class="disease-btn px-3 py-2 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-sm">
+                    고혈압
+                  </button>
+                  <button type="button" onclick="toggleDisease('당뇨')" 
+                    class="disease-btn px-3 py-2 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-sm">
+                    당뇨
+                  </button>
+                  <button type="button" onclick="toggleDisease('심혈관질환')" 
+                    class="disease-btn px-3 py-2 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-sm">
+                    심혈관질환
+                  </button>
+                  <button type="button" onclick="toggleDisease('호흡기질환')" 
+                    class="disease-btn px-3 py-2 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-sm">
+                    호흡기질환
+                  </button>
+                </div>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">2. 성향 (중복선택 가능)</label>
+                <div class="grid grid-cols-2 gap-2">
+                  <button type="button" onclick="togglePersonality('온순함')" 
+                    class="personality-btn px-3 py-2 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-sm">
+                    온순함
+                  </button>
+                  <button type="button" onclick="togglePersonality('급함')" 
+                    class="personality-btn px-3 py-2 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-sm">
+                    급함
+                  </button>
+                  <button type="button" onclick="togglePersonality('활발함')" 
+                    class="personality-btn px-3 py-2 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-sm">
+                    활발함
+                  </button>
+                  <button type="button" onclick="togglePersonality('조용함')" 
+                    class="personality-btn px-3 py-2 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 text-sm">
+                    조용함
+                  </button>
+                </div>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">3. 특이사항 (자유롭게 작성)</label>
+                <textarea id="specialNotes" rows="4" placeholder="시설에 전달하고 싶은 특이사항을 입력해주세요"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"></textarea>
+              </div>
+            </div>
+          </div>
+
+          {/* Step 7: 최종 확인 */}
+          <div id="step7" class="step-content hidden">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">견적 신청 완료</h2>
+            <p class="text-sm text-gray-600 mb-6">입력하신 정보를 확인해주세요</p>
+            
+            <div class="space-y-4 mb-8">
+              <div class="bg-gray-50 rounded-lg p-4">
+                <h3 class="font-bold text-gray-900 mb-2">기본 정보</h3>
+                <div class="text-sm text-gray-700 space-y-1">
+                  <p><strong>시설 유형:</strong> <span id="summary-facility-type"></span></p>
+                  <p><strong>신청자:</strong> <span id="summary-patient-name"></span></p>
+                  <p><strong>지역:</strong> <span id="summary-region"></span></p>
+                </div>
+              </div>
+              
+              <div class="bg-gray-50 rounded-lg p-4">
+                <h3 class="font-bold text-gray-900 mb-2">환자 정보</h3>
+                <div class="text-sm text-gray-700 space-y-1" id="summary-patient-info">
+                </div>
+              </div>
+              
+              <div class="bg-gray-50 rounded-lg p-4">
+                <h3 class="font-bold text-gray-900 mb-2">보호자 정보</h3>
+                <div class="text-sm text-gray-700 space-y-1" id="summary-guardian-info">
+                </div>
+              </div>
+            </div>
+            
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+              <p class="text-sm text-blue-800">
+                <i class="fas fa-info-circle mr-2"></i>
+                <strong>신청 완료 후</strong> 선택하신 지역의 시설들이 견적서를 작성하여 회신합니다. 
+                마이페이지에서 받은 견적서를 확인하실 수 있습니다.
+              </p>
+            </div>
+          </div>
+
+          {/* 네비게이션 버튼 */}
+          <div class="flex justify-between mt-8 pt-6 border-t">
+            <button type="button" id="prevBtn" onclick="prevStep()" 
+              class="px-6 py-3 border-2 border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors hidden">
+              <i class="fas fa-chevron-left mr-2"></i>이전
+            </button>
+            <button type="button" id="nextBtn" onclick="nextStep()" 
+              class="ml-auto px-8 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+              disabled>
+              다음<i class="fas fa-chevron-right ml-2"></i>
+            </button>
+            <button type="button" id="submitBtn" onclick="submitQuote()" 
+              class="ml-auto px-8 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors hidden">
+              견적 신청하기<i class="fas fa-paper-plane ml-2"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* JavaScript */}
+      <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
+      <script dangerouslySetInnerHTML={{__html: `
+        let currentStep = 1;
+        const totalSteps = 7;
+        const quoteData = {
+          facilityType: '',
+          patientName: '',
+          age: '',
+          gender: '',
+          sido: '',
+          sigungu: '',
+          
+          // 요양병원 전용
+          birthYear: '',
+          birthMonth: '',
+          birthDay: '',
+          patientGender: '',
+          careLevel: '',
+          beneficiaryType: '',
+          diagnosis: [],
+          adl: '',
+          dementia: '',
+          
+          // 재가복지 전용
+          serviceType: '',
+          homecareLevel: '',
+          weeklyHours: '',
+          
+          // 보호자 정보
+          guardianAge: '',
+          spouseAge: '',
+          guardianPhone: '',
+          housingType: '',
+          
+          // 추가 정보
+          diseases: [],
+          personalities: [],
+          specialNotes: ''
+        };
+
+        const sigunguData = {
+          '서울특별시': ['강남구', '강동구', '강북구', '강서구', '관악구', '광진구', '구로구', '금천구', '노원구', '도봉구', '동대문구', '동작구', '마포구', '서대문구', '서초구', '성동구', '성북구', '송파구', '양천구', '영등포구', '용산구', '은평구', '종로구', '중구', '중랑구'],
+          '경기도': ['가평군', '고양시', '과천시', '광명시', '광주시', '구리시', '군포시', '김포시', '남양주시', '동두천시', '부천시', '성남시', '수원시', '시흥시', '안산시', '안성시', '안양시', '양주시', '양평군', '여주시', '연천군', '오산시', '용인시', '의왕시', '의정부시', '이천시', '파주시', '평택시', '포천시', '하남시', '화성시']
+        };
+
+        function updateQuoteNewSigungu() {
+          const sidoSelect = document.getElementById('quoteNewSido');
+          const sigunguSelect = document.getElementById('quoteNewSigungu');
+          const selectedSido = sidoSelect.value;
+
+          sigunguSelect.innerHTML = '<option value="">선택하세요</option>';
+
+          if (selectedSido && sigunguData[selectedSido]) {
+            sigunguData[selectedSido].forEach(sigungu => {
+              const option = document.createElement('option');
+              option.value = sigungu;
+              option.textContent = sigungu;
+              sigunguSelect.appendChild(option);
+            });
+          }
+        }
+
+        function selectFacilityType(type) {
+          quoteData.facilityType = type;
+          document.querySelectorAll('.facility-radio').forEach(el => {
+            el.classList.remove('bg-teal-600', 'border-teal-600');
+            el.classList.add('border-gray-400');
+          });
+          const selected = document.querySelector(\`[data-type="\${type}"]\`);
+          selected.classList.remove('border-gray-400');
+          selected.classList.add('bg-teal-600', 'border-teal-600');
+          
+          document.getElementById('nextBtn').disabled = false;
+        }
+
+        function selectAge(age) {
+          quoteData.age = age;
+          document.querySelectorAll('.age-btn').forEach(btn => {
+            btn.classList.remove('border-teal-500', 'bg-teal-50', 'text-teal-700', 'font-bold');
+          });
+          event.target.classList.add('border-teal-500', 'bg-teal-50', 'text-teal-700', 'font-bold');
+          checkStep2Valid();
+        }
+
+        function selectGender(gender) {
+          quoteData.gender = gender;
+          document.querySelectorAll('.gender-btn').forEach(btn => {
+            btn.classList.remove('border-teal-500', 'bg-teal-50', 'text-teal-700', 'font-bold');
+          });
+          event.target.classList.add('border-teal-500', 'bg-teal-50', 'text-teal-700', 'font-bold');
+          checkStep2Valid();
+        }
+
+        function checkStep2Valid() {
+          const name = document.getElementById('patientName').value;
+          const age = quoteData.age;
+          const gender = quoteData.gender;
+          
+          document.getElementById('nextBtn').disabled = !(name && age && gender);
+        }
+
+        document.getElementById('patientName').addEventListener('input', checkStep2Valid);
+
+        function selectPatientGender(gender) {
+          quoteData.patientGender = gender;
+          document.querySelectorAll('.patient-gender-btn').forEach(btn => {
+            btn.classList.remove('border-teal-500', 'bg-teal-50', 'text-teal-700', 'font-bold');
+          });
+          event.target.classList.add('border-teal-500', 'bg-teal-50', 'text-teal-700', 'font-bold');
+        }
+
+        function selectCareLevel(level) {
+          quoteData.careLevel = level;
+          document.querySelectorAll('.care-level-btn').forEach(btn => {
+            btn.classList.remove('border-teal-500', 'bg-teal-50', 'text-teal-700', 'font-bold');
+          });
+          event.target.classList.add('border-teal-500', 'bg-teal-50', 'text-teal-700', 'font-bold');
+        }
+
+        function selectBeneficiaryType(type) {
+          quoteData.beneficiaryType = type;
+          document.querySelectorAll('.beneficiary-type-btn').forEach(btn => {
+            btn.classList.remove('border-teal-500', 'bg-teal-50', 'text-teal-700', 'font-bold');
+          });
+          event.target.classList.add('border-teal-500', 'bg-teal-50', 'text-teal-700', 'font-bold');
+        }
+
+        function toggleDiagnosis(diagnosis) {
+          const btn = event.target;
+          const index = quoteData.diagnosis.indexOf(diagnosis);
+          
+          if (index > -1) {
+            quoteData.diagnosis.splice(index, 1);
+            btn.classList.remove('border-teal-500', 'bg-teal-50', 'text-teal-700', 'font-bold');
+          } else {
+            quoteData.diagnosis.push(diagnosis);
+            btn.classList.add('border-teal-500', 'bg-teal-50', 'text-teal-700', 'font-bold');
+          }
+        }
+
+        function selectADL(level) {
+          quoteData.adl = level;
+          document.querySelectorAll('.adl-btn').forEach(btn => {
+            btn.classList.remove('border-teal-500', 'bg-teal-50', 'text-teal-700', 'font-bold');
+          });
+          event.target.classList.add('border-teal-500', 'bg-teal-50', 'text-teal-700', 'font-bold');
+        }
+
+        function selectDementia(level) {
+          quoteData.dementia = level;
+          document.querySelectorAll('.dementia-btn').forEach(btn => {
+            btn.classList.remove('border-teal-500', 'bg-teal-50', 'text-teal-700', 'font-bold');
+          });
+          event.target.classList.add('border-teal-500', 'bg-teal-50', 'text-teal-700', 'font-bold');
+        }
+
+        function selectServiceType(type) {
+          quoteData.serviceType = type;
+          document.querySelectorAll('.service-type-btn').forEach(btn => {
+            btn.classList.remove('border-teal-500', 'bg-teal-50', 'text-teal-700', 'font-bold');
+          });
+          event.target.classList.add('border-teal-500', 'bg-teal-50', 'text-teal-700', 'font-bold');
+        }
+
+        function selectHomeCareLevel(level) {
+          quoteData.homecareLevel = level;
+          document.querySelectorAll('.homecare-level-btn').forEach(btn => {
+            btn.classList.remove('border-teal-500', 'bg-teal-50', 'text-teal-700', 'font-bold');
+          });
+          event.target.classList.add('border-teal-500', 'bg-teal-50', 'text-teal-700', 'font-bold');
+        }
+
+        function selectGuardianAge(age) {
+          quoteData.guardianAge = age;
+          document.querySelectorAll('.guardian-age-btn').forEach(btn => {
+            btn.classList.remove('border-teal-500', 'bg-teal-50', 'text-teal-700', 'font-bold');
+          });
+          event.target.classList.add('border-teal-500', 'bg-teal-50', 'text-teal-700', 'font-bold');
+        }
+
+        function selectSpouseAge(age) {
+          quoteData.spouseAge = age;
+          document.querySelectorAll('.spouse-age-btn').forEach(btn => {
+            btn.classList.remove('border-teal-500', 'bg-teal-50', 'text-teal-700', 'font-bold');
+          });
+          event.target.classList.add('border-teal-500', 'bg-teal-50', 'text-teal-700', 'font-bold');
+        }
+
+        function selectHousingType(type) {
+          quoteData.housingType = type;
+          document.querySelectorAll('.housing-type-btn').forEach(btn => {
+            btn.classList.remove('border-teal-500', 'bg-teal-50', 'text-teal-700', 'font-bold');
+          });
+          event.target.classList.add('border-teal-500', 'bg-teal-50', 'text-teal-700', 'font-bold');
+        }
+
+        function toggleDisease(disease) {
+          const btn = event.target;
+          const index = quoteData.diseases.indexOf(disease);
+          
+          if (index > -1) {
+            quoteData.diseases.splice(index, 1);
+            btn.classList.remove('border-teal-500', 'bg-teal-50', 'text-teal-700', 'font-bold');
+          } else {
+            quoteData.diseases.push(disease);
+            btn.classList.add('border-teal-500', 'bg-teal-50', 'text-teal-700', 'font-bold');
+          }
+        }
+
+        function togglePersonality(personality) {
+          const btn = event.target;
+          const index = quoteData.personalities.indexOf(personality);
+          
+          if (index > -1) {
+            quoteData.personalities.splice(index, 1);
+            btn.classList.remove('border-teal-500', 'bg-teal-50', 'text-teal-700', 'font-bold');
+          } else {
+            quoteData.personalities.push(personality);
+            btn.classList.add('border-teal-500', 'bg-teal-50', 'text-teal-700', 'font-bold');
+          }
+        }
+
+        function updateStepUI() {
+          // Hide all steps
+          document.querySelectorAll('.step-content').forEach(el => el.classList.add('hidden'));
+          
+          // Show current step
+          if (currentStep === 4) {
+            if (quoteData.facilityType === 'nursing_hospital') {
+              document.getElementById('step4-hospital').classList.remove('hidden');
+            } else {
+              document.getElementById('step4-homecare').classList.remove('hidden');
+            }
+          } else {
+            const currentStepEl = document.getElementById(\`step\${currentStep}\`);
+            if (currentStepEl) currentStepEl.classList.remove('hidden');
+          }
+
+          // Update progress bar
+          const progress = (currentStep / totalSteps) * 100;
+          document.getElementById('progressBar').style.width = progress + '%';
+          document.getElementById('stepIndicator').textContent = \`\${currentStep}/\${totalSteps} 단계\`;
+
+          // Update step title
+          const titles = [
+            '견적서 전체 선택',
+            '신청 정보 입력',
+            '지역 선택',
+            quoteData.facilityType === 'nursing_hospital' ? '환자 정보 입력' : '서비스 정보 입력',
+            '본인/배우자 정보',
+            '질환/선호사항',
+            '최종 확인'
+          ];
+          document.getElementById('stepTitle').textContent = titles[currentStep - 1];
+
+          // Update buttons
+          document.getElementById('prevBtn').classList.toggle('hidden', currentStep === 1);
+          document.getElementById('nextBtn').classList.toggle('hidden', currentStep === totalSteps);
+          document.getElementById('submitBtn').classList.toggle('hidden', currentStep !== totalSteps);
+        }
+
+        function nextStep() {
+          if (currentStep < totalSteps) {
+            // Collect data from current step
+            if (currentStep === 2) {
+              quoteData.patientName = document.getElementById('patientName').value;
+            } else if (currentStep === 3) {
+              quoteData.sido = document.getElementById('quoteNewSido').value;
+              quoteData.sigungu = document.getElementById('quoteNewSigungu').value;
+              if (!quoteData.sido || !quoteData.sigungu) {
+                alert('지역을 선택해주세요');
+                return;
+              }
+            } else if (currentStep === 4 && quoteData.facilityType === 'nursing_hospital') {
+              quoteData.birthYear = document.getElementById('birthYear').value;
+              quoteData.birthMonth = document.getElementById('birthMonth').value;
+              quoteData.birthDay = document.getElementById('birthDay').value;
+            } else if (currentStep === 5) {
+              quoteData.guardianPhone = document.getElementById('guardianPhone').value;
+            } else if (currentStep === 6) {
+              quoteData.specialNotes = document.getElementById('specialNotes').value;
+            }
+
+            currentStep++;
+            updateStepUI();
+            
+            if (currentStep === totalSteps) {
+              showSummary();
+            }
+            
+            // Reset next button state
+            document.getElementById('nextBtn').disabled = false;
+          }
+        }
+
+        function prevStep() {
+          if (currentStep > 1) {
+            currentStep--;
+            updateStepUI();
+          }
+        }
+
+        function showSummary() {
+          document.getElementById('summary-facility-type').textContent = 
+            quoteData.facilityType === 'nursing_hospital' ? '요양병원' : '재가복지';
+          document.getElementById('summary-patient-name').textContent = quoteData.patientName;
+          document.getElementById('summary-region').textContent = \`\${quoteData.sido} \${quoteData.sigungu}\`;
+
+          let patientInfo = '';
+          if (quoteData.facilityType === 'nursing_hospital') {
+            patientInfo = \`
+              <p><strong>생년월일:</strong> \${quoteData.birthYear}년 \${quoteData.birthMonth}월 \${quoteData.birthDay}일</p>
+              <p><strong>성별:</strong> \${quoteData.patientGender}</p>
+              <p><strong>장기요양등급:</strong> \${quoteData.careLevel || '선택안함'}</p>
+              <p><strong>수급자 유형:</strong> \${quoteData.beneficiaryType}</p>
+              <p><strong>진단명:</strong> \${quoteData.diagnosis.join(', ') || '없음'}</p>
+              <p><strong>ADL:</strong> \${quoteData.adl || '선택안함'}</p>
+              <p><strong>치매:</strong> \${quoteData.dementia || '선택안함'}</p>
+            \`;
+          } else {
+            patientInfo = \`
+              <p><strong>서비스 유형:</strong> \${quoteData.serviceType}</p>
+              <p><strong>장기요양등급:</strong> \${quoteData.homecareLevel}</p>
+              <p><strong>주간 이용 시간:</strong> \${quoteData.weeklyHours || '선택안함'}</p>
+            \`;
+          }
+          document.getElementById('summary-patient-info').innerHTML = patientInfo;
+
+          document.getElementById('summary-guardian-info').innerHTML = \`
+            <p><strong>본인 나이:</strong> \${quoteData.guardianAge || '선택안함'}</p>
+            <p><strong>배우자 나이:</strong> \${quoteData.spouseAge || '선택안함'}</p>
+            <p><strong>연락처:</strong> \${quoteData.guardianPhone || '미입력'}</p>
+            <p><strong>주거형태:</strong> \${quoteData.housingType || '선택안함'}</p>
+          \`;
+        }
+
+        async function submitQuote() {
+          try {
+            const response = await axios.post('/api/quote/submit-new', quoteData);
+            
+            if (response.data.success) {
+              alert('견적 신청이 완료되었습니다! 시설들의 견적서를 기다려주세요.');
+              window.location.href = '/';
+            } else {
+              alert('견적 신청 중 오류가 발생했습니다: ' + response.data.message);
+            }
+          } catch (error) {
+            console.error('Submit error:', error);
+            alert('견적 신청 중 오류가 발생했습니다. 다시 시도해주세요.');
+          }
+        }
+
+        // Initialize
+        updateStepUI();
+      `}}></script>
     </div>
   )
 })
