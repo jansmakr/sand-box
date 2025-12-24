@@ -1056,87 +1056,105 @@ app.get('/admin/dashboard', (c) => {
               <i class="fas fa-shield-alt text-2xl text-gray-900 mr-3"></i>
               <h1 class="text-2xl font-bold text-gray-900">케어조아 관리자</h1>
             </div>
-            <button id="logoutBtn" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
-              <i class="fas fa-sign-out-alt mr-2"></i>로그아웃
-            </button>
+            <div class="flex items-center gap-3">
+              <a href="/" class="text-gray-600 hover:text-gray-900 px-4 py-2 rounded-lg hover:bg-gray-100">
+                <i class="fas fa-home mr-1"></i>대시보드
+              </a>
+              <a href="/admin/facilities" class="text-gray-600 hover:text-gray-900 px-4 py-2 rounded-lg hover:bg-gray-100">
+                <i class="fas fa-building mr-1"></i>시설 관리
+              </a>
+              <button id="logoutBtn" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
+                <i class="fas fa-sign-out-alt mr-2"></i>로그아웃
+              </button>
+            </div>
           </div>
         </div>
       </header>
 
       <div class="max-w-7xl mx-auto px-4 py-8">
-        <div class="grid md:grid-cols-2 gap-8 mb-8">
-          <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-6 rounded-xl shadow-lg text-white">
+        {/* 통계 카드 */}
+        <div class="grid md:grid-cols-2 gap-6 mb-8">
+          <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-blue-100 mb-1">파트너 신청</p>
-                <p class="text-4xl font-bold" id="partnerCount">0</p>
+                <p class="text-gray-500 text-sm mb-1">파트너 신청</p>
+                <p class="text-3xl font-bold text-gray-900" id="partnerCount">0</p>
               </div>
-              <i class="fas fa-handshake text-5xl text-blue-300"></i>
+              <div class="bg-blue-100 p-4 rounded-full">
+                <i class="fas fa-handshake text-3xl text-blue-600"></i>
+              </div>
             </div>
           </div>
 
-          <div class="bg-gradient-to-r from-green-500 to-green-600 p-6 rounded-xl shadow-lg text-white">
+          <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-green-100 mb-1">가족 간병 신청</p>
-                <p class="text-4xl font-bold" id="familyCareCount">0</p>
+                <p class="text-gray-500 text-sm mb-1">가족 간병 신청</p>
+                <p class="text-3xl font-bold text-gray-900" id="familyCareCount">0</p>
               </div>
-              <i class="fas fa-heart text-5xl text-green-300"></i>
-            </div>
-          </div>
-
-          <div class="bg-gradient-to-r from-purple-500 to-purple-600 p-6 rounded-xl shadow-lg text-white md:col-span-2">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-purple-100 mb-1">견적 요청</p>
-                <p class="text-4xl font-bold" id="quoteRequestCount">0</p>
+              <div class="bg-green-100 p-4 rounded-full">
+                <i class="fas fa-heart text-3xl text-green-600"></i>
               </div>
-              <i class="fas fa-calculator text-5xl text-purple-300"></i>
             </div>
           </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
-          <h3 class="text-2xl font-bold mb-6 flex items-center">
-            <i class="fas fa-handshake text-blue-600 mr-3"></i>파트너 신청 목록
-          </h3>
-          <div class="overflow-x-auto">
-            <table class="w-full">
-              <thead class="bg-gray-50">
-                <tr>
-                  <th class="px-4 py-3 text-left">시설명</th>
-                  <th class="px-4 py-3 text-left">유형</th>
-                  <th class="px-4 py-3 text-left">주소</th>
-                  <th class="px-4 py-3 text-left">담당자</th>
-                  <th class="px-4 py-3 text-left">연락처</th>
-                  <th class="px-4 py-3 text-left">상태</th>
-                  <th class="px-4 py-3 text-left">관리</th>
-                </tr>
-              </thead>
-              <tbody id="partnerList"></tbody>
-            </table>
+        {/* 파트너 신청 목록 */}
+        <div class="bg-white rounded-xl shadow-lg mb-6">
+          <div class="border-b px-6 py-4">
+            <h3 class="text-xl font-bold flex items-center">
+              <i class="fas fa-handshake text-blue-600 mr-2"></i>
+              파트너 신청 목록
+              <span class="ml-3 text-sm text-gray-500">(지역별 요양시설 상담센터 신청관리)</span>
+            </h3>
+          </div>
+          <div class="p-6">
+            <div class="overflow-x-auto">
+              <table class="w-full">
+                <thead class="bg-gray-50">
+                  <tr class="border-b">
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">순번</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">시설명</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">유형</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">시설 주소</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">담당자</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">연락처</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">지역 설정</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">상태</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">신청일</th>
+                  </tr>
+                </thead>
+                <tbody id="partnerList"></tbody>
+              </table>
+            </div>
           </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-lg p-6">
-          <h3 class="text-2xl font-bold mb-6 flex items-center">
-            <i class="fas fa-heart text-green-600 mr-3"></i>가족 간병 신청 목록
-          </h3>
-          <div class="overflow-x-auto">
-            <table class="w-full">
-              <thead class="bg-gray-50">
-                <tr>
-                  <th class="px-4 py-3 text-left">보호자</th>
-                  <th class="px-4 py-3 text-left">연락처</th>
-                  <th class="px-4 py-3 text-left">환자명</th>
-                  <th class="px-4 py-3 text-left">나이</th>
-                  <th class="px-4 py-3 text-left">지역</th>
-                  <th class="px-4 py-3 text-left">요청사항</th>
-                  <th class="px-4 py-3 text-left">신청일</th>
-                </tr>
-              </thead>
-              <tbody id="familyCareList"></tbody>
-            </table>
+        {/* 가족 간병 신청 목록 */}
+        <div class="bg-white rounded-xl shadow-lg">
+          <div class="border-b px-6 py-4">
+            <h3 class="text-xl font-bold flex items-center">
+              <i class="fas fa-heart text-green-600 mr-2"></i>
+              가족 간병 신청 목록
+            </h3>
+          </div>
+          <div class="p-6">
+            <div class="overflow-x-auto">
+              <table class="w-full">
+                <thead class="bg-gray-50">
+                  <tr class="border-b">
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">보호자</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">연락처</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">환자명</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">나이</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">지역</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">요청사항</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">신청일</th>
+                  </tr>
+                </thead>
+                <tbody id="familyCareList"></tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
@@ -1156,30 +1174,29 @@ app.get('/admin/dashboard', (c) => {
             partnerList.innerHTML = partners.map((p, index) => {
               const status = p.approvalStatus || 'pending';
               const statusText = status === 'approved' ? '승인됨' : status === 'rejected' ? '거부됨' : '대기중';
-              const statusColor = status === 'approved' ? 'text-green-600' : status === 'rejected' ? 'text-red-600' : 'text-yellow-600';
-              const address = p.facilitySido && p.facilitySigungu ? \`\${p.facilitySido} \${p.facilitySigungu}\` : '-';
+              const statusColor = status === 'approved' ? 'bg-green-100 text-green-700' : status === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700';
+              const fullAddress = [p.facilitySido, p.facilitySigungu, p.facilityDetailAddress].filter(Boolean).join(' ') || '-';
+              const location = p.facilitySido && p.facilitySigungu ? \`\${p.facilitySido} \${p.facilitySigungu}\` : '-';
+              const createdDate = p.createdAt ? new Date(p.createdAt).toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' }) : '-';
               
               return \`
               <tr class="border-t hover:bg-gray-50">
-                <td class="px-4 py-3">\${p.facilityName}</td>
-                <td class="px-4 py-3">\${p.facilityType}</td>
-                <td class="px-4 py-3 text-sm">\${address}</td>
-                <td class="px-4 py-3">\${p.managerName}</td>
-                <td class="px-4 py-3">\${p.managerPhone}</td>
-                <td class="px-4 py-3 \${statusColor} font-semibold">\${statusText}</td>
+                <td class="px-4 py-3 text-center text-gray-700">\${index + 1}</td>
+                <td class="px-4 py-3 font-medium text-gray-900">\${p.facilityName}</td>
+                <td class="px-4 py-3 text-sm text-gray-600">\${p.facilityType}</td>
+                <td class="px-4 py-3 text-sm text-gray-600">\${fullAddress}</td>
+                <td class="px-4 py-3 text-gray-700">\${p.managerName}</td>
+                <td class="px-4 py-3 text-gray-700">\${p.managerPhone}</td>
+                <td class="px-4 py-3 text-sm text-gray-600">\${location}</td>
                 <td class="px-4 py-3">
-                  \${status === 'pending' ? \`
-                    <button onclick="approvePartner(\${index})" class="bg-green-500 text-white px-3 py-1 rounded text-sm mr-2 hover:bg-green-600">
-                      승인
-                    </button>
-                    <button onclick="rejectPartner(\${index})" class="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600">
-                      거부
-                    </button>
-                  \` : '-'}
+                  <span class="inline-flex px-3 py-1 rounded-full text-xs font-semibold \${statusColor}">
+                    \${statusText}
+                  </span>
                 </td>
+                <td class="px-4 py-3 text-sm text-gray-600">\${createdDate}</td>
               </tr>
               \`;
-            }).join('') || '<tr><td colspan="7" class="px-4 py-8 text-center text-gray-500">신청 내역이 없습니다</td></tr>';
+            }).join('') || '<tr><td colspan="9" class="px-4 py-8 text-center text-gray-500">신청 내역이 없습니다</td></tr>';
             
             const familyCareList = document.getElementById('familyCareList');
             familyCareList.innerHTML = familyCare.map(f => \`
