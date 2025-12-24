@@ -6279,6 +6279,538 @@ app.get('/dashboard/facility', async (c) => {
   `)
 })
 
+// ========== 견적서 상세 페이지 ==========
+
+// 견적서 상세 페이지
+app.get('/quote-details/:quoteId', async (c) => {
+  const user = getUser(c)
+  
+  if (!user || user.type !== 'customer') {
+    return c.redirect('/login')
+  }
+
+  const quoteId = c.req.param('quoteId')
+  
+  try {
+    const db = c.env.DB
+    
+    // 견적 요청 정보 조회
+    const quoteRequest = await db.prepare(`
+      SELECT * FROM quote_requests WHERE quote_id = ?
+    `).bind(quoteId).first()
+    
+    if (!quoteRequest) {
+      return c.html(`
+        <!DOCTYPE html>
+        <html lang="ko">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>견적서를 찾을 수 없습니다 - 케어조아</title>
+          <script src="https://cdn.tailwindcss.com"></script>
+        </head>
+        <body class="bg-gray-50 flex items-center justify-center min-h-screen">
+          <div class="text-center">
+            <i class="fas fa-exclamation-triangle text-6xl text-red-500 mb-4"></i>
+            <h1 class="text-2xl font-bold text-gray-800 mb-2">견적서를 찾을 수 없습니다</h1>
+            <p class="text-gray-600 mb-6">요청하신 견적서가 존재하지 않습니다.</p>
+            <a href="/dashboard/customer" class="px-6 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700">
+              대시보드로 돌아가기
+            </a>
+          </div>
+        </body>
+        </html>
+      `)
+    }
+    
+    // 해당 견적에 대한 응답 목록 조회
+    const responses = await db.prepare(`
+      SELECT * FROM quote_responses WHERE quote_id = ?
+      ORDER BY estimated_price ASC
+    `).bind(quoteId).all()
+    
+    const responsesData = responses.results || []
+
+    return c.html(`
+      <!DOCTYPE html>
+      <html lang="ko">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>견적서 상세 - 케어조아</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+      </head>
+      <body class="bg-gray-50">
+        <!-- 헤더 -->
+        <header class="bg-white shadow-sm border-b">
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+              <div class="flex items-center">
+                <img src="https://page.gensparksite.com/v1/base64_upload/b39dca8586af1dacd6d8417554313896" 
+                     alt="케어조아 로고" class="h-8 w-auto mr-3" />
+                <h1 class="text-2xl font-bold text-teal-600">케어조아</h1>
+              </div>
+              <div class="flex items-center space-x-4">
+                <a href="/dashboard/customer" class="text-gray-700 hover:text-teal-600">
+                  <i class="fas fa-arrow-left mr-2"></i>대시보드
+                </a>
+                <span class="text-gray-700">
+                  <i class="fas fa-user-circle text-teal-600 mr-2"></i>
+                  <strong>${user.name}</strong>님
+                </span>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <!-- 메인 컨텐츠 -->
+        <div class="max-w-7xl mx-auto px-4 py-8">
+          <!-- 견적 요청 정보 -->
+          <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+            <div class="flex justify-between items-start mb-6">
+              <div>
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">
+                  <i class="fas fa-file-invoice text-teal-600 mr-2"></i>
+                  견적 요청 정보
+                </h2>
+                <p class="text-gray-600">신청일: ${new Date(quoteRequest.created_at).toLocaleDateString('ko-KR')}</p>
+              </div>
+              <span class="px-4 py-2 bg-blue-100 text-blue-800 font-semibold rounded-full">
+                ${quoteRequest.quote_type === 'simple' ? '간편 견적' : '상세 견적'}
+              </span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="space-y-3">
+                <div class="flex items-center">
+                  <i class="fas fa-user text-gray-400 w-6 mr-3"></i>
+                  <div>
+                    <p class="text-sm text-gray-500">신청자</p>
+                    <p class="font-semibold text-gray-800">${quoteRequest.applicant_name}</p>
+                  </div>
+                </div>
+                <div class="flex items-center">
+                  <i class="fas fa-phone text-gray-400 w-6 mr-3"></i>
+                  <div>
+                    <p class="text-sm text-gray-500">연락처</p>
+                    <p class="font-semibold text-gray-800">${quoteRequest.applicant_phone}</p>
+                  </div>
+                </div>
+                <div class="flex items-center">
+                  <i class="fas fa-user-injured text-gray-400 w-6 mr-3"></i>
+                  <div>
+                    <p class="text-sm text-gray-500">환자 정보</p>
+                    <p class="font-semibold text-gray-800">${quoteRequest.patient_name} (${quoteRequest.patient_age}세)</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="space-y-3">
+                <div class="flex items-center">
+                  <i class="fas fa-map-marker-alt text-gray-400 w-6 mr-3"></i>
+                  <div>
+                    <p class="text-sm text-gray-500">지역</p>
+                    <p class="font-semibold text-gray-800">${quoteRequest.sido} ${quoteRequest.sigungu}</p>
+                  </div>
+                </div>
+                <div class="flex items-center">
+                  <i class="fas fa-hospital text-gray-400 w-6 mr-3"></i>
+                  <div>
+                    <p class="text-sm text-gray-500">시설 유형</p>
+                    <p class="font-semibold text-gray-800">${quoteRequest.facility_type}</p>
+                  </div>
+                </div>
+                ${quoteRequest.care_grade ? `
+                <div class="flex items-center">
+                  <i class="fas fa-notes-medical text-gray-400 w-6 mr-3"></i>
+                  <div>
+                    <p class="text-sm text-gray-500">요양등급</p>
+                    <p class="font-semibold text-gray-800">${quoteRequest.care_grade}</p>
+                  </div>
+                </div>
+                ` : ''}
+              </div>
+            </div>
+
+            ${quoteRequest.additional_notes ? `
+            <div class="mt-6 pt-6 border-t">
+              <p class="text-sm text-gray-500 mb-2">추가 요청사항</p>
+              <p class="text-gray-800">${quoteRequest.additional_notes}</p>
+            </div>
+            ` : ''}
+          </div>
+
+          <!-- 받은 견적서 목록 -->
+          <div class="mb-6">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-xl font-bold text-gray-800">
+                <i class="fas fa-envelope-open-text text-green-600 mr-2"></i>
+                받은 견적서 (${responsesData.length}개)
+              </h3>
+              ${responsesData.length > 1 ? `
+              <button onclick="toggleCompareMode()" id="compareBtn"
+                class="px-4 py-2 border-2 border-teal-600 text-teal-600 rounded-lg hover:bg-teal-50 transition-colors">
+                <i class="fas fa-balance-scale mr-2"></i>비교하기
+              </button>
+              ` : ''}
+            </div>
+
+            ${responsesData.length === 0 ? `
+            <div class="bg-white rounded-xl shadow-md p-8 text-center text-gray-500">
+              <i class="fas fa-inbox text-6xl mb-4"></i>
+              <p class="text-lg font-semibold mb-2">아직 받은 견적서가 없습니다</p>
+              <p class="text-sm">시설들이 견적서를 작성하고 있습니다. 조금만 기다려주세요!</p>
+            </div>
+            ` : ''}
+          </div>
+
+          <!-- 견적서 카드들 -->
+          <div id="quotesContainer" class="space-y-6">
+            ${responsesData.map((response, index) => {
+              const price = new Intl.NumberFormat('ko-KR').format(response.estimated_price)
+              const date = new Date(response.created_at).toLocaleDateString('ko-KR')
+              const statusBadge = getStatusBadge(response.status)
+              
+              return `
+                <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow quote-card" data-index="${index}">
+                  <div class="p-6">
+                    <!-- 헤더 -->
+                    <div class="flex justify-between items-start mb-4">
+                      <div class="flex items-center">
+                        <div class="w-12 h-12 bg-teal-100 rounded-full flex items-center justify-center mr-4">
+                          <i class="fas fa-hospital text-teal-600 text-xl"></i>
+                        </div>
+                        <div>
+                          <h4 class="text-xl font-bold text-gray-800">시설 #${index + 1}</h4>
+                          <p class="text-sm text-gray-500">${date} 전송</p>
+                        </div>
+                      </div>
+                      <div class="flex items-center space-x-3">
+                        ${responsesData.length > 1 ? `
+                        <label class="compare-checkbox hidden">
+                          <input type="checkbox" class="compare-check" data-index="${index}" 
+                            onchange="updateCompareSelection()"
+                            class="w-5 h-5 text-teal-600 rounded">
+                          <span class="ml-2 text-sm text-gray-600">선택</span>
+                        </label>
+                        ` : ''}
+                        ${statusBadge}
+                      </div>
+                    </div>
+
+                    <!-- 가격 -->
+                    <div class="bg-gradient-to-r from-teal-50 to-blue-50 rounded-lg p-4 mb-4">
+                      <p class="text-sm text-gray-600 mb-1">예상 월 비용</p>
+                      <p class="text-3xl font-bold text-teal-600">월 ${price}원</p>
+                    </div>
+
+                    <!-- 서비스 상세 -->
+                    <div class="space-y-3 mb-4">
+                      ${response.service_details ? `
+                      <div>
+                        <p class="text-sm font-semibold text-gray-700 mb-1">
+                          <i class="fas fa-list-ul text-gray-400 mr-2"></i>서비스 상세
+                        </p>
+                        <p class="text-gray-600 text-sm leading-relaxed">${response.service_details}</p>
+                      </div>
+                      ` : ''}
+
+                      ${response.available_rooms ? `
+                      <div>
+                        <p class="text-sm font-semibold text-gray-700 mb-1">
+                          <i class="fas fa-bed text-gray-400 mr-2"></i>가용 병상/객실
+                        </p>
+                        <p class="text-gray-600 text-sm">${response.available_rooms}</p>
+                      </div>
+                      ` : ''}
+
+                      ${response.special_services ? `
+                      <div>
+                        <p class="text-sm font-semibold text-gray-700 mb-1">
+                          <i class="fas fa-star text-gray-400 mr-2"></i>특별 서비스
+                        </p>
+                        <p class="text-gray-600 text-sm">${response.special_services}</p>
+                      </div>
+                      ` : ''}
+
+                      ${response.response_message ? `
+                      <div class="bg-gray-50 rounded-lg p-3 mt-3">
+                        <p class="text-sm font-semibold text-gray-700 mb-1">
+                          <i class="fas fa-comment-dots text-gray-400 mr-2"></i>시설 메시지
+                        </p>
+                        <p class="text-gray-600 text-sm italic">"${response.response_message}"</p>
+                      </div>
+                      ` : ''}
+                    </div>
+
+                    <!-- 담당자 정보 -->
+                    <div class="flex items-center justify-between pt-4 border-t">
+                      <div class="flex items-center text-sm text-gray-600">
+                        <i class="fas fa-user-tie text-gray-400 mr-2"></i>
+                        <span>${response.contact_person || '담당자'} | ${response.contact_phone}</span>
+                      </div>
+                      <div class="flex space-x-2">
+                        <a href="tel:${response.contact_phone}"
+                          class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-semibold">
+                          <i class="fas fa-phone mr-1"></i>전화 상담
+                        </a>
+                        <button onclick="openContactModal(${index})"
+                          class="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors text-sm font-semibold">
+                          <i class="fas fa-envelope mr-1"></i>문의하기
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              `
+            }).join('')}
+          </div>
+
+          <!-- 비교 모드 버튼 -->
+          <div id="comparePanel" class="hidden fixed bottom-0 left-0 right-0 bg-white shadow-lg border-t p-4">
+            <div class="max-w-7xl mx-auto flex justify-between items-center">
+              <div>
+                <p class="text-sm text-gray-600">선택된 견적서: <span id="selectedCount" class="font-bold text-teal-600">0</span>개</p>
+              </div>
+              <div class="flex space-x-3">
+                <button onclick="toggleCompareMode()" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                  취소
+                </button>
+                <button onclick="compareSelected()" id="compareConfirmBtn" disabled
+                  class="px-6 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 disabled:bg-gray-300 disabled:cursor-not-allowed">
+                  <i class="fas fa-balance-scale mr-2"></i>비교하기
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 문의하기 모달 -->
+        <div id="contactModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div class="bg-white rounded-xl shadow-2xl max-w-md w-full m-4">
+            <div class="border-b px-6 py-4 flex justify-between items-center">
+              <h3 class="text-xl font-bold text-gray-800">
+                <i class="fas fa-envelope text-teal-600 mr-2"></i>
+                시설에 문의하기
+              </h3>
+              <button onclick="closeContactModal()" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times text-2xl"></i>
+              </button>
+            </div>
+            <div id="contactModalContent" class="p-6">
+              <!-- 문의 폼 내용 -->
+            </div>
+          </div>
+        </div>
+
+        <script>
+          let compareMode = false;
+          let selectedQuotes = new Set();
+          const quotesData = ${JSON.stringify(responsesData)};
+
+          function getStatusBadge(status) {
+            const statusMap = {
+              'sent': { text: '전송됨', color: 'blue' },
+              'viewed': { text: '확인됨', color: 'green' },
+              'accepted': { text: '수락됨', color: 'purple' },
+              'rejected': { text: '거절됨', color: 'red' }
+            };
+            
+            const statusInfo = statusMap[status] || { text: status, color: 'gray' };
+            
+            return \`
+              <span class="px-3 py-1 bg-\${statusInfo.color}-100 text-\${statusInfo.color}-800 text-xs font-semibold rounded-full">
+                \${statusInfo.text}
+              </span>
+            \`;
+          }
+
+          function toggleCompareMode() {
+            compareMode = !compareMode;
+            const checkboxes = document.querySelectorAll('.compare-checkbox');
+            const comparePanel = document.getElementById('comparePanel');
+            const compareBtn = document.getElementById('compareBtn');
+            
+            if (compareMode) {
+              checkboxes.forEach(cb => cb.classList.remove('hidden'));
+              comparePanel.classList.remove('hidden');
+              if (compareBtn) compareBtn.classList.add('bg-teal-600', 'text-white');
+            } else {
+              checkboxes.forEach(cb => {
+                cb.classList.add('hidden');
+                cb.querySelector('input').checked = false;
+              });
+              comparePanel.classList.add('hidden');
+              if (compareBtn) compareBtn.classList.remove('bg-teal-600', 'text-white');
+              selectedQuotes.clear();
+              updateCompareSelection();
+            }
+          }
+
+          function updateCompareSelection() {
+            const checks = document.querySelectorAll('.compare-check:checked');
+            selectedQuotes = new Set([...checks].map(c => parseInt(c.dataset.index)));
+            
+            document.getElementById('selectedCount').textContent = selectedQuotes.size;
+            document.getElementById('compareConfirmBtn').disabled = selectedQuotes.size < 2;
+          }
+
+          function compareSelected() {
+            if (selectedQuotes.size < 2) {
+              alert('최소 2개 이상의 견적서를 선택해주세요.');
+              return;
+            }
+
+            const selectedData = [...selectedQuotes].map(i => quotesData[i]);
+            
+            // 비교 표 생성
+            const compareHtml = generateCompareTable(selectedData);
+            
+            // 모달로 표시
+            showCompareModal(compareHtml);
+          }
+
+          function generateCompareTable(quotes) {
+            const priceFormatter = new Intl.NumberFormat('ko-KR');
+            
+            return \`
+              <div class="overflow-x-auto">
+                <table class="w-full border-collapse">
+                  <thead>
+                    <tr class="bg-gray-100">
+                      <th class="border p-3 text-left">항목</th>
+                      \${quotes.map((_, i) => \`<th class="border p-3 text-center">시설 #\${i + 1}</th>\`).join('')}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="border p-3 font-semibold">월 비용</td>
+                      \${quotes.map(q => \`<td class="border p-3 text-center font-bold text-teal-600">월 \${priceFormatter.format(q.estimated_price)}원</td>\`).join('')}
+                    </tr>
+                    <tr class="bg-gray-50">
+                      <td class="border p-3 font-semibold">서비스 상세</td>
+                      \${quotes.map(q => \`<td class="border p-3 text-sm">\${q.service_details || '-'}</td>\`).join('')}
+                    </tr>
+                    <tr>
+                      <td class="border p-3 font-semibold">가용 병상/객실</td>
+                      \${quotes.map(q => \`<td class="border p-3 text-sm text-center">\${q.available_rooms || '-'}</td>\`).join('')}
+                    </tr>
+                    <tr class="bg-gray-50">
+                      <td class="border p-3 font-semibold">특별 서비스</td>
+                      \${quotes.map(q => \`<td class="border p-3 text-sm">\${q.special_services || '-'}</td>\`).join('')}
+                    </tr>
+                    <tr>
+                      <td class="border p-3 font-semibold">담당자</td>
+                      \${quotes.map(q => \`<td class="border p-3 text-sm text-center">\${q.contact_person || '담당자'}<br/>\${q.contact_phone}</td>\`).join('')}
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            \`;
+          }
+
+          function showCompareModal(html) {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
+            modal.innerHTML = \`
+              <div class="bg-white rounded-xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+                <div class="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center">
+                  <h3 class="text-2xl font-bold text-gray-800">
+                    <i class="fas fa-balance-scale text-teal-600 mr-2"></i>
+                    견적서 비교
+                  </h3>
+                  <button onclick="this.closest('.fixed').remove()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-2xl"></i>
+                  </button>
+                </div>
+                <div class="p-6">
+                  \${html}
+                </div>
+              </div>
+            \`;
+            document.body.appendChild(modal);
+          }
+
+          function openContactModal(index) {
+            const quote = quotesData[index];
+            const modal = document.getElementById('contactModal');
+            const content = document.getElementById('contactModalContent');
+            
+            content.innerHTML = \`
+              <form onsubmit="handleSendContact(event, \${index})" class="space-y-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">문의 내용</label>
+                  <textarea id="contactMessage" rows="5" required
+                    placeholder="문의하실 내용을 입력해주세요."
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"></textarea>
+                </div>
+                
+                <div class="bg-blue-50 p-4 rounded-lg">
+                  <p class="text-sm text-blue-800">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    문의 내용은 시설 담당자에게 직접 전달되며, 담당자가 연락드릴 예정입니다.
+                  </p>
+                </div>
+
+                <div class="flex space-x-3">
+                  <button type="button" onclick="closeContactModal()"
+                    class="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                    취소
+                  </button>
+                  <button type="submit"
+                    class="flex-1 px-6 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-semibold">
+                    <i class="fas fa-paper-plane mr-2"></i>문의 전송
+                  </button>
+                </div>
+              </form>
+            \`;
+            
+            modal.classList.remove('hidden');
+          }
+
+          function closeContactModal() {
+            document.getElementById('contactModal').classList.add('hidden');
+          }
+
+          function handleSendContact(event, index) {
+            event.preventDefault();
+            const message = document.getElementById('contactMessage').value;
+            
+            // TODO: API로 문의 전송
+            alert('문의가 전송되었습니다. 담당자가 곧 연락드릴 예정입니다.');
+            closeContactModal();
+          }
+        </script>
+      </body>
+      </html>
+    `)
+  } catch (error) {
+    console.error('견적서 조회 오류:', error)
+    return c.html(`
+      <!DOCTYPE html>
+      <html lang="ko">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>오류 발생 - 케어조아</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+      </head>
+      <body class="bg-gray-50 flex items-center justify-center min-h-screen">
+        <div class="text-center">
+          <i class="fas fa-exclamation-circle text-6xl text-red-500 mb-4"></i>
+          <h1 class="text-2xl font-bold text-gray-800 mb-2">오류가 발생했습니다</h1>
+          <p class="text-gray-600 mb-6">견적서를 불러오는 중 문제가 발생했습니다.</p>
+          <a href="/dashboard/customer" class="px-6 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700">
+            대시보드로 돌아가기
+          </a>
+        </div>
+      </body>
+      </html>
+    `)
+  }
+})
+
 // ========== 프로필 관리 ==========
 
 // 프로필 조회 페이지
