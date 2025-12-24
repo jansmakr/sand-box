@@ -731,6 +731,323 @@ app.get('/family-care-register', (c) => {
   )
 })
 
+// 전국 시설 찾기 페이지
+app.get('/facilities', (c) => {
+  return c.render(
+    <div>
+      <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex justify-between items-center h-16">
+            <a href="/" class="flex items-center">
+              <img 
+                src="https://page.gensparksite.com/v1/base64_upload/b39dca8586af1dacd6d8417554313896" 
+                alt="케어조아 로고"
+                class="h-8 w-auto mr-3"
+              />
+              <h1 class="text-2xl font-bold text-teal-600">케어조아</h1>
+            </a>
+            <a href="/" class="text-gray-600 hover:text-gray-900">
+              <i class="fas fa-home mr-1"></i>홈으로
+            </a>
+          </div>
+        </div>
+      </header>
+
+      <section class="py-8 bg-gray-50 min-h-screen">
+        <div class="max-w-7xl mx-auto px-4">
+          {/* 페이지 헤더 */}
+          <div class="mb-6">
+            <h2 class="text-3xl font-bold text-gray-900 mb-2 flex items-center">
+              <i class="fas fa-search text-purple-600 mr-3"></i>
+              전국 시설 찾기
+            </h2>
+            <p class="text-gray-600">전국 2,657개 요양시설을 검색하고 비교하세요</p>
+          </div>
+
+          {/* 검색 필터 */}
+          <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  <i class="fas fa-map-marker-alt text-red-500 mr-1"></i>시/도
+                </label>
+                <select id="filterSido" class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200">
+                  <option value="">전체 시/도</option>
+                  <option value="서울특별시">서울특별시</option>
+                  <option value="부산광역시">부산광역시</option>
+                  <option value="대구광역시">대구광역시</option>
+                  <option value="인천광역시">인천광역시</option>
+                  <option value="광주광역시">광주광역시</option>
+                  <option value="대전광역시">대전광역시</option>
+                  <option value="울산광역시">울산광역시</option>
+                  <option value="세종특별자치시">세종특별자치시</option>
+                  <option value="경기도">경기도</option>
+                  <option value="강원도">강원도</option>
+                  <option value="충청북도">충청북도</option>
+                  <option value="충청남도">충청남도</option>
+                  <option value="전라북도">전라북도</option>
+                  <option value="전라남도">전라남도</option>
+                  <option value="경상북도">경상북도</option>
+                  <option value="경상남도">경상남도</option>
+                  <option value="제주특별자치도">제주특별자치도</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  <i class="fas fa-map-pin text-blue-500 mr-1"></i>시/군/구
+                </label>
+                <select id="filterSigungu" class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200">
+                  <option value="">전체 시/군/구</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  <i class="fas fa-building text-green-500 mr-1"></i>시설 유형
+                </label>
+                <select id="filterType" class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200">
+                  <option value="">전체 유형</option>
+                  <option value="요양병원">요양병원</option>
+                  <option value="요양원">요양원</option>
+                  <option value="주야간보호">주야간보호</option>
+                  <option value="재가복지센터">재가복지센터</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  <i class="fas fa-search text-gray-500 mr-1"></i>시설명 검색
+                </label>
+                <input 
+                  type="text" 
+                  id="filterKeyword" 
+                  placeholder="시설명 입력"
+                  class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200"
+                />
+              </div>
+            </div>
+
+            <div class="mt-4 flex justify-between items-center">
+              <div class="text-sm text-gray-600">
+                <span id="resultCount" class="font-bold text-purple-600">0</span>개의 시설이 검색되었습니다
+              </div>
+              <button 
+                id="resetFilters"
+                class="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+              >
+                <i class="fas fa-redo mr-2"></i>필터 초기화
+              </button>
+            </div>
+          </div>
+
+          {/* 시설 목록 */}
+          <div id="facilitiesList" class="space-y-4">
+            {/* 시설 카드들이 동적으로 삽입됩니다 */}
+          </div>
+
+          {/* 로딩 표시 */}
+          <div id="loadingSpinner" class="text-center py-12">
+            <i class="fas fa-spinner fa-spin text-4xl text-purple-600"></i>
+            <p class="text-gray-600 mt-4">시설 데이터를 불러오는 중...</p>
+          </div>
+
+          {/* 결과 없음 메시지 */}
+          <div id="noResults" class="hidden bg-white rounded-xl shadow-lg p-12 text-center">
+            <i class="fas fa-search text-6xl text-gray-300 mb-4"></i>
+            <h3 class="text-2xl font-bold text-gray-700 mb-2">검색 결과가 없습니다</h3>
+            <p class="text-gray-500">다른 조건으로 검색해 주세요</p>
+          </div>
+        </div>
+      </section>
+
+      {/* JavaScript for Facilities Search */}
+      <script dangerouslySetInnerHTML={{__html: `
+        let allFacilities = [];
+        let filteredFacilities = [];
+
+        // 시도별 시군구 데이터
+        const sigunguData = {
+          '서울특별시': ['강남구', '강동구', '강북구', '강서구', '관악구', '광진구', '구로구', '금천구', '노원구', '도봉구', '동대문구', '동작구', '마포구', '서대문구', '서초구', '성동구', '성북구', '송파구', '양천구', '영등포구', '용산구', '은평구', '종로구', '중구', '중랑구'],
+          '부산광역시': ['강서구', '금정구', '기장군', '남구', '동구', '동래구', '부산진구', '북구', '사상구', '사하구', '서구', '수영구', '연제구', '영도구', '중구', '해운대구'],
+          '대구광역시': ['남구', '달서구', '달성군', '동구', '북구', '서구', '수성구', '중구'],
+          '인천광역시': ['강화군', '계양구', '남동구', '동구', '미추홀구', '부평구', '서구', '연수구', '옹진군', '중구'],
+          '광주광역시': ['광산구', '남구', '동구', '북구', '서구'],
+          '대전광역시': ['대덕구', '동구', '서구', '유성구', '중구'],
+          '울산광역시': ['남구', '동구', '북구', '울주군', '중구'],
+          '세종특별자치시': ['세종시'],
+          '경기도': ['가평군', '고양시', '과천시', '광명시', '광주시', '구리시', '군포시', '김포시', '남양주시', '동두천시', '부천시', '성남시', '수원시', '시흥시', '안산시', '안성시', '안양시', '양주시', '양평군', '여주시', '연천군', '오산시', '용인시', '의왕시', '의정부시', '이천시', '파주시', '평택시', '포천시', '하남시', '화성시'],
+          '강원도': ['강릉시', '고성군', '동해시', '삼척시', '속초시', '양구군', '양양군', '영월군', '원주시', '인제군', '정선군', '철원군', '춘천시', '태백시', '평창군', '홍천군', '화천군', '횡성군'],
+          '충청북도': ['괴산군', '단양군', '보은군', '영동군', '옥천군', '음성군', '제천시', '증평군', '진천군', '청주시', '충주시'],
+          '충청남도': ['계룡시', '공주시', '금산군', '논산시', '당진시', '보령시', '부여군', '서산시', '서천군', '아산시', '예산군', '천안시', '청양군', '태안군', '홍성군'],
+          '전라북도': ['고창군', '군산시', '김제시', '남원시', '무주군', '부안군', '순창군', '완주군', '익산시', '임실군', '장수군', '전주시', '정읍시', '진안군'],
+          '전라남도': ['강진군', '고흥군', '곡성군', '광양시', '구례군', '나주시', '담양군', '목포시', '무안군', '보성군', '순천시', '신안군', '여수시', '영광군', '영암군', '완도군', '장성군', '장흥군', '진도군', '함평군', '해남군', '화순군'],
+          '경상북도': ['경산시', '경주시', '고령군', '구미시', '군위군', '김천시', '문경시', '봉화군', '상주시', '성주군', '안동시', '영덕군', '영양군', '영주시', '영천시', '예천군', '울릉군', '울진군', '의성군', '청도군', '청송군', '칠곡군', '포항시'],
+          '경상남도': ['거제시', '거창군', '고성군', '김해시', '남해군', '밀양시', '사천시', '산청군', '양산시', '의령군', '진주시', '창녕군', '창원시', '통영시', '하동군', '함안군', '함양군', '합천군'],
+          '제주특별자치도': ['서귀포시', '제주시']
+        };
+
+        // 페이지 로드 시 시설 데이터 불러오기
+        async function loadFacilities() {
+          try {
+            const response = await fetch('/static/facilities_5.json');
+            allFacilities = await response.json();
+            filteredFacilities = [...allFacilities];
+            
+            document.getElementById('loadingSpinner').style.display = 'none';
+            displayFacilities();
+          } catch (error) {
+            console.error('시설 데이터 로딩 오류:', error);
+            document.getElementById('loadingSpinner').innerHTML = \`
+              <i class="fas fa-exclamation-circle text-4xl text-red-600"></i>
+              <p class="text-gray-600 mt-4">데이터를 불러오는데 실패했습니다</p>
+            \`;
+          }
+        }
+
+        // 시설 목록 표시
+        function displayFacilities() {
+          const listEl = document.getElementById('facilitiesList');
+          const countEl = document.getElementById('resultCount');
+          const noResultsEl = document.getElementById('noResults');
+          
+          countEl.textContent = filteredFacilities.length;
+          
+          if (filteredFacilities.length === 0) {
+            listEl.style.display = 'none';
+            noResultsEl.classList.remove('hidden');
+            return;
+          }
+          
+          listEl.style.display = 'block';
+          noResultsEl.classList.add('hidden');
+          
+          // 최대 100개만 표시
+          const displayItems = filteredFacilities.slice(0, 100);
+          
+          listEl.innerHTML = displayItems.map((facility, index) => \`
+            <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 p-6">
+              <div class="flex justify-between items-start">
+                <div class="flex-1">
+                  <div class="flex items-center gap-3 mb-3">
+                    <h3 class="text-xl font-bold text-gray-900">\${facility.name}</h3>
+                    <span class="inline-block px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-semibold">
+                      \${facility.type}
+                    </span>
+                  </div>
+                  
+                  <div class="space-y-2 text-gray-600">
+                    <div class="flex items-center">
+                      <i class="fas fa-map-marker-alt text-red-500 mr-2 w-5"></i>
+                      <span class="text-sm">\${facility.address}</span>
+                    </div>
+                    <div class="flex items-center">
+                      <i class="fas fa-map-pin text-blue-500 mr-2 w-5"></i>
+                      <span class="text-sm font-medium">\${facility.sido} \${facility.sigungu}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="text-right">
+                  <div class="text-sm text-gray-500 mb-2">ID: \${facility.id}</div>
+                </div>
+              </div>
+              
+              <div class="mt-4 pt-4 border-t flex gap-2">
+                <button 
+                  onclick="showOnMap(\${facility.lat}, \${facility.lng}, '\${facility.name}')"
+                  class="flex-1 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium"
+                >
+                  <i class="fas fa-map-marked-alt mr-2"></i>지도에서 보기
+                </button>
+                <a 
+                  href="tel:0507-1310-5873"
+                  class="flex-1 bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition-colors text-sm font-medium text-center"
+                >
+                  <i class="fas fa-phone mr-2"></i>상담하기
+                </a>
+              </div>
+            </div>
+          \`).join('');
+          
+          if (filteredFacilities.length > 100) {
+            listEl.innerHTML += \`
+              <div class="bg-yellow-50 border-2 border-yellow-300 rounded-xl p-6 text-center">
+                <i class="fas fa-info-circle text-yellow-600 text-2xl mb-2"></i>
+                <p class="text-gray-700">
+                  총 <strong class="text-yellow-700">\${filteredFacilities.length}</strong>개 중 
+                  <strong class="text-yellow-700">100</strong>개만 표시됩니다. 
+                  더 정확한 검색을 위해 필터를 사용해주세요.
+                </p>
+              </div>
+            \`;
+          }
+        }
+
+        // 지도 표시 (간단한 알림으로 대체)
+        function showOnMap(lat, lng, name) {
+          alert(\`\${name}\\n위도: \${lat}\\n경도: \${lng}\\n\\n지도 기능은 곧 추가될 예정입니다.\`);
+        }
+
+        // 필터 적용
+        function applyFilters() {
+          const sido = document.getElementById('filterSido').value;
+          const sigungu = document.getElementById('filterSigungu').value;
+          const type = document.getElementById('filterType').value;
+          const keyword = document.getElementById('filterKeyword').value.toLowerCase();
+          
+          filteredFacilities = allFacilities.filter(facility => {
+            if (sido && facility.sido !== sido) return false;
+            if (sigungu && facility.sigungu !== sigungu) return false;
+            if (type && facility.type !== type) return false;
+            if (keyword && !facility.name.toLowerCase().includes(keyword) && !facility.address.toLowerCase().includes(keyword)) return false;
+            return true;
+          });
+          
+          displayFacilities();
+        }
+
+        // 시도 변경 시 시군구 업데이트
+        document.getElementById('filterSido').addEventListener('change', function() {
+          const sido = this.value;
+          const sigunguSelect = document.getElementById('filterSigungu');
+          
+          sigunguSelect.innerHTML = '<option value="">전체 시/군/구</option>';
+          
+          if (sido && sigunguData[sido]) {
+            sigunguData[sido].forEach(sigungu => {
+              const option = document.createElement('option');
+              option.value = sigungu;
+              option.textContent = sigungu;
+              sigunguSelect.appendChild(option);
+            });
+          }
+          
+          applyFilters();
+        });
+
+        // 필터 변경 이벤트
+        document.getElementById('filterSigungu').addEventListener('change', applyFilters);
+        document.getElementById('filterType').addEventListener('change', applyFilters);
+        document.getElementById('filterKeyword').addEventListener('input', applyFilters);
+
+        // 필터 초기화
+        document.getElementById('resetFilters').addEventListener('click', function() {
+          document.getElementById('filterSido').value = '';
+          document.getElementById('filterSigungu').innerHTML = '<option value="">전체 시/군/구</option>';
+          document.getElementById('filterType').value = '';
+          document.getElementById('filterKeyword').value = '';
+          filteredFacilities = [...allFacilities];
+          displayFacilities();
+        });
+
+        // 페이지 로드 시 실행
+        loadFacilities();
+      `}} />
+    </div>
+  )
+})
+
 // 지역별 전화상담 페이지
 app.get('/regional-consultation', (c) => {
   return c.render(
