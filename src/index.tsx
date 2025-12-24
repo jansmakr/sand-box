@@ -14,7 +14,9 @@ const ADMIN_CONFIG = { sessionKey: 'admin_session' }
 const dataStore = { 
   partners: [] as any[], 
   familyCare: [] as any[],
-  quoteRequests: [] as any[]
+  quoteRequests: [] as any[],
+  facilities: [] as any[],  // 시설 데이터 캐시
+  facilitiesLoaded: false    // 로딩 여부 플래그
 }
 const sessions = new Set<string>()
 
@@ -1459,6 +1461,9 @@ app.get('/admin/facilities', (c) => {
               시설 목록
               <span class="ml-3 text-sm text-gray-500">(<span id="filteredCount">0</span>개 검색됨)</span>
             </h3>
+            <button onclick="openAddModal()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors font-semibold">
+              <i class="fas fa-plus mr-2"></i>신규 등록
+            </button>
           </div>
           <div class="p-6">
             <div class="overflow-x-auto">
@@ -1683,9 +1688,14 @@ app.get('/admin/facilities', (c) => {
                 />
               </td>
               <td class="px-4 py-3">
-                <button onclick="openEditModal('\${f.id}')" class="px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600 transition-colors">
-                  <i class="fas fa-edit"></i> 수정
-                </button>
+                <div class="flex gap-2">
+                  <button onclick="openEditModal('\${f.id}')" class="px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600 transition-colors">
+                    <i class="fas fa-edit"></i> 수정
+                  </button>
+                  <button onclick="deleteFacility('\${f.id}')" class="px-3 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600 transition-colors">
+                    <i class="fas fa-trash"></i> 삭제
+                  </button>
+                </div>
               </td>
             </tr>
             \`;
@@ -1733,10 +1743,29 @@ app.get('/admin/facilities', (c) => {
           displayFacilities();
         }
         
-        // 모달 열기
+        // 신규 등록 모달 열기
+        function openAddModal() {
+          // 폼 초기화
+          document.getElementById('editForm').reset();
+          document.getElementById('editFacilityId').value = '';
+          
+          // 시군구 초기화
+          document.getElementById('editSigungu').innerHTML = '<option value="">선택하세요</option>';
+          
+          // 모달 제목 변경
+          document.querySelector('#editModal h3').innerHTML = '<i class="fas fa-plus text-green-600 mr-2"></i>신규 시설 등록';
+          
+          // 모달 표시
+          document.getElementById('editModal').classList.remove('hidden');
+        }
+        
+        // 수정 모달 열기
         function openEditModal(id) {
           const facility = allFacilitiesData.find(f => f.id === id);
           if (!facility) return;
+          
+          // 모달 제목 변경
+          document.querySelector('#editModal h3').innerHTML = '<i class="fas fa-edit text-blue-600 mr-2"></i>시설 정보 수정';
           
           // 폼에 데이터 채우기
           document.getElementById('editFacilityId').value = facility.id;
@@ -1821,11 +1850,40 @@ app.get('/admin/facilities', (c) => {
           }
         }
         
+        // 시설 삭제
+        async function deleteFacility(id) {
+          const facility = allFacilitiesData.find(f => f.id === id);
+          if (!facility) return;
+          
+          if (!confirm(\`"\${facility.name}" 시설을 삭제하시겠습니까?\\n\\n삭제된 데이터는 복구할 수 없습니다.\`)) {
+            return;
+          }
+          
+          try {
+            await axios.post('/api/admin/facility/delete', { id: id });
+            
+            // 로컬 데이터에서 제거
+            const index = allFacilitiesData.findIndex(f => f.id === id);
+            if (index !== -1) {
+              allFacilitiesData.splice(index, 1);
+              filteredFacilitiesData = filteredFacilitiesData.filter(f => f.id !== id);
+            }
+            
+            alert('시설이 삭제되었습니다.');
+            displayFacilities();
+          } catch (error) {
+            console.error('삭제 실패:', error);
+            alert('삭제 중 오류가 발생했습니다.');
+          }
+        }
+        
         // 편집 폼 제출
         document.getElementById('editForm').addEventListener('submit', async (e) => {
           e.preventDefault();
           
           const id = document.getElementById('editFacilityId').value;
+          const isNew = !id || id === '';
+          
           const updatedData = {
             id: id,
             name: document.getElementById('editName').value,
@@ -1838,20 +1896,39 @@ app.get('/admin/facilities', (c) => {
           };
           
           try {
-            await axios.post('/api/admin/facility/update', updatedData);
-            
-            // 로컬 데이터 업데이트
-            const facility = allFacilitiesData.find(f => f.id === id);
-            if (facility) {
-              Object.assign(facility, updatedData);
+            if (isNew) {
+              // 신규 등록
+              await axios.post('/api/admin/facility/create', updatedData);
+              
+              // 로컬 데이터에 추가
+              const newId = String(Math.max(...allFacilitiesData.map(f => parseInt(f.id) || 0)) + 1);
+              updatedData.id = newId;
+              updatedData.lat = 0.0;
+              updatedData.lng = 0.0;
+              updatedData.isRepresentative = false;
+              
+              allFacilitiesData.push(updatedData);
+              filteredFacilitiesData.push(updatedData);
+              
+              alert('새로운 시설이 등록되었습니다.');
+            } else {
+              // 기존 시설 수정
+              await axios.post('/api/admin/facility/update', updatedData);
+              
+              // 로컬 데이터 업데이트
+              const facility = allFacilitiesData.find(f => f.id === id);
+              if (facility) {
+                Object.assign(facility, updatedData);
+              }
+              
+              alert('시설 정보가 업데이트되었습니다.');
             }
             
-            alert('시설 정보가 업데이트되었습니다.');
             closeEditModal();
             displayFacilities();
           } catch (error) {
-            console.error('업데이트 실패:', error);
-            alert('업데이트 중 오류가 발생했습니다.');
+            console.error('저장 실패:', error);
+            alert('저장 중 오류가 발생했습니다.');
           }
         });
         
@@ -2230,7 +2307,7 @@ app.post('/api/admin/logout', (c) => {
 })
 
 // 지역별 상담센터 조회 API
-app.get('/api/regional-centers', (c) => {
+app.get('/api/regional-centers', async (c) => {
   const sido = c.req.query('sido')
   const sigungu = c.req.query('sigungu')
   
@@ -2238,24 +2315,55 @@ app.get('/api/regional-centers', (c) => {
     return c.json({ error: 'Missing parameters' }, 400)
   }
   
-  // dataStore.partners에서 승인된 상담센터만 필터링
-  // 상급종합병원, 주민센터사회복지 유형과 해당 지역의 시설을 찾습니다
-  const regionalCenters = dataStore.partners
-    .filter(partner => 
-      partner.approvalStatus === 'approved' && 
-      partner.facilitySido === sido && 
-      partner.facilitySigungu === sigungu &&
-      (partner.facilityType === '상급종합병원' || 
-       partner.facilityType === '주민센터사회복지' ||
-       partner.facilityType === '요양원' ||
-       partner.facilityType === '요양병원')
-    )
-    .slice(0, 4) // 최대 4개까지만 반환
-  
-  return c.json({ 
-    centers: regionalCenters,
-    count: regionalCenters.length
-  })
+  try {
+    // 시설 데이터 로드 (메모리 캐시 사용)
+    await loadFacilities()
+    
+    // 해당 지역의 대표시설만 필터링
+    const representativeFacilities = dataStore.facilities
+      .filter(f => 
+        f.isRepresentative === true &&
+        f.sido === sido && 
+        f.sigungu === sigungu &&
+        f.phone && f.phone !== ''  // 전화번호가 있는 시설만
+      )
+      .slice(0, 4) // 최대 4개
+    
+    // 대표시설이 있으면 그것을 반환
+    if (representativeFacilities.length > 0) {
+      const centers = representativeFacilities.map(f => ({
+        facilityName: f.name,
+        facilityType: f.type,
+        facilitySido: f.sido,
+        facilitySigungu: f.sigungu,
+        managerName: '상담 담당자',
+        managerPhone: f.phone,
+        isRepresentative: true
+      }))
+      
+      return c.json({ 
+        centers: centers,
+        count: centers.length
+      })
+    }
+    
+    // 대표시설이 없으면 기존 로직 (partners에서 가져오기)
+    const regionalCenters = dataStore.partners
+      .filter(partner => 
+        partner.approvalStatus === 'approved' && 
+        partner.facilitySido === sido && 
+        partner.facilitySigungu === sigungu
+      )
+      .slice(0, 4)
+    
+    return c.json({ 
+      centers: regionalCenters,
+      count: regionalCenters.length
+    })
+  } catch (error) {
+    console.error('대표시설 조회 오류:', error)
+    return c.json({ centers: [], count: 0 })
+  }
 })
 
 app.get('/api/admin/data', (c) => {
@@ -2344,6 +2452,20 @@ app.post('/api/admin/partner/set-representative', async (c) => {
   }
 })
 
+// 시설 데이터 로드 함수
+async function loadFacilities() {
+  if (!dataStore.facilitiesLoaded) {
+    try {
+      const response = await fetch('https://3000-i9rvbxi0ydi8a2ltypzm7-cbeee0f9.sandbox.novita.ai/static/facilities.json')
+      dataStore.facilities = await response.json()
+      dataStore.facilitiesLoaded = true
+      console.log(`Loaded ${dataStore.facilities.length} facilities`)
+    } catch (error) {
+      console.error('Failed to load facilities:', error)
+    }
+  }
+}
+
 // 시설 정보 업데이트 API
 app.post('/api/admin/facility/update', async (c) => {
   if (!isAdmin(c)) {
@@ -2353,16 +2475,32 @@ app.post('/api/admin/facility/update', async (c) => {
   try {
     const data = await c.req.json()
     
-    // 메모리의 시설 데이터 업데이트 (실제 환경에서는 D1 Database 사용)
-    // 현재는 메모리 업데이트만 수행 (서버 재시작 시 초기화됨)
-    // TODO: D1 Database 또는 KV Storage에 영구 저장
+    // 시설 데이터 로드
+    await loadFacilities()
+    
+    // 시설 찾기
+    const facility = dataStore.facilities.find((f: any) => f.id === data.id)
+    if (!facility) {
+      return c.json({ success: false, message: '시설을 찾을 수 없습니다.' }, 404)
+    }
+    
+    // 시설 정보 업데이트 (기존 lat, lng, isRepresentative는 유지)
+    facility.name = data.name
+    facility.type = data.type
+    facility.phone = data.phone || ''
+    facility.sido = data.sido
+    facility.sigungu = data.sigungu
+    facility.address = data.address
+    facility.zipcode = data.zipcode || ''
     
     return c.json({ 
       success: true, 
-      message: '시설 정보가 업데이트되었습니다.',
-      note: '현재는 메모리 업데이트만 수행됩니다. D1 Database 연동 후 영구 저장이 가능합니다.'
+      message: '시설 정보가 업데이트되었습니다. (메모리 업데이트)',
+      facility: facility,
+      note: '서버 재시작 시 초기화됩니다. 영구 저장을 위해서는 D1 Database가 필요합니다.'
     })
   } catch (error) {
+    console.error('시설 업데이트 오류:', error)
     return c.json({ success: false, message: '시설 정보 업데이트 실패' }, 500)
   }
 })
@@ -2376,15 +2514,117 @@ app.post('/api/admin/facility/set-representative', async (c) => {
   try {
     const { id, isRepresentative } = await c.req.json()
     
-    // 메모리의 시설 데이터 업데이트
-    // TODO: D1 Database에 영구 저장
+    // 시설 데이터 로드
+    await loadFacilities()
+    
+    // 대상 시설 찾기
+    const targetFacility = dataStore.facilities.find((f: any) => f.id === id)
+    if (!targetFacility) {
+      return c.json({ success: false, message: '시설을 찾을 수 없습니다.' }, 404)
+    }
+    
+    // 대표시설 지정 시, 같은 지역의 다른 대표시설 해제
+    if (isRepresentative) {
+      dataStore.facilities.forEach((f: any) => {
+        if (f.id !== id && 
+            f.sido === targetFacility.sido && 
+            f.sigungu === targetFacility.sigungu && 
+            f.isRepresentative) {
+          f.isRepresentative = false
+        }
+      })
+    }
+    
+    // 대상 시설의 대표시설 상태 변경
+    targetFacility.isRepresentative = isRepresentative
     
     return c.json({ 
       success: true, 
-      message: isRepresentative ? '대표시설로 지정되었습니다.' : '대표시설 지정이 해제되었습니다.'
+      message: isRepresentative ? '대표시설로 지정되었습니다. (메모리 업데이트)' : '대표시설 지정이 해제되었습니다. (메모리 업데이트)',
+      note: '서버 재시작 시 초기화됩니다.'
     })
   } catch (error) {
+    console.error('대표시설 설정 오류:', error)
     return c.json({ success: false, message: '대표시설 설정 실패' }, 500)
+  }
+})
+
+// 신규 시설 등록 API
+app.post('/api/admin/facility/create', async (c) => {
+  if (!isAdmin(c)) {
+    return c.json({ error: 'Unauthorized' }, 401)
+  }
+  
+  try {
+    const data = await c.req.json()
+    
+    // 시설 데이터 로드
+    await loadFacilities()
+    
+    // 새로운 ID 생성
+    const maxId = Math.max(...dataStore.facilities.map((f: any) => parseInt(f.id) || 0))
+    const newId = String(maxId + 1)
+    
+    // 새 시설 객체 생성
+    const newFacility = {
+      id: newId,
+      name: data.name,
+      type: data.type,
+      phone: data.phone || '',
+      sido: data.sido,
+      sigungu: data.sigungu,
+      address: data.address,
+      zipcode: data.zipcode || '',
+      lat: 0.0,
+      lng: 0.0,
+      isRepresentative: false
+    }
+    
+    // 배열에 추가
+    dataStore.facilities.push(newFacility)
+    
+    return c.json({ 
+      success: true, 
+      message: '새로운 시설이 등록되었습니다. (메모리 업데이트)',
+      facility: newFacility,
+      note: '서버 재시작 시 초기화됩니다. 영구 저장을 위해서는 D1 Database가 필요합니다.'
+    })
+  } catch (error) {
+    console.error('시설 등록 오류:', error)
+    return c.json({ success: false, message: '시설 등록 실패' }, 500)
+  }
+})
+
+// 시설 삭제 API
+app.post('/api/admin/facility/delete', async (c) => {
+  if (!isAdmin(c)) {
+    return c.json({ error: 'Unauthorized' }, 401)
+  }
+  
+  try {
+    const { id } = await c.req.json()
+    
+    // 시설 데이터 로드
+    await loadFacilities()
+    
+    // 시설 찾기
+    const index = dataStore.facilities.findIndex((f: any) => f.id === id)
+    if (index === -1) {
+      return c.json({ success: false, message: '시설을 찾을 수 없습니다.' }, 404)
+    }
+    
+    // 시설 제거
+    const deletedFacility = dataStore.facilities.splice(index, 1)[0]
+    
+    return c.json({ 
+      success: true, 
+      message: '시설이 삭제되었습니다. (메모리 업데이트)',
+      deleted: deletedFacility,
+      note: '서버 재시작 시 초기화됩니다. 영구 저장을 위해서는 D1 Database가 필요합니다.'
+    })
+  } catch (error) {
+    console.error('시설 삭제 오류:', error)
+    return c.json({ success: false, message: '시설 삭제 실패' }, 500)
   }
 })
 
