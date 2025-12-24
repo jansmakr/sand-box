@@ -4,9 +4,13 @@ import { cors } from 'hono/cors'
 import { serveStatic } from 'hono/cloudflare-workers'
 import { getCookie, setCookie } from 'hono/cookie'
 
-const app = new Hono()
+type Bindings = {
+  ADMIN_PASSWORD: string
+}
 
-const ADMIN_CONFIG = { password: '5874', sessionKey: 'admin_session' }
+const app = new Hono<{ Bindings: Bindings }>()
+
+const ADMIN_CONFIG = { sessionKey: 'admin_session' }
 const dataStore = { 
   partners: [] as any[], 
   familyCare: [] as any[],
@@ -920,7 +924,9 @@ app.post('/api/quote-request', async (c) => {
 app.post('/api/admin/login', async (c) => {
   try {
     const { password } = await c.req.json()
-    if (password === ADMIN_CONFIG.password) {
+    const adminPassword = c.env.ADMIN_PASSWORD || '5874' // fallback for local dev
+    
+    if (password === adminPassword) {
       const sessionId = generateSessionId()
       sessions.add(sessionId)
       setCookie(c, ADMIN_CONFIG.sessionKey, sessionId, {

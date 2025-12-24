@@ -108,7 +108,7 @@ cd webapp && npm install && npm run build
 - ✅ **성능 최적화**: 5.7MB CSV 클라이언트 사이드 로딩
 
 ### 8. 관리자 시스템
-- ✅ 관리자 로그인 (비밀번호: 5874)
+- ✅ 관리자 로그인 (환경 변수로 설정)
 - ✅ 대시보드 통계
 - ✅ 파트너 신청 목록 조회
 - ✅ **시설 주소 정보 표시** (NEW!)
@@ -309,7 +309,7 @@ npx wrangler pages deploy dist --project-name=carejoa-webapp
 
 ### 관리자 접속
 - URL: https://cf35b893.carejoa-webapp.pages.dev/admin
-- 비밀번호: 5874
+- 비밀번호: 환경 변수 `ADMIN_PASSWORD`로 설정 (wrangler.jsonc 참조)
 
 ## 📝 페이지 구조
 
@@ -369,7 +369,7 @@ npx wrangler pages deploy dist --project-name=carejoa-webapp
 
 ### 관리자
 1. 우측 상단 또는 모바일 하단 "관리자" 버튼 클릭
-2. 비밀번호(5874) 입력
+2. 관리자 비밀번호 입력 (환경 변수로 설정됨)
 3. 대시보드에서 신청 내역 확인
 4. **지역별 대표 상담센터 관리**
    - 파트너 목록에서 대표 센터로 지정할 시설 체크
@@ -431,9 +431,10 @@ npx wrangler pages deploy dist --project-name=carejoa-webapp
 - 평균 4.5점 만족도
 
 ## 🔒 보안
-- 관리자 비밀번호: 5874 (커스텀 설정 가능)
+- 관리자 비밀번호: 환경 변수 `ADMIN_PASSWORD`로 관리 (wrangler.jsonc에서 설정)
 - 세션 기반 인증 (1시간 유효)
 - CORS 활성화 (API 라우트)
+- 비밀번호 하드코딩 제거 (환경 변수 사용)
 
 ## 📞 연락처
 - **전화**: 070-7004-5902
