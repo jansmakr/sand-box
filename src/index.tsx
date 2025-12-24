@@ -16,9 +16,78 @@ const dataStore = {
   familyCare: [] as any[],
   quoteRequests: [] as any[],
   facilities: [] as any[],  // 시설 데이터 캐시
-  facilitiesLoaded: false    // 로딩 여부 플래그
+  facilitiesLoaded: false,   // 로딩 여부 플래그
+  users: [] as any[],        // 사용자 데이터
+  userSessions: new Map<string, any>()  // 사용자 세션
 }
 const sessions = new Set<string>()
+
+// 사용자 타입 정의
+type UserType = 'customer' | 'facility'
+type FacilityType = '요양병원' | '요양원' | '주야간보호' | '재가복지센터'
+
+// 테스트 사용자 데이터 초기화
+function initTestUsers() {
+  if (dataStore.users.length === 0) {
+    dataStore.users = [
+      // 고객 테스트 계정
+      { 
+        id: 'customer1', 
+        email: 'customer@test.com', 
+        password: '1234', 
+        name: '김철수',
+        type: 'customer' as UserType,
+        phone: '010-1234-5678',
+        createdAt: new Date().toISOString()
+      },
+      // 시설 테스트 계정
+      { 
+        id: 'facility1', 
+        email: 'hospital@test.com', 
+        password: '1234', 
+        name: '서울요양병원',
+        type: 'facility' as UserType,
+        facilityType: '요양병원' as FacilityType,
+        address: '서울특별시 강남구',
+        phone: '02-1234-5678',
+        createdAt: new Date().toISOString()
+      },
+      { 
+        id: 'facility2', 
+        email: 'care@test.com', 
+        password: '1234', 
+        name: '행복요양원',
+        type: 'facility' as UserType,
+        facilityType: '요양원' as FacilityType,
+        address: '경기도 성남시',
+        phone: '031-1234-5678',
+        createdAt: new Date().toISOString()
+      },
+      { 
+        id: 'facility3', 
+        email: 'daycare@test.com', 
+        password: '1234', 
+        name: '사랑주야간보호센터',
+        type: 'facility' as UserType,
+        facilityType: '주야간보호' as FacilityType,
+        address: '서울특별시 송파구',
+        phone: '02-2345-6789',
+        createdAt: new Date().toISOString()
+      },
+      { 
+        id: 'facility4', 
+        email: 'homecare@test.com', 
+        password: '1234', 
+        name: '편안한재가복지센터',
+        type: 'facility' as UserType,
+        facilityType: '재가복지센터' as FacilityType,
+        address: '인천광역시 남동구',
+        phone: '032-3456-7890',
+        createdAt: new Date().toISOString()
+      }
+    ]
+  }
+}
 
 function isAdmin(c: any) {
   const sessionId = getCookie(c, ADMIN_CONFIG.sessionKey)
@@ -29,9 +98,229 @@ function generateSessionId() {
   return 'session_' + Date.now() + '_' + Math.random().toString(36).substring(2)
 }
 
+// 사용자 인증 함수
+function getUser(c: any) {
+  const sessionId = getCookie(c, 'user_session')
+  if (!sessionId) return null
+  return dataStore.userSessions.get(sessionId) || null
+}
+
+function requireAuth(userType?: UserType) {
+  return async (c: any, next: any) => {
+    const user = getUser(c)
+    if (!user) {
+      return c.redirect('/login')
+    }
+    if (userType && user.type !== userType) {
+      return c.text('접근 권한이 없습니다.', 403)
+    }
+    c.set('user', user)
+    await next()
+  }
+}
+
 app.use('/api/*', cors())
 app.use('/static/*', serveStatic({ root: './public' }))
 app.use(renderer)
+
+// 테스트 사용자 초기화
+initTestUsers()
+
+// ========== 인증 관련 라우트 ==========
+
+// 로그인 페이지
+app.get('/login', (c) => {
+  return c.html(`
+    <!DOCTYPE html>
+    <html lang="ko">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>로그인 - 케어조아</title>
+      <script src="https://cdn.tailwindcss.com"></script>
+      <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+    </head>
+    <body class="bg-gradient-to-br from-teal-50 to-blue-50 min-h-screen">
+      <div class="container mx-auto px-4 py-8">
+        <div class="text-center mb-8">
+          <a href="/" class="inline-flex items-center">
+            <img 
+              src="https://page.gensparksite.com/v1/base64_upload/b39dca8586af1dacd6d8417554313896" 
+              alt="케어조아 로고"
+              class="h-12 w-auto mr-3"
+            />
+            <h1 class="text-4xl font-bold text-teal-600">케어조아</h1>
+          </a>
+          <p class="text-gray-600 mt-2">로그인 후 다양한 서비스를 이용하세요</p>
+        </div>
+
+        <div class="max-w-md mx-auto">
+          <div class="bg-white rounded-2xl shadow-xl p-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">
+              <i class="fas fa-sign-in-alt text-teal-600 mr-2"></i>로그인
+            </h2>
+
+            <div class="mb-6">
+              <label class="block text-sm font-medium text-gray-700 mb-3">로그인 유형</label>
+              <div class="grid grid-cols-2 gap-3">
+                <button type="button" id="btnCustomer" onclick="selectUserType('customer')"
+                  class="px-4 py-3 border-2 border-teal-600 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-medium">
+                  <i class="fas fa-user mr-2"></i>고객
+                </button>
+                <button type="button" id="btnFacility" onclick="selectUserType('facility')"
+                  class="px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-teal-600 hover:text-teal-600 transition-colors font-medium">
+                  <i class="fas fa-building mr-2"></i>시설
+                </button>
+              </div>
+            </div>
+
+            <form id="loginForm" onsubmit="handleLogin(event)">
+              <div class="space-y-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-envelope text-gray-400 mr-1"></i>이메일
+                  </label>
+                  <input type="email" id="email" required placeholder="example@email.com"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent" />
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-lock text-gray-400 mr-1"></i>비밀번호
+                  </label>
+                  <input type="password" id="password" required placeholder="••••••••"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent" />
+                </div>
+
+                <button type="submit"
+                  class="w-full bg-teal-600 text-white py-3 rounded-lg hover:bg-teal-700 transition-colors font-semibold text-lg">
+                  <i class="fas fa-sign-in-alt mr-2"></i>로그인
+                </button>
+              </div>
+            </form>
+
+            <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <p class="text-sm font-bold text-blue-800 mb-2">
+                <i class="fas fa-info-circle mr-1"></i>테스트 계정
+              </p>
+              <div class="text-xs text-blue-700 space-y-1">
+                <p><strong>고객:</strong> customer@test.com / 1234</p>
+                <p><strong>요양병원:</strong> hospital@test.com / 1234</p>
+                <p><strong>요양원:</strong> care@test.com / 1234</p>
+                <p><strong>주야간보호:</strong> daycare@test.com / 1234</p>
+                <p><strong>재가복지센터:</strong> homecare@test.com / 1234</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        let selectedUserType = 'customer';
+
+        function selectUserType(type) {
+          selectedUserType = type;
+          const btnCustomer = document.getElementById('btnCustomer');
+          const btnFacility = document.getElementById('btnFacility');
+
+          if (type === 'customer') {
+            btnCustomer.className = 'px-4 py-3 border-2 border-teal-600 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-medium';
+            btnFacility.className = 'px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-teal-600 hover:text-teal-600 transition-colors font-medium';
+          } else {
+            btnFacility.className = 'px-4 py-3 border-2 border-teal-600 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-medium';
+            btnCustomer.className = 'px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-teal-600 hover:text-teal-600 transition-colors font-medium';
+          }
+        }
+
+        async function handleLogin(event) {
+          event.preventDefault();
+          
+          const email = document.getElementById('email').value;
+          const password = document.getElementById('password').value;
+
+          try {
+            const response = await fetch('/api/auth/login', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email, password, type: selectedUserType })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+              alert('로그인 성공!');
+              if (data.user.type === 'customer') {
+                window.location.href = '/dashboard/customer';
+              } else {
+                window.location.href = '/dashboard/facility';
+              }
+            } else {
+              alert(data.message || '로그인 실패');
+            }
+          } catch (error) {
+            alert('로그인 중 오류가 발생했습니다.');
+            console.error(error);
+          }
+        }
+      </script>
+    </body>
+    </html>
+  `)
+})
+
+// 로그인 API
+app.post('/api/auth/login', async (c) => {
+  const { email, password, type } = await c.req.json()
+  
+  const user = dataStore.users.find(u => 
+    u.email === email && 
+    u.password === password &&
+    u.type === type
+  )
+
+  if (!user) {
+    return c.json({ success: false, message: '이메일 또는 비밀번호가 올바르지 않습니다.' })
+  }
+
+  const sessionId = generateSessionId()
+  dataStore.userSessions.set(sessionId, user)
+  
+  setCookie(c, 'user_session', sessionId, {
+    httpOnly: true,
+    secure: false,
+    sameSite: 'Lax',
+    maxAge: 60 * 60 * 24 * 7 // 7일
+  })
+
+  return c.json({ 
+    success: true, 
+    message: '로그인 성공',
+    user: {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      type: user.type,
+      facilityType: user.facilityType
+    }
+  })
+})
+
+// 로그아웃 API
+app.post('/api/auth/logout', (c) => {
+  const sessionId = getCookie(c, 'user_session')
+  if (sessionId) {
+    dataStore.userSessions.delete(sessionId)
+  }
+  
+  setCookie(c, 'user_session', '', {
+    httpOnly: true,
+    maxAge: 0
+  })
+
+  return c.json({ success: true, message: '로그아웃되었습니다.' })
+})
+
+// ========== 대시보드 라우트 ========== (대시보드는 다음에 구현)
 
 // 메인 페이지 (전체 디자인)
 app.get('/', (c) => {
@@ -61,6 +350,9 @@ app.get('/', (c) => {
               </a>
               <a href="#partner-section" class="bg-gray-600 text-white hover:bg-gray-700 px-3 py-2 rounded-lg">
                 <i class="fas fa-handshake mr-1"></i>입점신청
+              </a>
+              <a href="/login" class="bg-teal-600 text-white hover:bg-teal-700 px-3 py-2 rounded-lg">
+                <i class="fas fa-sign-in-alt mr-1"></i>로그인
               </a>
               <a href="/admin" class="bg-gray-900 text-white hover:bg-black px-3 py-2 rounded-lg">
                 <i class="fas fa-shield-alt mr-1"></i>관리자
@@ -4266,6 +4558,345 @@ app.get('/quote-new', (c) => {
       `}}></script>
     </div>
   )
+})
+
+// ========== 대시보드 라우트 ==========
+
+// 고객 대시보드
+app.get('/dashboard/customer', (c) => {
+  const user = getUser(c)
+  
+  if (!user || user.type !== 'customer') {
+    return c.redirect('/login')
+  }
+
+  return c.html(`
+    <!DOCTYPE html>
+    <html lang="ko">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>고객 대시보드 - 케어조아</title>
+      <script src="https://cdn.tailwindcss.com"></script>
+      <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+    </head>
+    <body class="bg-gray-50">
+      <!-- 헤더 -->
+      <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex justify-between items-center h-16">
+            <div class="flex items-center">
+              <img src="https://page.gensparksite.com/v1/base64_upload/b39dca8586af1dacd6d8417554313896" 
+                   alt="케어조아 로고" class="h-8 w-auto mr-3" />
+              <h1 class="text-2xl font-bold text-teal-600">케어조아</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+              <span class="text-gray-700">
+                <i class="fas fa-user-circle text-teal-600 mr-2"></i>
+                <strong>${user.name}</strong>님
+              </span>
+              <button onclick="handleLogout()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
+                <i class="fas fa-sign-out-alt mr-1"></i>로그아웃
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- 메인 컨텐츠 -->
+      <div class="max-w-7xl mx-auto px-4 py-8">
+        <div class="mb-8">
+          <h2 class="text-3xl font-bold text-gray-800 mb-2">
+            <i class="fas fa-tachometer-alt text-teal-600 mr-3"></i>
+            고객 대시보드
+          </h2>
+          <p class="text-gray-600">안녕하세요, ${user.name}님! 요양시설 비교 및 견적 관리를 한눈에 확인하세요.</p>
+        </div>
+
+        <!-- 통계 카드 -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-600 text-sm">견적 신청</p>
+                <p class="text-3xl font-bold text-gray-800 mt-1">0</p>
+              </div>
+              <div class="bg-blue-100 p-4 rounded-full">
+                <i class="fas fa-file-invoice text-blue-600 text-2xl"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-600 text-sm">받은 견적서</p>
+                <p class="text-3xl font-bold text-gray-800 mt-1">0</p>
+              </div>
+              <div class="bg-green-100 p-4 rounded-full">
+                <i class="fas fa-envelope-open-text text-green-600 text-2xl"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-purple-500">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-600 text-sm">찜한 시설</p>
+                <p class="text-3xl font-bold text-gray-800 mt-1">0</p>
+              </div>
+              <div class="bg-purple-100 p-4 rounded-full">
+                <i class="fas fa-heart text-purple-600 text-2xl"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-orange-500">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-600 text-sm">상담 진행</p>
+                <p class="text-3xl font-bold text-gray-800 mt-1">0</p>
+              </div>
+              <div class="bg-orange-100 p-4 rounded-full">
+                <i class="fas fa-comments text-orange-600 text-2xl"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 빠른 액션 버튼 -->
+        <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+          <h3 class="text-xl font-bold text-gray-800 mb-4">
+            <i class="fas fa-bolt text-yellow-500 mr-2"></i>
+            빠른 액션
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <a href="/quote-request" class="bg-teal-600 text-white p-4 rounded-lg hover:bg-teal-700 transition-colors text-center">
+              <i class="fas fa-plus-circle text-2xl mb-2"></i>
+              <p class="font-semibold">간편 견적 신청</p>
+            </a>
+            <a href="/facilities" class="bg-blue-600 text-white p-4 rounded-lg hover:bg-blue-700 transition-colors text-center">
+              <i class="fas fa-search text-2xl mb-2"></i>
+              <p class="font-semibold">시설 찾기</p>
+            </a>
+            <a href="/regional-consultation" class="bg-green-600 text-white p-4 rounded-lg hover:bg-green-700 transition-colors text-center">
+              <i class="fas fa-phone text-2xl mb-2"></i>
+              <p class="font-semibold">전화 상담</p>
+            </a>
+          </div>
+        </div>
+
+        <!-- 최근 활동 -->
+        <div class="bg-white rounded-xl shadow-md p-6">
+          <h3 class="text-xl font-bold text-gray-800 mb-4">
+            <i class="fas fa-history text-gray-600 mr-2"></i>
+            최근 활동
+          </h3>
+          <div class="text-center py-8 text-gray-500">
+            <i class="fas fa-inbox text-4xl mb-2"></i>
+            <p>아직 활동 내역이 없습니다.</p>
+            <p class="text-sm mt-2">견적을 신청하거나 시설을 검색해보세요!</p>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        async function handleLogout() {
+          try {
+            const response = await fetch('/api/auth/logout', { method: 'POST' });
+            if (response.ok) {
+              alert('로그아웃되었습니다.');
+              window.location.href = '/';
+            }
+          } catch (error) {
+            console.error(error);
+            alert('로그아웃 중 오류가 발생했습니다.');
+          }
+        }
+      </script>
+    </body>
+    </html>
+  `)
+})
+
+// 시설 대시보드
+app.get('/dashboard/facility', (c) => {
+  const user = getUser(c)
+  
+  if (!user || user.type !== 'facility') {
+    return c.redirect('/login')
+  }
+
+  return c.html(`
+    <!DOCTYPE html>
+    <html lang="ko">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>시설 대시보드 - 케어조아</title>
+      <script src="https://cdn.tailwindcss.com"></script>
+      <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+    </head>
+    <body class="bg-gray-50">
+      <!-- 헤더 -->
+      <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex justify-between items-center h-16">
+            <div class="flex items-center">
+              <img src="https://page.gensparksite.com/v1/base64_upload/b39dca8586af1dacd6d8417554313896" 
+                   alt="케어조아 로고" class="h-8 w-auto mr-3" />
+              <h1 class="text-2xl font-bold text-teal-600">케어조아</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+              <span class="text-gray-700">
+                <i class="fas fa-building text-teal-600 mr-2"></i>
+                <strong>${user.name}</strong>
+                <span class="text-sm text-gray-500 ml-2">(${user.facilityType})</span>
+              </span>
+              <button onclick="handleLogout()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
+                <i class="fas fa-sign-out-alt mr-1"></i>로그아웃
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- 메인 컨텐츠 -->
+      <div class="max-w-7xl mx-auto px-4 py-8">
+        <div class="mb-8">
+          <h2 class="text-3xl font-bold text-gray-800 mb-2">
+            <i class="fas fa-hospital-alt text-teal-600 mr-3"></i>
+            시설 대시보드
+          </h2>
+          <p class="text-gray-600">안녕하세요, ${user.name}님! 시설 운영 현황을 한눈에 확인하세요.</p>
+        </div>
+
+        <!-- 시설 정보 카드 -->
+        <div class="bg-gradient-to-r from-teal-500 to-blue-500 text-white rounded-xl shadow-lg p-6 mb-8">
+          <h3 class="text-2xl font-bold mb-4">
+            <i class="fas fa-building mr-2"></i>
+            ${user.name}
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+            <div>
+              <p class="opacity-80">시설 유형</p>
+              <p class="text-lg font-semibold">${user.facilityType}</p>
+            </div>
+            <div>
+              <p class="opacity-80">주소</p>
+              <p class="text-lg font-semibold">${user.address}</p>
+            </div>
+            <div>
+              <p class="opacity-80">연락처</p>
+              <p class="text-lg font-semibold">${user.phone}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 통계 카드 -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-600 text-sm">받은 견적요청</p>
+                <p class="text-3xl font-bold text-gray-800 mt-1">0</p>
+              </div>
+              <div class="bg-blue-100 p-4 rounded-full">
+                <i class="fas fa-inbox text-blue-600 text-2xl"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-600 text-sm">발송한 견적서</p>
+                <p class="text-3xl font-bold text-gray-800 mt-1">0</p>
+              </div>
+              <div class="bg-green-100 p-4 rounded-full">
+                <i class="fas fa-paper-plane text-green-600 text-2xl"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-purple-500">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-600 text-sm">상담 진행중</p>
+                <p class="text-3xl font-bold text-gray-800 mt-1">0</p>
+              </div>
+              <div class="bg-purple-100 p-4 rounded-full">
+                <i class="fas fa-comments text-purple-600 text-2xl"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-orange-500">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-600 text-sm">계약 성사</p>
+                <p class="text-3xl font-bold text-gray-800 mt-1">0</p>
+              </div>
+              <div class="bg-orange-100 p-4 rounded-full">
+                <i class="fas fa-handshake text-orange-600 text-2xl"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 빠른 액션 버튼 -->
+        <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+          <h3 class="text-xl font-bold text-gray-800 mb-4">
+            <i class="fas fa-bolt text-yellow-500 mr-2"></i>
+            빠른 액션
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <button class="bg-teal-600 text-white p-4 rounded-lg hover:bg-teal-700 transition-colors">
+              <i class="fas fa-edit text-2xl mb-2"></i>
+              <p class="font-semibold">시설 정보 수정</p>
+            </button>
+            <button class="bg-blue-600 text-white p-4 rounded-lg hover:bg-blue-700 transition-colors">
+              <i class="fas fa-dollar-sign text-2xl mb-2"></i>
+              <p class="font-semibold">요금표 관리</p>
+            </button>
+            <button class="bg-green-600 text-white p-4 rounded-lg hover:bg-green-700 transition-colors">
+              <i class="fas fa-images text-2xl mb-2"></i>
+              <p class="font-semibold">시설 사진 관리</p>
+            </button>
+          </div>
+        </div>
+
+        <!-- 최근 견적 요청 -->
+        <div class="bg-white rounded-xl shadow-md p-6">
+          <h3 class="text-xl font-bold text-gray-800 mb-4">
+            <i class="fas fa-list text-gray-600 mr-2"></i>
+            최근 견적 요청
+          </h3>
+          <div class="text-center py-8 text-gray-500">
+            <i class="fas fa-inbox text-4xl mb-2"></i>
+            <p>받은 견적 요청이 없습니다.</p>
+            <p class="text-sm mt-2">고객들의 견적 요청을 기다려주세요!</p>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        async function handleLogout() {
+          try {
+            const response = await fetch('/api/auth/logout', { method: 'POST' });
+            if (response.ok) {
+              alert('로그아웃되었습니다.');
+              window.location.href = '/';
+            }
+          } catch (error) {
+            console.error(error);
+            alert('로그아웃 중 오류가 발생했습니다.');
+          }
+        }
+      </script>
+    </body>
+    </html>
+  `)
 })
 
 export default app
