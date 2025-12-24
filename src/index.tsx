@@ -890,7 +890,7 @@ app.get('/facilities', (c) => {
         // 페이지 로드 시 시설 데이터 불러오기
         async function loadFacilities() {
           try {
-            const response = await fetch('/static/facilities_5.json');
+            const response = await fetch('/static/facilities.json');
             allFacilities = await response.json();
             filteredFacilities = [...allFacilities];
             
