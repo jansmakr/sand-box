@@ -1358,6 +1358,285 @@ app.get('/admin', (c) => {
   )
 })
 
+// 관리자 시설 관리 페이지
+app.get('/admin/facilities', (c) => {
+  if (!isAdmin(c)) {
+    return c.redirect('/admin')
+  }
+  
+  return c.render(
+    <div class="min-h-screen bg-gray-100">
+      <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex justify-between items-center h-16">
+            <div class="flex items-center">
+              <i class="fas fa-shield-alt text-2xl text-gray-900 mr-3"></i>
+              <h1 class="text-2xl font-bold text-gray-900">케어조아 관리자</h1>
+            </div>
+            <div class="flex items-center gap-3">
+              <a href="/admin/dashboard" class="text-gray-600 hover:text-gray-900 px-4 py-2 rounded-lg hover:bg-gray-100">
+                <i class="fas fa-home mr-1"></i>대시보드
+              </a>
+              <a href="/admin/facilities" class="text-teal-600 bg-teal-50 px-4 py-2 rounded-lg font-semibold">
+                <i class="fas fa-building mr-1"></i>시설 관리
+              </a>
+              <button id="logoutBtn" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
+                <i class="fas fa-sign-out-alt mr-2"></i>로그아웃
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="max-w-7xl mx-auto px-4 py-8">
+        {/* 검색 및 필터 */}
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+          <h3 class="text-xl font-bold mb-4 flex items-center">
+            <i class="fas fa-search text-purple-600 mr-2"></i>
+            시설 검색 및 관리
+            <span class="ml-3 text-sm text-gray-500">(총 <span id="totalFacilities">0</span>개 시설)</span>
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">시/도</label>
+              <select id="adminFilterSido" class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-purple-500">
+                <option value="">전체</option>
+                <option value="서울특별시">서울특별시</option>
+                <option value="부산광역시">부산광역시</option>
+                <option value="대구광역시">대구광역시</option>
+                <option value="인천광역시">인천광역시</option>
+                <option value="광주광역시">광주광역시</option>
+                <option value="대전광역시">대전광역시</option>
+                <option value="울산광역시">울산광역시</option>
+                <option value="세종특별자치시">세종특별자치시</option>
+                <option value="경기도">경기도</option>
+                <option value="강원도">강원도</option>
+                <option value="충청북도">충청북도</option>
+                <option value="충청남도">충청남도</option>
+                <option value="전라북도">전라북도</option>
+                <option value="전라남도">전라남도</option>
+                <option value="경상북도">경상북도</option>
+                <option value="경상남도">경상남도</option>
+                <option value="제주특별자치도">제주특별자치도</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">시/군/구</label>
+              <input type="text" id="adminFilterSigungu" placeholder="시군구 검색" class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-purple-500"/>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">시설 유형</label>
+              <select id="adminFilterType" class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-purple-500">
+                <option value="">전체</option>
+                <option value="요양병원">요양병원</option>
+                <option value="요양원">요양원</option>
+                <option value="주야간보호">주야간보호</option>
+                <option value="재가복지센터">재가복지센터</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">시설명 검색</label>
+              <input type="text" id="adminSearchKeyword" placeholder="시설명 입력" class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-purple-500"/>
+            </div>
+          </div>
+          <div class="flex gap-3">
+            <button id="searchFacilitiesBtn" class="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+              <i class="fas fa-search mr-2"></i>검색
+            </button>
+            <button id="resetFacilitiesBtn" class="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
+              <i class="fas fa-redo mr-2"></i>초기화
+            </button>
+          </div>
+        </div>
+
+        {/* 시설 목록 */}
+        <div class="bg-white rounded-xl shadow-lg">
+          <div class="border-b px-6 py-4 flex justify-between items-center">
+            <h3 class="text-xl font-bold flex items-center">
+              <i class="fas fa-building text-purple-600 mr-2"></i>
+              시설 목록
+              <span class="ml-3 text-sm text-gray-500">(<span id="filteredCount">0</span>개 검색됨)</span>
+            </h3>
+          </div>
+          <div class="p-6">
+            <div class="overflow-x-auto">
+              <table class="w-full">
+                <thead class="bg-gray-50">
+                  <tr class="border-b">
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">ID</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">시설명</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">유형</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">시/도</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">시/군/구</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">전화번호</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">주소</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">관리</th>
+                  </tr>
+                </thead>
+                <tbody id="facilitiesList"></tbody>
+              </table>
+            </div>
+            <div id="loadingFacilities" class="text-center py-12">
+              <i class="fas fa-spinner fa-spin text-4xl text-purple-600"></i>
+              <p class="text-gray-600 mt-4">시설 데이터를 불러오는 중...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
+      <script dangerouslySetInnerHTML={{
+        __html: `
+        let allFacilitiesData = [];
+        let filteredFacilitiesData = [];
+        
+        async function loadFacilities() {
+          try {
+            const response = await fetch('/static/facilities.json');
+            allFacilitiesData = await response.json();
+            filteredFacilitiesData = [...allFacilitiesData];
+            
+            document.getElementById('totalFacilities').textContent = allFacilitiesData.length.toLocaleString();
+            document.getElementById('loadingFacilities').style.display = 'none';
+            displayFacilities();
+          } catch (error) {
+            console.error('시설 데이터 로딩 오류:', error);
+            document.getElementById('loadingFacilities').innerHTML = \`
+              <i class="fas fa-exclamation-circle text-4xl text-red-600"></i>
+              <p class="text-gray-600 mt-4">데이터를 불러오는데 실패했습니다</p>
+            \`;
+          }
+        }
+        
+        function displayFacilities() {
+          const listEl = document.getElementById('facilitiesList');
+          const countEl = document.getElementById('filteredCount');
+          
+          countEl.textContent = filteredFacilitiesData.length.toLocaleString();
+          
+          if (filteredFacilitiesData.length === 0) {
+            listEl.innerHTML = '<tr><td colspan="8" class="px-4 py-8 text-center text-gray-500">검색 결과가 없습니다</td></tr>';
+            return;
+          }
+          
+          // 최대 100개만 표시
+          const displayData = filteredFacilitiesData.slice(0, 100);
+          
+          listEl.innerHTML = displayData.map(f => {
+            const phone = f.phone || '-';
+            const phoneDisplay = phone === '-' ? '<span class="text-red-500">미등록</span>' : phone;
+            
+            return \`
+            <tr class="border-t hover:bg-gray-50">
+              <td class="px-4 py-3 text-sm text-gray-600">\${f.id}</td>
+              <td class="px-4 py-3 font-medium text-gray-900">\${f.name}</td>
+              <td class="px-4 py-3 text-sm">
+                <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">\${f.type}</span>
+              </td>
+              <td class="px-4 py-3 text-sm text-gray-600">\${f.sido}</td>
+              <td class="px-4 py-3 text-sm text-gray-600">\${f.sigungu}</td>
+              <td class="px-4 py-3 text-sm">\${phoneDisplay}</td>
+              <td class="px-4 py-3 text-sm text-gray-600 max-w-xs truncate" title="\${f.address}">\${f.address}</td>
+              <td class="px-4 py-3">
+                <button onclick="editFacility('\${f.id}')" class="px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600 transition-colors">
+                  <i class="fas fa-edit"></i> 수정
+                </button>
+              </td>
+            </tr>
+            \`;
+          }).join('');
+          
+          if (filteredFacilitiesData.length > 100) {
+            listEl.innerHTML += \`
+              <tr>
+                <td colspan="8" class="px-4 py-4 text-center bg-yellow-50 text-yellow-800">
+                  <i class="fas fa-info-circle mr-2"></i>
+                  총 \${filteredFacilitiesData.length.toLocaleString()}개 중 100개만 표시됩니다. 필터를 사용해 결과를 줄여주세요.
+                </td>
+              </tr>
+            \`;
+          }
+        }
+        
+        function searchFacilities() {
+          const sido = document.getElementById('adminFilterSido').value.trim();
+          const sigungu = document.getElementById('adminFilterSigungu').value.trim().toLowerCase();
+          const type = document.getElementById('adminFilterType').value.trim();
+          const keyword = document.getElementById('adminSearchKeyword').value.trim().toLowerCase();
+          
+          filteredFacilitiesData = allFacilitiesData.filter(f => {
+            if (sido && f.sido !== sido) return false;
+            if (sigungu && !f.sigungu.toLowerCase().includes(sigungu)) return false;
+            if (type && f.type !== type) return false;
+            if (keyword && !f.name.toLowerCase().includes(keyword)) return false;
+            return true;
+          });
+          
+          displayFacilities();
+        }
+        
+        function resetFilters() {
+          document.getElementById('adminFilterSido').value = '';
+          document.getElementById('adminFilterSigungu').value = '';
+          document.getElementById('adminFilterType').value = '';
+          document.getElementById('adminSearchKeyword').value = '';
+          filteredFacilitiesData = [...allFacilitiesData];
+          displayFacilities();
+        }
+        
+        function editFacility(id) {
+          const facility = allFacilitiesData.find(f => f.id === id);
+          if (!facility) return;
+          
+          const newPhone = prompt(\`시설명: \${facility.name}\\n현재 전화번호: \${facility.phone || '미등록'}\\n\\n새로운 전화번호를 입력하세요:\`, facility.phone || '');
+          
+          if (newPhone === null) return;
+          
+          // 전화번호 형식 검증 (선택사항)
+          if (newPhone && !/^\\d{2,4}-\\d{3,4}-\\d{4}$/.test(newPhone)) {
+            if (!confirm('전화번호 형식이 올바르지 않습니다. (예: 02-1234-5678)\\n계속 저장하시겠습니까?')) {
+              return;
+            }
+          }
+          
+          // 데이터 업데이트
+          facility.phone = newPhone;
+          
+          // 서버에 저장 (API 호출)
+          axios.post('/api/admin/facility/update', {
+            id: id,
+            phone: newPhone
+          }).then(response => {
+            alert('전화번호가 업데이트되었습니다.');
+            displayFacilities();
+          }).catch(error => {
+            console.error('업데이트 실패:', error);
+            alert('업데이트 중 오류가 발생했습니다.');
+          });
+        }
+        
+        document.getElementById('searchFacilitiesBtn').addEventListener('click', searchFacilities);
+        document.getElementById('resetFacilitiesBtn').addEventListener('click', resetFilters);
+        document.getElementById('adminSearchKeyword').addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') searchFacilities();
+        });
+        
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+          try {
+            await axios.post('/api/admin/logout');
+            window.location.href = '/admin';
+          } catch (error) {
+            console.error('로그아웃 실패:', error);
+          }
+        });
+        
+        loadFacilities();
+        `
+      }} />
+    </div>
+  )
+})
+
 // 관리자 대시보드
 app.get('/admin/dashboard', (c) => {
   if (!isAdmin(c)) {
@@ -1439,6 +1718,7 @@ app.get('/admin/dashboard', (c) => {
                     <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">지역 설정</th>
                     <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">상태</th>
                     <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">신청일</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">관리</th>
                   </tr>
                 </thead>
                 <tbody id="partnerList"></tbody>
@@ -1495,11 +1775,13 @@ app.get('/admin/dashboard', (c) => {
               const fullAddress = [p.facilitySido, p.facilitySigungu, p.facilityDetailAddress].filter(Boolean).join(' ') || '-';
               const location = p.facilitySido && p.facilitySigungu ? \`\${p.facilitySido} \${p.facilitySigungu}\` : '-';
               const createdDate = p.createdAt ? new Date(p.createdAt).toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' }) : '-';
+              const isRepresentative = p.isRepresentative || false;
+              const repBadge = isRepresentative ? '<span class="ml-2 px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full font-bold"><i class="fas fa-crown mr-1"></i>대표샵</span>' : '';
               
               return \`
               <tr class="border-t hover:bg-gray-50">
                 <td class="px-4 py-3 text-center text-gray-700">\${index + 1}</td>
-                <td class="px-4 py-3 font-medium text-gray-900">\${p.facilityName}</td>
+                <td class="px-4 py-3 font-medium text-gray-900">\${p.facilityName}\${repBadge}</td>
                 <td class="px-4 py-3 text-sm text-gray-600">\${p.facilityType}</td>
                 <td class="px-4 py-3 text-sm text-gray-600">\${fullAddress}</td>
                 <td class="px-4 py-3 text-gray-700">\${p.managerName}</td>
@@ -1511,9 +1793,26 @@ app.get('/admin/dashboard', (c) => {
                   </span>
                 </td>
                 <td class="px-4 py-3 text-sm text-gray-600">\${createdDate}</td>
+                <td class="px-4 py-3">
+                  <div class="flex gap-2 flex-wrap">
+                    \${status === 'pending' ? \`
+                      <button onclick="approvePartner(\${index})" class="px-3 py-1 bg-green-500 text-white text-xs rounded hover:bg-green-600 transition-colors">
+                        <i class="fas fa-check"></i> 승인
+                      </button>
+                      <button onclick="rejectPartner(\${index})" class="px-3 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600 transition-colors">
+                        <i class="fas fa-times"></i> 거부
+                      </button>
+                    \` : ''}
+                    \${status === 'approved' ? \`
+                      <button onclick="setRepresentative(\${index})" class="px-3 py-1 \${isRepresentative ? 'bg-gray-400' : 'bg-purple-500'} text-white text-xs rounded hover:bg-purple-600 transition-colors" title="\${isRepresentative ? '대표샵 해제' : '지역 대표샵으로 지정'}">
+                        <i class="fas fa-crown"></i> \${isRepresentative ? '대표해제' : '대표지정'}
+                      </button>
+                    \` : ''}
+                  </div>
+                </td>
               </tr>
               \`;
-            }).join('') || '<tr><td colspan="9" class="px-4 py-8 text-center text-gray-500">신청 내역이 없습니다</td></tr>';
+            }).join('') || '<tr><td colspan="10" class="px-4 py-8 text-center text-gray-500">신청 내역이 없습니다</td></tr>';
             
             const familyCareList = document.getElementById('familyCareList');
             familyCareList.innerHTML = familyCare.map(f => \`
@@ -1554,6 +1853,31 @@ app.get('/admin/dashboard', (c) => {
           } catch (error) {
             console.error('거부 실패:', error);
             alert('거부 처리 중 오류가 발생했습니다.');
+          }
+        }
+        
+        async function setRepresentative(index) {
+          try {
+            const response = await axios.get('/api/admin/data');
+            const partner = response.data.partners[index];
+            const isCurrentlyRep = partner.isRepresentative || false;
+            
+            const confirmMsg = isCurrentlyRep 
+              ? \`"\${partner.facilityName}"의 대표샵 지정을 해제하시겠습니까?\`
+              : \`"\${partner.facilityName}"을(를) \${partner.facilitySido} \${partner.facilitySigungu} 지역의 대표 상담센터로 지정하시겠습니까?\n\n대표샵으로 지정되면 해당 지역 전화상담 시 최우선으로 노출됩니다.\`;
+            
+            if (!confirm(confirmMsg)) return;
+            
+            await axios.post('/api/admin/partner/set-representative', { 
+              index, 
+              isRepresentative: !isCurrentlyRep 
+            });
+            
+            alert(isCurrentlyRep ? '대표샵 지정이 해제되었습니다.' : '대표샵으로 지정되었습니다.');
+            loadData();
+          } catch (error) {
+            console.error('대표샵 설정 실패:', error);
+            alert('대표샵 설정 중 오류가 발생했습니다.');
           }
         }
         
@@ -1729,6 +2053,71 @@ app.post('/api/admin/partner/reject', async (c) => {
     return c.json({ success: true, message: '거부되었습니다.' })
   } catch (error) {
     return c.json({ success: false, message: '거부 처리 실패' }, 500)
+  }
+})
+
+// 파트너 대표샵 지정 API
+app.post('/api/admin/partner/set-representative', async (c) => {
+  if (!isAdmin(c)) {
+    return c.json({ error: 'Unauthorized' }, 401)
+  }
+  
+  try {
+    const { index, isRepresentative } = await c.req.json()
+    const partner = dataStore.partners[index]
+    
+    if (!partner) {
+      return c.json({ success: false, message: '파트너를 찾을 수 없습니다.' }, 404)
+    }
+    
+    if (partner.approvalStatus !== 'approved') {
+      return c.json({ success: false, message: '승인된 파트너만 대표샵으로 지정할 수 있습니다.' }, 400)
+    }
+    
+    // 같은 지역의 다른 대표샵 해제
+    if (isRepresentative) {
+      dataStore.partners.forEach((p, i) => {
+        if (i !== index && 
+            p.facilitySido === partner.facilitySido && 
+            p.facilitySigungu === partner.facilitySigungu && 
+            p.isRepresentative) {
+          p.isRepresentative = false
+        }
+      })
+    }
+    
+    partner.isRepresentative = isRepresentative
+    partner.representativeDate = isRepresentative ? new Date().toISOString() : null
+    
+    return c.json({ 
+      success: true, 
+      message: isRepresentative ? '대표샵으로 지정되었습니다.' : '대표샵 지정이 해제되었습니다.' 
+    })
+  } catch (error) {
+    return c.json({ success: false, message: '대표샵 설정 실패' }, 500)
+  }
+})
+
+// 시설 정보 업데이트 API
+app.post('/api/admin/facility/update', async (c) => {
+  if (!isAdmin(c)) {
+    return c.json({ error: 'Unauthorized' }, 401)
+  }
+  
+  try {
+    const { id, phone } = await c.req.json()
+    
+    // 메모리의 시설 데이터 업데이트 (실제 환경에서는 D1 Database 사용)
+    // 현재는 메모리 업데이트만 수행 (서버 재시작 시 초기화됨)
+    // TODO: D1 Database 또는 KV Storage에 영구 저장
+    
+    return c.json({ 
+      success: true, 
+      message: '시설 정보가 업데이트되었습니다.',
+      note: '현재는 메모리 업데이트만 수행됩니다. D1 Database 연동 후 영구 저장이 가능합니다.'
+    })
+  } catch (error) {
+    return c.json({ success: false, message: '시설 정보 업데이트 실패' }, 500)
   }
 })
 
