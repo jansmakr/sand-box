@@ -815,10 +815,7 @@ app.get('/facilities', (c) => {
               </div>
             </div>
 
-            <div class="mt-4 flex justify-between items-center">
-              <div class="text-sm text-gray-600">
-                <span id="resultCount" class="font-bold text-purple-600">0</span>개의 시설이 검색되었습니다
-              </div>
+            <div class="mt-4 flex justify-end items-center">
               <button 
                 id="resetFilters"
                 class="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
@@ -895,10 +892,7 @@ app.get('/facilities', (c) => {
         // 시설 목록 표시
         function displayFacilities() {
           const listEl = document.getElementById('facilitiesList');
-          const countEl = document.getElementById('resultCount');
           const noResultsEl = document.getElementById('noResults');
-          
-          countEl.textContent = filteredFacilities.length;
           
           if (filteredFacilities.length === 0) {
             listEl.style.display = 'none';
