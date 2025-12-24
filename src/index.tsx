@@ -6,6 +6,7 @@ import { getCookie, setCookie } from 'hono/cookie'
 
 type Bindings = {
   ADMIN_PASSWORD: string
+  DB: D1Database
 }
 
 const app = new Hono<{ Bindings: Bindings }>()
@@ -5246,8 +5247,243 @@ app.get('/quote-new', (c) => {
 
 // ========== 대시보드 라우트 ==========
 
+// ========== 견적 요청/응답 시스템 API ==========
+
+// 고객 대시보드 데이터 조회 API
+app.get('/api/customer/dashboard', async (c) => {
+  const user = getUser(c)
+  
+  if (!user || user.type !== 'customer') {
+    return c.json({ success: false, message: '인증 필요' }, 401)
+  }
+
+  try {
+    const db = c.env.DB
+    
+    // 고객의 견적 요청 목록 조회
+    const quoteRequests = await db.prepare(`
+      SELECT 
+        id, quote_id, quote_type, applicant_name, 
+        patient_name, patient_age, sido, sigungu, 
+        facility_type, status, created_at
+      FROM quote_requests
+      WHERE applicant_phone = ? OR applicant_email = ?
+      ORDER BY created_at DESC
+    `).bind(user.phone, user.email).all()
+    
+    // 각 견적 요청에 대한 응답 개수 조회
+    const requestsWithResponses = await Promise.all(
+      quoteRequests.results.map(async (req: any) => {
+        const responses = await db.prepare(`
+          SELECT COUNT(*) as count
+          FROM quote_responses
+          WHERE quote_id = ?
+        `).bind(req.quote_id).first()
+        
+        return {
+          ...req,
+          responseCount: responses?.count || 0
+        }
+      })
+    )
+    
+    // 받은 견적서 총 개수
+    const allResponses = await db.prepare(`
+      SELECT COUNT(*) as count
+      FROM quote_responses
+      WHERE quote_id IN (
+        SELECT quote_id FROM quote_requests 
+        WHERE applicant_phone = ? OR applicant_email = ?
+      )
+    `).bind(user.phone, user.email).first()
+    
+    return c.json({
+      success: true,
+      data: {
+        quoteRequests: requestsWithResponses,
+        stats: {
+          totalRequests: quoteRequests.results.length,
+          totalResponses: allResponses?.count || 0,
+          savedFacilities: 0,
+          activeConsultations: 0
+        }
+      }
+    })
+  } catch (error) {
+    console.error('고객 대시보드 데이터 조회 오류:', error)
+    return c.json({ success: false, message: '데이터 조회 실패' }, 500)
+  }
+})
+
+// 시설 대시보드 데이터 조회 API
+app.get('/api/facility/dashboard', async (c) => {
+  const user = getUser(c)
+  
+  if (!user || user.type !== 'facility') {
+    return c.json({ success: false, message: '인증 필요' }, 401)
+  }
+
+  try {
+    const db = c.env.DB
+    
+    // 시설이 속한 지역 파악
+    const userSido = user.address ? user.address.split(' ')[0] : ''
+    const userSigungu = user.address ? user.address.split(' ')[1] : ''
+    
+    // 해당 지역의 견적 요청 목록 조회
+    const quoteRequests = await db.prepare(`
+      SELECT 
+        id, quote_id, quote_type, applicant_name, applicant_phone,
+        patient_name, patient_age, sido, sigungu, 
+        facility_type, status, created_at
+      FROM quote_requests
+      WHERE sido = ? AND sigungu = ? AND facility_type = ?
+      AND status = 'pending'
+      ORDER BY created_at DESC
+      LIMIT 50
+    `).bind(userSido, userSigungu, user.facilityType).all()
+    
+    // 이미 응답한 견적 요청 제외
+    const requestsNotResponded = await Promise.all(
+      quoteRequests.results.map(async (req: any) => {
+        const response = await db.prepare(`
+          SELECT id FROM quote_responses
+          WHERE quote_id = ? AND partner_id = ?
+        `).bind(req.quote_id, user.id).first()
+        
+        return response ? null : req
+      })
+    )
+    
+    const filteredRequests = requestsNotResponded.filter(req => req !== null)
+    
+    // 내가 보낸 견적서 개수
+    const sentQuotes = await db.prepare(`
+      SELECT COUNT(*) as count
+      FROM quote_responses
+      WHERE partner_id = ?
+    `).bind(user.id).first()
+    
+    // 내가 보낸 견적서 목록
+    const myResponses = await db.prepare(`
+      SELECT 
+        qr.id, qr.response_id, qr.quote_id, qr.estimated_price,
+        qr.status, qr.created_at,
+        qq.applicant_name, qq.patient_name, qq.patient_age
+      FROM quote_responses qr
+      JOIN quote_requests qq ON qr.quote_id = qq.quote_id
+      WHERE qr.partner_id = ?
+      ORDER BY qr.created_at DESC
+      LIMIT 50
+    `).bind(user.id).all()
+    
+    return c.json({
+      success: true,
+      data: {
+        newRequests: filteredRequests,
+        myResponses: myResponses.results,
+        stats: {
+          newRequests: filteredRequests.length,
+          sentQuotes: sentQuotes?.count || 0,
+          viewedQuotes: 0,
+          activeConsultations: 0
+        }
+      }
+    })
+  } catch (error) {
+    console.error('시설 대시보드 데이터 조회 오류:', error)
+    return c.json({ success: false, message: '데이터 조회 실패' }, 500)
+  }
+})
+
+// 견적서 작성 및 전송 API
+app.post('/api/facility/send-quote', async (c) => {
+  const user = getUser(c)
+  
+  if (!user || user.type !== 'facility') {
+    return c.json({ success: false, message: '인증 필요' }, 401)
+  }
+
+  try {
+    const db = c.env.DB
+    const data = await c.req.json()
+    
+    const responseId = `QR${Date.now()}-${Math.random().toString(36).substring(2, 9).toUpperCase()}`
+    
+    // 견적서 저장
+    await db.prepare(`
+      INSERT INTO quote_responses (
+        response_id, quote_id, partner_id,
+        estimated_price, service_details, available_rooms, special_services,
+        response_message, contact_person, contact_phone,
+        status, created_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'sent', CURRENT_TIMESTAMP)
+    `).bind(
+      responseId,
+      data.quoteId,
+      user.id,
+      data.estimatedPrice,
+      data.serviceDetails,
+      data.availableRooms,
+      data.specialServices,
+      data.responseMessage,
+      user.name,
+      user.phone
+    ).run()
+    
+    return c.json({
+      success: true,
+      message: '견적서가 전송되었습니다.',
+      responseId
+    })
+  } catch (error) {
+    console.error('견적서 전송 오류:', error)
+    return c.json({ success: false, message: '견적서 전송 실패' }, 500)
+  }
+})
+
+// 고객이 받은 견적서 상세 조회 API
+app.get('/api/customer/quote-responses/:quoteId', async (c) => {
+  const user = getUser(c)
+  
+  if (!user || user.type !== 'customer') {
+    return c.json({ success: false, message: '인증 필요' }, 401)
+  }
+
+  try {
+    const db = c.env.DB
+    const quoteId = c.req.param('quoteId')
+    
+    // 견적 요청 정보 조회
+    const quoteRequest = await db.prepare(`
+      SELECT * FROM quote_requests WHERE quote_id = ?
+    `).bind(quoteId).first()
+    
+    if (!quoteRequest) {
+      return c.json({ success: false, message: '견적 요청을 찾을 수 없습니다.' }, 404)
+    }
+    
+    // 해당 견적에 대한 응답 목록 조회
+    const responses = await db.prepare(`
+      SELECT * FROM quote_responses WHERE quote_id = ?
+      ORDER BY created_at DESC
+    `).bind(quoteId).all()
+    
+    return c.json({
+      success: true,
+      data: {
+        quoteRequest,
+        responses: responses.results
+      }
+    })
+  } catch (error) {
+    console.error('견적서 조회 오류:', error)
+    return c.json({ success: false, message: '견적서 조회 실패' }, 500)
+  }
+})
+
 // 고객 대시보드
-app.get('/dashboard/customer', (c) => {
+app.get('/dashboard/customer', async (c) => {
   const user = getUser(c)
   
   if (!user || user.type !== 'customer') {
@@ -5306,7 +5542,7 @@ app.get('/dashboard/customer', (c) => {
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-gray-600 text-sm">견적 신청</p>
-                <p class="text-3xl font-bold text-gray-800 mt-1">0</p>
+                <p id="totalRequests" class="text-3xl font-bold text-gray-800 mt-1">0</p>
               </div>
               <div class="bg-blue-100 p-4 rounded-full">
                 <i class="fas fa-file-invoice text-blue-600 text-2xl"></i>
@@ -5318,7 +5554,7 @@ app.get('/dashboard/customer', (c) => {
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-gray-600 text-sm">받은 견적서</p>
-                <p class="text-3xl font-bold text-gray-800 mt-1">0</p>
+                <p id="totalResponses" class="text-3xl font-bold text-gray-800 mt-1">0</p>
               </div>
               <div class="bg-green-100 p-4 rounded-full">
                 <i class="fas fa-envelope-open-text text-green-600 text-2xl"></i>
@@ -5330,7 +5566,7 @@ app.get('/dashboard/customer', (c) => {
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-gray-600 text-sm">찜한 시설</p>
-                <p class="text-3xl font-bold text-gray-800 mt-1">0</p>
+                <p id="savedFacilities" class="text-3xl font-bold text-gray-800 mt-1">0</p>
               </div>
               <div class="bg-purple-100 p-4 rounded-full">
                 <i class="fas fa-heart text-purple-600 text-2xl"></i>
@@ -5342,7 +5578,7 @@ app.get('/dashboard/customer', (c) => {
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-gray-600 text-sm">상담 진행</p>
-                <p class="text-3xl font-bold text-gray-800 mt-1">0</p>
+                <p id="activeConsultations" class="text-3xl font-bold text-gray-800 mt-1">0</p>
               </div>
               <div class="bg-orange-100 p-4 rounded-full">
                 <i class="fas fa-comments text-orange-600 text-2xl"></i>
@@ -5373,21 +5609,148 @@ app.get('/dashboard/customer', (c) => {
           </div>
         </div>
 
-        <!-- 최근 활동 -->
+        <!-- 나의 견적 요청 목록 -->
         <div class="bg-white rounded-xl shadow-md p-6">
-          <h3 class="text-xl font-bold text-gray-800 mb-4">
-            <i class="fas fa-history text-gray-600 mr-2"></i>
-            최근 활동
-          </h3>
-          <div class="text-center py-8 text-gray-500">
-            <i class="fas fa-inbox text-4xl mb-2"></i>
-            <p>아직 활동 내역이 없습니다.</p>
-            <p class="text-sm mt-2">견적을 신청하거나 시설을 검색해보세요!</p>
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-bold text-gray-800">
+              <i class="fas fa-list-alt text-gray-600 mr-2"></i>
+              나의 견적 요청
+            </h3>
+            <a href="/quote-request" class="text-teal-600 hover:text-teal-700 text-sm font-medium">
+              <i class="fas fa-plus mr-1"></i>새 견적 신청
+            </a>
+          </div>
+          <div id="quoteRequestsList" class="space-y-4">
+            <!-- 로딩 중 -->
+            <div class="text-center py-8 text-gray-500">
+              <i class="fas fa-spinner fa-spin text-4xl mb-2"></i>
+              <p>데이터를 불러오는 중...</p>
+            </div>
           </div>
         </div>
       </div>
 
       <script>
+        let dashboardData = null;
+
+        // 대시보드 데이터 로드
+        async function loadDashboardData() {
+          try {
+            const response = await fetch('/api/customer/dashboard');
+            const result = await response.json();
+            
+            if (result.success) {
+              dashboardData = result.data;
+              updateStats(result.data.stats);
+              updateQuoteRequestsList(result.data.quoteRequests);
+            } else {
+              console.error('데이터 로드 실패:', result.message);
+              showEmptyState();
+            }
+          } catch (error) {
+            console.error('데이터 로드 오류:', error);
+            showEmptyState();
+          }
+        }
+
+        // 통계 업데이트
+        function updateStats(stats) {
+          document.getElementById('totalRequests').textContent = stats.totalRequests || 0;
+          document.getElementById('totalResponses').textContent = stats.totalResponses || 0;
+          document.getElementById('savedFacilities').textContent = stats.savedFacilities || 0;
+          document.getElementById('activeConsultations').textContent = stats.activeConsultations || 0;
+        }
+
+        // 견적 요청 목록 업데이트
+        function updateQuoteRequestsList(requests) {
+          const container = document.getElementById('quoteRequestsList');
+          
+          if (!requests || requests.length === 0) {
+            container.innerHTML = \`
+              <div class="text-center py-8 text-gray-500">
+                <i class="fas fa-inbox text-4xl mb-2"></i>
+                <p>아직 견적 신청 내역이 없습니다.</p>
+                <p class="text-sm mt-2">견적을 신청해보세요!</p>
+              </div>
+            \`;
+            return;
+          }
+
+          container.innerHTML = requests.map(req => {
+            const statusBadge = getStatusBadge(req.status);
+            const date = new Date(req.created_at).toLocaleDateString('ko-KR');
+            
+            return \`
+              <div class="border rounded-lg p-4 hover:shadow-lg transition-shadow cursor-pointer"
+                   onclick="viewQuoteDetails('\${req.quote_id}')">
+                <div class="flex justify-between items-start mb-2">
+                  <div>
+                    <h4 class="font-semibold text-gray-800 text-lg">
+                      <i class="fas fa-hospital text-teal-600 mr-2"></i>
+                      \${req.facility_type} 견적 신청
+                    </h4>
+                    <p class="text-sm text-gray-600 mt-1">
+                      <i class="fas fa-map-marker-alt mr-1"></i>
+                      \${req.sido} \${req.sigungu}
+                    </p>
+                  </div>
+                  <div class="text-right">
+                    \${statusBadge}
+                    <p class="text-sm text-gray-500 mt-1">\${date}</p>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between mt-3 pt-3 border-t">
+                  <div class="text-sm text-gray-600">
+                    <i class="fas fa-user mr-1"></i>
+                    환자: \${req.patient_name} (\${req.patient_age}세)
+                  </div>
+                  <div class="text-sm font-semibold text-teal-600">
+                    <i class="fas fa-envelope mr-1"></i>
+                    견적서 \${req.responseCount || 0}개 수신
+                  </div>
+                </div>
+              </div>
+            \`;
+          }).join('');
+        }
+
+        // 상태 배지 생성
+        function getStatusBadge(status) {
+          const statusMap = {
+            'pending': { text: '대기 중', color: 'yellow' },
+            'received': { text: '견적 수신', color: 'green' },
+            'completed': { text: '완료', color: 'blue' },
+            'cancelled': { text: '취소', color: 'red' }
+          };
+          
+          const statusInfo = statusMap[status] || { text: status, color: 'gray' };
+          
+          return \`
+            <span class="px-3 py-1 bg-\${statusInfo.color}-100 text-\${statusInfo.color}-800 text-xs font-semibold rounded-full">
+              \${statusInfo.text}
+            </span>
+          \`;
+        }
+
+        // 견적 상세 보기
+        function viewQuoteDetails(quoteId) {
+          window.location.href = \`/quote-details/\${quoteId}\`;
+        }
+
+        // 빈 상태 표시
+        function showEmptyState() {
+          const container = document.getElementById('quoteRequestsList');
+          container.innerHTML = \`
+            <div class="text-center py-8 text-gray-500">
+              <i class="fas fa-exclamation-circle text-4xl mb-2 text-red-500"></i>
+              <p>데이터를 불러올 수 없습니다.</p>
+              <button onclick="loadDashboardData()" class="mt-4 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700">
+                다시 시도
+              </button>
+            </div>
+          \`;
+        }
+
         async function handleLogout() {
           try {
             const response = await fetch('/api/auth/logout', { method: 'POST' });
@@ -5400,6 +5763,9 @@ app.get('/dashboard/customer', (c) => {
             alert('로그아웃 중 오류가 발생했습니다.');
           }
         }
+
+        // 페이지 로드 시 데이터 가져오기
+        window.addEventListener('DOMContentLoaded', loadDashboardData);
       </script>
     </body>
     </html>
@@ -5407,7 +5773,7 @@ app.get('/dashboard/customer', (c) => {
 })
 
 // 시설 대시보드
-app.get('/dashboard/facility', (c) => {
+app.get('/dashboard/facility', async (c) => {
   const user = getUser(c)
   
   if (!user || user.type !== 'facility') {
@@ -5489,7 +5855,7 @@ app.get('/dashboard/facility', (c) => {
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-gray-600 text-sm">받은 견적요청</p>
-                <p class="text-3xl font-bold text-gray-800 mt-1">0</p>
+                <p id="newRequests" class="text-3xl font-bold text-gray-800 mt-1">0</p>
               </div>
               <div class="bg-blue-100 p-4 rounded-full">
                 <i class="fas fa-inbox text-blue-600 text-2xl"></i>
@@ -5501,7 +5867,7 @@ app.get('/dashboard/facility', (c) => {
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-gray-600 text-sm">발송한 견적서</p>
-                <p class="text-3xl font-bold text-gray-800 mt-1">0</p>
+                <p id="sentQuotes" class="text-3xl font-bold text-gray-800 mt-1">0</p>
               </div>
               <div class="bg-green-100 p-4 rounded-full">
                 <i class="fas fa-paper-plane text-green-600 text-2xl"></i>
@@ -5513,7 +5879,7 @@ app.get('/dashboard/facility', (c) => {
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-gray-600 text-sm">상담 진행중</p>
-                <p class="text-3xl font-bold text-gray-800 mt-1">0</p>
+                <p id="activeConsultations" class="text-3xl font-bold text-gray-800 mt-1">0</p>
               </div>
               <div class="bg-purple-100 p-4 rounded-full">
                 <i class="fas fa-comments text-purple-600 text-2xl"></i>
@@ -5525,7 +5891,7 @@ app.get('/dashboard/facility', (c) => {
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-gray-600 text-sm">계약 성사</p>
-                <p class="text-3xl font-bold text-gray-800 mt-1">0</p>
+                <p id="viewedQuotes" class="text-3xl font-bold text-gray-800 mt-1">0</p>
               </div>
               <div class="bg-orange-100 p-4 rounded-full">
                 <i class="fas fa-handshake text-orange-600 text-2xl"></i>
@@ -5556,21 +5922,342 @@ app.get('/dashboard/facility', (c) => {
           </div>
         </div>
 
-        <!-- 최근 견적 요청 -->
+        <!-- 새로운 견적 요청 -->
+        <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+          <h3 class="text-xl font-bold text-gray-800 mb-4">
+            <i class="fas fa-bell text-yellow-500 mr-2"></i>
+            새로운 견적 요청
+          </h3>
+          <div id="newQuoteRequestsList" class="space-y-4">
+            <div class="text-center py-8 text-gray-500">
+              <i class="fas fa-spinner fa-spin text-4xl mb-2"></i>
+              <p>데이터를 불러오는 중...</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 내가 보낸 견적서 -->
         <div class="bg-white rounded-xl shadow-md p-6">
           <h3 class="text-xl font-bold text-gray-800 mb-4">
-            <i class="fas fa-list text-gray-600 mr-2"></i>
-            최근 견적 요청
+            <i class="fas fa-paper-plane text-gray-600 mr-2"></i>
+            내가 보낸 견적서
           </h3>
-          <div class="text-center py-8 text-gray-500">
-            <i class="fas fa-inbox text-4xl mb-2"></i>
-            <p>받은 견적 요청이 없습니다.</p>
-            <p class="text-sm mt-2">고객들의 견적 요청을 기다려주세요!</p>
+          <div id="myResponsesList" class="space-y-4">
+            <div class="text-center py-8 text-gray-500">
+              <i class="fas fa-spinner fa-spin text-4xl mb-2"></i>
+              <p>데이터를 불러오는 중...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 견적서 작성 모달 -->
+      <div id="quoteModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto m-4">
+          <div class="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center">
+            <h3 class="text-2xl font-bold text-gray-800">
+              <i class="fas fa-file-invoice text-teal-600 mr-2"></i>
+              견적서 작성
+            </h3>
+            <button onclick="closeQuoteModal()" class="text-gray-500 hover:text-gray-700">
+              <i class="fas fa-times text-2xl"></i>
+            </button>
+          </div>
+          <div id="quoteModalContent" class="p-6">
+            <!-- 견적서 폼 내용 -->
           </div>
         </div>
       </div>
 
       <script>
+        let dashboardData = null;
+        let selectedRequest = null;
+
+        // 대시보드 데이터 로드
+        async function loadDashboardData() {
+          try {
+            const response = await fetch('/api/facility/dashboard');
+            const result = await response.json();
+            
+            if (result.success) {
+              dashboardData = result.data;
+              updateStats(result.data.stats);
+              updateNewRequestsList(result.data.newRequests);
+              updateMyResponsesList(result.data.myResponses);
+            } else {
+              console.error('데이터 로드 실패:', result.message);
+              showEmptyState('newQuoteRequestsList');
+              showEmptyState('myResponsesList');
+            }
+          } catch (error) {
+            console.error('데이터 로드 오류:', error);
+            showEmptyState('newQuoteRequestsList');
+            showEmptyState('myResponsesList');
+          }
+        }
+
+        // 통계 업데이트
+        function updateStats(stats) {
+          document.getElementById('newRequests').textContent = stats.newRequests || 0;
+          document.getElementById('sentQuotes').textContent = stats.sentQuotes || 0;
+          document.getElementById('activeConsultations').textContent = stats.activeConsultations || 0;
+          document.getElementById('viewedQuotes').textContent = stats.viewedQuotes || 0;
+        }
+
+        // 새로운 견적 요청 목록 업데이트
+        function updateNewRequestsList(requests) {
+          const container = document.getElementById('newQuoteRequestsList');
+          
+          if (!requests || requests.length === 0) {
+            container.innerHTML = \`
+              <div class="text-center py-8 text-gray-500">
+                <i class="fas fa-inbox text-4xl mb-2"></i>
+                <p>새로운 견적 요청이 없습니다.</p>
+                <p class="text-sm mt-2">고객들의 견적 요청을 기다려주세요!</p>
+              </div>
+            \`;
+            return;
+          }
+
+          container.innerHTML = requests.map(req => {
+            const date = new Date(req.created_at).toLocaleDateString('ko-KR');
+            
+            return \`
+              <div class="border-2 border-blue-200 rounded-lg p-4 bg-blue-50 hover:shadow-lg transition-shadow">
+                <div class="flex justify-between items-start mb-3">
+                  <div class="flex-1">
+                    <h4 class="font-bold text-gray-800 text-lg mb-1">
+                      <i class="fas fa-user text-blue-600 mr-2"></i>
+                      \${req.applicant_name}님의 견적 요청
+                    </h4>
+                    <p class="text-sm text-gray-600">
+                      <i class="fas fa-map-marker-alt mr-1"></i>
+                      \${req.sido} \${req.sigungu}
+                    </p>
+                  </div>
+                  <span class="px-3 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded-full">
+                    <i class="fas fa-clock mr-1"></i>신규
+                  </span>
+                </div>
+                <div class="grid grid-cols-2 gap-2 text-sm text-gray-600 mb-3">
+                  <div>
+                    <i class="fas fa-user-injured mr-1"></i>
+                    환자: \${req.patient_name} (\${req.patient_age}세)
+                  </div>
+                  <div>
+                    <i class="fas fa-phone mr-1"></i>
+                    \${req.applicant_phone}
+                  </div>
+                </div>
+                <div class="flex justify-between items-center pt-3 border-t">
+                  <span class="text-xs text-gray-500">\${date}</span>
+                  <button onclick="openQuoteModal('\${req.quote_id}')"
+                    class="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors text-sm font-semibold">
+                    <i class="fas fa-file-invoice mr-1"></i>견적서 작성
+                  </button>
+                </div>
+              </div>
+            \`;
+          }).join('');
+        }
+
+        // 내가 보낸 견적서 목록 업데이트
+        function updateMyResponsesList(responses) {
+          const container = document.getElementById('myResponsesList');
+          
+          if (!responses || responses.length === 0) {
+            container.innerHTML = \`
+              <div class="text-center py-8 text-gray-500">
+                <i class="fas fa-inbox text-4xl mb-2"></i>
+                <p>보낸 견적서가 없습니다.</p>
+                <p class="text-sm mt-2">새로운 견적 요청에 응답해보세요!</p>
+              </div>
+            \`;
+            return;
+          }
+
+          container.innerHTML = responses.map(res => {
+            const statusBadge = getResponseStatusBadge(res.status);
+            const date = new Date(res.created_at).toLocaleDateString('ko-KR');
+            const price = new Intl.NumberFormat('ko-KR').format(res.estimated_price);
+            
+            return \`
+              <div class="border rounded-lg p-4 hover:shadow-lg transition-shadow">
+                <div class="flex justify-between items-start mb-2">
+                  <div>
+                    <h4 class="font-semibold text-gray-800">
+                      <i class="fas fa-user text-gray-600 mr-2"></i>
+                      \${res.applicant_name}님께 전송
+                    </h4>
+                    <p class="text-sm text-gray-600 mt-1">
+                      환자: \${res.patient_name} (\${res.patient_age}세)
+                    </p>
+                  </div>
+                  \${statusBadge}
+                </div>
+                <div class="flex justify-between items-center pt-3 border-t mt-3">
+                  <span class="text-lg font-bold text-teal-600">월 \${price}원</span>
+                  <span class="text-sm text-gray-500">\${date}</span>
+                </div>
+              </div>
+            \`;
+          }).join('');
+        }
+
+        // 응답 상태 배지
+        function getResponseStatusBadge(status) {
+          const statusMap = {
+            'sent': { text: '전송됨', color: 'blue' },
+            'viewed': { text: '확인됨', color: 'green' },
+            'accepted': { text: '수락됨', color: 'purple' },
+            'rejected': { text: '거절됨', color: 'red' }
+          };
+          
+          const statusInfo = statusMap[status] || { text: status, color: 'gray' };
+          
+          return \`
+            <span class="px-3 py-1 bg-\${statusInfo.color}-100 text-\${statusInfo.color}-800 text-xs font-semibold rounded-full">
+              \${statusInfo.text}
+            </span>
+          \`;
+        }
+
+        // 견적서 모달 열기
+        async function openQuoteModal(quoteId) {
+          const request = dashboardData.newRequests.find(r => r.quote_id === quoteId);
+          if (!request) {
+            alert('견적 요청을 찾을 수 없습니다.');
+            return;
+          }
+          
+          selectedRequest = request;
+          
+          const modalContent = document.getElementById('quoteModalContent');
+          modalContent.innerHTML = \`
+            <div class="space-y-4">
+              <div class="bg-gray-50 p-4 rounded-lg">
+                <h4 class="font-bold text-gray-800 mb-2">견적 요청 정보</h4>
+                <div class="grid grid-cols-2 gap-2 text-sm">
+                  <div><strong>신청자:</strong> \${request.applicant_name}</div>
+                  <div><strong>연락처:</strong> \${request.applicant_phone}</div>
+                  <div><strong>환자:</strong> \${request.patient_name} (\${request.patient_age}세)</div>
+                  <div><strong>지역:</strong> \${request.sido} \${request.sigungu}</div>
+                </div>
+              </div>
+
+              <form onsubmit="handleSubmitQuote(event)" class="space-y-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">예상 월 비용 *</label>
+                  <input type="number" id="estimatedPrice" required
+                    placeholder="예: 2000000"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500" />
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">서비스 상세</label>
+                  <textarea id="serviceDetails" rows="3"
+                    placeholder="제공되는 서비스를 상세히 설명해주세요."
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"></textarea>
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">가용 병상/객실</label>
+                  <input type="text" id="availableRooms"
+                    placeholder="예: 1인실 2개, 2인실 1개"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500" />
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">특별 서비스</label>
+                  <input type="text" id="specialServices"
+                    placeholder="예: 물리치료, 작업치료, 언어치료"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500" />
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">추가 메시지</label>
+                  <textarea id="responseMessage" rows="3"
+                    placeholder="고객에게 전달할 메시지를 입력해주세요."
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"></textarea>
+                </div>
+
+                <div class="flex space-x-3">
+                  <button type="button" onclick="closeQuoteModal()"
+                    class="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                    취소
+                  </button>
+                  <button type="submit"
+                    class="flex-1 px-6 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-semibold">
+                    <i class="fas fa-paper-plane mr-2"></i>견적서 전송
+                  </button>
+                </div>
+              </form>
+            </div>
+          \`;
+          
+          document.getElementById('quoteModal').classList.remove('hidden');
+        }
+
+        // 견적서 모달 닫기
+        function closeQuoteModal() {
+          document.getElementById('quoteModal').classList.add('hidden');
+          selectedRequest = null;
+        }
+
+        // 견적서 제출
+        async function handleSubmitQuote(event) {
+          event.preventDefault();
+          
+          if (!selectedRequest) {
+            alert('견적 요청 정보가 없습니다.');
+            return;
+          }
+
+          const data = {
+            quoteId: selectedRequest.quote_id,
+            estimatedPrice: parseInt(document.getElementById('estimatedPrice').value),
+            serviceDetails: document.getElementById('serviceDetails').value,
+            availableRooms: document.getElementById('availableRooms').value,
+            specialServices: document.getElementById('specialServices').value,
+            responseMessage: document.getElementById('responseMessage').value
+          };
+
+          try {
+            const response = await fetch('/api/facility/send-quote', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+              alert('견적서가 성공적으로 전송되었습니다!');
+              closeQuoteModal();
+              loadDashboardData(); // 데이터 새로고침
+            } else {
+              alert(result.message || '견적서 전송 실패');
+            }
+          } catch (error) {
+            console.error('견적서 전송 오류:', error);
+            alert('견적서 전송 중 오류가 발생했습니다.');
+          }
+        }
+
+        // 빈 상태 표시
+        function showEmptyState(containerId) {
+          const container = document.getElementById(containerId);
+          container.innerHTML = \`
+            <div class="text-center py-8 text-gray-500">
+              <i class="fas fa-exclamation-circle text-4xl mb-2 text-red-500"></i>
+              <p>데이터를 불러올 수 없습니다.</p>
+              <button onclick="loadDashboardData()" class="mt-4 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700">
+                다시 시도
+              </button>
+            </div>
+          \`;
+        }
+
         async function handleLogout() {
           try {
             const response = await fetch('/api/auth/logout', { method: 'POST' });
@@ -5583,6 +6270,9 @@ app.get('/dashboard/facility', (c) => {
             alert('로그아웃 중 오류가 발생했습니다.');
           }
         }
+
+        // 페이지 로드 시 데이터 가져오기
+        window.addEventListener('DOMContentLoaded', loadDashboardData);
       </script>
     </body>
     </html>
