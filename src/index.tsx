@@ -72,15 +72,6 @@ app.get('/', (c) => {
 
       {/* 메인 섹션 */}
       <section class="relative bg-white">
-        <div class="bg-gray-50 border-b border-gray-100 py-3 px-4">
-          <div class="max-w-6xl mx-auto flex items-center justify-center">
-            <div class="flex items-center text-sm text-gray-600">
-              <div class="w-2 h-2 bg-orange-400 rounded-full mr-2"></div>
-              <span class="font-medium">🏆 특허기반 실시간 요양 견적 및 상담 플랫폼</span>
-            </div>
-          </div>
-        </div>
-
         <div class="max-w-6xl mx-auto px-4 py-8 md:py-16">
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
             <div class="space-y-6 md:space-y-8">
@@ -94,14 +85,6 @@ app.get('/', (c) => {
                   희망하는 지역의, 희망하는 시설만! 입력하면<br />
                   그 지역 <strong class="text-blue-600">모든 시설의 정보를</strong> 실시간으로 받아볼 수 있어요
                 </p>
-                
-                <div class="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-xl p-4 mb-6">
-                  <div class="flex items-center justify-center text-sm md:text-base">
-                    <i class="fas fa-certificate text-blue-600 mr-2"></i>
-                    <span class="text-blue-800 font-semibold">특허기반 실시간 요양 견적 및 상담 플랫폼</span>
-                    <i class="fas fa-check-circle text-green-600 ml-2"></i>
-                  </div>
-                </div>
               </div>
 
               {/* 특허기반 실시간 요양견적 및 상담 플랫폼 안내 */}
