@@ -11,6 +11,10 @@ type Bindings = {
 const app = new Hono<{ Bindings: Bindings }>()
 
 const ADMIN_CONFIG = { sessionKey: 'admin_session' }
+const KAKAO_CONFIG = {
+  restApiKey: '2610d68cb41f3ceba40f42f1f7fe5e91',
+  redirectUri: 'https://3000-i9rvbxi0ydi8a2ltypzm7-cbeee0f9.sandbox.novita.ai/api/auth/kakao/callback'
+}
 const dataStore = { 
   partners: [] as any[], 
   familyCare: [] as any[],
@@ -196,6 +200,24 @@ app.get('/login', (c) => {
                   class="w-full bg-teal-600 text-white py-3 rounded-lg hover:bg-teal-700 transition-colors font-semibold text-lg">
                   <i class="fas fa-sign-in-alt mr-2"></i>로그인
                 </button>
+
+                <!-- 카카오 로그인 버튼 -->
+                <div class="relative my-6">
+                  <div class="absolute inset-0 flex items-center">
+                    <div class="w-full border-t border-gray-300"></div>
+                  </div>
+                  <div class="relative flex justify-center text-sm">
+                    <span class="px-2 bg-white text-gray-500">또는</span>
+                  </div>
+                </div>
+
+                <a href="/api/auth/kakao/login"
+                  class="w-full flex items-center justify-center bg-yellow-400 text-gray-900 py-3 rounded-lg hover:bg-yellow-500 transition-colors font-semibold text-lg">
+                  <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 3C6.5 3 2 6.6 2 11c0 2.8 1.9 5.3 4.7 6.7-.2.7-.6 2.7-.7 3.1 0 0 0 .3.2.4.1.1.3.1.5 0 .5-.2 3.5-2.3 4-2.7.6.1 1.3.2 2 .2 5.5 0 10-3.6 10-8S17.5 3 12 3z"/>
+                  </svg>
+                  카카오 로그인
+                </a>
               </div>
             </form>
 
@@ -606,6 +628,309 @@ app.post('/api/auth/register', async (c) => {
   }
 
   dataStore.users.push(newUser)
+
+  return c.json({ 
+    success: true, 
+    message: '회원가입이 완료되었습니다.',
+    userId: newUser.id
+  })
+})
+
+// ========== 카카오 로그인 ==========
+
+// 카카오 로그인 시작
+app.get('/api/auth/kakao/login', (c) => {
+  const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_CONFIG.restApiKey}&redirect_uri=${encodeURIComponent(KAKAO_CONFIG.redirectUri)}&response_type=code`
+  return c.redirect(kakaoAuthUrl)
+})
+
+// 카카오 로그인 콜백
+app.get('/api/auth/kakao/callback', async (c) => {
+  const code = c.req.query('code')
+  
+  if (!code) {
+    return c.redirect('/login?error=kakao_auth_failed')
+  }
+
+  try {
+    // 1. 액세스 토큰 받기
+    const tokenResponse = await fetch('https://kauth.kakao.com/oauth/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: new URLSearchParams({
+        grant_type: 'authorization_code',
+        client_id: KAKAO_CONFIG.restApiKey,
+        redirect_uri: KAKAO_CONFIG.redirectUri,
+        code: code
+      })
+    })
+
+    const tokenData = await tokenResponse.json()
+    
+    if (!tokenData.access_token) {
+      return c.redirect('/login?error=kakao_token_failed')
+    }
+
+    // 2. 사용자 정보 받기
+    const userResponse = await fetch('https://kapi.kakao.com/v2/user/me', {
+      headers: {
+        'Authorization': `Bearer ${tokenData.access_token}`
+      }
+    })
+
+    const kakaoUser = await userResponse.json()
+    
+    // 3. 기존 사용자 확인
+    const kakaoId = `kakao_${kakaoUser.id}`
+    let user = dataStore.users.find(u => u.kakaoId === kakaoId)
+    
+    if (user) {
+      // 기존 사용자 - 로그인 처리
+      const sessionId = generateSessionId()
+      dataStore.userSessions.set(sessionId, user)
+      
+      setCookie(c, 'user_session', sessionId, {
+        httpOnly: true,
+        secure: false,
+        sameSite: 'Lax',
+        maxAge: 60 * 60 * 24 * 7
+      })
+
+      // 대시보드로 리다이렉트
+      if (user.type === 'customer') {
+        return c.redirect('/dashboard/customer')
+      } else {
+        return c.redirect('/dashboard/facility')
+      }
+    } else {
+      // 신규 사용자 - 회원 타입 선택 페이지로
+      // 임시로 카카오 정보를 세션에 저장
+      const tempSessionId = generateSessionId()
+      dataStore.userSessions.set(tempSessionId, {
+        kakaoId: kakaoId,
+        email: kakaoUser.kakao_account?.email || '',
+        name: kakaoUser.properties?.nickname || '카카오사용자',
+        profileImage: kakaoUser.properties?.profile_image || ''
+      })
+      
+      setCookie(c, 'kakao_temp_session', tempSessionId, {
+        httpOnly: true,
+        secure: false,
+        sameSite: 'Lax',
+        maxAge: 60 * 10 // 10분
+      })
+
+      return c.redirect('/signup/select-type')
+    }
+  } catch (error) {
+    console.error('Kakao login error:', error)
+    return c.redirect('/login?error=kakao_error')
+  }
+})
+
+// 사용자 타입 선택 페이지 (카카오 로그인 후)
+app.get('/signup/select-type', (c) => {
+  const tempSessionId = getCookie(c, 'kakao_temp_session')
+  
+  if (!tempSessionId) {
+    return c.redirect('/register')
+  }
+
+  const kakaoInfo = dataStore.userSessions.get(tempSessionId)
+  
+  if (!kakaoInfo) {
+    return c.redirect('/register')
+  }
+
+  return c.html(`
+    <!DOCTYPE html>
+    <html lang="ko">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>회원 유형 선택 - 케어조아</title>
+      <script src="https://cdn.tailwindcss.com"></script>
+      <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+    </head>
+    <body class="bg-gradient-to-br from-teal-50 to-blue-50 min-h-screen">
+      <div class="container mx-auto px-4 py-8">
+        <div class="text-center mb-8">
+          <img 
+            src="https://page.gensparksite.com/v1/base64_upload/b39dca8586af1dacd6d8417554313896" 
+            alt="케어조아 로고"
+            class="h-16 w-auto mx-auto mb-4"
+          />
+          <h1 class="text-4xl font-bold text-teal-600 mb-2">케어조아</h1>
+          <p class="text-gray-600">회원 유형을 선택해주세요</p>
+        </div>
+
+        <div class="max-w-2xl mx-auto">
+          <div class="bg-white rounded-2xl shadow-xl p-8">
+            <div class="text-center mb-8">
+              ${kakaoInfo.profileImage ? `<img src="${kakaoInfo.profileImage}" alt="프로필" class="w-20 h-20 rounded-full mx-auto mb-4" />` : ''}
+              <h2 class="text-2xl font-bold text-gray-800">${kakaoInfo.name}님, 환영합니다!</h2>
+              <p class="text-gray-600 mt-2">어떤 용도로 케어조아를 이용하시나요?</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <button onclick="selectType('customer')" 
+                class="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-8 rounded-2xl hover:from-blue-600 hover:to-blue-700 transition-all transform hover:scale-105 shadow-lg">
+                <i class="fas fa-user text-5xl mb-4"></i>
+                <h3 class="text-2xl font-bold mb-2">고객</h3>
+                <p class="text-sm opacity-90">요양시설을 찾고 계신가요?</p>
+              </button>
+
+              <button onclick="selectType('facility')" 
+                class="bg-gradient-to-br from-teal-500 to-teal-600 text-white p-8 rounded-2xl hover:from-teal-600 hover:to-teal-700 transition-all transform hover:scale-105 shadow-lg">
+                <i class="fas fa-building text-5xl mb-4"></i>
+                <h3 class="text-2xl font-bold mb-2">시설</h3>
+                <p class="text-sm opacity-90">시설을 운영하고 계신가요?</p>
+              </button>
+            </div>
+
+            <!-- 시설 유형 선택 (숨김) -->
+            <div id="facilityTypeSelect" style="display: none;" class="mt-6 p-6 bg-teal-50 rounded-xl">
+              <h3 class="text-lg font-bold text-gray-800 mb-4">시설 유형을 선택해주세요</h3>
+              <div class="grid grid-cols-2 gap-3">
+                <button onclick="completeFacilitySignup('요양병원')" 
+                  class="bg-white text-gray-800 px-4 py-3 rounded-lg hover:bg-teal-100 transition-colors border-2 border-teal-200 font-medium">
+                  요양병원
+                </button>
+                <button onclick="completeFacilitySignup('요양원')" 
+                  class="bg-white text-gray-800 px-4 py-3 rounded-lg hover:bg-teal-100 transition-colors border-2 border-teal-200 font-medium">
+                  요양원
+                </button>
+                <button onclick="completeFacilitySignup('주야간보호')" 
+                  class="bg-white text-gray-800 px-4 py-3 rounded-lg hover:bg-teal-100 transition-colors border-2 border-teal-200 font-medium">
+                  주야간보호
+                </button>
+                <button onclick="completeFacilitySignup('재가복지센터')" 
+                  class="bg-white text-gray-800 px-4 py-3 rounded-lg hover:bg-teal-100 transition-colors border-2 border-teal-200 font-medium">
+                  재가복지센터
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        let selectedType = '';
+
+        function selectType(type) {
+          selectedType = type;
+          
+          if (type === 'customer') {
+            completeCustomerSignup();
+          } else {
+            document.getElementById('facilityTypeSelect').style.display = 'block';
+          }
+        }
+
+        async function completeCustomerSignup() {
+          try {
+            const response = await fetch('/api/auth/kakao/complete', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ type: 'customer' })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+              alert('가입이 완료되었습니다!');
+              window.location.href = '/dashboard/customer';
+            } else {
+              alert(result.message || '가입 실패');
+            }
+          } catch (error) {
+            alert('가입 중 오류가 발생했습니다.');
+            console.error(error);
+          }
+        }
+
+        async function completeFacilitySignup(facilityType) {
+          try {
+            const response = await fetch('/api/auth/kakao/complete', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ 
+                type: 'facility',
+                facilityType: facilityType
+              })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+              alert('가입이 완료되었습니다!');
+              window.location.href = '/dashboard/facility';
+            } else {
+              alert(result.message || '가입 실패');
+            }
+          } catch (error) {
+            alert('가입 중 오류가 발생했습니다.');
+            console.error(error);
+          }
+        }
+      </script>
+    </body>
+    </html>
+  `)
+})
+
+// 카카오 로그인 회원가입 완료
+app.post('/api/auth/kakao/complete', async (c) => {
+  const tempSessionId = getCookie(c, 'kakao_temp_session')
+  
+  if (!tempSessionId) {
+    return c.json({ success: false, message: '세션이 만료되었습니다.' })
+  }
+
+  const kakaoInfo = dataStore.userSessions.get(tempSessionId)
+  
+  if (!kakaoInfo) {
+    return c.json({ success: false, message: '세션 정보를 찾을 수 없습니다.' })
+  }
+
+  const { type, facilityType } = await c.req.json()
+
+  // 새 사용자 생성
+  const newUser = {
+    id: `user_${Date.now()}_${Math.random().toString(36).substring(2)}`,
+    kakaoId: kakaoInfo.kakaoId,
+    email: kakaoInfo.email,
+    name: kakaoInfo.name,
+    profileImage: kakaoInfo.profileImage,
+    phone: '',
+    type: type,
+    createdAt: new Date().toISOString()
+  }
+
+  if (type === 'facility') {
+    newUser.facilityType = facilityType
+    newUser.address = ''
+    newUser.businessNumber = ''
+  }
+
+  dataStore.users.push(newUser)
+
+  // 임시 세션 삭제
+  dataStore.userSessions.delete(tempSessionId)
+  setCookie(c, 'kakao_temp_session', '', { maxAge: 0 })
+
+  // 정식 로그인 세션 생성
+  const sessionId = generateSessionId()
+  dataStore.userSessions.set(sessionId, newUser)
+  
+  setCookie(c, 'user_session', sessionId, {
+    httpOnly: true,
+    secure: false,
+    sameSite: 'Lax',
+    maxAge: 60 * 60 * 24 * 7
+  })
 
   return c.json({ 
     success: true, 
