@@ -1114,7 +1114,7 @@ app.get('/', (c) => {
             
             <div class="text-center p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-xl">
               <div class="w-16 h-16 bg-gradient-to-r from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i class="fas fa-shield-check text-2xl text-white"></i>
+                <i class="fas fa-hospital text-2xl text-white"></i>
               </div>
               <h4 class="text-xl font-bold mb-2">검증된 시설</h4>
               <p class="text-gray-600 text-sm">정부 인증 및 전문가 방문을 통해 검증</p>
