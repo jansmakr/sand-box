@@ -7116,20 +7116,47 @@ app.get('/dashboard/facility', async (c) => {
                   <i class="fas fa-clipboard-list text-teal-600 mr-2"></i>
                   상세 요청 사항
                 </h4>
-                <div class="grid grid-cols-2 gap-2 text-sm">
+                <div class="space-y-3 text-sm">
+                  <!-- 기본 정보 -->
+                  \${additionalInfo.applicantEmail ? \`<div><span class="text-gray-500">이메일:</span> <strong>\${additionalInfo.applicantEmail}</strong></div>\` : ''}
                   \${additionalInfo.insuranceType ? \`<div><span class="text-gray-500">보험유형:</span> <strong>\${additionalInfo.insuranceType}</strong></div>\` : ''}
                   \${additionalInfo.facilitySize ? \`<div><span class="text-gray-500">시설규모:</span> <strong>\${additionalInfo.facilitySize}</strong></div>\` : ''}
                   \${additionalInfo.careCost ? \`<div><span class="text-gray-500">비용범위:</span> <strong>\${additionalInfo.careCost}</strong></div>\` : ''}
+                  \${additionalInfo.carePrograms ? \`<div><span class="text-gray-500">희망프로그램:</span> <strong>\${additionalInfo.carePrograms}</strong></div>\` : ''}
                   \${additionalInfo.religion ? \`<div><span class="text-gray-500">종교활동:</span> <strong>\${additionalInfo.religion}</strong></div>\` : ''}
-                  \${additionalInfo.mainSymptoms ? \`<div class="col-span-2"><span class="text-gray-500">주요증상:</span> <strong>\${additionalInfo.mainSymptoms}</strong></div>\` : ''}
+                  
+                  <!-- 환자 상태 -->
+                  \${additionalInfo.mainSymptoms ? \`<div><span class="text-gray-500">주요증상:</span> <strong>\${additionalInfo.mainSymptoms}</strong></div>\` : ''}
                   \${additionalInfo.communication ? \`<div><span class="text-gray-500">의사소통:</span> <strong>\${additionalInfo.communication}</strong></div>\` : ''}
                   \${additionalInfo.eating ? \`<div><span class="text-gray-500">식사능력:</span> <strong>\${additionalInfo.eating}</strong></div>\` : ''}
                   \${additionalInfo.dietType ? \`<div><span class="text-gray-500">식사유형:</span> <strong>\${additionalInfo.dietType}</strong></div>\` : ''}
                   \${additionalInfo.mobility ? \`<div><span class="text-gray-500">거동능력:</span> <strong>\${additionalInfo.mobility}</strong></div>\` : ''}
                   \${additionalInfo.toiletUse ? \`<div><span class="text-gray-500">화장실:</span> <strong>\${additionalInfo.toiletUse}</strong></div>\` : ''}
-                  \${additionalInfo.carePrograms ? \`<div class="col-span-2"><span class="text-gray-500">희망프로그램:</span> <strong>\${additionalInfo.carePrograms}</strong></div>\` : ''}
-                  \${additionalInfo.additionalCare ? \`<div class="col-span-2"><span class="text-gray-500">추가케어:</span> <strong>\${additionalInfo.additionalCare}</strong></div>\` : ''}
-                  \${additionalInfo.otherSymptoms ? \`<div class="col-span-2"><span class="text-gray-500">기타증상:</span> <strong>\${additionalInfo.otherSymptoms}</strong></div>\` : ''}
+                  \${additionalInfo.additionalCare ? \`<div><span class="text-gray-500">추가케어:</span> <strong>\${additionalInfo.additionalCare}</strong></div>\` : ''}
+                  \${additionalInfo.otherSymptoms ? \`<div><span class="text-gray-500">기타증상:</span> <strong>\${additionalInfo.otherSymptoms}</strong></div>\` : ''}
+                  
+                  <!-- 생년월일 -->
+                  \${(additionalInfo.birthYear || additionalInfo.birthMonth || additionalInfo.birthDay) ? \`
+                    <div><span class="text-gray-500">생년월일:</span> 
+                      <strong>\${additionalInfo.birthYear || ''}년 \${additionalInfo.birthMonth || ''}월 \${additionalInfo.birthDay || ''}일</strong>
+                    </div>
+                  \` : ''}
+                  
+                  <!-- 의료 정보 -->
+                  \${additionalInfo.diagnosis ? \`<div><span class="text-gray-500">진단명:</span> <strong>\${additionalInfo.diagnosis}</strong></div>\` : ''}
+                  \${additionalInfo.adl ? \`<div><span class="text-gray-500">일상생활수행능력:</span> <strong>\${additionalInfo.adl}</strong></div>\` : ''}
+                  \${additionalInfo.dementia ? \`<div><span class="text-gray-500">치매정도:</span> <strong>\${additionalInfo.dementia}</strong></div>\` : ''}
+                  \${additionalInfo.serviceType ? \`<div><span class="text-gray-500">서비스유형:</span> <strong>\${additionalInfo.serviceType}</strong></div>\` : ''}
+                  
+                  <!-- 보호자 정보 -->
+                  \${additionalInfo.guardianAge ? \`<div><span class="text-gray-500">보호자 나이:</span> <strong>\${additionalInfo.guardianAge}세</strong></div>\` : ''}
+                  \${additionalInfo.spouseAge ? \`<div><span class="text-gray-500">배우자 나이:</span> <strong>\${additionalInfo.spouseAge}세</strong></div>\` : ''}
+                  \${additionalInfo.housingType ? \`<div><span class="text-gray-500">주거형태:</span> <strong>\${additionalInfo.housingType}</strong></div>\` : ''}
+                  
+                  <!-- 추가 정보 -->
+                  \${additionalInfo.diseases ? \`<div><span class="text-gray-500">질병:</span> <strong>\${additionalInfo.diseases}</strong></div>\` : ''}
+                  \${additionalInfo.personalities ? \`<div><span class="text-gray-500">성격:</span> <strong>\${additionalInfo.personalities}</strong></div>\` : ''}
+                  \${additionalInfo.specialNotes ? \`<div class="bg-yellow-50 p-2 rounded border border-yellow-200"><span class="text-gray-500">특이사항:</span> <strong class="text-yellow-900">\${additionalInfo.specialNotes}</strong></div>\` : ''}
                 </div>
               </div>
               \` : ''}
