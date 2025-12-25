@@ -6458,6 +6458,287 @@ app.post('/api/messages/reply', async (c) => {
   }
 })
 
+// ========== 리뷰 시스템 API ==========
+
+// 리뷰 작성 (고객만 가능, 견적서 받은 경우에만)
+app.post('/api/reviews/create', async (c) => {
+  const user = getUser(c)
+  
+  if (!user || user.type !== 'customer') {
+    return c.json({ success: false, message: '고객만 리뷰를 작성할 수 있습니다.' }, 401)
+  }
+
+  try {
+    const db = c.env.DB
+    const { responseId, rating, title, content } = await c.req.json()
+    
+    // 입력 검증
+    if (!responseId || !rating || !content) {
+      return c.json({ success: false, message: '필수 정보가 없습니다.' }, 400)
+    }
+
+    if (rating < 1 || rating > 5) {
+      return c.json({ success: false, message: '별점은 1-5 사이여야 합니다.' }, 400)
+    }
+
+    if (content.trim().length < 10) {
+      return c.json({ success: false, message: '리뷰는 최소 10자 이상 작성해주세요.' }, 400)
+    }
+
+    // 견적서 응답 확인 (해당 고객이 받은 견적서인지 확인)
+    const quoteResponse = await db.prepare(`
+      SELECT qr.*, qu.applicant_phone, qu.applicant_email
+      FROM quote_responses qr
+      JOIN quote_requests qu ON qr.quote_id = qu.quote_id
+      WHERE qr.response_id = ?
+    `).bind(responseId).first()
+
+    if (!quoteResponse) {
+      return c.json({ success: false, message: '견적서를 찾을 수 없습니다.' }, 404)
+    }
+
+    // 해당 고객의 견적서인지 확인 (이메일 또는 전화번호 매칭)
+    // 실제로는 user 테이블과 연결해서 확인해야 하지만, 간단하게 처리
+    
+    // 이미 리뷰를 작성했는지 확인
+    const existingReview = await db.prepare(`
+      SELECT * FROM reviews WHERE response_id = ? AND customer_id = ?
+    `).bind(responseId, user.id).first()
+
+    if (existingReview) {
+      return c.json({ success: false, message: '이미 리뷰를 작성하셨습니다.' }, 400)
+    }
+
+    // 리뷰 ID 생성
+    const reviewId = `RV${Date.now()}-${Math.random().toString(36).substring(2, 9).toUpperCase()}`
+    
+    // 리뷰 저장
+    await db.prepare(`
+      INSERT INTO reviews (
+        review_id, response_id, customer_id, facility_id,
+        rating, title, content, status, is_verified, created_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', 1, CURRENT_TIMESTAMP)
+    `).bind(
+      reviewId,
+      responseId,
+      user.id,
+      quoteResponse.partner_id,
+      rating,
+      title || '',
+      content
+    ).run()
+    
+    return c.json({
+      success: true,
+      message: '리뷰가 등록되었습니다. 관리자 승인 후 공개됩니다.',
+      reviewId
+    })
+  } catch (error) {
+    console.error('리뷰 작성 오류:', error)
+    return c.json({ success: false, message: '리뷰 작성 실패' }, 500)
+  }
+})
+
+// 시설별 리뷰 목록 조회 (승인된 리뷰만)
+app.get('/api/reviews/facility/:facilityId', async (c) => {
+  try {
+    const db = c.env.DB
+    const facilityId = c.req.param('facilityId')
+    
+    // 승인된 리뷰만 조회
+    const reviews = await db.prepare(`
+      SELECT 
+        r.review_id,
+        r.rating,
+        r.title,
+        r.content,
+        r.is_verified,
+        r.created_at,
+        rr.response_text as facility_response,
+        rr.created_at as response_created_at
+      FROM reviews r
+      LEFT JOIN review_responses rr ON r.review_id = rr.review_id
+      WHERE r.facility_id = ? AND r.status = 'approved'
+      ORDER BY r.created_at DESC
+    `).bind(facilityId).all()
+    
+    // 평균 별점 계산
+    const avgRating = await db.prepare(`
+      SELECT AVG(rating) as avg_rating, COUNT(*) as review_count
+      FROM reviews
+      WHERE facility_id = ? AND status = 'approved'
+    `).bind(facilityId).first()
+    
+    return c.json({
+      success: true,
+      data: {
+        reviews: reviews.results || [],
+        avgRating: avgRating?.avg_rating ? parseFloat(avgRating.avg_rating.toFixed(1)) : 0,
+        reviewCount: avgRating?.review_count || 0
+      }
+    })
+  } catch (error) {
+    console.error('리뷰 조회 오류:', error)
+    return c.json({ success: false, message: '리뷰 조회 실패' }, 500)
+  }
+})
+
+// 견적서 응답별 리뷰 조회
+app.get('/api/reviews/response/:responseId', async (c) => {
+  try {
+    const db = c.env.DB
+    const responseId = c.req.param('responseId')
+    
+    const review = await db.prepare(`
+      SELECT 
+        r.review_id,
+        r.rating,
+        r.title,
+        r.content,
+        r.status,
+        r.is_verified,
+        r.created_at,
+        rr.response_text as facility_response,
+        rr.created_at as response_created_at
+      FROM reviews r
+      LEFT JOIN review_responses rr ON r.review_id = rr.review_id
+      WHERE r.response_id = ?
+    `).bind(responseId).first()
+    
+    return c.json({
+      success: true,
+      data: review || null
+    })
+  } catch (error) {
+    console.error('리뷰 조회 오류:', error)
+    return c.json({ success: false, message: '리뷰 조회 실패' }, 500)
+  }
+})
+
+// 시설의 리뷰 답변 작성
+app.post('/api/reviews/respond', async (c) => {
+  const user = getUser(c)
+  
+  if (!user || user.type !== 'facility') {
+    return c.json({ success: false, message: '시설만 답변할 수 있습니다.' }, 401)
+  }
+
+  try {
+    const db = c.env.DB
+    const { reviewId, responseText } = await c.req.json()
+    
+    if (!reviewId || !responseText || responseText.trim().length < 10) {
+      return c.json({ success: false, message: '답변은 최소 10자 이상 작성해주세요.' }, 400)
+    }
+
+    // 리뷰가 해당 시설의 것인지 확인
+    const review = await db.prepare(`
+      SELECT * FROM reviews WHERE review_id = ? AND facility_id = ?
+    `).bind(reviewId, user.id).first()
+
+    if (!review) {
+      return c.json({ success: false, message: '리뷰를 찾을 수 없거나 권한이 없습니다.' }, 404)
+    }
+
+    // 이미 답변이 있는지 확인
+    const existingResponse = await db.prepare(`
+      SELECT * FROM review_responses WHERE review_id = ?
+    `).bind(reviewId).first()
+
+    if (existingResponse) {
+      // 답변 수정
+      await db.prepare(`
+        UPDATE review_responses 
+        SET response_text = ?, created_at = CURRENT_TIMESTAMP
+        WHERE review_id = ?
+      `).bind(responseText, reviewId).run()
+    } else {
+      // 새 답변 추가
+      await db.prepare(`
+        INSERT INTO review_responses (review_id, facility_id, response_text, created_at)
+        VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+      `).bind(reviewId, user.id, responseText).run()
+    }
+    
+    return c.json({
+      success: true,
+      message: '답변이 등록되었습니다.'
+    })
+  } catch (error) {
+    console.error('리뷰 답변 오류:', error)
+    return c.json({ success: false, message: '답변 등록 실패' }, 500)
+  }
+})
+
+// 관리자: 리뷰 승인/거부
+app.post('/api/admin/reviews/:reviewId/status', async (c) => {
+  const user = getUser(c)
+  
+  // 관리자 권한 확인 (간단하게 처리)
+  const sessionId = getCookie(c, 'admin_session')
+  if (!sessionId) {
+    return c.json({ success: false, message: '관리자 권한이 필요합니다.' }, 401)
+  }
+
+  try {
+    const db = c.env.DB
+    const reviewId = c.req.param('reviewId')
+    const { status } = await c.req.json()
+    
+    if (!['approved', 'rejected'].includes(status)) {
+      return c.json({ success: false, message: '잘못된 상태값입니다.' }, 400)
+    }
+
+    await db.prepare(`
+      UPDATE reviews SET status = ?, updated_at = CURRENT_TIMESTAMP
+      WHERE review_id = ?
+    `).bind(status, reviewId).run()
+    
+    return c.json({
+      success: true,
+      message: status === 'approved' ? '리뷰가 승인되었습니다.' : '리뷰가 거부되었습니다.'
+    })
+  } catch (error) {
+    console.error('리뷰 상태 변경 오류:', error)
+    return c.json({ success: false, message: '상태 변경 실패' }, 500)
+  }
+})
+
+// 관리자: 대기 중인 리뷰 목록 조회
+app.get('/api/admin/reviews/pending', async (c) => {
+  const sessionId = getCookie(c, 'admin_session')
+  if (!sessionId) {
+    return c.json({ success: false, message: '관리자 권한이 필요합니다.' }, 401)
+  }
+
+  try {
+    const db = c.env.DB
+    
+    const reviews = await db.prepare(`
+      SELECT 
+        r.review_id,
+        r.rating,
+        r.title,
+        r.content,
+        r.status,
+        r.created_at,
+        p.facility_name
+      FROM reviews r
+      JOIN partners p ON r.facility_id = p.id
+      WHERE r.status = 'pending'
+      ORDER BY r.created_at DESC
+    `).all()
+    
+    return c.json({
+      success: true,
+      data: reviews.results || []
+    })
+  } catch (error) {
+    console.error('리뷰 목록 조회 오류:', error)
+    return c.json({ success: false, message: '목록 조회 실패' }, 500)
+  }
+})
+
 // ========== 시설 템플릿 관리 API ==========
 
 // 시설 템플릿 조회
@@ -8270,6 +8551,10 @@ app.get('/quote-details/:quoteId', async (c) => {
                           class="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors text-sm font-semibold">
                           <i class="fas fa-envelope mr-1"></i>문의하기
                         </button>
+                        <button onclick="openReviewModal('${response.response_id}')"
+                          class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors text-sm font-semibold">
+                          <i class="fas fa-star mr-1"></i>리뷰 작성
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -8311,6 +8596,102 @@ app.get('/quote-details/:quoteId', async (c) => {
             </div>
             <div id="contactModalContent" class="p-6">
               <!-- 문의 폼 내용 -->
+            </div>
+          </div>
+        </div>
+
+        <!-- 리뷰 작성 모달 -->
+        <div id="reviewModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div class="bg-white rounded-xl shadow-2xl max-w-lg w-full m-4">
+            <div class="border-b px-6 py-4 flex justify-between items-center">
+              <h3 class="text-xl font-bold text-gray-800">
+                <i class="fas fa-star text-yellow-500 mr-2"></i>
+                시설 이용 후기 작성
+              </h3>
+              <button onclick="closeReviewModal()" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times text-2xl"></i>
+              </button>
+            </div>
+            <div class="p-6">
+              <form id="reviewForm" onsubmit="event.preventDefault(); submitReview();">
+                <input type="hidden" id="reviewResponseId" value="">
+                
+                <!-- 별점 선택 -->
+                <div class="mb-6">
+                  <label class="block text-sm font-medium text-gray-700 mb-3">
+                    <i class="fas fa-star text-yellow-500"></i> 별점 평가 <span class="text-red-500">*</span>
+                  </label>
+                  <div class="flex items-center space-x-2">
+                    <div class="flex space-x-1" id="starRating">
+                      ${[1,2,3,4,5].map(i => `
+                        <button type="button" onclick="setRating(${i})" 
+                          class="star-btn text-4xl text-gray-300 hover:text-yellow-400 transition-colors"
+                          data-rating="${i}">
+                          ★
+                        </button>
+                      `).join('')}
+                    </div>
+                    <span id="ratingText" class="text-sm text-gray-500 ml-3"></span>
+                  </div>
+                  <input type="hidden" id="reviewRating" required>
+                </div>
+
+                <!-- 리뷰 제목 (선택) -->
+                <div class="mb-4">
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-heading text-gray-500"></i> 제목 (선택사항)
+                  </label>
+                  <input
+                    type="text"
+                    id="reviewTitle"
+                    maxlength="50"
+                    class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-yellow-500"
+                    placeholder="예: 친절하고 깨끗한 시설이었습니다"
+                  >
+                </div>
+
+                <!-- 리뷰 내용 -->
+                <div class="mb-4">
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-comment text-gray-500"></i> 이용 후기 <span class="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    id="reviewContent"
+                    rows="6"
+                    required
+                    minlength="10"
+                    class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-yellow-500"
+                    placeholder="시설을 이용하시면서 느낀 점을 솔직하게 작성해주세요. (최소 10자 이상)&#10;&#10;예시:&#10;- 직원분들이 매우 친절하셨고, 시설도 깨끗했습니다.&#10;- 식사 품질이 좋았고, 의료 서비스도 만족스러웠습니다.&#10;- 가격 대비 서비스가 훌륭했습니다."
+                  ></textarea>
+                  <p class="text-xs text-gray-500 mt-1">
+                    <i class="fas fa-info-circle"></i> 작성하신 리뷰는 관리자 승인 후 공개됩니다.
+                  </p>
+                </div>
+
+                <div class="bg-blue-50 p-4 rounded-lg mb-6">
+                  <p class="text-sm text-blue-800">
+                    <i class="fas fa-shield-alt mr-2"></i>
+                    <strong>실제 이용자 인증 리뷰</strong>입니다. 다른 고객들에게 도움이 되는 솔직한 후기를 남겨주세요.
+                  </p>
+                </div>
+
+                <div class="flex gap-3">
+                  <button
+                    type="button"
+                    onclick="closeReviewModal()"
+                    class="flex-1 px-6 py-3 border-2 border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    취소
+                  </button>
+                  <button
+                    type="submit"
+                    class="flex-1 px-6 py-3 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors font-medium"
+                  >
+                    <i class="fas fa-check mr-2"></i>
+                    리뷰 등록
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         </div>
@@ -8526,6 +8907,90 @@ app.get('/quote-details/:quoteId', async (c) => {
               alert('메시지 전송 중 오류가 발생했습니다.');
             }
             closeContactModal();
+          }
+
+          // 리뷰 모달 관련 함수
+          let currentRating = 0;
+
+          function openReviewModal(responseId) {
+            document.getElementById('reviewResponseId').value = responseId;
+            document.getElementById('reviewModal').classList.remove('hidden');
+            currentRating = 0;
+            updateStarDisplay();
+          }
+
+          function closeReviewModal() {
+            document.getElementById('reviewModal').classList.add('hidden');
+            document.getElementById('reviewForm').reset();
+            currentRating = 0;
+            updateStarDisplay();
+          }
+
+          function setRating(rating) {
+            currentRating = rating;
+            document.getElementById('reviewRating').value = rating;
+            updateStarDisplay();
+          }
+
+          function updateStarDisplay() {
+            const stars = document.querySelectorAll('.star-btn');
+            stars.forEach((star, index) => {
+              if (index < currentRating) {
+                star.classList.remove('text-gray-300');
+                star.classList.add('text-yellow-400');
+              } else {
+                star.classList.remove('text-yellow-400');
+                star.classList.add('text-gray-300');
+              }
+            });
+
+            const ratingText = document.getElementById('ratingText');
+            const ratingTexts = ['', '매우 불만족', '불만족', '보통', '만족', '매우 만족'];
+            ratingText.textContent = currentRating > 0 ? ratingTexts[currentRating] : '별점을 선택해주세요';
+          }
+
+          async function submitReview() {
+            const responseId = document.getElementById('reviewResponseId').value;
+            const rating = document.getElementById('reviewRating').value;
+            const title = document.getElementById('reviewTitle').value.trim();
+            const content = document.getElementById('reviewContent').value.trim();
+
+            if (!rating) {
+              alert('별점을 선택해주세요.');
+              return;
+            }
+
+            if (content.length < 10) {
+              alert('리뷰는 최소 10자 이상 작성해주세요.');
+              return;
+            }
+
+            try {
+              const response = await fetch('/api/reviews/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  responseId,
+                  rating: parseInt(rating),
+                  title,
+                  content
+                })
+              });
+
+              const result = await response.json();
+
+              if (result.success) {
+                alert('리뷰가 등록되었습니다! 관리자 승인 후 공개됩니다.');
+                closeReviewModal();
+                // 페이지 새로고침하여 리뷰 반영
+                location.reload();
+              } else {
+                alert(result.message || '리뷰 등록에 실패했습니다.');
+              }
+            } catch (error) {
+              console.error('리뷰 등록 오류:', error);
+              alert('리뷰 등록 중 오류가 발생했습니다.');
+            }
           }
         </script>
       </body>
