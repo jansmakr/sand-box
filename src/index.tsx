@@ -4094,33 +4094,37 @@ app.get('/quote-simple', (c) => {
               <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <label class="relative cursor-pointer group">
                   <input type="radio" name="facilityType" value="요양병원" required class="peer sr-only" id="facilityType-hospital" />
-                  <div class="border-2 border-gray-300 rounded-xl p-6 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
-                    <i class="fas fa-hospital text-3xl text-gray-400 mb-3 group-hover:text-green-600"></i>
-                    <div class="font-semibold text-gray-700">요양병원</div>
+                  <div class="border-2 border-gray-300 rounded-xl p-6 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all relative">
+                    <i class="fas fa-check-circle absolute top-2 right-2 text-green-600 text-xl hidden peer-checked:inline-block"></i>
+                    <i class="fas fa-hospital text-3xl text-gray-400 mb-3 group-hover:text-green-600 peer-checked:text-green-600"></i>
+                    <div class="font-semibold text-gray-700 peer-checked:text-green-700">요양병원</div>
                   </div>
                 </label>
                 
                 <label class="relative cursor-pointer group">
                   <input type="radio" name="facilityType" value="요양원" required class="peer sr-only" />
-                  <div class="border-2 border-gray-300 rounded-xl p-6 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
-                    <i class="fas fa-home text-3xl text-gray-400 mb-3 group-hover:text-green-600"></i>
-                    <div class="font-semibold text-gray-700">요양원</div>
+                  <div class="border-2 border-gray-300 rounded-xl p-6 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all relative">
+                    <i class="fas fa-check-circle absolute top-2 right-2 text-green-600 text-xl hidden peer-checked:inline-block"></i>
+                    <i class="fas fa-home text-3xl text-gray-400 mb-3 group-hover:text-green-600 peer-checked:text-green-600"></i>
+                    <div class="font-semibold text-gray-700 peer-checked:text-green-700">요양원</div>
                   </div>
                 </label>
                 
                 <label class="relative cursor-pointer group">
                   <input type="radio" name="facilityType" value="주야간보호" required class="peer sr-only" />
-                  <div class="border-2 border-gray-300 rounded-xl p-6 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
-                    <i class="fas fa-sun text-3xl text-gray-400 mb-3 group-hover:text-green-600"></i>
-                    <div class="font-semibold text-gray-700">주야간보호</div>
+                  <div class="border-2 border-gray-300 rounded-xl p-6 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all relative">
+                    <i class="fas fa-check-circle absolute top-2 right-2 text-green-600 text-xl hidden peer-checked:inline-block"></i>
+                    <i class="fas fa-sun text-3xl text-gray-400 mb-3 group-hover:text-green-600 peer-checked:text-green-600"></i>
+                    <div class="font-semibold text-gray-700 peer-checked:text-green-700">주야간보호</div>
                   </div>
                 </label>
                 
                 <label class="relative cursor-pointer group">
                   <input type="radio" name="facilityType" value="재가복지센터" required class="peer sr-only" />
-                  <div class="border-2 border-gray-300 rounded-xl p-6 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
-                    <i class="fas fa-hands-helping text-3xl text-gray-400 mb-3 group-hover:text-green-600"></i>
-                    <div class="font-semibold text-gray-700">재가복지센터</div>
+                  <div class="border-2 border-gray-300 rounded-xl p-6 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all relative">
+                    <i class="fas fa-check-circle absolute top-2 right-2 text-green-600 text-xl hidden peer-checked:inline-block"></i>
+                    <i class="fas fa-hands-helping text-3xl text-gray-400 mb-3 group-hover:text-green-600 peer-checked:text-green-600"></i>
+                    <div class="font-semibold text-gray-700 peer-checked:text-green-700">재가복지센터</div>
                   </div>
                 </label>
               </div>
@@ -4839,6 +4843,63 @@ app.get('/quote-simple', (c) => {
       <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
       <script dangerouslySetInnerHTML={{
         __html: `
+        // 모든 라디오/체크박스 버튼에 체크 아이콘 추가
+        document.addEventListener('DOMContentLoaded', function() {
+          // 모든 라디오 버튼 레이블 찾기
+          document.querySelectorAll('label').forEach(label => {
+            const radio = label.querySelector('input[type="radio"]');
+            const checkbox = label.querySelector('input[type="checkbox"]');
+            const targetInput = radio || checkbox;
+            
+            if (targetInput && targetInput.classList.contains('peer')) {
+              const div = label.querySelector('div');
+              if (div && !div.querySelector('.check-icon')) {
+                // relative 클래스가 없으면 추가
+                if (!div.classList.contains('relative')) {
+                  div.classList.add('relative');
+                }
+                
+                // 체크 아이콘 생성
+                const checkIcon = document.createElement('i');
+                checkIcon.className = 'fas fa-check-circle absolute top-2 right-2 text-green-600 text-lg opacity-0 peer-checked:opacity-100 transition-opacity check-icon';
+                div.insertBefore(checkIcon, div.firstChild);
+              }
+            }
+          });
+          
+          // peer-checked 효과를 위한 이벤트 리스너
+          document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(input => {
+            if (input.classList.contains('peer')) {
+              input.addEventListener('change', function() {
+                // 같은 name을 가진 다른 라디오 버튼의 체크 해제
+                if (this.type === 'radio') {
+                  document.querySelectorAll(\`input[type="radio"][name="\${this.name}"]\`).forEach(r => {
+                    const label = r.closest('label');
+                    if (label) {
+                      const icon = label.querySelector('.check-icon');
+                      if (icon) {
+                        if (r.checked) {
+                          icon.style.opacity = '1';
+                        } else {
+                          icon.style.opacity = '0';
+                        }
+                      }
+                    }
+                  });
+                } else if (this.type === 'checkbox') {
+                  const label = this.closest('label');
+                  if (label) {
+                    const icon = label.querySelector('.check-icon');
+                    if (icon) {
+                      icon.style.opacity = this.checked ? '1' : '0';
+                    }
+                  }
+                }
+              });
+            }
+          });
+        });
+        
         // 지역 데이터
         const sigunguData = {
           '서울특별시': ['강남구', '강동구', '강북구', '강서구', '관악구', '광진구', '구로구', '금천구', '노원구', '도봉구', '동대문구', '동작구', '마포구', '서대문구', '서초구', '성동구', '성북구', '송파구', '양천구', '영등포구', '용산구', '은평구', '종로구', '중구', '중랑구'],
