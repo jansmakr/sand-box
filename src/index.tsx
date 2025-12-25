@@ -6851,38 +6851,107 @@ app.get('/dashboard/facility', async (c) => {
           container.innerHTML = requests.map(req => {
             const date = new Date(req.created_at).toLocaleDateString('ko-KR');
             
+            // additional_notes 파싱
+            let additionalInfo = {};
+            try {
+              if (req.additional_notes) {
+                additionalInfo = JSON.parse(req.additional_notes);
+              }
+            } catch (e) {
+              console.error('추가 정보 파싱 오류:', e);
+            }
+            
             return \`
-              <div class="border-2 border-blue-200 rounded-lg p-4 bg-blue-50 hover:shadow-lg transition-shadow">
-                <div class="flex justify-between items-start mb-3">
+              <div class="border-2 border-blue-200 rounded-lg p-5 bg-gradient-to-r from-blue-50 to-white hover:shadow-xl transition-all duration-300">
+                <div class="flex justify-between items-start mb-4">
                   <div class="flex-1">
-                    <h4 class="font-bold text-gray-800 text-lg mb-1">
+                    <h4 class="font-bold text-gray-800 text-xl mb-2">
                       <i class="fas fa-user text-blue-600 mr-2"></i>
                       \${req.applicant_name}님의 견적 요청
                     </h4>
-                    <p class="text-sm text-gray-600">
-                      <i class="fas fa-map-marker-alt mr-1"></i>
-                      \${req.sido} \${req.sigungu}
-                    </p>
+                    <div class="flex items-center space-x-3 text-sm text-gray-600">
+                      <span>
+                        <i class="fas fa-map-marker-alt text-red-500 mr-1"></i>
+                        \${req.sido} \${req.sigungu}
+                      </span>
+                      <span>
+                        <i class="fas fa-calendar-alt text-blue-500 mr-1"></i>
+                        \${date}
+                      </span>
+                    </div>
                   </div>
-                  <span class="px-3 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded-full">
+                  <span class="px-3 py-1 bg-yellow-100 text-yellow-800 text-xs font-bold rounded-full border-2 border-yellow-200">
                     <i class="fas fa-clock mr-1"></i>신규
                   </span>
                 </div>
-                <div class="grid grid-cols-2 gap-2 text-sm text-gray-600 mb-3">
-                  <div>
-                    <i class="fas fa-user-injured mr-1"></i>
-                    환자: \${req.patient_name} (\${req.patient_age}세)
-                  </div>
-                  <div>
-                    <i class="fas fa-phone mr-1"></i>
-                    \${req.applicant_phone}
+                
+                <!-- 환자 기본 정보 -->
+                <div class="bg-white rounded-lg p-4 mb-3 border border-gray-200">
+                  <div class="grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <span class="text-gray-500">
+                        <i class="fas fa-user-injured mr-1 text-teal-600"></i>환자:
+                      </span>
+                      <strong class="ml-1 text-gray-800">\${req.patient_name}</strong>
+                    </div>
+                    <div>
+                      <span class="text-gray-500">
+                        <i class="fas fa-birthday-cake mr-1 text-purple-600"></i>나이:
+                      </span>
+                      <strong class="ml-1 text-gray-800">\${req.patient_age}세 \${req.patient_gender || ''}</strong>
+                    </div>
+                    <div>
+                      <span class="text-gray-500">
+                        <i class="fas fa-phone mr-1 text-green-600"></i>연락처:
+                      </span>
+                      <strong class="ml-1 text-gray-800">\${req.applicant_phone}</strong>
+                    </div>
+                    <div>
+                      <span class="text-gray-500">
+                        <i class="fas fa-certificate mr-1 text-orange-600"></i>요양등급:
+                      </span>
+                      <strong class="ml-1 text-gray-800">\${req.care_grade || '-'}</strong>
+                    </div>
                   </div>
                 </div>
-                <div class="flex justify-between items-center pt-3 border-t">
-                  <span class="text-xs text-gray-500">\${date}</span>
+
+                <!-- 상세 요청 사항 (있는 경우만 표시) -->
+                \${additionalInfo && (additionalInfo.mainSymptoms || additionalInfo.communication || additionalInfo.mobility) ? \`
+                <div class="bg-teal-50 rounded-lg p-3 mb-3 border border-teal-200">
+                  <div class="text-xs font-semibold text-teal-700 mb-2">
+                    <i class="fas fa-clipboard-check mr-1"></i>주요 정보
+                  </div>
+                  <div class="grid grid-cols-3 gap-2 text-xs">
+                    \${additionalInfo.mainSymptoms ? \`
+                      <div>
+                        <span class="text-gray-500">증상:</span>
+                        <span class="font-semibold text-gray-700 ml-1">\${additionalInfo.mainSymptoms}</span>
+                      </div>
+                    \` : ''}
+                    \${additionalInfo.communication ? \`
+                      <div>
+                        <span class="text-gray-500">소통:</span>
+                        <span class="font-semibold text-gray-700 ml-1">\${additionalInfo.communication}</span>
+                      </div>
+                    \` : ''}
+                    \${additionalInfo.mobility ? \`
+                      <div>
+                        <span class="text-gray-500">거동:</span>
+                        <span class="font-semibold text-gray-700 ml-1">\${additionalInfo.mobility}</span>
+                      </div>
+                    \` : ''}
+                  </div>
+                </div>
+                \` : ''}
+                
+                <div class="flex justify-between items-center pt-3 border-t border-gray-200">
                   <button onclick="openQuoteModal('\${req.quote_id}')"
-                    class="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors text-sm font-semibold">
-                    <i class="fas fa-file-invoice mr-1"></i>견적서 작성
+                    class="text-sm text-teal-600 hover:text-teal-700 font-medium">
+                    <i class="fas fa-info-circle mr-1"></i>상세정보 보기
+                  </button>
+                  <button onclick="openQuoteModal('\${req.quote_id}')"
+                    class="px-5 py-2.5 bg-gradient-to-r from-teal-600 to-blue-600 text-white rounded-lg hover:from-teal-700 hover:to-blue-700 transition-all duration-300 text-sm font-bold shadow-md hover:shadow-lg">
+                    <i class="fas fa-file-invoice mr-2"></i>견적서 작성
                   </button>
                 </div>
               </div>
@@ -6961,18 +7030,79 @@ app.get('/dashboard/facility', async (c) => {
           
           selectedRequest = request;
           
+          // additional_notes JSON 파싱
+          let additionalInfo = {};
+          try {
+            if (request.additional_notes) {
+              additionalInfo = JSON.parse(request.additional_notes);
+            }
+          } catch (e) {
+            console.error('추가 정보 파싱 오류:', e);
+          }
+          
           const modalContent = document.getElementById('quoteModalContent');
           modalContent.innerHTML = \`
             <div class="space-y-4">
-              <div class="bg-gray-50 p-4 rounded-lg">
-                <h4 class="font-bold text-gray-800 mb-2">견적 요청 정보</h4>
-                <div class="grid grid-cols-2 gap-2 text-sm">
-                  <div><strong>신청자:</strong> \${request.applicant_name}</div>
-                  <div><strong>연락처:</strong> \${request.applicant_phone}</div>
-                  <div><strong>환자:</strong> \${request.patient_name} (\${request.patient_age}세)</div>
-                  <div><strong>지역:</strong> \${request.sido} \${request.sigungu}</div>
+              <!-- 기본 정보 -->
+              <div class="bg-gradient-to-r from-blue-50 to-teal-50 p-4 rounded-lg border-2 border-blue-200">
+                <h4 class="font-bold text-gray-800 mb-3 text-lg">
+                  <i class="fas fa-info-circle text-blue-600 mr-2"></i>
+                  기본 정보
+                </h4>
+                <div class="grid grid-cols-2 gap-3 text-sm">
+                  <div class="bg-white p-2 rounded">
+                    <span class="text-gray-500">신청자:</span>
+                    <strong class="ml-2 text-gray-800">\${request.applicant_name}</strong>
+                  </div>
+                  <div class="bg-white p-2 rounded">
+                    <span class="text-gray-500">연락처:</span>
+                    <strong class="ml-2 text-gray-800">\${request.applicant_phone}</strong>
+                  </div>
+                  <div class="bg-white p-2 rounded">
+                    <span class="text-gray-500">환자명:</span>
+                    <strong class="ml-2 text-gray-800">\${request.patient_name}</strong>
+                  </div>
+                  <div class="bg-white p-2 rounded">
+                    <span class="text-gray-500">나이/성별:</span>
+                    <strong class="ml-2 text-gray-800">\${request.patient_age}세 \${request.patient_gender || ''}</strong>
+                  </div>
+                  <div class="bg-white p-2 rounded">
+                    <span class="text-gray-500">지역:</span>
+                    <strong class="ml-2 text-gray-800">\${request.sido} \${request.sigungu}</strong>
+                  </div>
+                  <div class="bg-white p-2 rounded">
+                    <span class="text-gray-500">요양등급:</span>
+                    <strong class="ml-2 text-gray-800">\${request.care_grade || '-'}</strong>
+                  </div>
                 </div>
               </div>
+
+              <!-- 상세 정보 -->
+              \${additionalInfo && Object.keys(additionalInfo).length > 0 ? \`
+              <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <h4 class="font-bold text-gray-800 mb-3">
+                  <i class="fas fa-clipboard-list text-teal-600 mr-2"></i>
+                  상세 요청 사항
+                </h4>
+                <div class="grid grid-cols-2 gap-2 text-sm">
+                  \${additionalInfo.insuranceType ? \`<div><span class="text-gray-500">보험유형:</span> <strong>\${additionalInfo.insuranceType}</strong></div>\` : ''}
+                  \${additionalInfo.facilitySize ? \`<div><span class="text-gray-500">시설규모:</span> <strong>\${additionalInfo.facilitySize}</strong></div>\` : ''}
+                  \${additionalInfo.careCost ? \`<div><span class="text-gray-500">비용범위:</span> <strong>\${additionalInfo.careCost}</strong></div>\` : ''}
+                  \${additionalInfo.religion ? \`<div><span class="text-gray-500">종교활동:</span> <strong>\${additionalInfo.religion}</strong></div>\` : ''}
+                  \${additionalInfo.mainSymptoms ? \`<div class="col-span-2"><span class="text-gray-500">주요증상:</span> <strong>\${additionalInfo.mainSymptoms}</strong></div>\` : ''}
+                  \${additionalInfo.communication ? \`<div><span class="text-gray-500">의사소통:</span> <strong>\${additionalInfo.communication}</strong></div>\` : ''}
+                  \${additionalInfo.eating ? \`<div><span class="text-gray-500">식사능력:</span> <strong>\${additionalInfo.eating}</strong></div>\` : ''}
+                  \${additionalInfo.dietType ? \`<div><span class="text-gray-500">식사유형:</span> <strong>\${additionalInfo.dietType}</strong></div>\` : ''}
+                  \${additionalInfo.mobility ? \`<div><span class="text-gray-500">거동능력:</span> <strong>\${additionalInfo.mobility}</strong></div>\` : ''}
+                  \${additionalInfo.toiletUse ? \`<div><span class="text-gray-500">화장실:</span> <strong>\${additionalInfo.toiletUse}</strong></div>\` : ''}
+                  \${additionalInfo.carePrograms ? \`<div class="col-span-2"><span class="text-gray-500">희망프로그램:</span> <strong>\${additionalInfo.carePrograms}</strong></div>\` : ''}
+                  \${additionalInfo.additionalCare ? \`<div class="col-span-2"><span class="text-gray-500">추가케어:</span> <strong>\${additionalInfo.additionalCare}</strong></div>\` : ''}
+                  \${additionalInfo.otherSymptoms ? \`<div class="col-span-2"><span class="text-gray-500">기타증상:</span> <strong>\${additionalInfo.otherSymptoms}</strong></div>\` : ''}
+                </div>
+              </div>
+              \` : ''}
+
+              <hr class="my-4" />
 
               <form onsubmit="handleSubmitQuote(event)" class="space-y-4">
                 <div>
