@@ -3193,25 +3193,66 @@ app.post('/api/family-care', async (c) => {
 // 견적 요청 API (기존)
 app.post('/api/quote-request', async (c) => {
   try {
+    const db = c.env.DB
     const data = await c.req.json()
     
-    // 견적 요청 저장
-    const quoteRequest = {
+    // 견적 요청 ID 생성
+    const quoteId = 'Q' + Date.now()
+    
+    // 추가 정보 JSON 문자열로 변환
+    const additionalNotes = JSON.stringify({
+      insuranceType: data.insuranceType || '',
+      careGrade: data.careGrade || '',
+      facilitySize: data.facilitySize || '',
+      careCost: data.careCost || '',
+      carePrograms: data.carePrograms || '',
+      religion: data.religion || '',
+      mainSymptoms: data.mainSymptoms || '',
+      communication: data.communication || '',
+      eating: data.eating || '',
+      dietType: data.dietType || '',
+      mobility: data.mobility || '',
+      toiletUse: data.toiletUse || '',
+      additionalCare: data.additionalCare || '',
+      otherSymptoms: data.otherSymptoms || ''
+    })
+    
+    // D1 Database에 저장 (실제 스키마에 맞춤)
+    await db.prepare(`
+      INSERT INTO quote_requests (
+        quote_id, quote_type, applicant_name, applicant_phone,
+        patient_name, patient_age, patient_gender,
+        sido, sigungu, facility_type, care_grade,
+        additional_notes, status, created_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', CURRENT_TIMESTAMP)
+    `).bind(
+      quoteId,
+      data.quoteType || 'simple',
+      data.applicantName || '',
+      data.applicantPhone || '',
+      data.patientName || '',
+      data.patientAge || 0,
+      data.patientGender || '',
+      data.sido || '',
+      data.sigungu || '',
+      data.facilityType || '',
+      data.careGrade || '',
+      additionalNotes
+    ).run()
+    
+    // 메모리에도 저장 (호환성 유지)
+    dataStore.quoteRequests.push({
       ...data,
-      id: 'Q' + Date.now(),
+      id: quoteId,
+      quote_id: quoteId,
       status: 'pending',
       createdAt: new Date().toISOString()
-    }
-    
-    dataStore.quoteRequests.push(quoteRequest)
-    
-    // TODO: 여기서 선택한 지역(sido, sigungu)의 시설에게만 견적 요청 전송
-    // 현재는 메모리에 저장만 하고, 실제 D1 DB 연동 시 구현 예정
+    })
     
     return c.json({ 
       success: true, 
       message: '견적 신청이 완료되었습니다!',
-      quoteId: quoteRequest.id
+      quoteId: quoteId
     })
   } catch (error) {
     console.error('Quote request error:', error)
