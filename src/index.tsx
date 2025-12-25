@@ -3263,71 +3263,103 @@ app.post('/api/quote-request', async (c) => {
 // 새로운 다단계 견적 신청 API
 app.post('/api/quote/submit-new', async (c) => {
   try {
+    const db = c.env.DB
     const data = await c.req.json()
     
     // 견적 요청 ID 생성
     const quoteId = 'QN' + Date.now()
     
-    // 견적 요청 객체 생성
-    const quoteRequest = {
-      id: quoteId,
-      facilityType: data.facilityType,
-      patientName: data.patientName,
-      age: data.age,
-      gender: data.gender,
-      sido: data.sido,
-      sigungu: data.sigungu,
+    // additional_notes JSON 생성 (모든 상세 정보 포함)
+    const additionalNotes = JSON.stringify({
+      // 기본 정보
+      applicantEmail: data.applicantEmail || '',
+      insuranceType: data.insuranceType || '',
+      facilitySize: data.facilitySize || '',
+      careCost: data.careCost || '',
+      carePrograms: data.carePrograms || '',
+      religion: data.religion || '',
+      
+      // 환자 상태
+      mainSymptoms: data.mainSymptoms || '',
+      communication: data.communication || '',
+      eating: data.eating || '',
+      dietType: data.dietType || '',
+      mobility: data.mobility || '',
+      toiletUse: data.toiletUse || '',
+      additionalCare: data.additionalCare || '',
+      otherSymptoms: data.otherSymptoms || '',
       
       // 요양병원 전용 필드
-      birthYear: data.birthYear || null,
-      birthMonth: data.birthMonth || null,
-      birthDay: data.birthDay || null,
-      patientGender: data.patientGender || null,
-      careLevel: data.careLevel || null,
-      beneficiaryType: data.beneficiaryType || null,
-      diagnosis: data.diagnosis || [],
-      adl: data.adl || null,
-      dementia: data.dementia || null,
+      birthYear: data.birthYear || '',
+      birthMonth: data.birthMonth || '',
+      birthDay: data.birthDay || '',
+      careLevel: data.careLevel || '',
+      beneficiaryType: data.beneficiaryType || '',
+      diagnosis: data.diagnosis || '',
+      adl: data.adl || '',
+      dementia: data.dementia || '',
       
       // 재가복지 전용 필드
-      serviceType: data.serviceType || null,
-      homecareLevel: data.homecareLevel || null,
-      weeklyHours: data.weeklyHours || null,
+      serviceType: data.serviceType || '',
+      homecareLevel: data.homecareLevel || '',
+      weeklyHours: data.weeklyHours || '',
       
       // 보호자 정보
-      guardianAge: data.guardianAge || null,
-      spouseAge: data.spouseAge || null,
-      guardianPhone: data.guardianPhone || null,
-      housingType: data.housingType || null,
+      guardianAge: data.guardianAge || '',
+      spouseAge: data.spouseAge || '',
+      guardianPhone: data.guardianPhone || '',
+      housingType: data.housingType || '',
       
       // 추가 정보
-      diseases: data.diseases || [],
-      personalities: data.personalities || [],
-      specialNotes: data.specialNotes || '',
-      
-      // 메타데이터
-      status: 'pending', // pending, matched, completed, cancelled
-      matchedFacilities: [], // 매칭된 시설 목록
-      receivedQuotes: [], // 받은 견적서 목록
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      diseases: data.diseases || '',
+      personalities: data.personalities || '',
+      specialNotes: data.specialNotes || ''
+    })
+    
+    // DB에 저장
+    await db.prepare(`
+      INSERT INTO quote_requests (
+        quote_id, quote_type, applicant_name, applicant_phone, applicant_email,
+        patient_name, patient_age, patient_gender,
+        sido, sigungu, facility_type, care_grade,
+        additional_notes, status, created_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+    `).bind(
+      quoteId,
+      'detailed',
+      data.applicantName || '',
+      data.applicantPhone || '',
+      data.applicantEmail || '',
+      data.patientName || '',
+      data.patientAge || 0,
+      data.patientGender || '',
+      data.sido || '',
+      data.sigungu || '',
+      data.facilityType || '',
+      data.careGrade || '',
+      additionalNotes,
+      'pending'
+    ).run()
+    
+    // 견적 요청 객체 생성 (메모리 저장용 - 호환성 유지)
+    const quoteRequest = {
+      id: quoteId,
+      quote_id: quoteId,
+      facilityType: data.facilityType,
+      patientName: data.patientName,
+      patientAge: data.patientAge,
+      patientGender: data.patientGender,
+      sido: data.sido,
+      sigungu: data.sigungu,
+      careGrade: data.careGrade,
+      status: 'pending',
+      createdAt: new Date().toISOString()
     }
     
-    // 메모리에 저장
+    // 메모리에도 저장 (호환성 유지)
     dataStore.quoteRequests.push(quoteRequest)
     
-    // TODO: D1 Database에 영구 저장
-    // await DB.prepare(\`
-    //   INSERT INTO quote_requests (id, facility_type, patient_name, ...) 
-    //   VALUES (?, ?, ?, ...)
-    // \`).bind(...).run()
-    
-    // TODO: 해당 지역의 시설들에게 알림 전송
-    // 1. facilities.json에서 해당 지역 시설 필터링
-    // 2. 시설 대시보드에 새 견적 요청 표시
-    // 3. 이메일/SMS 알림 (optional)
-    
-    console.log('New quote request:', quoteId, data.facilityType, data.sido, data.sigungu)
+    console.log('New detailed quote request saved to DB:', quoteId, data.facilityType, data.sido, data.sigungu)
     
     return c.json({ 
       success: true, 
@@ -6162,9 +6194,9 @@ app.get('/api/facility/dashboard', async (c) => {
     // 해당 지역의 견적 요청 목록 조회
     const quoteRequests = await db.prepare(`
       SELECT 
-        id, quote_id, quote_type, applicant_name, applicant_phone,
-        patient_name, patient_age, sido, sigungu, 
-        facility_type, status, created_at
+        id, quote_id, quote_type, applicant_name, applicant_phone, applicant_email,
+        patient_name, patient_age, patient_gender, sido, sigungu, 
+        facility_type, care_grade, additional_notes, status, created_at
       FROM quote_requests
       WHERE sido = ? AND sigungu = ? AND facility_type = ?
       AND status = 'pending'
