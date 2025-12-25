@@ -6739,6 +6739,234 @@ app.get('/api/admin/reviews/pending', async (c) => {
   }
 })
 
+// ========== 긴급 전원 시스템 API ==========
+
+// 긴급 전원 요청 생성
+app.post('/api/emergency/create', async (c) => {
+  try {
+    const db = c.env.DB
+    const data = await c.req.json()
+    
+    // 필수 필드 검증
+    const required = ['urgencyLevel', 'patientName', 'requesterType', 'requesterName', 'requesterPhone']
+    for (const field of required) {
+      if (!data[field]) {
+        return c.json({ success: false, message: `${field}는 필수 항목입니다.` }, 400)
+      }
+    }
+
+    // 긴급도 검증
+    if (!['normal', 'urgent', 'critical'].includes(data.urgencyLevel)) {
+      return c.json({ success: false, message: '올바른 긴급도를 선택해주세요.' }, 400)
+    }
+
+    // 전원 ID 생성
+    const transferId = `ET${Date.now()}-${Math.random().toString(36).substring(2, 9).toUpperCase()}`
+    
+    // DB 저장
+    await db.prepare(`
+      INSERT INTO emergency_transfers (
+        transfer_id, urgency_level, patient_name, patient_age, patient_gender,
+        diagnosis, care_level, special_notes,
+        desired_admission_date, region_sido, region_sigungu, facility_type,
+        requester_type, requester_name, requester_phone, requester_email,
+        hospital_name, department,
+        status, created_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', CURRENT_TIMESTAMP)
+    `).bind(
+      transferId,
+      data.urgencyLevel,
+      data.patientName,
+      data.patientAge || null,
+      data.patientGender || null,
+      data.diagnosis || null,
+      data.careLevel || null,
+      data.specialNotes || null,
+      data.desiredAdmissionDate || null,
+      data.regionSido || null,
+      data.regionSigungu || null,
+      data.facilityType || null,
+      data.requesterType,
+      data.requesterName,
+      data.requesterPhone,
+      data.requesterEmail || null,
+      data.hospitalName || null,
+      data.department || null
+    ).run()
+    
+    return c.json({
+      success: true,
+      message: '긴급 전원 요청이 접수되었습니다.',
+      transferId,
+      urgencyLevel: data.urgencyLevel
+    })
+  } catch (error) {
+    console.error('긴급 전원 요청 생성 오류:', error)
+    return c.json({ success: false, message: '요청 처리 실패' }, 500)
+  }
+})
+
+// 긴급 전원 요청 목록 조회
+app.get('/api/emergency/list', async (c) => {
+  try {
+    const db = c.env.DB
+    const { urgency, status } = c.req.query()
+    
+    let query = `
+      SELECT 
+        transfer_id, urgency_level, patient_name, patient_age, patient_gender,
+        diagnosis, care_level, region_sido, region_sigungu, facility_type,
+        requester_type, requester_name, requester_phone, hospital_name,
+        status, created_at
+      FROM emergency_transfers
+      WHERE 1=1
+    `
+    
+    const params = []
+    
+    if (urgency) {
+      query += ` AND urgency_level = ?`
+      params.push(urgency)
+    }
+    
+    if (status) {
+      query += ` AND status = ?`
+      params.push(status)
+    }
+    
+    query += ` ORDER BY 
+      CASE urgency_level 
+        WHEN 'critical' THEN 1 
+        WHEN 'urgent' THEN 2 
+        WHEN 'normal' THEN 3 
+      END,
+      created_at DESC
+      LIMIT 50
+    `
+    
+    const result = await db.prepare(query).bind(...params).all()
+    
+    return c.json({
+      success: true,
+      data: result.results || []
+    })
+  } catch (error) {
+    console.error('긴급 전원 목록 조회 오류:', error)
+    return c.json({ success: false, message: '목록 조회 실패' }, 500)
+  }
+})
+
+// 긴급 전원 상세 조회
+app.get('/api/emergency/:transferId', async (c) => {
+  try {
+    const db = c.env.DB
+    const transferId = c.req.param('transferId')
+    
+    const transfer = await db.prepare(`
+      SELECT * FROM emergency_transfers WHERE transfer_id = ?
+    `).bind(transferId).first()
+    
+    if (!transfer) {
+      return c.json({ success: false, message: '요청을 찾을 수 없습니다.' }, 404)
+    }
+    
+    return c.json({
+      success: true,
+      data: transfer
+    })
+  } catch (error) {
+    console.error('긴급 전원 상세 조회 오류:', error)
+    return c.json({ success: false, message: '조회 실패' }, 500)
+  }
+})
+
+// 사회복지사 회원가입
+app.post('/api/social-worker/register', async (c) => {
+  try {
+    const db = c.env.DB
+    const { email, password, name, phone, hospitalName, department, licenseNumber } = await c.req.json()
+    
+    // 필수 필드 검증
+    if (!email || !password || !name || !phone || !hospitalName) {
+      return c.json({ success: false, message: '필수 정보를 모두 입력해주세요.' }, 400)
+    }
+
+    // 이메일 중복 확인
+    const existing = await db.prepare(`
+      SELECT * FROM social_workers WHERE email = ?
+    `).bind(email).first()
+
+    if (existing) {
+      return c.json({ success: false, message: '이미 등록된 이메일입니다.' }, 400)
+    }
+
+    // 비밀번호 간단 해시 (실제로는 bcrypt 사용 권장)
+    const hashedPassword = password // TODO: 실제 해시 처리 필요
+    
+    // DB 저장
+    await db.prepare(`
+      INSERT INTO social_workers (
+        email, password, name, phone, hospital_name, department, license_number,
+        status, created_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, 'active', CURRENT_TIMESTAMP)
+    `).bind(email, hashedPassword, name, phone, hospitalName, department || null, licenseNumber || null).run()
+    
+    return c.json({
+      success: true,
+      message: '사회복지사 계정이 생성되었습니다.'
+    })
+  } catch (error) {
+    console.error('사회복지사 회원가입 오류:', error)
+    return c.json({ success: false, message: '회원가입 실패' }, 500)
+  }
+})
+
+// 사회복지사 로그인
+app.post('/api/social-worker/login', async (c) => {
+  try {
+    const db = c.env.DB
+    const { email, password } = await c.req.json()
+    
+    if (!email || !password) {
+      return c.json({ success: false, message: '이메일과 비밀번호를 입력해주세요.' }, 400)
+    }
+
+    const socialWorker = await db.prepare(`
+      SELECT * FROM social_workers WHERE email = ? AND password = ?
+    `).bind(email, password).first()
+
+    if (!socialWorker) {
+      return c.json({ success: false, message: '이메일 또는 비밀번호가 일치하지 않습니다.' }, 401)
+    }
+
+    if (socialWorker.status !== 'active') {
+      return c.json({ success: false, message: '비활성화된 계정입니다.' }, 403)
+    }
+
+    // 세션 생성 (간단 버전)
+    setCookie(c, 'social_worker_session', email, {
+      maxAge: 3600,
+      httpOnly: true,
+      path: '/'
+    })
+    
+    return c.json({
+      success: true,
+      message: '로그인 성공',
+      user: {
+        id: socialWorker.id,
+        email: socialWorker.email,
+        name: socialWorker.name,
+        hospitalName: socialWorker.hospital_name,
+        department: socialWorker.department
+      }
+    })
+  } catch (error) {
+    console.error('사회복지사 로그인 오류:', error)
+    return c.json({ success: false, message: '로그인 실패' }, 500)
+  }
+})
+
 // ========== 시설 템플릿 관리 API ==========
 
 // 시설 템플릿 조회
@@ -9352,6 +9580,154 @@ app.post('/api/profile/change-password', async (c) => {
   dataStore.users[userIndex].password = newPassword
 
   return c.json({ success: true, message: '비밀번호가 변경되었습니다.' })
+})
+
+// 긴급 전원 요청 페이지 (간단 버전)
+app.get('/emergency-transfer', (c) => {
+  return c.html(`
+    <!DOCTYPE html>
+    <html lang="ko">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>긴급 전원 요청 - 케어조아</title>
+      <script src="https://cdn.tailwindcss.com"></script>
+      <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+    </head>
+    <body class="bg-gray-50">
+      <div class="max-w-3xl mx-auto p-6">
+        <div class="bg-white rounded-xl shadow-lg p-8">
+          <h1 class="text-3xl font-bold text-gray-800 mb-2">
+            <i class="fas fa-ambulance text-red-500 mr-2"></i>
+            긴급 전원 요청
+          </h1>
+          <p class="text-gray-600 mb-6">상급병원에서 요양시설로의 긴급 전원을 지원합니다</p>
+
+          <form id="emergencyForm" class="space-y-6">
+            <!-- 긴급도 선택 -->
+            <div class="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-4">
+              <label class="block text-sm font-bold text-gray-700 mb-3">
+                <i class="fas fa-exclamation-triangle text-yellow-500"></i> 긴급도 선택 *
+              </label>
+              <div class="space-y-2">
+                <label class="flex items-center p-3 border-2 rounded-lg cursor-pointer hover:bg-white">
+                  <input type="radio" name="urgencyLevel" value="critical" class="mr-3" required>
+                  <div>
+                    <span class="font-bold text-red-600">🔴 극긴급 (6시간 이내)</span>
+                    <p class="text-sm text-gray-600">즉시 입소 필요</p>
+                  </div>
+                </label>
+                <label class="flex items-center p-3 border-2 rounded-lg cursor-pointer hover:bg-white">
+                  <input type="radio" name="urgencyLevel" value="urgent" class="mr-3">
+                  <div>
+                    <span class="font-bold text-orange-600">🟠 긴급 (24시간 이내)</span>
+                    <p class="text-sm text-gray-600">하루 내 입소 필요</p>
+                  </div>
+                </label>
+                <label class="flex items-center p-3 border-2 rounded-lg cursor-pointer hover:bg-white">
+                  <input type="radio" name="urgencyLevel" value="normal" class="mr-3">
+                  <div>
+                    <span class="font-bold text-green-600">🟢 일반 (1주일 이내)</span>
+                    <p class="text-sm text-gray-600">여유있게 준비</p>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <!-- 환자 정보 -->
+            <div class="border-2 border-gray-200 rounded-lg p-4">
+              <h3 class="font-bold text-gray-700 mb-4">
+                <i class="fas fa-user-injured text-blue-500"></i> 환자 정보
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input type="text" name="patientName" placeholder="환자 성명 *" required
+                  class="px-4 py-2 border-2 rounded-lg focus:outline-none focus:border-blue-500">
+                <input type="number" name="patientAge" placeholder="나이"
+                  class="px-4 py-2 border-2 rounded-lg focus:outline-none focus:border-blue-500">
+                <select name="patientGender" class="px-4 py-2 border-2 rounded-lg focus:outline-none focus:border-blue-500">
+                  <option value="">성별 선택</option>
+                  <option value="남성">남성</option>
+                  <option value="여성">여성</option>
+                </select>
+                <input type="text" name="careLevel" placeholder="요양등급 (예: 1등급)"
+                  class="px-4 py-2 border-2 rounded-lg focus:outline-none focus:border-blue-500">
+              </div>
+              <textarea name="diagnosis" placeholder="진단명 (예: 뇌경색)" rows="2"
+                class="w-full mt-4 px-4 py-2 border-2 rounded-lg focus:outline-none focus:border-blue-500"></textarea>
+              <textarea name="specialNotes" placeholder="특이사항 (예: 욕창, 기관절개 등)" rows="3"
+                class="w-full mt-4 px-4 py-2 border-2 rounded-lg focus:outline-none focus:border-blue-500"></textarea>
+            </div>
+
+            <!-- 요청자 정보 -->
+            <div class="border-2 border-gray-200 rounded-lg p-4">
+              <h3 class="font-bold text-gray-700 mb-4">
+                <i class="fas fa-hospital text-green-500"></i> 요청자 정보
+              </h3>
+              <div class="grid grid-cols-1 gap-4">
+                <select name="requesterType" required class="px-4 py-2 border-2 rounded-lg focus:outline-none focus:border-blue-500">
+                  <option value="">요청자 유형 선택 *</option>
+                  <option value="hospital">병원 (의사/간호사)</option>
+                  <option value="social_worker">사회복지사</option>
+                  <option value="family">보호자</option>
+                </select>
+                <input type="text" name="requesterName" placeholder="요청자 성명 *" required
+                  class="px-4 py-2 border-2 rounded-lg focus:outline-none focus:border-blue-500">
+                <input type="tel" name="requesterPhone" placeholder="연락처 * (예: 010-1234-5678)" required
+                  class="px-4 py-2 border-2 rounded-lg focus:outline-none focus:border-blue-500">
+                <input type="email" name="requesterEmail" placeholder="이메일"
+                  class="px-4 py-2 border-2 rounded-lg focus:outline-none focus:border-blue-500">
+                <input type="text" name="hospitalName" placeholder="병원명 (해당시)"
+                  class="px-4 py-2 border-2 rounded-lg focus:outline-none focus:border-blue-500">
+              </div>
+            </div>
+
+            <button type="submit" class="w-full py-4 bg-red-600 text-white rounded-lg font-bold text-lg hover:bg-red-700 transition-colors">
+              <i class="fas fa-paper-plane mr-2"></i>
+              긴급 전원 요청 접수
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
+      <script>
+        document.getElementById('emergencyForm').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          
+          const formData = new FormData(e.target);
+          const data = {
+            urgencyLevel: formData.get('urgencyLevel'),
+            patientName: formData.get('patientName'),
+            patientAge: formData.get('patientAge') ? parseInt(formData.get('patientAge')) : null,
+            patientGender: formData.get('patientGender') || null,
+            diagnosis: formData.get('diagnosis') || null,
+            careLevel: formData.get('careLevel') || null,
+            specialNotes: formData.get('specialNotes') || null,
+            requesterType: formData.get('requesterType'),
+            requesterName: formData.get('requesterName'),
+            requesterPhone: formData.get('requesterPhone'),
+            requesterEmail: formData.get('requesterEmail') || null,
+            hospitalName: formData.get('hospitalName') || null
+          };
+
+          try {
+            const response = await axios.post('/api/emergency/create', data);
+            
+            if (response.data.success) {
+              alert(\`✅ 긴급 전원 요청이 접수되었습니다!\\n\\n요청 번호: \${response.data.transferId}\\n긴급도: \${response.data.urgencyLevel}\\n\\n담당자가 곧 연락드리겠습니다.\`);
+              window.location.href = '/';
+            } else {
+              alert('❌ ' + response.data.message);
+            }
+          } catch (error) {
+            console.error('Error:', error);
+            alert('❌ 요청 처리 중 오류가 발생했습니다.');
+          }
+        });
+      </script>
+    </body>
+    </html>
+  `)
 })
 
 export default app
