@@ -2161,48 +2161,59 @@ app.get('/admin', (c) => {
     return c.redirect('/admin/dashboard')
   }
   
-  return c.render(
-    <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800">
-      <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md">
-        <div class="text-center mb-8">
-          <div class="w-20 h-20 bg-gradient-to-r from-gray-800 to-gray-900 rounded-full flex items-center justify-center mx-auto mb-4">
-            <i class="fas fa-shield-alt text-3xl text-white"></i>
-          </div>
-          <h2 class="text-3xl font-bold text-gray-900">관리자 로그인</h2>
-          <p class="text-gray-600 mt-2">케어조아 관리 시스템</p>
-        </div>
-
-        <form id="adminLoginForm" class="space-y-6">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              <i class="fas fa-lock mr-1 text-gray-600"></i>비밀번호
-            </label>
-            <input 
-              type="password" 
-              id="password" 
-              required 
-              class="w-full p-4 border-2 border-gray-300 rounded-lg focus:border-gray-900 focus:outline-none"
-              placeholder="관리자 비밀번호를 입력하세요"
-            />
+  return c.html(
+    `<!DOCTYPE html>
+    <html lang="ko">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>관리자 로그인 - 케어조아</title>
+      <script src="https://cdn.tailwindcss.com"></script>
+      <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+      <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
+    </head>
+    <body>
+      <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md">
+          <div class="text-center mb-8">
+            <div class="w-20 h-20 bg-gradient-to-r from-gray-800 to-gray-900 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i class="fas fa-shield-alt text-3xl text-white"></i>
+            </div>
+            <h2 class="text-3xl font-bold text-gray-900">관리자 로그인</h2>
+            <p class="text-gray-600 mt-2">케어조아 관리 시스템</p>
           </div>
 
-          <button 
-            type="submit" 
-            class="w-full bg-gradient-to-r from-gray-800 to-gray-900 text-white py-4 rounded-lg hover:from-gray-900 hover:to-black transform hover:scale-105 transition-all duration-300 font-bold"
-          >
-            <i class="fas fa-sign-in-alt mr-2"></i>로그인
-          </button>
-        </form>
+          <form id="adminLoginForm" class="space-y-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                <i class="fas fa-lock mr-1 text-gray-600"></i>비밀번호
+              </label>
+              <input 
+                type="password" 
+                id="password" 
+                required 
+                class="w-full p-4 border-2 border-gray-300 rounded-lg focus:border-gray-900 focus:outline-none"
+                placeholder="관리자 비밀번호를 입력하세요"
+              />
+            </div>
 
-        <div class="mt-6 text-center">
-          <a href="/" class="text-gray-600 hover:text-gray-900 text-sm">
-            <i class="fas fa-arrow-left mr-1"></i>메인 페이지로 돌아가기
-          </a>
+            <button 
+              type="submit" 
+              class="w-full bg-gradient-to-r from-gray-800 to-gray-900 text-white py-4 rounded-lg hover:from-gray-900 hover:to-black transform hover:scale-105 transition-all duration-300 font-bold"
+            >
+              <i class="fas fa-sign-in-alt mr-2"></i>로그인
+            </button>
+          </form>
+
+          <div class="mt-6 text-center">
+            <a href="/" class="text-gray-600 hover:text-gray-900 text-sm">
+              <i class="fas fa-arrow-left mr-1"></i>메인 페이지로 돌아가기
+            </a>
+          </div>
         </div>
       </div>
 
-      <script dangerouslySetInnerHTML={{
-        __html: `
+      <script>
         document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
           e.preventDefault();
           const password = document.getElementById('password').value;
@@ -2215,12 +2226,13 @@ app.get('/admin', (c) => {
               alert(response.data.message || '로그인 실패');
             }
           } catch (error) {
+            console.error('Login error:', error);
             alert('로그인 중 오류가 발생했습니다.');
           }
         });
-        `
-      }} />
-    </div>
+      </script>
+    </body>
+    </html>`
   )
 })
 
@@ -7161,51 +7173,113 @@ app.get('/dashboard/facility', async (c) => {
               </div>
               \` : ''}
 
-              <hr class="my-4" />
+              <hr class="my-6 border-t-2 border-gray-300" />
 
-              <form onsubmit="handleSubmitQuote(event)" class="space-y-4">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">예상 월 비용 *</label>
-                  <input type="number" id="estimatedPrice" required
-                    placeholder="예: 2000000"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500" />
+              <!-- 견적서 작성 폼 -->
+              <form onsubmit="handleSubmitQuote(event)" class="space-y-6">
+                <div class="bg-gradient-to-r from-teal-50 to-blue-50 p-4 rounded-lg border-2 border-teal-200">
+                  <h4 class="font-bold text-gray-800 mb-4 text-lg">
+                    <i class="fas fa-file-invoice-dollar text-teal-600 mr-2"></i>
+                    견적 정보 입력
+                  </h4>
+                  
+                  <!-- 비용 정보 -->
+                  <div class="bg-white p-4 rounded-lg mb-4">
+                    <label class="block text-sm font-bold text-gray-700 mb-3">
+                      <i class="fas fa-won-sign text-green-600 mr-2"></i>예상 월 비용 (필수)
+                    </label>
+                    <div class="relative">
+                      <input type="number" id="estimatedPrice" required
+                        placeholder="예: 2500000"
+                        class="w-full px-4 py-3 pr-12 border-2 border-gray-300 rounded-lg focus:border-teal-500 focus:ring-2 focus:ring-teal-200 text-lg font-semibold" />
+                      <span class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">원</span>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2">
+                      <i class="fas fa-info-circle mr-1"></i>
+                      월 이용료 기준 (식대, 간호비, 관리비 포함)
+                    </p>
+                  </div>
+
+                  <!-- 서비스 상세 -->
+                  <div class="bg-white p-4 rounded-lg mb-4">
+                    <label class="block text-sm font-bold text-gray-700 mb-3">
+                      <i class="fas fa-clipboard-list text-blue-600 mr-2"></i>서비스 상세 내용
+                    </label>
+                    <textarea id="serviceDetails" rows="4"
+                      placeholder="예시:
+• 24시간 전문 간호 서비스
+• 전문의 주 2회 정기 회진
+• 물리치료 주 3회 제공
+• 작업치료 및 인지재활 프로그램
+• 영양사 식단 관리"
+                      class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-teal-500 focus:ring-2 focus:ring-teal-200"></textarea>
+                    <p class="text-xs text-gray-500 mt-2">
+                      <i class="fas fa-lightbulb mr-1"></i>
+                      제공되는 서비스를 구체적으로 작성하면 고객의 신뢰도가 높아집니다
+                    </p>
+                  </div>
+
+                  <!-- 가용 객실 -->
+                  <div class="bg-white p-4 rounded-lg mb-4">
+                    <label class="block text-sm font-bold text-gray-700 mb-3">
+                      <i class="fas fa-bed text-purple-600 mr-2"></i>가용 병상/객실 정보
+                    </label>
+                    <input type="text" id="availableRooms"
+                      placeholder="예: 1인실 1개, 2인실 2개, 4인실 1개 입소 가능"
+                      class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-teal-500 focus:ring-2 focus:ring-teal-200" />
+                    <p class="text-xs text-gray-500 mt-2">
+                      <i class="fas fa-info-circle mr-1"></i>
+                      현재 입소 가능한 객실 종류와 개수를 입력해주세요
+                    </p>
+                  </div>
+
+                  <!-- 특별 서비스 -->
+                  <div class="bg-white p-4 rounded-lg mb-4">
+                    <label class="block text-sm font-bold text-gray-700 mb-3">
+                      <i class="fas fa-star text-yellow-600 mr-2"></i>특별 서비스 및 프로그램
+                    </label>
+                    <textarea id="specialServices" rows="3"
+                      placeholder="예시:
+• 치매 전문 케어 프로그램
+• 욕창 예방 및 관리
+• 투약 관리 시스템
+• 24시간 CCTV 모니터링
+• 정기적인 건강 상태 리포트"
+                      class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-teal-500 focus:ring-2 focus:ring-teal-200"></textarea>
+                    <p class="text-xs text-gray-500 mt-2">
+                      <i class="fas fa-lightbulb mr-1"></i>
+                      시설의 차별화된 서비스나 특장점을 강조해주세요
+                    </p>
+                  </div>
+
+                  <!-- 추가 메시지 -->
+                  <div class="bg-white p-4 rounded-lg">
+                    <label class="block text-sm font-bold text-gray-700 mb-3">
+                      <i class="fas fa-comment-dots text-indigo-600 mr-2"></i>고객에게 전달할 메시지
+                    </label>
+                    <textarea id="responseMessage" rows="4"
+                      placeholder="예시:
+안녕하세요, 저희 시설은 20년 경력의 전문 의료진이 상주하며, 환자분의 상태에 최적화된 케어를 제공하고 있습니다.
+
+특히 치매 환자 케어 경험이 풍부하며, 낙상 예방 시스템과 24시간 모니터링 체계를 갖추고 있습니다.
+
+방문 상담 가능하오니 언제든 연락주시기 바랍니다."
+                      class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-teal-500 focus:ring-2 focus:ring-teal-200"></textarea>
+                    <p class="text-xs text-gray-500 mt-2">
+                      <i class="fas fa-heart mr-1 text-red-500"></i>
+                      고객의 상황에 공감하는 따뜻한 메시지를 작성해주세요
+                    </p>
+                  </div>
                 </div>
 
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">서비스 상세</label>
-                  <textarea id="serviceDetails" rows="3"
-                    placeholder="제공되는 서비스를 상세히 설명해주세요."
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"></textarea>
-                </div>
-
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">가용 병상/객실</label>
-                  <input type="text" id="availableRooms"
-                    placeholder="예: 1인실 2개, 2인실 1개"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500" />
-                </div>
-
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">특별 서비스</label>
-                  <input type="text" id="specialServices"
-                    placeholder="예: 물리치료, 작업치료, 언어치료"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500" />
-                </div>
-
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">추가 메시지</label>
-                  <textarea id="responseMessage" rows="3"
-                    placeholder="고객에게 전달할 메시지를 입력해주세요."
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"></textarea>
-                </div>
-
-                <div class="flex space-x-3">
+                <!-- 버튼 -->
+                <div class="flex space-x-3 pt-4">
                   <button type="button" onclick="closeQuoteModal()"
-                    class="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
-                    취소
+                    class="flex-1 px-6 py-4 border-2 border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition-all font-semibold text-lg">
+                    <i class="fas fa-times mr-2"></i>취소
                   </button>
                   <button type="submit"
-                    class="flex-1 px-6 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-semibold">
+                    class="flex-1 px-6 py-4 bg-gradient-to-r from-teal-600 to-blue-600 text-white rounded-lg hover:from-teal-700 hover:to-blue-700 transition-all font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105">
                     <i class="fas fa-paper-plane mr-2"></i>견적서 전송
                   </button>
                 </div>
