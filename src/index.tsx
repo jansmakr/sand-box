@@ -6315,6 +6315,107 @@ app.post('/api/facility/send-quote', async (c) => {
   }
 })
 
+// ========== 시설 템플릿 관리 API ==========
+
+// 시설 템플릿 조회
+app.get('/api/facility/template', async (c) => {
+  const user = getUser(c)
+  
+  if (!user || user.type !== 'facility') {
+    return c.json({ success: false, message: '인증 필요' }, 401)
+  }
+
+  try {
+    const db = c.env.DB
+    
+    const template = await db.prepare(`
+      SELECT * FROM facility_templates WHERE facility_id = ?
+    `).bind(user.id).first()
+    
+    return c.json({
+      success: true,
+      data: template || null
+    })
+  } catch (error) {
+    console.error('템플릿 조회 오류:', error)
+    return c.json({ success: false, message: '템플릿 조회 실패' }, 500)
+  }
+})
+
+// 시설 템플릿 저장/수정
+app.post('/api/facility/template', async (c) => {
+  const user = getUser(c)
+  
+  if (!user || user.type !== 'facility') {
+    return c.json({ success: false, message: '인증 필요' }, 401)
+  }
+
+  try {
+    const db = c.env.DB
+    const data = await c.req.json()
+    
+    // 기존 템플릿 확인
+    const existing = await db.prepare(`
+      SELECT id FROM facility_templates WHERE facility_id = ?
+    `).bind(user.id).first()
+    
+    if (existing) {
+      // 업데이트
+      await db.prepare(`
+        UPDATE facility_templates SET
+          facility_name = ?,
+          facility_description = ?,
+          default_service_details = ?,
+          default_special_services = ?,
+          default_message = ?,
+          price_range_min = ?,
+          price_range_max = ?,
+          available_room_types = ?,
+          updated_at = datetime('now')
+        WHERE facility_id = ?
+      `).bind(
+        data.facilityName || '',
+        data.facilityDescription || '',
+        data.defaultServiceDetails || '',
+        data.defaultSpecialServices || '',
+        data.defaultMessage || '',
+        data.priceRangeMin || null,
+        data.priceRangeMax || null,
+        data.availableRoomTypes || '',
+        user.id
+      ).run()
+    } else {
+      // 새로 생성
+      await db.prepare(`
+        INSERT INTO facility_templates (
+          facility_id, facility_name, facility_description,
+          default_service_details, default_special_services, default_message,
+          price_range_min, price_range_max, available_room_types,
+          created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
+      `).bind(
+        user.id,
+        data.facilityName || '',
+        data.facilityDescription || '',
+        data.defaultServiceDetails || '',
+        data.defaultSpecialServices || '',
+        data.defaultMessage || '',
+        data.priceRangeMin || null,
+        data.priceRangeMax || null,
+        data.availableRoomTypes || ''
+      ).run()
+    }
+    
+    return c.json({
+      success: true,
+      message: '템플릿이 저장되었습니다.'
+    })
+  } catch (error) {
+    console.error('템플릿 저장 오류:', error)
+    return c.json({ success: false, message: '템플릿 저장 실패' }, 500)
+  }
+})
+
 // 고객이 받은 견적서 상세 조회 API
 app.get('/api/customer/quote-responses/:quoteId', async (c) => {
   const user = getUser(c)
@@ -6679,6 +6780,9 @@ app.get('/dashboard/facility', async (c) => {
                 <strong>${user.name}</strong>
                 <span class="text-sm text-gray-500 ml-2">(${user.facilityType})</span>
               </span>
+              <a href="/facility/template" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                <i class="fas fa-file-alt mr-1"></i>견적 템플릿
+              </a>
               <a href="/profile" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700">
                 <i class="fas fa-user-cog mr-1"></i>프로필
               </a>
@@ -7074,6 +7178,18 @@ app.get('/dashboard/facility', async (c) => {
           
           selectedRequest = request;
           
+          // 템플릿 로드
+          let template = null;
+          try {
+            const templateResponse = await fetch('/api/facility/template');
+            const templateData = await templateResponse.json();
+            if (templateData.success && templateData.data) {
+              template = templateData.data;
+            }
+          } catch (error) {
+            console.error('템플릿 로드 오류:', error);
+          }
+          
           // additional_notes JSON 파싱
           let additionalInfo = {};
           try {
@@ -7204,6 +7320,7 @@ app.get('/dashboard/facility', async (c) => {
                   <div class="bg-white p-4 rounded-lg mb-4">
                     <label class="block text-sm font-bold text-gray-700 mb-3">
                       <i class="fas fa-clipboard-list text-blue-600 mr-2"></i>서비스 상세 내용
+                      \${template ? '<span class="ml-2 text-xs text-teal-600"><i class="fas fa-magic mr-1"></i>템플릿 자동 입력됨</span>' : ''}
                     </label>
                     <textarea id="serviceDetails" rows="4"
                       placeholder="예시:
@@ -7212,7 +7329,7 @@ app.get('/dashboard/facility', async (c) => {
 • 물리치료 주 3회 제공
 • 작업치료 및 인지재활 프로그램
 • 영양사 식단 관리"
-                      class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-teal-500 focus:ring-2 focus:ring-teal-200"></textarea>
+                      class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-teal-500 focus:ring-2 focus:ring-teal-200">\${template?.default_service_details || ''}</textarea>
                     <p class="text-xs text-gray-500 mt-2">
                       <i class="fas fa-lightbulb mr-1"></i>
                       제공되는 서비스를 구체적으로 작성하면 고객의 신뢰도가 높아집니다
@@ -7223,8 +7340,10 @@ app.get('/dashboard/facility', async (c) => {
                   <div class="bg-white p-4 rounded-lg mb-4">
                     <label class="block text-sm font-bold text-gray-700 mb-3">
                       <i class="fas fa-bed text-purple-600 mr-2"></i>가용 병상/객실 정보
+                      \${template ? '<span class="ml-2 text-xs text-teal-600"><i class="fas fa-magic mr-1"></i>템플릿 기본값</span>' : ''}
                     </label>
                     <input type="text" id="availableRooms"
+                      value="\${template?.available_room_types || ''}"
                       placeholder="예: 1인실 1개, 2인실 2개, 4인실 1개 입소 가능"
                       class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-teal-500 focus:ring-2 focus:ring-teal-200" />
                     <p class="text-xs text-gray-500 mt-2">
@@ -7237,6 +7356,7 @@ app.get('/dashboard/facility', async (c) => {
                   <div class="bg-white p-4 rounded-lg mb-4">
                     <label class="block text-sm font-bold text-gray-700 mb-3">
                       <i class="fas fa-star text-yellow-600 mr-2"></i>특별 서비스 및 프로그램
+                      \${template ? '<span class="ml-2 text-xs text-teal-600"><i class="fas fa-magic mr-1"></i>템플릿 자동 입력됨</span>' : ''}
                     </label>
                     <textarea id="specialServices" rows="3"
                       placeholder="예시:
@@ -7245,7 +7365,7 @@ app.get('/dashboard/facility', async (c) => {
 • 투약 관리 시스템
 • 24시간 CCTV 모니터링
 • 정기적인 건강 상태 리포트"
-                      class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-teal-500 focus:ring-2 focus:ring-teal-200"></textarea>
+                      class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-teal-500 focus:ring-2 focus:ring-teal-200">\${template?.default_special_services || ''}</textarea>
                     <p class="text-xs text-gray-500 mt-2">
                       <i class="fas fa-lightbulb mr-1"></i>
                       시설의 차별화된 서비스나 특장점을 강조해주세요
@@ -7256,6 +7376,7 @@ app.get('/dashboard/facility', async (c) => {
                   <div class="bg-white p-4 rounded-lg">
                     <label class="block text-sm font-bold text-gray-700 mb-3">
                       <i class="fas fa-comment-dots text-indigo-600 mr-2"></i>고객에게 전달할 메시지
+                      \${template ? '<span class="ml-2 text-xs text-teal-600"><i class="fas fa-magic mr-1"></i>템플릿 자동 입력됨</span>' : ''}
                     </label>
                     <textarea id="responseMessage" rows="4"
                       placeholder="예시:
@@ -7264,7 +7385,7 @@ app.get('/dashboard/facility', async (c) => {
 특히 치매 환자 케어 경험이 풍부하며, 낙상 예방 시스템과 24시간 모니터링 체계를 갖추고 있습니다.
 
 방문 상담 가능하오니 언제든 연락주시기 바랍니다."
-                      class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-teal-500 focus:ring-2 focus:ring-teal-200"></textarea>
+                      class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-teal-500 focus:ring-2 focus:ring-teal-200">\${template?.default_message || ''}</textarea>
                     <p class="text-xs text-gray-500 mt-2">
                       <i class="fas fa-heart mr-1 text-red-500"></i>
                       고객의 상황에 공감하는 따뜻한 메시지를 작성해주세요
@@ -7365,6 +7486,255 @@ app.get('/dashboard/facility', async (c) => {
 
         // 페이지 로드 시 데이터 가져오기
         window.addEventListener('DOMContentLoaded', loadDashboardData);
+      </script>
+    </body>
+    </html>
+  `)
+})
+
+// ========== 시설 템플릿 설정 페이지 ==========
+app.get('/facility/template', async (c) => {
+  const user = getUser(c)
+  
+  if (!user || user.type !== 'facility') {
+    return c.redirect('/login')
+  }
+
+  return c.html(`
+    <!DOCTYPE html>
+    <html lang="ko">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>견적 템플릿 설정 - 케어조아</title>
+      <script src="https://cdn.tailwindcss.com"></script>
+      <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+      <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
+    </head>
+    <body class="bg-gray-50">
+      <!-- 헤더 -->
+      <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex justify-between items-center h-16">
+            <div class="flex items-center">
+              <img src="https://page.gensparksite.com/v1/base64_upload/b39dca8586af1dacd6d8417554313896" 
+                   alt="케어조아 로고" class="h-8 w-auto mr-3" />
+              <h1 class="text-2xl font-bold text-teal-600">케어조아</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+              <a href="/dashboard/facility" class="text-gray-600 hover:text-gray-900">
+                <i class="fas fa-arrow-left mr-1"></i>대시보드로 돌아가기
+              </a>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- 메인 컨텐츠 -->
+      <div class="max-w-4xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-xl shadow-lg p-8">
+          <div class="mb-8">
+            <h2 class="text-3xl font-bold text-gray-800 mb-2">
+              <i class="fas fa-file-alt text-blue-600 mr-3"></i>
+              견적서 기본 템플릿 설정
+            </h2>
+            <p class="text-gray-600">
+              견적서 작성 시 자동으로 입력될 기본 정보를 설정하세요. 
+              견적 작성 시 필요에 따라 수정할 수 있습니다.
+            </p>
+          </div>
+
+          <form id="templateForm" class="space-y-6">
+            <!-- 시설 기본 정보 -->
+            <div class="bg-gradient-to-r from-blue-50 to-teal-50 p-6 rounded-lg border-2 border-blue-200">
+              <h3 class="text-xl font-bold text-gray-800 mb-4">
+                <i class="fas fa-building text-blue-600 mr-2"></i>
+                시설 기본 정보
+              </h3>
+              
+              <div class="space-y-4">
+                <div>
+                  <label class="block text-sm font-bold text-gray-700 mb-2">
+                    시설명
+                  </label>
+                  <input type="text" id="facilityName" value="${user.name}"
+                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200" />
+                </div>
+
+                <div>
+                  <label class="block text-sm font-bold text-gray-700 mb-2">
+                    시설 소개
+                  </label>
+                  <textarea id="facilityDescription" rows="3"
+                    placeholder="예: 20년 전통의 전문 요양 시설로..."
+                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- 기본 서비스 내용 -->
+            <div class="bg-white p-6 rounded-lg border-2 border-gray-200">
+              <label class="block text-sm font-bold text-gray-700 mb-3">
+                <i class="fas fa-clipboard-list text-green-600 mr-2"></i>
+                기본 서비스 상세 내용
+              </label>
+              <textarea id="defaultServiceDetails" rows="6"
+                placeholder="견적서에 기본으로 들어갈 서비스 설명을 입력하세요.
+
+예시:
+• 24시간 전문 간호 서비스
+• 전문의 주 2회 정기 회진
+• 물리치료 주 3회 제공
+• 작업치료 및 인지재활 프로그램
+• 영양사 식단 관리"
+                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-teal-500 focus:ring-2 focus:ring-teal-200"></textarea>
+              <p class="text-xs text-gray-500 mt-2">
+                <i class="fas fa-info-circle mr-1"></i>
+                견적 작성 시 자동으로 입력되며, 필요시 수정 가능합니다
+              </p>
+            </div>
+
+            <!-- 특별 서비스 -->
+            <div class="bg-white p-6 rounded-lg border-2 border-gray-200">
+              <label class="block text-sm font-bold text-gray-700 mb-3">
+                <i class="fas fa-star text-yellow-600 mr-2"></i>
+                특별 서비스 및 프로그램
+              </label>
+              <textarea id="defaultSpecialServices" rows="5"
+                placeholder="시설의 특장점을 입력하세요.
+
+예시:
+• 치매 전문 케어 프로그램
+• 욕창 예방 및 관리
+• 투약 관리 시스템
+• 24시간 CCTV 모니터링
+• 정기적인 건강 상태 리포트"
+                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-teal-500 focus:ring-2 focus:ring-teal-200"></textarea>
+            </div>
+
+            <!-- 기본 메시지 -->
+            <div class="bg-white p-6 rounded-lg border-2 border-gray-200">
+              <label class="block text-sm font-bold text-gray-700 mb-3">
+                <i class="fas fa-comment-dots text-indigo-600 mr-2"></i>
+                기본 안내 메시지
+              </label>
+              <textarea id="defaultMessage" rows="5"
+                placeholder="고객에게 전달할 기본 메시지를 입력하세요.
+
+예시:
+안녕하세요, 저희 시설은 20년 경력의 전문 의료진이 상주하며, 환자분의 상태에 최적화된 케어를 제공하고 있습니다.
+
+특히 치매 환자 케어 경험이 풍부하며, 낙상 예방 시스템과 24시간 모니터링 체계를 갖추고 있습니다.
+
+방문 상담 가능하오니 언제든 연락주시기 바랍니다."
+                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-teal-500 focus:ring-2 focus:ring-teal-200"></textarea>
+            </div>
+
+            <!-- 가격대 정보 -->
+            <div class="bg-white p-6 rounded-lg border-2 border-gray-200">
+              <label class="block text-sm font-bold text-gray-700 mb-3">
+                <i class="fas fa-won-sign text-green-600 mr-2"></i>
+                기본 가격대 (선택사항)
+              </label>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm text-gray-600 mb-2">최소 금액</label>
+                  <input type="number" id="priceRangeMin" 
+                    placeholder="예: 2000000"
+                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-teal-500" />
+                </div>
+                <div>
+                  <label class="block text-sm text-gray-600 mb-2">최대 금액</label>
+                  <input type="number" id="priceRangeMax" 
+                    placeholder="예: 3000000"
+                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-teal-500" />
+                </div>
+              </div>
+              <p class="text-xs text-gray-500 mt-2">
+                <i class="fas fa-info-circle mr-1"></i>
+                참고용 가격대입니다. 실제 견적 작성 시 정확한 금액을 입력해주세요
+              </p>
+            </div>
+
+            <!-- 가용 객실 정보 -->
+            <div class="bg-white p-6 rounded-lg border-2 border-gray-200">
+              <label class="block text-sm font-bold text-gray-700 mb-3">
+                <i class="fas fa-bed text-purple-600 mr-2"></i>
+                기본 객실 정보 (선택사항)
+              </label>
+              <input type="text" id="availableRoomTypes" 
+                placeholder="예: 1인실, 2인실, 4인실 입소 가능"
+                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-teal-500" />
+              <p class="text-xs text-gray-500 mt-2">
+                <i class="fas fa-info-circle mr-1"></i>
+                객실 종류를 입력하세요. 견적 작성 시 가용 객실 개수를 수정할 수 있습니다
+              </p>
+            </div>
+
+            <!-- 버튼 -->
+            <div class="flex space-x-4 pt-6">
+              <a href="/dashboard/facility" 
+                class="flex-1 px-6 py-4 border-2 border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition-all font-semibold text-lg text-center">
+                <i class="fas fa-times mr-2"></i>취소
+              </a>
+              <button type="submit"
+                class="flex-1 px-6 py-4 bg-gradient-to-r from-teal-600 to-blue-600 text-white rounded-lg hover:from-teal-700 hover:to-blue-700 transition-all font-bold text-lg shadow-lg hover:shadow-xl">
+                <i class="fas fa-save mr-2"></i>템플릿 저장
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <script>
+        // 페이지 로드 시 기존 템플릿 불러오기
+        window.addEventListener('DOMContentLoaded', async () => {
+          try {
+            const response = await axios.get('/api/facility/template');
+            if (response.data.success && response.data.data) {
+              const template = response.data.data;
+              document.getElementById('facilityName').value = template.facility_name || '';
+              document.getElementById('facilityDescription').value = template.facility_description || '';
+              document.getElementById('defaultServiceDetails').value = template.default_service_details || '';
+              document.getElementById('defaultSpecialServices').value = template.default_special_services || '';
+              document.getElementById('defaultMessage').value = template.default_message || '';
+              document.getElementById('priceRangeMin').value = template.price_range_min || '';
+              document.getElementById('priceRangeMax').value = template.price_range_max || '';
+              document.getElementById('availableRoomTypes').value = template.available_room_types || '';
+            }
+          } catch (error) {
+            console.error('템플릿 로드 오류:', error);
+          }
+        });
+
+        // 폼 제출
+        document.getElementById('templateForm').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          
+          const data = {
+            facilityName: document.getElementById('facilityName').value,
+            facilityDescription: document.getElementById('facilityDescription').value,
+            defaultServiceDetails: document.getElementById('defaultServiceDetails').value,
+            defaultSpecialServices: document.getElementById('defaultSpecialServices').value,
+            defaultMessage: document.getElementById('defaultMessage').value,
+            priceRangeMin: parseInt(document.getElementById('priceRangeMin').value) || null,
+            priceRangeMax: parseInt(document.getElementById('priceRangeMax').value) || null,
+            availableRoomTypes: document.getElementById('availableRoomTypes').value
+          };
+
+          try {
+            const response = await axios.post('/api/facility/template', data);
+            if (response.data.success) {
+              alert('템플릿이 저장되었습니다! 이제 견적 작성 시 자동으로 입력됩니다.');
+              window.location.href = '/dashboard/facility';
+            } else {
+              alert('템플릿 저장 실패: ' + response.data.message);
+            }
+          } catch (error) {
+            console.error('템플릿 저장 오류:', error);
+            alert('템플릿 저장 중 오류가 발생했습니다.');
+          }
+        });
       </script>
     </body>
     </html>
