@@ -6315,6 +6315,149 @@ app.post('/api/facility/send-quote', async (c) => {
   }
 })
 
+// ========== 메시지 교환 API ==========
+
+// 메시지 전송 (고객 → 시설)
+app.post('/api/messages/send', async (c) => {
+  const user = getUser(c)
+  
+  if (!user || user.type !== 'customer') {
+    return c.json({ success: false, message: '인증 필요' }, 401)
+  }
+
+  try {
+    const db = c.env.DB
+    const { responseId, message } = await c.req.json()
+    
+    if (!responseId || !message) {
+      return c.json({ success: false, message: '필수 정보가 없습니다.' }, 400)
+    }
+
+    // 견적서 응답 정보 조회
+    const response = await db.prepare(`
+      SELECT qr.*, qu.quote_id, qu.applicant_name, qu.patient_name
+      FROM quote_responses qr
+      JOIN quote_requests qu ON qr.quote_id = qu.quote_id
+      WHERE qr.response_id = ?
+    `).bind(responseId).first()
+
+    if (!response) {
+      return c.json({ success: false, message: '견적서를 찾을 수 없습니다.' }, 404)
+    }
+
+    // 메시지 저장
+    const messageId = `MSG${Date.now()}-${Math.random().toString(36).substring(2, 9).toUpperCase()}`
+    
+    await db.prepare(`
+      INSERT INTO chat_messages (
+        message_id, quote_id, response_id, sender_id, sender_type, message, created_at
+      ) VALUES (?, ?, ?, ?, 'customer', ?, CURRENT_TIMESTAMP)
+    `).bind(
+      messageId,
+      response.quote_id,
+      responseId,
+      user.id,
+      message
+    ).run()
+    
+    return c.json({
+      success: true,
+      message: '메시지가 전송되었습니다.',
+      messageId
+    })
+  } catch (error) {
+    console.error('메시지 전송 오류:', error)
+    return c.json({ success: false, message: '메시지 전송 실패' }, 500)
+  }
+})
+
+// 메시지 목록 조회 (견적서별)
+app.get('/api/messages/:responseId', async (c) => {
+  const user = getUser(c)
+  
+  if (!user) {
+    return c.json({ success: false, message: '인증 필요' }, 401)
+  }
+
+  try {
+    const db = c.env.DB
+    const responseId = c.req.param('responseId')
+    
+    // 메시지 목록 조회
+    const messages = await db.prepare(`
+      SELECT 
+        message_id,
+        sender_id,
+        sender_type,
+        message,
+        created_at,
+        is_read
+      FROM chat_messages
+      WHERE response_id = ?
+      ORDER BY created_at ASC
+    `).bind(responseId).all()
+    
+    return c.json({
+      success: true,
+      data: messages.results || []
+    })
+  } catch (error) {
+    console.error('메시지 조회 오류:', error)
+    return c.json({ success: false, message: '메시지 조회 실패' }, 500)
+  }
+})
+
+// 시설 메시지 응답
+app.post('/api/messages/reply', async (c) => {
+  const user = getUser(c)
+  
+  if (!user || user.type !== 'facility') {
+    return c.json({ success: false, message: '인증 필요' }, 401)
+  }
+
+  try {
+    const db = c.env.DB
+    const { responseId, message } = await c.req.json()
+    
+    if (!responseId || !message) {
+      return c.json({ success: false, message: '필수 정보가 없습니다.' }, 400)
+    }
+
+    // 견적서 응답 정보 조회
+    const response = await db.prepare(`
+      SELECT * FROM quote_responses WHERE response_id = ? AND partner_id = ?
+    `).bind(responseId, user.id).first()
+
+    if (!response) {
+      return c.json({ success: false, message: '권한이 없습니다.' }, 403)
+    }
+
+    // 메시지 저장
+    const messageId = `MSG${Date.now()}-${Math.random().toString(36).substring(2, 9).toUpperCase()}`
+    
+    await db.prepare(`
+      INSERT INTO chat_messages (
+        message_id, quote_id, response_id, sender_id, sender_type, message, created_at
+      ) VALUES (?, ?, ?, ?, 'facility', ?, CURRENT_TIMESTAMP)
+    `).bind(
+      messageId,
+      response.quote_id,
+      responseId,
+      user.id,
+      message
+    ).run()
+    
+    return c.json({
+      success: true,
+      message: '답변이 전송되었습니다.',
+      messageId
+    })
+  } catch (error) {
+    console.error('답변 전송 오류:', error)
+    return c.json({ success: false, message: '답변 전송 실패' }, 500)
+  }
+})
+
 // ========== 시설 템플릿 관리 API ==========
 
 // 시설 템플릿 조회
@@ -6413,6 +6556,112 @@ app.post('/api/facility/template', async (c) => {
   } catch (error) {
     console.error('템플릿 저장 오류:', error)
     return c.json({ success: false, message: '템플릿 저장 실패' }, 500)
+  }
+})
+
+// ========== 메시지 교환 시스템 API ==========
+
+// 메시지 전송 API
+app.post('/api/messages/send', async (c) => {
+  const user = getUser(c)
+  
+  if (!user) {
+    return c.json({ success: false, message: '인증 필요' }, 401)
+  }
+
+  try {
+    const db = c.env.DB
+    const data = await c.req.json()
+    
+    const messageId = `MSG${Date.now()}-${Math.random().toString(36).substring(2, 9).toUpperCase()}`
+    
+    // 메시지 저장
+    await db.prepare(`
+      INSERT INTO chat_messages (
+        message_id, quote_id, sender_type, sender_id, sender_name,
+        message, is_read, created_at
+      ) VALUES (?, ?, ?, ?, ?, ?, 0, datetime('now'))
+    `).bind(
+      messageId,
+      data.quoteId,
+      user.type,
+      user.id,
+      user.name,
+      data.message
+    ).run()
+    
+    return c.json({
+      success: true,
+      message: '메시지가 전송되었습니다.',
+      messageId
+    })
+  } catch (error) {
+    console.error('메시지 전송 오류:', error)
+    return c.json({ success: false, message: '메시지 전송 실패' }, 500)
+  }
+})
+
+// 메시지 목록 조회 API
+app.get('/api/messages/:quoteId', async (c) => {
+  const user = getUser(c)
+  
+  if (!user) {
+    return c.json({ success: false, message: '인증 필요' }, 401)
+  }
+
+  try {
+    const db = c.env.DB
+    const quoteId = c.req.param('quoteId')
+    
+    // 메시지 목록 조회
+    const messages = await db.prepare(`
+      SELECT * FROM chat_messages
+      WHERE quote_id = ?
+      ORDER BY created_at ASC
+    `).bind(quoteId).all()
+    
+    // 읽지 않은 메시지를 읽음으로 표시 (상대방이 보낸 메시지만)
+    await db.prepare(`
+      UPDATE chat_messages
+      SET is_read = 1
+      WHERE quote_id = ? AND sender_id != ? AND is_read = 0
+    `).bind(quoteId, user.id).run()
+    
+    return c.json({
+      success: true,
+      data: messages.results
+    })
+  } catch (error) {
+    console.error('메시지 조회 오류:', error)
+    return c.json({ success: false, message: '메시지 조회 실패' }, 500)
+  }
+})
+
+// 읽지 않은 메시지 개수 조회 API
+app.get('/api/messages/unread-count/:quoteId', async (c) => {
+  const user = getUser(c)
+  
+  if (!user) {
+    return c.json({ success: false, message: '인증 필요' }, 401)
+  }
+
+  try {
+    const db = c.env.DB
+    const quoteId = c.req.param('quoteId')
+    
+    const result = await db.prepare(`
+      SELECT COUNT(*) as count
+      FROM chat_messages
+      WHERE quote_id = ? AND sender_id != ? AND is_read = 0
+    `).bind(quoteId, user.id).first()
+    
+    return c.json({
+      success: true,
+      count: result?.count || 0
+    })
+  } catch (error) {
+    console.error('읽지 않은 메시지 개수 조회 오류:', error)
+    return c.json({ success: false, message: '조회 실패' }, 500)
   }
 })
 
@@ -8017,7 +8266,7 @@ app.get('/quote-details/:quoteId', async (c) => {
                           class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-semibold">
                           <i class="fas fa-phone mr-1"></i>전화 상담
                         </a>
-                        <button onclick="openContactModal(${index})"
+                        <button onclick="openMessageModal('${response.response_id}')"
                           class="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors text-sm font-semibold">
                           <i class="fas fa-envelope mr-1"></i>문의하기
                         </button>
@@ -8194,34 +8443,44 @@ app.get('/quote-details/:quoteId', async (c) => {
             document.body.appendChild(modal);
           }
 
-          function openContactModal(index) {
-            const quote = quotesData[index];
+          async function openMessageModal(responseId) {
+            const response = responsesData.find(r => r.response_id === responseId);
+            if (!response) {
+              alert('견적서를 찾을 수 없습니다.');
+              return;
+            }
+            
             const modal = document.getElementById('contactModal');
             const content = document.getElementById('contactModalContent');
             
             content.innerHTML = \`
-              <form onsubmit="handleSendContact(event, \${index})" class="space-y-4">
+              <form onsubmit="handleSendMessage(event, '\${responseId}')" class="space-y-4">
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">문의 내용</label>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-pen text-blue-500"></i> 문의 내용
+                  </label>
                   <textarea id="contactMessage" rows="5" required
-                    placeholder="문의하실 내용을 입력해주세요."
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"></textarea>
+                    placeholder="예: 치매 케어 프로그램에 대해 더 자세히 알고 싶습니다. 입소 가능한 날짜는 언제인가요?"
+                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"></textarea>
+                  <p class="text-xs text-gray-500 mt-1">
+                    궁금하신 점을 자유롭게 작성해주세요. 시설에서 확인 후 답변드립니다.
+                  </p>
                 </div>
                 
                 <div class="bg-blue-50 p-4 rounded-lg">
                   <p class="text-sm text-blue-800">
                     <i class="fas fa-info-circle mr-2"></i>
-                    문의 내용은 시설 담당자에게 직접 전달되며, 담당자가 연락드릴 예정입니다.
+                    문의 내용은 \${response.contact_person || '시설 담당자'}에게 직접 전달됩니다.
                   </p>
                 </div>
 
                 <div class="flex space-x-3">
                   <button type="button" onclick="closeContactModal()"
-                    class="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                    class="flex-1 px-6 py-3 border-2 border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
                     취소
                   </button>
                   <button type="submit"
-                    class="flex-1 px-6 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-semibold">
+                    class="flex-1 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-semibold">
                     <i class="fas fa-paper-plane mr-2"></i>문의 전송
                   </button>
                 </div>
@@ -8235,12 +8494,37 @@ app.get('/quote-details/:quoteId', async (c) => {
             document.getElementById('contactModal').classList.add('hidden');
           }
 
-          function handleSendContact(event, index) {
+          async function handleSendMessage(event, responseId) {
             event.preventDefault();
-            const message = document.getElementById('contactMessage').value;
+            const message = document.getElementById('contactMessage').value.trim();
             
-            // TODO: API로 문의 전송
-            alert('문의가 전송되었습니다. 담당자가 곧 연락드릴 예정입니다.');
+            if (!message) {
+              alert('메시지 내용을 입력해주세요.');
+              return;
+            }
+
+            try {
+              const response = await fetch('/api/messages/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  responseId,
+                  message: message
+                })
+              });
+
+              const result = await response.json();
+
+              if (result.success) {
+                alert('문의가 전송되었습니다. 담당자가 확인 후 답변드립니다.');
+                closeContactModal();
+              } else {
+                alert(result.message || '메시지 전송 실패');
+              }
+            } catch (error) {
+              console.error('메시지 전송 오류:', error);
+              alert('메시지 전송 중 오류가 발생했습니다.');
+            }
             closeContactModal();
           }
         </script>
@@ -8491,6 +8775,57 @@ app.get('/profile', (c) => {
           } catch (error) {
             alert('비밀번호 변경 중 오류가 발생했습니다.');
             console.error(error);
+          }
+        }
+
+        // 메시지 모달 관련 함수
+        function openMessageModal(responseId) {
+          const response = responsesData.find(r => r.response_id === responseId);
+          if (!response) {
+            alert('견적서를 찾을 수 없습니다.');
+            return;
+          }
+          
+          document.getElementById('messageResponseId').value = responseId;
+          document.getElementById('messageFacilityName').textContent = response.contact_person || '시설';
+          document.getElementById('messageModal').classList.remove('hidden');
+        }
+
+        function closeMessageModal() {
+          document.getElementById('messageModal').classList.add('hidden');
+          document.getElementById('messageForm').reset();
+        }
+
+        async function sendMessage() {
+          const responseId = document.getElementById('messageResponseId').value;
+          const messageContent = document.getElementById('messageContent').value.trim();
+
+          if (!messageContent) {
+            alert('메시지 내용을 입력해주세요.');
+            return;
+          }
+
+          try {
+            const response = await fetch('/api/messages/send', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                responseId,
+                message: messageContent
+              })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+              alert('메시지가 전송되었습니다.');
+              closeMessageModal();
+            } else {
+              alert(result.message || '메시지 전송 실패');
+            }
+          } catch (error) {
+            console.error('메시지 전송 오류:', error);
+            alert('메시지 전송 중 오류가 발생했습니다.');
           }
         }
       </script>
