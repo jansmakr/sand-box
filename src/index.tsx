@@ -4032,149 +4032,196 @@ app.post('/api/ai-matching', async (c) => {
 // 간편견적 페이지
 app.get('/quote-simple', (c) => {
   return c.render(
-    <div class="min-h-screen bg-gray-50">
-      <header class="bg-white shadow-sm border-b">
-        <div class="max-w-7xl mx-auto px-4 py-4">
-          <div class="flex justify-between items-center">
-            <a href="/" class="flex items-center">
-              <img 
-                src="https://page.gensparksite.com/v1/base64_upload/b39dca8586af1dacd6d8417554313896" 
-                alt="케어조아 로고"
-                class="h-8 mr-3"
-              />
-              <h1 class="text-2xl font-bold text-teal-600">케어조아</h1>
-            </a>
-            <a href="/" class="text-gray-600 hover:text-gray-900">
+    <div class="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
+      <header class="bg-white shadow-md border-b-2 border-green-500">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex justify-between items-center h-16">
+            <div class="flex items-center">
+              <a href="/" class="flex items-center hover:opacity-80 transition">
+                <img 
+                  src="https://page.gensparksite.com/v1/base64_upload/b39dca8586af1dacd6d8417554313896" 
+                  alt="케어조아 로고"
+                  class="h-10 w-auto mr-3"
+                />
+                <h1 class="text-2xl font-bold text-green-600">케어조아</h1>
+              </a>
+            </div>
+            <a href="/" class="text-gray-600 hover:text-green-600 transition font-medium">
               <i class="fas fa-home mr-2"></i>홈으로
             </a>
           </div>
         </div>
       </header>
 
-      <div class="container mx-auto px-4 py-8 max-w-2xl">
-        <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <h1 class="text-2xl font-bold text-gray-800 mb-2">
-            <i class="fas fa-file-invoice text-green-600 mr-2"></i>
-            상세견적 신청
-          </h1>
-          <p class="text-gray-600">정확한 견적을 위한 상세 정보 입력 (맞춤 견적)</p>
+      <div class="max-w-4xl mx-auto px-4 py-12">
+        {/* 타이틀 */}
+        <div class="text-center mb-12">
+          <h2 class="text-5xl font-extrabold text-gray-900 mb-4">
+            <i class="fas fa-file-invoice text-green-600 mr-3"></i>
+            상세 견적 신청
+          </h2>
+          <p class="text-xl text-gray-600">
+            정확한 맞춤 견적을 위해 상세 정보를 입력해주세요
+          </p>
         </div>
 
-        <form id="simpleQuoteForm" class="bg-white rounded-lg shadow-sm p-6 space-y-6">
-          {/* 지역 선택 */}
-          <div>
-            <label class="block text-sm font-bold text-gray-700 mb-2">
-              <i class="fas fa-map-marker-alt text-red-500 mr-1"></i>
-              지역 선택 <span class="text-red-500">*</span>
-            </label>
-            <div class="grid grid-cols-2 gap-4">
-              <select id="sido" name="sido" required class="w-full px-4 py-2 border rounded-lg">
-                <option value="">시/도 선택</option>
-                <option value="서울특별시">서울특별시</option>
-                <option value="부산광역시">부산광역시</option>
-                <option value="대구광역시">대구광역시</option>
-                <option value="인천광역시">인천광역시</option>
-                <option value="광주광역시">광주광역시</option>
-                <option value="대전광역시">대전광역시</option>
-                <option value="울산광역시">울산광역시</option>
-                <option value="세종특별자치시">세종특별자치시</option>
-                <option value="경기도">경기도</option>
-                <option value="강원도">강원도</option>
-                <option value="충청북도">충청북도</option>
-                <option value="충청남도">충청남도</option>
-                <option value="전라북도">전라북도</option>
-                <option value="전라남도">전라남도</option>
-                <option value="경상북도">경상북도</option>
-                <option value="경상남도">경상남도</option>
-                <option value="제주특별자치도">제주특별자치도</option>
-              </select>
-              <select id="sigungu" name="sigungu" required class="w-full px-4 py-2 border rounded-lg">
-                <option value="">시/군/구 선택</option>
-              </select>
-            </div>
-          </div>
-
-          {/* 시설 종류 */}
-          <div>
-            <label class="block text-sm font-bold text-gray-700 mb-2">
-              <i class="fas fa-building text-blue-500 mr-1"></i>
-              이용 희망 시설 <span class="text-red-500">*</span>
-            </label>
-            <div class="grid grid-cols-2 gap-3">
-              <label class="flex items-center p-4 border-2 rounded-lg cursor-pointer hover:border-blue-500">
-                <input type="radio" name="facilityType" value="요양원" required class="mr-3" />
-                <div>
-                  <div class="font-semibold">요양원</div>
-                  <div class="text-xs text-gray-500">24시간 입소</div>
-                </div>
-              </label>
-              <label class="flex items-center p-4 border-2 rounded-lg cursor-pointer hover:border-blue-500">
-                <input type="radio" name="facilityType" value="요양병원" required class="mr-3" />
-                <div>
-                  <div class="font-semibold">요양병원</div>
-                  <div class="text-xs text-gray-500">의료 집중</div>
-                </div>
-              </label>
-              <label class="flex items-center p-4 border-2 rounded-lg cursor-pointer hover:border-blue-500">
-                <input type="radio" name="facilityType" value="주야간보호센터" required class="mr-3" />
-                <div>
-                  <div class="font-semibold">주야간보호</div>
-                  <div class="text-xs text-gray-500">낮/밤 단기</div>
-                </div>
-              </label>
-              <label class="flex items-center p-4 border-2 rounded-lg cursor-pointer hover:border-blue-500">
-                <input type="radio" name="facilityType" value="재가복지센터" required class="mr-3" />
-                <div>
-                  <div class="font-semibold">재가복지</div>
-                  <div class="text-xs text-gray-500">방문 요양</div>
-                </div>
-              </label>
-            </div>
-          </div>
-
-          {/* 신청자 정보 */}
-          <div>
-            <label class="block text-sm font-bold text-gray-700 mb-2">
-              <i class="fas fa-user text-green-500 mr-1"></i>
-              신청자 성함 <span class="text-red-500">*</span>
-            </label>
-            <input type="text" name="applicantName" required placeholder="홍길동"
-              class="w-full px-4 py-2 border rounded-lg" />
-          </div>
-
-          <div>
-            <label class="block text-sm font-bold text-gray-700 mb-2">
-              <i class="fas fa-phone text-green-500 mr-1"></i>
-              연락처 <span class="text-red-500">*</span>
-            </label>
-            <input type="tel" name="phone" required placeholder="010-0000-0000"
-              class="w-full px-4 py-2 border rounded-lg" />
-          </div>
-
-          {/* 돌봄 대상자 */}
-          <div>
-            <label class="block text-sm font-bold text-gray-700 mb-2">
-              <i class="fas fa-heart text-red-500 mr-1"></i>
-              돌봄 대상자 <span class="text-red-500">*</span>
-            </label>
-            <div class="space-y-3">
-              <div>
-                <label class="block text-xs text-gray-600 mb-1">환자 성함</label>
-                <input type="text" name="patientName" required placeholder="환자 성함 입력"
-                  class="w-full px-4 py-2 border rounded-lg" />
+        
+        {/* 5단계 폼 */}
+        <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
+        <form id="simpleQuoteForm" class="p-8 space-y-8">
+          
+          {/* 1단계: 시설 선택 */}
+          <div class="border-b-2 border-gray-200 pb-8">
+            <div class="flex items-center mb-6">
+              <div class="w-10 h-10 bg-green-600 text-white rounded-full flex items-center justify-center font-bold text-lg mr-4">
+                1
               </div>
+              <h3 class="text-2xl font-bold text-gray-900">시설을 선택해 주세요</h3>
+            </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <label class="relative cursor-pointer group">
+                <input type="radio" name="facilityType" value="요양병원" required class="peer sr-only" />
+                <div class="border-2 border-gray-300 rounded-xl p-6 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                  <i class="fas fa-hospital text-3xl text-gray-400 mb-3 group-hover:text-green-600 peer-checked:text-green-600"></i>
+                  <div class="font-semibold text-gray-700 group-hover:text-green-700 peer-checked:text-green-700">요양병원</div>
+                </div>
+              </label>
+              
+              <label class="relative cursor-pointer group">
+                <input type="radio" name="facilityType" value="요양원" required class="peer sr-only" />
+                <div class="border-2 border-gray-300 rounded-xl p-6 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                  <i class="fas fa-home text-3xl text-gray-400 mb-3 group-hover:text-green-600 peer-checked:text-green-600"></i>
+                  <div class="font-semibold text-gray-700 group-hover:text-green-700 peer-checked:text-green-700">요양원</div>
+                </div>
+              </label>
+              
+              <label class="relative cursor-pointer group">
+                <input type="radio" name="facilityType" value="주야간보호센터" required class="peer sr-only" />
+                <div class="border-2 border-gray-300 rounded-xl p-6 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                  <i class="fas fa-sun text-3xl text-gray-400 mb-3 group-hover:text-green-600 peer-checked:text-green-600"></i>
+                  <div class="font-semibold text-gray-700 group-hover:text-green-700 peer-checked:text-green-700">주야간보호</div>
+                </div>
+              </label>
+              
+              <label class="relative cursor-pointer group">
+                <input type="radio" name="facilityType" value="재가복지센터" required class="peer sr-only" />
+                <div class="border-2 border-gray-300 rounded-xl p-6 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                  <i class="fas fa-hands-helping text-3xl text-gray-400 mb-3 group-hover:text-green-600 peer-checked:text-green-600"></i>
+                  <div class="font-semibold text-gray-700 group-hover:text-green-700 peer-checked:text-green-700">재가복지센터</div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          {/* 2단계: 지역 선택 */}
+          <div class="border-b-2 border-gray-200 pb-8">
+            <div class="flex items-center mb-6">
+              <div class="w-10 h-10 bg-green-600 text-white rounded-full flex items-center justify-center font-bold text-lg mr-4">
+                2
+              </div>
+              <h3 class="text-2xl font-bold text-gray-900">지역을 선택해 주세요</h3>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-3">
+                  <i class="fas fa-map-marker-alt text-green-600 mr-2"></i>시∙도
+                </label>
+                <select id="sido" name="sido" required 
+                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition text-lg">
+                  <option value="">선택해주세요</option>
+                  <option value="서울특별시">서울특별시</option>
+                  <option value="경기도">경기도</option>
+                  <option value="인천광역시">인천광역시</option>
+                  <option value="부산광역시">부산광역시</option>
+                  <option value="대구광역시">대구광역시</option>
+                  <option value="대전광역시">대전광역시</option>
+                  <option value="광주광역시">광주광역시</option>
+                  <option value="울산광역시">울산광역시</option>
+                  <option value="세종특별자치시">세종특별자치시</option>
+                  <option value="강원도">강원도</option>
+                  <option value="충청북도">충청북도</option>
+                  <option value="충청남도">충청남도</option>
+                  <option value="전라북도">전라북도</option>
+                  <option value="전라남도">전라남도</option>
+                  <option value="경상북도">경상북도</option>
+                  <option value="경상남도">경상남도</option>
+                  <option value="제주특별자치도">제주특별자치도</option>
+                </select>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-3">
+                  <i class="fas fa-location-arrow text-green-600 mr-2"></i>시∙군∙구
+                </label>
+                <select id="sigungu" name="sigungu" required
+                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition text-lg">
+                  <option value="">시∙도를 먼저 선택해주세요</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* 3단계: 신청자 정보 */}
+          <div class="border-b-2 border-gray-200 pb-8">
+            <div class="flex items-center mb-6">
+              <div class="w-10 h-10 bg-green-600 text-white rounded-full flex items-center justify-center font-bold text-lg mr-4">
+                3
+              </div>
+              <h3 class="text-2xl font-bold text-gray-900">신청자 정보를 입력해 주세요</h3>
+            </div>
+            
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                  <i class="fas fa-user text-green-600 mr-2"></i>신청자 성함 <span class="text-red-500">*</span>
+                </label>
+                <input type="text" name="applicantName" required placeholder="홍길동"
+                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition" />
+              </div>
+              
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                  <i class="fas fa-phone text-green-600 mr-2"></i>연락처 <span class="text-red-500">*</span>
+                </label>
+                <input type="tel" name="phone" required placeholder="010-0000-0000"
+                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition" />
+              </div>
+            </div>
+          </div>
+
+          {/* 4단계: 환자 정보 */}
+          <div class="border-b-2 border-gray-200 pb-8">
+            <div class="flex items-center mb-6">
+              <div class="w-10 h-10 bg-green-600 text-white rounded-full flex items-center justify-center font-bold text-lg mr-4">
+                4
+              </div>
+              <h3 class="text-2xl font-bold text-gray-900">환자 정보를 입력해 주세요</h3>
+            </div>
+
+            
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                  환자 성함 <span class="text-red-500">*</span>
+                </label>
+                <input type="text" name="patientName" required placeholder="환자 성함 입력"
+                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition" />
+              </div>
+              
               <div class="grid grid-cols-2 gap-4">
                 <div>
-                  <label class="block text-xs text-gray-600 mb-1">성별</label>
-                  <select name="patientGender" required class="w-full px-4 py-2 border rounded-lg">
+                  <label class="block text-sm font-semibold text-gray-700 mb-2">성별 <span class="text-red-500">*</span></label>
+                  <select name="patientGender" required class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition">
                     <option value="">선택</option>
                     <option value="남">남</option>
                     <option value="여">여</option>
                   </select>
                 </div>
                 <div>
-                  <label class="block text-xs text-gray-600 mb-1">연령대</label>
-                  <select name="patientAge" required class="w-full px-4 py-2 border rounded-lg">
+                  <label class="block text-sm font-semibold text-gray-700 mb-2">연령대 <span class="text-red-500">*</span></label>
+                  <select name="patientAge" required class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition">
                     <option value="">선택</option>
                     <option value="60대">60대</option>
                     <option value="70대">70대</option>
@@ -4186,127 +4233,135 @@ app.get('/quote-simple', (c) => {
             </div>
           </div>
 
-          {/* 장기요양등급 */}
-          <div>
-            <label class="block text-sm font-bold text-gray-700 mb-2">
-              <i class="fas fa-certificate text-purple-500 mr-1"></i>
-              장기요양등급
-            </label>
-            <select name="careGrade" class="w-full px-4 py-2 border rounded-lg">
-              <option value="">등급 선택 (선택사항)</option>
-              <option value="1등급">1등급 (95점 이상)</option>
-              <option value="2등급">2등급 (75-94점)</option>
-              <option value="3등급">3등급 (60-74점)</option>
-              <option value="4등급">4등급 (51-59점)</option>
-              <option value="5등급">5등급 (45-50점)</option>
-              <option value="인지지원등급">인지지원등급</option>
-              <option value="등급신청예정">등급신청예정</option>
-            </select>
-          </div>
-
-          {/* 병명/상병명 (요양병원용) */}
-          <div>
-            <label class="block text-sm font-bold text-gray-700 mb-2">
-              <i class="fas fa-notes-medical text-blue-500 mr-1"></i>
-              병명/상병명 (요양병원의 경우)
-            </label>
-            <input type="text" name="diagnosis" placeholder="예: 뇌졸중, 치매, 파킨슨병 등"
-              class="w-full px-4 py-2 border rounded-lg" />
-            <p class="text-xs text-gray-500 mt-1">※ 요양병원 이용 시 정확한 견적을 위해 입력해주세요</p>
-          </div>
-
-          {/* 입소 희망일 */}
-          <div>
-            <label class="block text-sm font-bold text-gray-700 mb-2">
-              <i class="fas fa-calendar-alt text-teal-500 mr-1"></i>
-              입소 희망일
-            </label>
-            <input type="date" name="desiredDate" 
-              class="w-full px-4 py-2 border rounded-lg" />
-          </div>
-
-          {/* 예산 범위 */}
-          <div>
-            <label class="block text-sm font-bold text-gray-700 mb-2">
-              <i class="fas fa-won-sign text-orange-500 mr-1"></i>
-              월 예산 범위
-            </label>
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label class="block text-xs text-gray-600 mb-1">최소 금액 (만원)</label>
-                <input type="number" name="budgetMin" placeholder="100" min="0" step="10"
-                  class="w-full px-4 py-2 border rounded-lg" />
+          {/* 5단계: 상세 정보 */}
+          <div class="pb-4">
+            <div class="flex items-center mb-6">
+              <div class="w-10 h-10 bg-green-600 text-white rounded-full flex items-center justify-center font-bold text-lg mr-4">
+                5
               </div>
+              <h3 class="text-2xl font-bold text-gray-900">상세 정보를 입력해 주세요</h3>
+            </div>
+            
+            <div class="space-y-4">
+
               <div>
-                <label class="block text-xs text-gray-600 mb-1">최대 금액 (만원)</label>
-                <input type="number" name="budgetMax" placeholder="200" min="0" step="10"
-                  class="w-full px-4 py-2 border rounded-lg" />
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                  <i class="fas fa-certificate text-purple-600 mr-2"></i>장기요양등급
+                </label>
+                <select name="careGrade" class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition">
+                  <option value="">등급 선택 (선택사항)</option>
+                  <option value="1등급">1등급 (95점 이상)</option>
+                  <option value="2등급">2등급 (75-94점)</option>
+                  <option value="3등급">3등급 (60-74점)</option>
+                  <option value="4등급">4등급 (51-59점)</option>
+                  <option value="5등급">5등급 (45-50점)</option>
+                  <option value="인지지원등급">인지지원등급</option>
+                  <option value="등급신청예정">등급신청예정</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                  <i class="fas fa-notes-medical text-blue-600 mr-2"></i>병명/상병명 (요양병원의 경우)
+                </label>
+                <input type="text" name="diagnosis" placeholder="예: 뇌졸중, 치매, 파킨슨병 등"
+                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition" />
+                <p class="text-xs text-gray-500 mt-1">※ 요양병원 이용 시 정확한 견적을 위해 입력해주세요</p>
+              </div>
+
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                  <i class="fas fa-calendar-alt text-teal-600 mr-2"></i>입소 희망일
+                </label>
+                <input type="date" name="desiredDate" 
+                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition" />
+              </div>
+
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                  <i class="fas fa-won-sign text-orange-600 mr-2"></i>월 예산 범위
+                </label>
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-xs text-gray-600 mb-1">최소 금액 (만원)</label>
+                    <input type="number" name="budgetMin" placeholder="100" min="0" step="10"
+                      class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition" />
+                  </div>
+                  <div>
+                    <label class="block text-xs text-gray-600 mb-1">최대 금액 (만원)</label>
+                    <input type="number" name="budgetMax" placeholder="200" min="0" step="10"
+                      class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition" />
+                  </div>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">※ 예산 범위를 입력하시면 더 정확한 견적을 받으실 수 있습니다</p>
+              </div>
+
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                  <i class="fas fa-bed text-indigo-600 mr-2"></i>희망 병실 타입
+                </label>
+                <select name="roomType" class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition">
+                  <option value="">선택사항</option>
+                  <option value="1인실">1인실</option>
+                  <option value="2인실">2인실</option>
+                  <option value="3인실">3인실</option>
+                  <option value="4인실 이상">4인실 이상</option>
+                  <option value="무관">무관</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                  <i class="fas fa-comment-medical text-yellow-600 mr-2"></i>상세 요청사항 및 특이사항
+                </label>
+                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4 rounded-r-lg">
+                  <p class="text-sm text-yellow-800">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    <strong>※ 상세하게 작성하실수록</strong> 더 정확한 맞춤 견적을 받으실 수 있습니다.
+                  </p>
+                </div>
+                <textarea name="additionalNotes" rows="6"
+                  placeholder="예시:&#10;- 환자의 현재 상태 (거동 가능 여부, 인지 능력 등)&#10;- 필요한 특수 케어 (욕창 관리, 튜브 영양, 인공호흡기 등)&#10;- 종교 및 식이 요구사항&#10;- 면회 관련 요청사항&#10;- 기타 중요한 특이사항&#10;&#10;상세하게 작성해주실수록 정확한 견적을 받으실 수 있습니다."
+                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition text-base"></textarea>
               </div>
             </div>
-            <p class="text-xs text-gray-500 mt-1">※ 예산 범위를 입력하시면 더 정확한 견적을 받으실 수 있습니다</p>
-          </div>
-
-          {/* 희망 병실 타입 */}
-          <div>
-            <label class="block text-sm font-bold text-gray-700 mb-2">
-              <i class="fas fa-bed text-indigo-500 mr-1"></i>
-              희망 병실 타입
-            </label>
-            <select name="roomType" class="w-full px-4 py-2 border rounded-lg">
-              <option value="">선택사항</option>
-              <option value="1인실">1인실</option>
-              <option value="2인실">2인실</option>
-              <option value="3인실">3인실</option>
-              <option value="4인실 이상">4인실 이상</option>
-              <option value="무관">무관</option>
-            </select>
-          </div>
-
-          {/* 상세 요청사항 및 특이사항 */}
-          <div>
-            <label class="block text-sm font-bold text-gray-700 mb-2">
-              <i class="fas fa-comment-medical text-yellow-500 mr-1"></i>
-              상세 요청사항 및 특이사항
-            </label>
-            <textarea name="additionalNotes" rows="5"
-              placeholder="예시:
-- 환자의 현재 상태 (거동 가능 여부, 인지 능력 등)
-- 필요한 특수 케어 (욕창 관리, 튜브 영양, 인공호흡기 등)
-- 종교 및 식이 요구사항
-- 면회 관련 요청사항
-- 기타 중요한 특이사항"
-              class="w-full px-4 py-2 border rounded-lg resize-none"></textarea>
-            <p class="text-xs text-gray-500 mt-1">※ 상세하게 작성하실수록 더 정확한 맞춤 견적을 받으실 수 있습니다</p>
-          </div>
-
-          {/* 개인정보 동의 */}
-          <div>
-            <label class="flex items-start">
-              <input type="checkbox" name="privacyAgree" required class="mt-1 mr-2" />
-              <span class="text-sm text-gray-600">
-                개인정보 수집 및 이용에 동의합니다. (필수)
-              </span>
-            </label>
           </div>
 
           {/* 제출 버튼 */}
-          <div class="flex gap-3">
-            <button type="submit"
-              class="flex-1 bg-green-600 text-white py-4 rounded-lg font-bold hover:bg-green-700 transition-colors">
-              <i class="fas fa-check-circle mr-2"></i>
+          <div class="flex justify-center pt-4">
+            <button type="submit" 
+              class="bg-gradient-to-r from-green-500 to-green-600 text-white px-16 py-5 rounded-2xl text-xl font-bold hover:from-green-600 hover:to-green-700 shadow-2xl transform hover:scale-105 transition-all duration-200">
+              <i class="fas fa-paper-plane mr-3"></i>
               상세 견적 신청하기
             </button>
           </div>
         </form>
+        </div>
 
-        <div class="mt-6 bg-green-50 border-l-4 border-green-500 p-4 rounded">
-          <p class="text-sm text-green-700">
-            <i class="fas fa-info-circle mr-2"></i>
-            <strong>상세 견적 신청 완료 후</strong> 선택하신 지역의 전문 시설에서 환자 상태에 맞는 맞춤 견적서를 보내드립니다.
-          </p>
-          <p class="text-xs text-green-600 mt-2">
-            ※ 정확한 정보 입력은 빠르고 정확한 견적 제공에 도움이 됩니다.
-          </p>
+        {/* 안내 메시지 */}
+        <div class="mt-8 bg-green-50 border border-green-200 rounded-xl p-6">
+          <h4 class="font-bold text-green-900 mb-3 text-lg">
+            <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>
+            상세 견적 신청 후 진행 안내
+          </h4>
+          <ul class="space-y-2 text-green-800">
+            <li class="flex items-start">
+              <i class="fas fa-check-circle text-green-600 mr-2 mt-1"></i>
+              <span>선택하신 지역의 등록된 전문 시설에 상세 견적 요청이 전송됩니다</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fas fa-check-circle text-green-600 mr-2 mt-1"></i>
+              <span>시설에서 환자 상태에 맞는 맞춤 견적서를 작성하여 연락을 드립니다</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fas fa-check-circle text-green-600 mr-2 mt-1"></i>
+              <span>여러 시설의 견적을 비교하여 최적의 선택을 하실 수 있습니다</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fas fa-check-circle text-green-600 mr-2 mt-1"></i>
+              <span>상세한 정보 입력으로 더 정확하고 빠른 견적을 받으실 수 있습니다</span>
+            </li>
+          </ul>
         </div>
       </div>
 
