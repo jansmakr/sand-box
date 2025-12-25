@@ -941,33 +941,76 @@ app.get('/', (c) => {
               <img 
                 src="https://page.gensparksite.com/v1/base64_upload/b39dca8586af1dacd6d8417554313896" 
                 alt="케어조아 로고"
-                class="h-8 w-auto mr-3"
+                class="h-8 w-auto mr-2 sm:mr-3"
               />
-              <h1 class="text-2xl font-bold text-teal-600">케어조아</h1>
+              <h1 class="text-xl sm:text-2xl font-bold text-teal-600">케어조아</h1>
             </div>
+            
+            {/* 데스크톱 네비게이션 */}
             <nav class="hidden md:flex space-x-2 lg:space-x-3 text-sm">
-              <a href="#partner-section" class="bg-red-600 text-white hover:bg-red-700 px-3 py-2 rounded-lg">
+              <a href="#partner-section" class="bg-red-600 text-white hover:bg-red-700 px-3 py-2 rounded-lg whitespace-nowrap">
                 <i class="fas fa-hospital mr-1"></i>상급병원담당자
               </a>
-              <a href="#partner-section" class="bg-blue-600 text-white hover:bg-blue-700 px-3 py-2 rounded-lg">
+              <a href="#partner-section" class="bg-blue-600 text-white hover:bg-blue-700 px-3 py-2 rounded-lg whitespace-nowrap">
                 <i class="fas fa-building mr-1"></i>정부복지담당자
               </a>
-              <a href="/family-care-register" class="bg-green-600 text-white hover:bg-green-700 px-3 py-2 rounded-lg">
+              <a href="/family-care-register" class="bg-green-600 text-white hover:bg-green-700 px-3 py-2 rounded-lg whitespace-nowrap">
                 <i class="fas fa-heart mr-1"></i>가족간병등록
               </a>
-              <a href="#partner-section" class="bg-gray-600 text-white hover:bg-gray-700 px-3 py-2 rounded-lg">
+              <a href="#partner-section" class="bg-gray-600 text-white hover:bg-gray-700 px-3 py-2 rounded-lg whitespace-nowrap">
                 <i class="fas fa-handshake mr-1"></i>입점신청
               </a>
-              <a href="/login" class="bg-teal-600 text-white hover:bg-teal-700 px-3 py-2 rounded-lg">
+              <a href="/login" class="bg-teal-600 text-white hover:bg-teal-700 px-3 py-2 rounded-lg whitespace-nowrap">
                 <i class="fas fa-sign-in-alt mr-1"></i>로그인
               </a>
-              <a href="/admin" class="bg-gray-900 text-white hover:bg-black px-3 py-2 rounded-lg">
+              <a href="/admin" class="bg-gray-900 text-white hover:bg-black px-3 py-2 rounded-lg whitespace-nowrap">
                 <i class="fas fa-shield-alt mr-1"></i>관리자
               </a>
             </nav>
+            
+            {/* 모바일 햄버거 메뉴 버튼 */}
+            <button id="mobile-menu-btn" class="md:hidden p-2 text-gray-600 hover:text-teal-600 focus:outline-none">
+              <i class="fas fa-bars text-2xl"></i>
+            </button>
           </div>
         </div>
+        
+        {/* 모바일 메뉴 (숨김) */}
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t">
+          <nav class="px-4 py-3 space-y-2">
+            <a href="#partner-section" class="block bg-red-600 text-white hover:bg-red-700 px-4 py-3 rounded-lg text-center">
+              <i class="fas fa-hospital mr-2"></i>상급병원담당자
+            </a>
+            <a href="#partner-section" class="block bg-blue-600 text-white hover:bg-blue-700 px-4 py-3 rounded-lg text-center">
+              <i class="fas fa-building mr-2"></i>정부복지담당자
+            </a>
+            <a href="/family-care-register" class="block bg-green-600 text-white hover:bg-green-700 px-4 py-3 rounded-lg text-center">
+              <i class="fas fa-heart mr-2"></i>가족간병등록
+            </a>
+            <a href="#partner-section" class="block bg-gray-600 text-white hover:bg-gray-700 px-4 py-3 rounded-lg text-center">
+              <i class="fas fa-handshake mr-2"></i>입점신청
+            </a>
+            <a href="/login" class="block bg-teal-600 text-white hover:bg-teal-700 px-4 py-3 rounded-lg text-center">
+              <i class="fas fa-sign-in-alt mr-2"></i>로그인
+            </a>
+            <a href="/admin" class="block bg-gray-900 text-white hover:bg-black px-4 py-3 rounded-lg text-center">
+              <i class="fas fa-shield-alt mr-2"></i>관리자
+            </a>
+          </nav>
+        </div>
       </header>
+      
+      <script dangerouslySetInnerHTML={{
+        __html: `
+          // 모바일 메뉴 토글
+          document.getElementById('mobile-menu-btn')?.addEventListener('click', function() {
+            const menu = document.getElementById('mobile-menu');
+            if (menu) {
+              menu.classList.toggle('hidden');
+            }
+          });
+        `
+      }} />
 
       {/* 메인 섹션 */}
       <section class="relative bg-white">
@@ -7239,24 +7282,57 @@ app.get('/dashboard/customer', async (c) => {
           <div class="flex justify-between items-center h-16">
             <div class="flex items-center">
               <img src="https://page.gensparksite.com/v1/base64_upload/b39dca8586af1dacd6d8417554313896" 
-                   alt="케어조아 로고" class="h-8 w-auto mr-3" />
-              <h1 class="text-2xl font-bold text-teal-600">케어조아</h1>
+                   alt="케어조아 로고" class="h-6 sm:h-8 w-auto mr-2 sm:mr-3" />
+              <h1 class="text-lg sm:text-2xl font-bold text-teal-600">케어조아</h1>
             </div>
-            <div class="flex items-center space-x-4">
+            
+            {/* 데스크톱 네비게이션 */}
+            <div class="hidden md:flex items-center space-x-4">
               <span class="text-gray-700">
                 <i class="fas fa-user-circle text-teal-600 mr-2"></i>
                 <strong>${user.name}</strong>님
               </span>
-              <a href="/profile" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700">
+              <a href="/profile" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 whitespace-nowrap">
                 <i class="fas fa-user-cog mr-1"></i>프로필
               </a>
-              <button onclick="handleLogout()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
+              <button onclick="handleLogout()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 whitespace-nowrap">
                 <i class="fas fa-sign-out-alt mr-1"></i>로그아웃
               </button>
             </div>
+            
+            {/* 모바일 메뉴 버튼 */}
+            <button id="mobile-menu-btn" class="md:hidden p-2 text-gray-600 hover:text-teal-600">
+              <i class="fas fa-bars text-xl"></i>
+            </button>
           </div>
         </div>
+        
+        {/* 모바일 메뉴 */}
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t">
+          <nav class="px-4 py-3 space-y-2">
+            <div class="text-gray-700 py-2 px-4 bg-gray-100 rounded-lg">
+              <i class="fas fa-user-circle text-teal-600 mr-2"></i>
+              <strong>${user.name}</strong>님
+            </div>
+            <a href="/profile" class="block bg-gray-600 text-white px-4 py-3 rounded-lg hover:bg-gray-700 text-center">
+              <i class="fas fa-user-cog mr-2"></i>프로필
+            </a>
+            <button onclick="handleLogout()" class="w-full bg-red-600 text-white px-4 py-3 rounded-lg hover:bg-red-700">
+              <i class="fas fa-sign-out-alt mr-2"></i>로그아웃
+            </button>
+          </nav>
+        </div>
       </header>
+      
+      <script>
+        // 모바일 메뉴 토글
+        document.getElementById('mobile-menu-btn')?.addEventListener('click', function() {
+          const menu = document.getElementById('mobile-menu');
+          if (menu) {
+            menu.classList.toggle('hidden');
+          }
+        });
+      </script>
 
       <!-- 메인 컨텐츠 -->
       <div class="max-w-7xl mx-auto px-4 py-8">
@@ -7269,51 +7345,51 @@ app.get('/dashboard/customer', async (c) => {
         </div>
 
         <!-- 통계 카드 -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6 mb-8">
+          <div class="bg-white rounded-xl shadow-md p-4 sm:p-6 border-l-4 border-blue-500">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-gray-600 text-sm">견적 신청</p>
-                <p id="totalRequests" class="text-3xl font-bold text-gray-800 mt-1">0</p>
+                <p class="text-gray-600 text-xs sm:text-sm">견적 신청</p>
+                <p id="totalRequests" class="text-2xl sm:text-3xl font-bold text-gray-800 mt-1">0</p>
               </div>
-              <div class="bg-blue-100 p-4 rounded-full">
-                <i class="fas fa-file-invoice text-blue-600 text-2xl"></i>
+              <div class="bg-blue-100 p-2 sm:p-4 rounded-full">
+                <i class="fas fa-file-invoice text-blue-600 text-lg sm:text-2xl"></i>
               </div>
             </div>
           </div>
 
-          <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500">
+          <div class="bg-white rounded-xl shadow-md p-4 sm:p-6 border-l-4 border-green-500">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-gray-600 text-sm">받은 견적서</p>
-                <p id="totalResponses" class="text-3xl font-bold text-gray-800 mt-1">0</p>
+                <p class="text-gray-600 text-xs sm:text-sm">받은 견적서</p>
+                <p id="totalResponses" class="text-2xl sm:text-3xl font-bold text-gray-800 mt-1">0</p>
               </div>
-              <div class="bg-green-100 p-4 rounded-full">
-                <i class="fas fa-envelope-open-text text-green-600 text-2xl"></i>
+              <div class="bg-green-100 p-2 sm:p-4 rounded-full">
+                <i class="fas fa-envelope-open-text text-green-600 text-lg sm:text-2xl"></i>
               </div>
             </div>
           </div>
 
-          <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-purple-500">
+          <div class="bg-white rounded-xl shadow-md p-4 sm:p-6 border-l-4 border-purple-500">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-gray-600 text-sm">찜한 시설</p>
-                <p id="savedFacilities" class="text-3xl font-bold text-gray-800 mt-1">0</p>
+                <p class="text-gray-600 text-xs sm:text-sm">찜한 시설</p>
+                <p id="savedFacilities" class="text-2xl sm:text-3xl font-bold text-gray-800 mt-1">0</p>
               </div>
-              <div class="bg-purple-100 p-4 rounded-full">
-                <i class="fas fa-heart text-purple-600 text-2xl"></i>
+              <div class="bg-purple-100 p-2 sm:p-4 rounded-full">
+                <i class="fas fa-heart text-purple-600 text-lg sm:text-2xl"></i>
               </div>
             </div>
           </div>
 
-          <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-orange-500">
+          <div class="bg-white rounded-xl shadow-md p-4 sm:p-6 border-l-4 border-orange-500">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-gray-600 text-sm">상담 진행</p>
-                <p id="activeConsultations" class="text-3xl font-bold text-gray-800 mt-1">0</p>
+                <p class="text-gray-600 text-xs sm:text-sm">상담 진행</p>
+                <p id="activeConsultations" class="text-2xl sm:text-3xl font-bold text-gray-800 mt-1">0</p>
               </div>
-              <div class="bg-orange-100 p-4 rounded-full">
-                <i class="fas fa-comments text-orange-600 text-2xl"></i>
+              <div class="bg-orange-100 p-2 sm:p-4 rounded-full">
+                <i class="fas fa-comments text-orange-600 text-lg sm:text-2xl"></i>
               </div>
             </div>
           </div>
@@ -7529,28 +7605,65 @@ app.get('/dashboard/facility', async (c) => {
           <div class="flex justify-between items-center h-16">
             <div class="flex items-center">
               <img src="https://page.gensparksite.com/v1/base64_upload/b39dca8586af1dacd6d8417554313896" 
-                   alt="케어조아 로고" class="h-8 w-auto mr-3" />
-              <h1 class="text-2xl font-bold text-teal-600">케어조아</h1>
+                   alt="케어조아 로고" class="h-6 sm:h-8 w-auto mr-2 sm:mr-3" />
+              <h1 class="text-lg sm:text-2xl font-bold text-teal-600">케어조아</h1>
             </div>
-            <div class="flex items-center space-x-4">
+            
+            {/* 데스크톱 네비게이션 */}
+            <div class="hidden md:flex items-center space-x-4">
               <span class="text-gray-700">
                 <i class="fas fa-building text-teal-600 mr-2"></i>
                 <strong>${user.name}</strong>
                 <span class="text-sm text-gray-500 ml-2">(${user.facilityType})</span>
               </span>
-              <a href="/facility/template" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+              <a href="/facility/template" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 whitespace-nowrap">
                 <i class="fas fa-file-alt mr-1"></i>견적 템플릿
               </a>
-              <a href="/profile" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700">
+              <a href="/profile" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 whitespace-nowrap">
                 <i class="fas fa-user-cog mr-1"></i>프로필
               </a>
-              <button onclick="handleLogout()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
+              <button onclick="handleLogout()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 whitespace-nowrap">
                 <i class="fas fa-sign-out-alt mr-1"></i>로그아웃
               </button>
             </div>
+            
+            {/* 모바일 메뉴 버튼 */}
+            <button id="mobile-menu-btn" class="md:hidden p-2 text-gray-600 hover:text-teal-600">
+              <i class="fas fa-bars text-xl"></i>
+            </button>
           </div>
         </div>
+        
+        {/* 모바일 메뉴 */}
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t">
+          <nav class="px-4 py-3 space-y-2">
+            <div class="text-gray-700 py-2 px-4 bg-gray-100 rounded-lg">
+              <i class="fas fa-building text-teal-600 mr-2"></i>
+              <strong>${user.name}</strong>
+              <span class="text-sm text-gray-500 ml-2">(${user.facilityType})</span>
+            </div>
+            <a href="/facility/template" class="block bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 text-center">
+              <i class="fas fa-file-alt mr-2"></i>견적 템플릿
+            </a>
+            <a href="/profile" class="block bg-gray-600 text-white px-4 py-3 rounded-lg hover:bg-gray-700 text-center">
+              <i class="fas fa-user-cog mr-2"></i>프로필
+            </a>
+            <button onclick="handleLogout()" class="w-full bg-red-600 text-white px-4 py-3 rounded-lg hover:bg-red-700">
+              <i class="fas fa-sign-out-alt mr-2"></i>로그아웃
+            </button>
+          </nav>
+        </div>
       </header>
+      
+      <script>
+        // 모바일 메뉴 토글
+        document.getElementById('mobile-menu-btn')?.addEventListener('click', function() {
+          const menu = document.getElementById('mobile-menu');
+          if (menu) {
+            menu.classList.toggle('hidden');
+          }
+        });
+      </script>
 
       <!-- 메인 컨텐츠 -->
       <div class="max-w-7xl mx-auto px-4 py-8">
@@ -7585,15 +7698,15 @@ app.get('/dashboard/facility', async (c) => {
         </div>
 
         <!-- 통계 카드 -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6 mb-8">
+          <div class="bg-white rounded-xl shadow-md p-4 sm:p-6 border-l-4 border-blue-500">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-gray-600 text-sm">받은 견적요청</p>
-                <p id="newRequests" class="text-3xl font-bold text-gray-800 mt-1">0</p>
+                <p class="text-gray-600 text-xs sm:text-sm">받은 견적요청</p>
+                <p id="newRequests" class="text-2xl sm:text-3xl font-bold text-gray-800 mt-1">0</p>
               </div>
-              <div class="bg-blue-100 p-4 rounded-full">
-                <i class="fas fa-inbox text-blue-600 text-2xl"></i>
+              <div class="bg-blue-100 p-2 sm:p-4 rounded-full">
+                <i class="fas fa-inbox text-blue-600 text-lg sm:text-2xl"></i>
               </div>
             </div>
           </div>
