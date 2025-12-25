@@ -4029,7 +4029,7 @@ app.post('/api/ai-matching', async (c) => {
   }
 })
 
-// 간편견적 페이지
+// 상세견적 페이지 - 2단계 폼
 app.get('/quote-simple', (c) => {
   return c.render(
     <div class="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
@@ -4065,63 +4065,72 @@ app.get('/quote-simple', (c) => {
           </p>
         </div>
 
-        
-        {/* 5단계 폼 */}
-        <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
-        <form id="simpleQuoteForm" class="p-8 space-y-8">
-          
-          {/* 1단계: 시설 선택 */}
-          <div class="border-b-2 border-gray-200 pb-8">
-            <div class="flex items-center mb-6">
-              <div class="w-10 h-10 bg-green-600 text-white rounded-full flex items-center justify-center font-bold text-lg mr-4">
-                1
-              </div>
-              <h3 class="text-2xl font-bold text-gray-900">시설을 선택해 주세요</h3>
-            </div>
-            
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <label class="relative cursor-pointer group">
-                <input type="radio" name="facilityType" value="요양병원" required class="peer sr-only" />
-                <div class="border-2 border-gray-300 rounded-xl p-6 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
-                  <i class="fas fa-hospital text-3xl text-gray-400 mb-3 group-hover:text-green-600 peer-checked:text-green-600"></i>
-                  <div class="font-semibold text-gray-700 group-hover:text-green-700 peer-checked:text-green-700">요양병원</div>
-                </div>
-              </label>
-              
-              <label class="relative cursor-pointer group">
-                <input type="radio" name="facilityType" value="요양원" required class="peer sr-only" />
-                <div class="border-2 border-gray-300 rounded-xl p-6 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
-                  <i class="fas fa-home text-3xl text-gray-400 mb-3 group-hover:text-green-600 peer-checked:text-green-600"></i>
-                  <div class="font-semibold text-gray-700 group-hover:text-green-700 peer-checked:text-green-700">요양원</div>
-                </div>
-              </label>
-              
-              <label class="relative cursor-pointer group">
-                <input type="radio" name="facilityType" value="주야간보호센터" required class="peer sr-only" />
-                <div class="border-2 border-gray-300 rounded-xl p-6 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
-                  <i class="fas fa-sun text-3xl text-gray-400 mb-3 group-hover:text-green-600 peer-checked:text-green-600"></i>
-                  <div class="font-semibold text-gray-700 group-hover:text-green-700 peer-checked:text-green-700">주야간보호</div>
-                </div>
-              </label>
-              
-              <label class="relative cursor-pointer group">
-                <input type="radio" name="facilityType" value="재가복지센터" required class="peer sr-only" />
-                <div class="border-2 border-gray-300 rounded-xl p-6 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
-                  <i class="fas fa-hands-helping text-3xl text-gray-400 mb-3 group-hover:text-green-600 peer-checked:text-green-600"></i>
-                  <div class="font-semibold text-gray-700 group-hover:text-green-700 peer-checked:text-green-700">재가복지센터</div>
-                </div>
-              </label>
-            </div>
+        {/* 단계 표시 */}
+        <div class="mb-8 flex justify-center items-center space-x-4">
+          <div id="step-indicator-1" class="flex items-center">
+            <div class="w-10 h-10 bg-green-600 text-white rounded-full flex items-center justify-center font-bold">1</div>
+            <span class="ml-2 font-semibold text-green-600">시설정보</span>
           </div>
-
-          {/* 2단계: 지역 선택 */}
-          <div class="border-b-2 border-gray-200 pb-8">
-            <div class="flex items-center mb-6">
-              <div class="w-10 h-10 bg-green-600 text-white rounded-full flex items-center justify-center font-bold text-lg mr-4">
-                2
+          <div class="w-16 h-1 bg-gray-300"></div>
+          <div id="step-indicator-2" class="flex items-center opacity-50">
+            <div class="w-10 h-10 bg-gray-300 text-white rounded-full flex items-center justify-center font-bold">2</div>
+            <span class="ml-2 font-semibold text-gray-500">환자정보</span>
+          </div>
+        </div>
+        
+        {/* 2단계 폼 */}
+        <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
+        <form id="detailedQuoteForm" class="p-8 space-y-8">
+          
+          {/* 첫 번째 화면: 시설정보 */}
+          <div id="page-1" class="space-y-8">
+            
+            {/* 1. 시설 유형 선택 */}
+            <div class="border-b-2 border-gray-200 pb-8">
+              <h3 class="text-xl font-bold text-gray-900 mb-4">
+                1. 시설 유형을 선택해 주세요.
+              </h3>
+              
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <label class="relative cursor-pointer group">
+                  <input type="radio" name="facilityType" value="요양병원" required class="peer sr-only" id="facilityType-hospital" />
+                  <div class="border-2 border-gray-300 rounded-xl p-6 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <i class="fas fa-hospital text-3xl text-gray-400 mb-3 group-hover:text-green-600"></i>
+                    <div class="font-semibold text-gray-700">요양병원</div>
+                  </div>
+                </label>
+                
+                <label class="relative cursor-pointer group">
+                  <input type="radio" name="facilityType" value="요양원" required class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-xl p-6 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <i class="fas fa-home text-3xl text-gray-400 mb-3 group-hover:text-green-600"></i>
+                    <div class="font-semibold text-gray-700">요양원</div>
+                  </div>
+                </label>
+                
+                <label class="relative cursor-pointer group">
+                  <input type="radio" name="facilityType" value="주야간보호" required class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-xl p-6 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <i class="fas fa-sun text-3xl text-gray-400 mb-3 group-hover:text-green-600"></i>
+                    <div class="font-semibold text-gray-700">주야간보호</div>
+                  </div>
+                </label>
+                
+                <label class="relative cursor-pointer group">
+                  <input type="radio" name="facilityType" value="재가복지센터" required class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-xl p-6 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <i class="fas fa-hands-helping text-3xl text-gray-400 mb-3 group-hover:text-green-600"></i>
+                    <div class="font-semibold text-gray-700">재가복지센터</div>
+                  </div>
+                </label>
               </div>
-              <h3 class="text-2xl font-bold text-gray-900">지역을 선택해 주세요</h3>
             </div>
+
+            {/* 2. 지역 선택 */}
+            <div class="border-b-2 border-gray-200 pb-8">
+              <h3 class="text-xl font-bold text-gray-900 mb-4">
+                2. 지역을 선택해 주세요.
+              </h3>
             
             <div class="grid md:grid-cols-2 gap-6">
               <div>
@@ -4163,177 +4172,639 @@ app.get('/quote-simple', (c) => {
             </div>
           </div>
 
-          {/* 3단계: 신청자 정보 */}
-          <div class="border-b-2 border-gray-200 pb-8">
-            <div class="flex items-center mb-6">
-              <div class="w-10 h-10 bg-green-600 text-white rounded-full flex items-center justify-center font-bold text-lg mr-4">
-                3
-              </div>
-              <h3 class="text-2xl font-bold text-gray-900">신청자 정보를 입력해 주세요</h3>
-            </div>
-            
-            <div class="space-y-4">
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                  <i class="fas fa-user text-green-600 mr-2"></i>신청자 성함 <span class="text-red-500">*</span>
-                </label>
-                <input type="text" name="applicantName" required placeholder="홍길동"
-                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition" />
+            {/* 3. 보험 유형 및 등급 */}
+            <div class="border-b-2 border-gray-200 pb-8">
+              <h3 class="text-xl font-bold text-gray-900 mb-4">
+                3. 보험 유형 및 등급을 선택해 주세요.
+              </h3>
+              
+              {/* 요양병원 선택시 표시 */}
+              <div id="insurance-hospital" class="hidden space-y-4">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <label class="cursor-pointer">
+                    <input type="radio" name="insuranceType" value="건강보험" class="peer sr-only" />
+                    <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                      <span class="text-sm font-medium">건강보험</span>
+                    </div>
+                  </label>
+                  <label class="cursor-pointer">
+                    <input type="radio" name="insuranceType" value="보호1종" class="peer sr-only" />
+                    <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                      <span class="text-sm font-medium">보호 1종</span>
+                    </div>
+                  </label>
+                  <label class="cursor-pointer">
+                    <input type="radio" name="insuranceType" value="보호2종" class="peer sr-only" />
+                    <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                      <span class="text-sm font-medium">보호 2종</span>
+                    </div>
+                  </label>
+                  <label class="cursor-pointer">
+                    <input type="radio" name="insuranceType" value="차상위1종" class="peer sr-only" />
+                    <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                      <span class="text-sm font-medium">차상위 1종</span>
+                    </div>
+                  </label>
+                  <label class="cursor-pointer">
+                    <input type="radio" name="insuranceType" value="차상위2종" class="peer sr-only" />
+                    <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                      <span class="text-sm font-medium">차상위 2종</span>
+                    </div>
+                  </label>
+                  <label class="cursor-pointer">
+                    <input type="radio" name="insuranceType" value="희귀난치질환" class="peer sr-only" />
+                    <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                      <span class="text-sm font-medium">희귀 난치질환 등록</span>
+                    </div>
+                  </label>
+                  <label class="cursor-pointer">
+                    <input type="radio" name="insuranceType" value="암등록" class="peer sr-only" />
+                    <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                      <span class="text-sm font-medium">암등록</span>
+                    </div>
+                  </label>
+                  <label class="cursor-pointer">
+                    <input type="radio" name="insuranceType" value="기타" class="peer sr-only" id="insurance-etc-hospital" />
+                    <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                      <span class="text-sm font-medium">기타</span>
+                    </div>
+                  </label>
+                </div>
+                <div id="insurance-etc-input-hospital" class="hidden mt-3">
+                  <input type="text" name="insuranceTypeEtc" placeholder="기타 보험 유형을 입력해주세요"
+                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition" />
+                </div>
               </div>
               
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                  <i class="fas fa-phone text-green-600 mr-2"></i>연락처 <span class="text-red-500">*</span>
-                </label>
-                <input type="tel" name="phone" required placeholder="010-0000-0000"
-                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition" />
-              </div>
-            </div>
-          </div>
-
-          {/* 4단계: 환자 정보 */}
-          <div class="border-b-2 border-gray-200 pb-8">
-            <div class="flex items-center mb-6">
-              <div class="w-10 h-10 bg-green-600 text-white rounded-full flex items-center justify-center font-bold text-lg mr-4">
-                4
-              </div>
-              <h3 class="text-2xl font-bold text-gray-900">환자 정보를 입력해 주세요</h3>
-            </div>
-
-            
-            <div class="space-y-4">
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                  환자 성함 <span class="text-red-500">*</span>
-                </label>
-                <input type="text" name="patientName" required placeholder="환자 성함 입력"
-                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition" />
-              </div>
-              
-              <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-sm font-semibold text-gray-700 mb-2">성별 <span class="text-red-500">*</span></label>
-                  <select name="patientGender" required class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition">
-                    <option value="">선택</option>
-                    <option value="남">남</option>
-                    <option value="여">여</option>
-                  </select>
+              {/* 그 외 시설 선택시 표시 */}
+              <div id="insurance-other" class="hidden space-y-4">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <label class="cursor-pointer">
+                    <input type="radio" name="careGrade" value="기초수급자" class="peer sr-only" />
+                    <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                      <span class="text-sm font-medium">기초수급자</span>
+                    </div>
+                  </label>
+                  <label class="cursor-pointer">
+                    <input type="radio" name="careGrade" value="1등급" class="peer sr-only" />
+                    <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                      <span class="text-sm font-medium">1등급</span>
+                    </div>
+                  </label>
+                  <label class="cursor-pointer">
+                    <input type="radio" name="careGrade" value="2등급" class="peer sr-only" />
+                    <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                      <span class="text-sm font-medium">2등급</span>
+                    </div>
+                  </label>
+                  <label class="cursor-pointer">
+                    <input type="radio" name="careGrade" value="3등급" class="peer sr-only" />
+                    <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                      <span class="text-sm font-medium">3등급</span>
+                    </div>
+                  </label>
+                  <label class="cursor-pointer">
+                    <input type="radio" name="careGrade" value="4등급" class="peer sr-only" />
+                    <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                      <span class="text-sm font-medium">4등급</span>
+                    </div>
+                  </label>
+                  <label class="cursor-pointer">
+                    <input type="radio" name="careGrade" value="5등급" class="peer sr-only" />
+                    <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                      <span class="text-sm font-medium">5등급</span>
+                    </div>
+                  </label>
+                  <label class="cursor-pointer">
+                    <input type="radio" name="careGrade" value="인지지원등급" class="peer sr-only" />
+                    <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                      <span class="text-sm font-medium">인지 지원 등급</span>
+                    </div>
+                  </label>
+                  <label class="cursor-pointer">
+                    <input type="radio" name="careGrade" value="기타" class="peer sr-only" id="insurance-etc-other" />
+                    <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                      <span class="text-sm font-medium">기타</span>
+                    </div>
+                  </label>
                 </div>
-                <div>
-                  <label class="block text-sm font-semibold text-gray-700 mb-2">연령대 <span class="text-red-500">*</span></label>
-                  <select name="patientAge" required class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition">
-                    <option value="">선택</option>
-                    <option value="60대">60대</option>
-                    <option value="70대">70대</option>
-                    <option value="80대">80대</option>
-                    <option value="90대 이상">90대 이상</option>
-                  </select>
+                <div id="insurance-etc-input-other" class="hidden mt-3">
+                  <input type="text" name="careGradeEtc" placeholder="기타 등급을 입력해주세요"
+                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition" />
                 </div>
               </div>
-            </div>
-          </div>
-
-          {/* 5단계: 상세 정보 */}
-          <div class="pb-4">
-            <div class="flex items-center mb-6">
-              <div class="w-10 h-10 bg-green-600 text-white rounded-full flex items-center justify-center font-bold text-lg mr-4">
-                5
-              </div>
-              <h3 class="text-2xl font-bold text-gray-900">상세 정보를 입력해 주세요</h3>
             </div>
             
-            <div class="space-y-4">
-
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                  <i class="fas fa-certificate text-purple-600 mr-2"></i>장기요양등급
-                </label>
-                <select name="careGrade" class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition">
-                  <option value="">등급 선택 (선택사항)</option>
-                  <option value="1등급">1등급 (95점 이상)</option>
-                  <option value="2등급">2등급 (75-94점)</option>
-                  <option value="3등급">3등급 (60-74점)</option>
-                  <option value="4등급">4등급 (51-59점)</option>
-                  <option value="5등급">5등급 (45-50점)</option>
-                  <option value="인지지원등급">인지지원등급</option>
-                  <option value="등급신청예정">등급신청예정</option>
-                </select>
-              </div>
-
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                  <i class="fas fa-notes-medical text-blue-600 mr-2"></i>병명/상병명 (요양병원의 경우)
-                </label>
-                <input type="text" name="diagnosis" placeholder="예: 뇌졸중, 치매, 파킨슨병 등"
-                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition" />
-                <p class="text-xs text-gray-500 mt-1">※ 요양병원 이용 시 정확한 견적을 위해 입력해주세요</p>
-              </div>
-
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                  <i class="fas fa-calendar-alt text-teal-600 mr-2"></i>입소 희망일
-                </label>
-                <input type="date" name="desiredDate" 
-                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition" />
-              </div>
-
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                  <i class="fas fa-won-sign text-orange-600 mr-2"></i>월 예산 범위
-                </label>
-                <div class="grid grid-cols-2 gap-4">
-                  <div>
-                    <label class="block text-xs text-gray-600 mb-1">최소 금액 (만원)</label>
-                    <input type="number" name="budgetMin" placeholder="100" min="0" step="10"
-                      class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition" />
+            {/* 4. 요양 시설 크기 */}
+            <div class="border-b-2 border-gray-200 pb-8">
+              <h3 class="text-xl font-bold text-gray-900 mb-4">
+                4. 요양 시설 크기를 선택해 주세요.
+              </h3>
+              <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+                <label class="cursor-pointer">
+                  <input type="radio" name="facilitySize" value="대형" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">대형</span>
                   </div>
-                  <div>
-                    <label class="block text-xs text-gray-600 mb-1">최대 금액 (만원)</label>
-                    <input type="number" name="budgetMax" placeholder="200" min="0" step="10"
-                      class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition" />
+                </label>
+                <label class="cursor-pointer">
+                  <input type="radio" name="facilitySize" value="중형" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">중형</span>
                   </div>
-                </div>
-                <p class="text-xs text-gray-500 mt-1">※ 예산 범위를 입력하시면 더 정확한 견적을 받으실 수 있습니다</p>
-              </div>
-
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                  <i class="fas fa-bed text-indigo-600 mr-2"></i>희망 병실 타입
                 </label>
-                <select name="roomType" class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition">
-                  <option value="">선택사항</option>
-                  <option value="1인실">1인실</option>
-                  <option value="2인실">2인실</option>
-                  <option value="3인실">3인실</option>
-                  <option value="4인실 이상">4인실 이상</option>
-                  <option value="무관">무관</option>
-                </select>
-              </div>
-
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                  <i class="fas fa-comment-medical text-yellow-600 mr-2"></i>상세 요청사항 및 특이사항
+                <label class="cursor-pointer">
+                  <input type="radio" name="facilitySize" value="소형" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">소형</span>
+                  </div>
                 </label>
-                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4 rounded-r-lg">
-                  <p class="text-sm text-yellow-800">
-                    <i class="fas fa-info-circle mr-2"></i>
-                    <strong>※ 상세하게 작성하실수록</strong> 더 정확한 맞춤 견적을 받으실 수 있습니다.
-                  </p>
-                </div>
-                <textarea name="additionalNotes" rows="6"
-                  placeholder="예시:&#10;- 환자의 현재 상태 (거동 가능 여부, 인지 능력 등)&#10;- 필요한 특수 케어 (욕창 관리, 튜브 영양, 인공호흡기 등)&#10;- 종교 및 식이 요구사항&#10;- 면회 관련 요청사항&#10;- 기타 중요한 특이사항&#10;&#10;상세하게 작성해주실수록 정확한 견적을 받으실 수 있습니다."
-                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition text-base"></textarea>
+                <label class="cursor-pointer">
+                  <input type="radio" name="facilitySize" value="치매전담형" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">치매전담형</span>
+                  </div>
+                </label>
+                <label class="cursor-pointer">
+                  <input type="radio" name="facilitySize" value="상관없음" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">상관 없음</span>
+                  </div>
+                </label>
               </div>
+            </div>
+            
+            {/* 5. 요양 비용 */}
+            <div class="border-b-2 border-gray-200 pb-8">
+              <h3 class="text-xl font-bold text-gray-900 mb-4">
+                5. 요양 비용을 선택해 주세요.
+              </h3>
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <label class="cursor-pointer">
+                  <input type="radio" name="careCost" value="고급형" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">고급형</span>
+                  </div>
+                </label>
+                <label class="cursor-pointer">
+                  <input type="radio" name="careCost" value="일반형" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">일반형</span>
+                  </div>
+                </label>
+                <label class="cursor-pointer">
+                  <input type="radio" name="careCost" value="실속형" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">실속형</span>
+                  </div>
+                </label>
+                <label class="cursor-pointer">
+                  <input type="radio" name="careCost" value="상관없음" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">상관 없음</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+            
+            {/* 6. 요양 프로그램 (복수선택) */}
+            <div class="border-b-2 border-gray-200 pb-8">
+              <h3 class="text-xl font-bold text-gray-900 mb-4">
+                6. 요양 프로그램을 선택해 주세요 (복수 선택 가능).
+              </h3>
+              <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                <label class="cursor-pointer">
+                  <input type="checkbox" name="carePrograms" value="운동보조" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">운동 보조</span>
+                  </div>
+                </label>
+                <label class="cursor-pointer">
+                  <input type="checkbox" name="carePrograms" value="인지기능향상" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">인지 기능 향상</span>
+                  </div>
+                </label>
+                <label class="cursor-pointer">
+                  <input type="checkbox" name="carePrograms" value="재활특화" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">재활 특화</span>
+                  </div>
+                </label>
+                <label class="cursor-pointer">
+                  <input type="checkbox" name="carePrograms" value="치매특화" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">치매 특화</span>
+                  </div>
+                </label>
+                <label class="cursor-pointer">
+                  <input type="checkbox" name="carePrograms" value="맞춤형서비스" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">맞춤형 서비스</span>
+                  </div>
+                </label>
+                <label class="cursor-pointer">
+                  <input type="checkbox" name="carePrograms" value="기타" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">기타</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+            
+            {/* 7. 종교 활동 지원 */}
+            <div class="pb-8">
+              <h3 class="text-xl font-bold text-gray-900 mb-4">
+                7. 종교 활동 지원 여부를 선택해 주세요.
+              </h3>
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <label class="cursor-pointer">
+                  <input type="radio" name="religion" value="기독교" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">기독교</span>
+                  </div>
+                </label>
+                <label class="cursor-pointer">
+                  <input type="radio" name="religion" value="불교" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">불교</span>
+                  </div>
+                </label>
+                <label class="cursor-pointer">
+                  <input type="radio" name="religion" value="천주교" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">천주교</span>
+                  </div>
+                </label>
+                <label class="cursor-pointer">
+                  <input type="radio" name="religion" value="기타" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">기타</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+            
+            {/* 다음 버튼 */}
+            <div class="flex justify-center pt-4">
+              <button type="button" id="next-to-page2" 
+                class="bg-gradient-to-r from-green-500 to-green-600 text-white px-16 py-5 rounded-2xl text-xl font-bold hover:from-green-600 hover:to-green-700 shadow-2xl transform hover:scale-105 transition-all duration-200">
+                <span>다음</span>
+                <i class="fas fa-arrow-right ml-3"></i>
+              </button>
             </div>
           </div>
 
-          {/* 제출 버튼 */}
-          <div class="flex justify-center pt-4">
-            <button type="submit" 
-              class="bg-gradient-to-r from-green-500 to-green-600 text-white px-16 py-5 rounded-2xl text-xl font-bold hover:from-green-600 hover:to-green-700 shadow-2xl transform hover:scale-105 transition-all duration-200">
-              <i class="fas fa-paper-plane mr-3"></i>
-              상세 견적 신청하기
-            </button>
+          {/* 두 번째 화면: 환자정보 */}
+          <div id="page-2" class="hidden space-y-8">
+            
+            {/* 1. 주요 증상 */}
+            <div class="border-b-2 border-gray-200 pb-8">
+              <h3 class="text-xl font-bold text-gray-900 mb-4">
+                1. 주요 증상을 선택해 주세요.
+              </h3>
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <label class="cursor-pointer">
+                  <input type="radio" name="mainSymptom" value="치매" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">치매</span>
+                  </div>
+                </label>
+                <label class="cursor-pointer">
+                  <input type="radio" name="mainSymptom" value="뇌출혈" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">뇌출혈</span>
+                  </div>
+                </label>
+                <label class="cursor-pointer">
+                  <input type="radio" name="mainSymptom" value="뇌경색" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">뇌경색</span>
+                  </div>
+                </label>
+                <label class="cursor-pointer">
+                  <input type="radio" name="mainSymptom" value="척추손상" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">척추 손상</span>
+                  </div>
+                </label>
+                <label class="cursor-pointer">
+                  <input type="radio" name="mainSymptom" value="암" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">암</span>
+                  </div>
+                </label>
+                <label class="cursor-pointer">
+                  <input type="radio" name="mainSymptom" value="골절" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">골절</span>
+                  </div>
+                </label>
+                <label class="cursor-pointer">
+                  <input type="radio" name="mainSymptom" value="호스피스" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">호스피스</span>
+                  </div>
+                </label>
+                <label class="cursor-pointer">
+                  <input type="radio" name="mainSymptom" value="기타질환" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">기타질환</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+            
+            {/* 2. 연세 */}
+            <div class="border-b-2 border-gray-200 pb-8">
+              <h3 class="text-xl font-bold text-gray-900 mb-4">
+                2. 연세를 선택해 주세요.
+              </h3>
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <label class="cursor-pointer">
+                  <input type="radio" name="patientAge" value="81세이상" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">81세 이상</span>
+                  </div>
+                </label>
+                <label class="cursor-pointer">
+                  <input type="radio" name="patientAge" value="71-80세" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">71-80세</span>
+                  </div>
+                </label>
+                <label class="cursor-pointer">
+                  <input type="radio" name="patientAge" value="65-70세" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">65-70세</span>
+                  </div>
+                </label>
+                <label class="cursor-pointer">
+                  <input type="radio" name="patientAge" value="64세이하" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">64세 이하</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+            
+            {/* 3. 의사소통 */}
+            <div class="border-b-2 border-gray-200 pb-8">
+              <h3 class="text-xl font-bold text-gray-900 mb-4">
+                3. 의사소통 가능 여부를 선택해 주세요.
+              </h3>
+              <div class="grid grid-cols-3 gap-3">
+                <label class="cursor-pointer">
+                  <input type="radio" name="communication" value="소통" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">소통</span>
+                  </div>
+                </label>
+                <label class="cursor-pointer">
+                  <input type="radio" name="communication" value="듣기만가능" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">듣기만 가능</span>
+                  </div>
+                </label>
+                <label class="cursor-pointer">
+                  <input type="radio" name="communication" value="소통불가능" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">소통 불가능</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+            
+            {/* 4. 식사 가능 여부 */}
+            <div class="border-b-2 border-gray-200 pb-8">
+              <h3 class="text-xl font-bold text-gray-900 mb-4">
+                4. 식사 가능 여부를 선택해 주세요.
+              </h3>
+              <div class="grid grid-cols-2 gap-3">
+                <label class="cursor-pointer">
+                  <input type="radio" name="mealAbility" value="스스로가능" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">스스로 가능</span>
+                  </div>
+                </label>
+                <label class="cursor-pointer">
+                  <input type="radio" name="mealAbility" value="간병사도움필요" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">간병사 도움 필요</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+            
+            {/* 5. 식사 종류 */}
+            <div class="border-b-2 border-gray-200 pb-8">
+              <h3 class="text-xl font-bold text-gray-900 mb-4">
+                5. 식사 종류를 선택해 주세요.
+              </h3>
+              <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                <label class="cursor-pointer">
+                  <input type="radio" name="mealType" value="일반식" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">일반식</span>
+                  </div>
+                </label>
+                <label class="cursor-pointer">
+                  <input type="radio" name="mealType" value="죽" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">죽</span>
+                  </div>
+                </label>
+                <label class="cursor-pointer">
+                  <input type="radio" name="mealType" value="미음" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">미음</span>
+                  </div>
+                </label>
+                <label class="cursor-pointer">
+                  <input type="radio" name="mealType" value="유동식" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">유동식</span>
+                  </div>
+                </label>
+                <label class="cursor-pointer">
+                  <input type="radio" name="mealType" value="비위관" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">비위관(L-tube)</span>
+                  </div>
+                </label>
+                <label class="cursor-pointer">
+                  <input type="radio" name="mealType" value="TPN" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">TPN(정맥영양)</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+            
+            {/* 6. 거동 여부 */}
+            <div class="border-b-2 border-gray-200 pb-8">
+              <h3 class="text-xl font-bold text-gray-900 mb-4">
+                6. 거동 여부를 선택해 주세요.
+              </h3>
+              <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                <label class="cursor-pointer">
+                  <input type="radio" name="mobility" value="스스로가능" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">스스로 가능</span>
+                  </div>
+                </label>
+                <label class="cursor-pointer">
+                  <input type="radio" name="mobility" value="보행기" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">보행기</span>
+                  </div>
+                </label>
+                <label class="cursor-pointer">
+                  <input type="radio" name="mobility" value="휠체어" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">휠체어</span>
+                  </div>
+                </label>
+                <label class="cursor-pointer">
+                  <input type="radio" name="mobility" value="거동불가" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">거동 불가</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+            
+            {/* 7. 화장실 출입 */}
+            <div class="border-b-2 border-gray-200 pb-8">
+              <h3 class="text-xl font-bold text-gray-900 mb-4">
+                7. 화장실 출입 가능 여부를 선택해 주세요.
+              </h3>
+              <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+                <label class="cursor-pointer">
+                  <input type="radio" name="toiletUse" value="스스로가능" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">스스로 가능</span>
+                  </div>
+                </label>
+                <label class="cursor-pointer">
+                  <input type="radio" name="toiletUse" value="부축" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">부축</span>
+                  </div>
+                </label>
+                <label class="cursor-pointer">
+                  <input type="radio" name="toiletUse" value="소변줄" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">소변줄</span>
+                  </div>
+                </label>
+                <label class="cursor-pointer">
+                  <input type="radio" name="toiletUse" value="기저귀" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">기저귀</span>
+                  </div>
+                </label>
+                <label class="cursor-pointer">
+                  <input type="radio" name="toiletUse" value="야간빈뇨" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">야간 빈뇨</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+            
+            {/* 8. 추가사항 (복수선택) */}
+            <div class="border-b-2 border-gray-200 pb-8">
+              <h3 class="text-xl font-bold text-gray-900 mb-4">
+                8. 추가사항을 선택해 주세요 (복수 선택 가능).
+              </h3>
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <label class="cursor-pointer">
+                  <input type="checkbox" name="additionalCare" value="산소" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">산소</span>
+                  </div>
+                </label>
+                <label class="cursor-pointer">
+                  <input type="checkbox" name="additionalCare" value="고혈압" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">고혈압</span>
+                  </div>
+                </label>
+                <label class="cursor-pointer">
+                  <input type="checkbox" name="additionalCare" value="당뇨" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">당뇨</span>
+                  </div>
+                </label>
+                <label class="cursor-pointer">
+                  <input type="checkbox" name="additionalCare" value="기관절개술" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">기관절개술(T-tube)</span>
+                  </div>
+                </label>
+                <label class="cursor-pointer">
+                  <input type="checkbox" name="additionalCare" value="욕창" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">욕창</span>
+                  </div>
+                </label>
+                <label class="cursor-pointer">
+                  <input type="checkbox" name="additionalCare" value="석션" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">석션</span>
+                  </div>
+                </label>
+                <label class="cursor-pointer">
+                  <input type="checkbox" name="additionalCare" value="소변줄Foley" class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-lg p-3 text-center hover:border-green-500 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                    <span class="text-sm font-medium">소변줄(Foley)</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+            
+            {/* 9. 기타 증상 */}
+            <div class="border-b-2 border-gray-200 pb-8">
+              <h3 class="text-xl font-bold text-gray-900 mb-4">
+                9. 기타 증상을 입력해 주세요.
+              </h3>
+              <textarea name="otherSymptoms" rows="4" placeholder="환자 상태 입력"
+                class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition"></textarea>
+            </div>
+            
+            {/* 10. 서류 첨부 */}
+            <div class="pb-8">
+              <h3 class="text-xl font-bold text-gray-900 mb-4">
+                10. 서류 첨부
+              </h3>
+              <p class="text-sm text-gray-600 mb-4">
+                (진단서 또는 소견서, 기타 추가 서류가 있다면 첨부해 주세요.)
+              </p>
+              <div class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-green-500 transition-all">
+                <input type="file" name="documents" id="document-upload" accept="image/*,.pdf" multiple class="hidden" />
+                <label for="document-upload" class="cursor-pointer">
+                  <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-3"></i>
+                  <p class="text-gray-700 font-medium">파일 업로드 (선택사항)</p>
+                  <p class="text-sm text-gray-500 mt-2">이미지 또는 PDF 파일을 선택해주세요</p>
+                </label>
+              </div>
+              <div id="file-list" class="mt-4 space-y-2 hidden"></div>
+            </div>
+            
+            {/* 버튼 영역 */}
+            <div class="flex justify-between pt-4">
+              <button type="button" id="back-to-page1" 
+                class="bg-gray-500 text-white px-12 py-4 rounded-xl text-lg font-bold hover:bg-gray-600 shadow-lg transition-all duration-200">
+                <i class="fas fa-arrow-left mr-3"></i>
+                <span>이전</span>
+              </button>
+              <button type="submit" 
+                class="bg-gradient-to-r from-green-500 to-green-600 text-white px-12 py-4 rounded-xl text-lg font-bold hover:from-green-600 hover:to-green-700 shadow-lg transform hover:scale-105 transition-all duration-200">
+                <i class="fas fa-paper-plane mr-3"></i>
+                <span>상세 견적 신청하기</span>
+              </button>
+            </div>
           </div>
         </form>
         </div>
@@ -4368,6 +4839,7 @@ app.get('/quote-simple', (c) => {
       <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
       <script dangerouslySetInnerHTML={{
         __html: `
+        // 지역 데이터
         const sigunguData = {
           '서울특별시': ['강남구', '강동구', '강북구', '강서구', '관악구', '광진구', '구로구', '금천구', '노원구', '도봉구', '동대문구', '동작구', '마포구', '서대문구', '서초구', '성동구', '성북구', '송파구', '양천구', '영등포구', '용산구', '은평구', '종로구', '중구', '중랑구'],
           '부산광역시': ['강서구', '금정구', '기장군', '남구', '동구', '동래구', '부산진구', '북구', '사상구', '사하구', '서구', '수영구', '연제구', '영도구', '중구', '해운대구'],
@@ -4388,6 +4860,7 @@ app.get('/quote-simple', (c) => {
           '제주특별자치도': ['서귀포시', '제주시']
         };
 
+        // 시/도 선택시 시/군/구 업데이트
         document.getElementById('sido').addEventListener('change', function() {
           const sido = this.value;
           const sigunguSelect = document.getElementById('sigungu');
@@ -4402,20 +4875,153 @@ app.get('/quote-simple', (c) => {
           }
         });
 
-        document.getElementById('simpleQuoteForm').addEventListener('submit', async function(e) {
+        // 시설 유형 선택시 보험 유형 표시/숨김
+        document.querySelectorAll('input[name="facilityType"]').forEach(radio => {
+          radio.addEventListener('change', function() {
+            const hospitalSection = document.getElementById('insurance-hospital');
+            const otherSection = document.getElementById('insurance-other');
+            
+            if (this.value === '요양병원') {
+              hospitalSection.classList.remove('hidden');
+              otherSection.classList.add('hidden');
+            } else {
+              hospitalSection.classList.add('hidden');
+              otherSection.classList.remove('hidden');
+            }
+          });
+        });
+
+        // 요양병원 보험 유형 기타 선택시 입력창 표시
+        document.getElementById('insurance-etc-hospital')?.addEventListener('change', function() {
+          if (this.checked) {
+            document.getElementById('insurance-etc-input-hospital').classList.remove('hidden');
+          }
+        });
+
+        // 그 외 시설 등급 기타 선택시 입력창 표시
+        document.getElementById('insurance-etc-other')?.addEventListener('change', function() {
+          if (this.checked) {
+            document.getElementById('insurance-etc-input-other').classList.remove('hidden');
+          }
+        });
+
+        // 페이지 전환
+        document.getElementById('next-to-page2').addEventListener('click', function() {
+          // 필수 항목 검증
+          const facilityType = document.querySelector('input[name="facilityType"]:checked');
+          const sido = document.getElementById('sido').value;
+          const sigungu = document.getElementById('sigungu').value;
+          
+          if (!facilityType) {
+            alert('시설 유형을 선택해주세요.');
+            return;
+          }
+          if (!sido || !sigungu) {
+            alert('지역을 선택해주세요.');
+            return;
+          }
+          
+          // 페이지 전환
+          document.getElementById('page-1').classList.add('hidden');
+          document.getElementById('page-2').classList.remove('hidden');
+          
+          // 단계 표시 업데이트
+          document.getElementById('step-indicator-1').classList.add('opacity-50');
+          document.getElementById('step-indicator-1').querySelector('div').classList.remove('bg-green-600');
+          document.getElementById('step-indicator-1').querySelector('div').classList.add('bg-gray-300');
+          document.getElementById('step-indicator-1').querySelector('span').classList.remove('text-green-600');
+          document.getElementById('step-indicator-1').querySelector('span').classList.add('text-gray-500');
+          
+          document.getElementById('step-indicator-2').classList.remove('opacity-50');
+          document.getElementById('step-indicator-2').querySelector('div').classList.remove('bg-gray-300');
+          document.getElementById('step-indicator-2').querySelector('div').classList.add('bg-green-600');
+          document.getElementById('step-indicator-2').querySelector('span').classList.remove('text-gray-500');
+          document.getElementById('step-indicator-2').querySelector('span').classList.add('text-green-600');
+          
+          // 페이지 상단으로 스크롤
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // 이전 버튼
+        document.getElementById('back-to-page1').addEventListener('click', function() {
+          document.getElementById('page-2').classList.add('hidden');
+          document.getElementById('page-1').classList.remove('hidden');
+          
+          // 단계 표시 복원
+          document.getElementById('step-indicator-1').classList.remove('opacity-50');
+          document.getElementById('step-indicator-1').querySelector('div').classList.remove('bg-gray-300');
+          document.getElementById('step-indicator-1').querySelector('div').classList.add('bg-green-600');
+          document.getElementById('step-indicator-1').querySelector('span').classList.remove('text-gray-500');
+          document.getElementById('step-indicator-1').querySelector('span').classList.add('text-green-600');
+          
+          document.getElementById('step-indicator-2').classList.add('opacity-50');
+          document.getElementById('step-indicator-2').querySelector('div').classList.remove('bg-green-600');
+          document.getElementById('step-indicator-2').querySelector('div').classList.add('bg-gray-300');
+          document.getElementById('step-indicator-2').querySelector('span').classList.remove('text-green-600');
+          document.getElementById('step-indicator-2').querySelector('span').classList.add('text-gray-500');
+          
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // 파일 업로드 처리
+        document.getElementById('document-upload').addEventListener('change', function(e) {
+          const fileList = document.getElementById('file-list');
+          const files = e.target.files;
+          
+          if (files.length > 0) {
+            fileList.classList.remove('hidden');
+            fileList.innerHTML = '';
+            
+            Array.from(files).forEach((file, index) => {
+              const fileItem = document.createElement('div');
+              fileItem.className = 'flex items-center justify-between p-3 bg-gray-50 rounded-lg';
+              fileItem.innerHTML = \`
+                <div class="flex items-center">
+                  <i class="fas fa-file-alt text-green-600 mr-3"></i>
+                  <span class="text-sm text-gray-700">\${file.name}</span>
+                </div>
+                <span class="text-xs text-gray-500">\${(file.size / 1024).toFixed(1)} KB</span>
+              \`;
+              fileList.appendChild(fileItem);
+            });
+          }
+        });
+
+        // 폼 제출
+        document.getElementById('detailedQuoteForm').addEventListener('submit', async function(e) {
           e.preventDefault();
           const formData = new FormData(this);
-          const data = Object.fromEntries(formData.entries());
+          
+          // 복수 선택 항목 처리
+          const carePrograms = [];
+          document.querySelectorAll('input[name="carePrograms"]:checked').forEach(cb => {
+            carePrograms.push(cb.value);
+          });
+          
+          const additionalCare = [];
+          document.querySelectorAll('input[name="additionalCare"]:checked').forEach(cb => {
+            additionalCare.push(cb.value);
+          });
+          
+          const data = {};
+          for (let [key, value] of formData.entries()) {
+            if (key !== 'carePrograms' && key !== 'additionalCare' && key !== 'documents') {
+              data[key] = value;
+            }
+          }
+          
+          data.carePrograms = carePrograms.join(', ');
+          data.additionalCare = additionalCare.join(', ');
           
           try {
             const response = await axios.post('/api/quote-request', {
               ...data,
-              quoteType: 'simple',
+              quoteType: 'detailed',
               createdAt: new Date().toISOString()
             });
             
             if (response.data.success) {
-              alert('✅ 견적 신청이 완료되었습니다!\\n\\n선택하신 지역의 시설에서 곧 연락드릴 예정입니다.');
+              alert('✅ 상세 견적 신청이 완료되었습니다!\\n\\n선택하신 지역의 시설에서 상세 견적서를 작성하여 연락드릴 예정입니다.');
               window.location.href = '/';
             }
           } catch (error) {
