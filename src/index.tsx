@@ -1303,8 +1303,8 @@ app.get('/', (c) => {
                   <i class="fas fa-bolt text-3xl text-blue-600"></i>
                 </div>
                 <h4 class="text-xl font-bold text-gray-900 mb-2">간편견적</h4>
-                <p class="text-sm text-gray-600 mb-6">5분 이내 빠른 신청</p>
-                <a href="/quote-simple" 
+                <p class="text-sm text-gray-600 mb-6">3단계 빠른 신청</p>
+                <a href="/quote-request" 
                    class="block bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
                   <i class="fas fa-arrow-right mr-2"></i>테스트 시작
                 </a>
@@ -1318,8 +1318,8 @@ app.get('/', (c) => {
                   <i class="fas fa-file-alt text-3xl text-green-600"></i>
                 </div>
                 <h4 class="text-xl font-bold text-gray-900 mb-2">상세견적</h4>
-                <p class="text-sm text-gray-600 mb-6">3가지 견적 방식</p>
-                <a href="/quote-request" 
+                <p class="text-sm text-gray-600 mb-6">맞춤형 상세 정보 입력</p>
+                <a href="/quote-simple" 
                    class="block bg-green-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-green-700 transition-colors">
                   <i class="fas fa-arrow-right mr-2"></i>테스트 시작
                 </a>
@@ -4054,18 +4054,10 @@ app.get('/quote-simple', (c) => {
       <div class="container mx-auto px-4 py-8 max-w-2xl">
         <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
           <h1 class="text-2xl font-bold text-gray-800 mb-2">
-            <i class="fas fa-calculator text-blue-600 mr-2"></i>
-            간편견적 신청
+            <i class="fas fa-file-invoice text-green-600 mr-2"></i>
+            상세견적 신청
           </h1>
-          <p class="text-gray-600">5분 이내 빠른 견적 신청 (필수 정보만 입력)</p>
-          <div class="mt-4 flex gap-3">
-            <a href="/quote-simple" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold">
-              간편견적
-            </a>
-            <a href="/quote-request" class="px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50">
-              상세견적
-            </a>
-          </div>
+          <p class="text-gray-600">정확한 견적을 위한 상세 정보 입력 (맞춤 견적)</p>
         </div>
 
         <form id="simpleQuoteForm" class="bg-white rounded-lg shadow-sm p-6 space-y-6">
@@ -4163,26 +4155,33 @@ app.get('/quote-simple', (c) => {
           <div>
             <label class="block text-sm font-bold text-gray-700 mb-2">
               <i class="fas fa-heart text-red-500 mr-1"></i>
-              돌봄 대상자
+              돌봄 대상자 <span class="text-red-500">*</span>
             </label>
-            <div class="grid grid-cols-2 gap-4">
+            <div class="space-y-3">
               <div>
-                <label class="block text-xs text-gray-600 mb-1">성별</label>
-                <select name="patientGender" class="w-full px-4 py-2 border rounded-lg">
-                  <option value="">선택</option>
-                  <option value="남">남</option>
-                  <option value="여">여</option>
-                </select>
+                <label class="block text-xs text-gray-600 mb-1">환자 성함</label>
+                <input type="text" name="patientName" required placeholder="환자 성함 입력"
+                  class="w-full px-4 py-2 border rounded-lg" />
               </div>
-              <div>
-                <label class="block text-xs text-gray-600 mb-1">연령대</label>
-                <select name="patientAge" class="w-full px-4 py-2 border rounded-lg">
-                  <option value="">선택</option>
-                  <option value="60대">60대</option>
-                  <option value="70대">70대</option>
-                  <option value="80대">80대</option>
-                  <option value="90대 이상">90대 이상</option>
-                </select>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs text-gray-600 mb-1">성별</label>
+                  <select name="patientGender" required class="w-full px-4 py-2 border rounded-lg">
+                    <option value="">선택</option>
+                    <option value="남">남</option>
+                    <option value="여">여</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-xs text-gray-600 mb-1">연령대</label>
+                  <select name="patientAge" required class="w-full px-4 py-2 border rounded-lg">
+                    <option value="">선택</option>
+                    <option value="60대">60대</option>
+                    <option value="70대">70대</option>
+                    <option value="80대">80대</option>
+                    <option value="90대 이상">90대 이상</option>
+                  </select>
+                </div>
               </div>
             </div>
           </div>
@@ -4205,15 +4204,79 @@ app.get('/quote-simple', (c) => {
             </select>
           </div>
 
-          {/* 간단한 요청사항 */}
+          {/* 병명/상병명 (요양병원용) */}
           <div>
             <label class="block text-sm font-bold text-gray-700 mb-2">
-              <i class="fas fa-comment text-yellow-500 mr-1"></i>
-              간단한 요청사항
+              <i class="fas fa-notes-medical text-blue-500 mr-1"></i>
+              병명/상병명 (요양병원의 경우)
             </label>
-            <textarea name="additionalNotes" rows="3"
-              placeholder="예: 치매 증상 있음, 식사 보조 필요 등"
+            <input type="text" name="diagnosis" placeholder="예: 뇌졸중, 치매, 파킨슨병 등"
+              class="w-full px-4 py-2 border rounded-lg" />
+            <p class="text-xs text-gray-500 mt-1">※ 요양병원 이용 시 정확한 견적을 위해 입력해주세요</p>
+          </div>
+
+          {/* 입소 희망일 */}
+          <div>
+            <label class="block text-sm font-bold text-gray-700 mb-2">
+              <i class="fas fa-calendar-alt text-teal-500 mr-1"></i>
+              입소 희망일
+            </label>
+            <input type="date" name="desiredDate" 
+              class="w-full px-4 py-2 border rounded-lg" />
+          </div>
+
+          {/* 예산 범위 */}
+          <div>
+            <label class="block text-sm font-bold text-gray-700 mb-2">
+              <i class="fas fa-won-sign text-orange-500 mr-1"></i>
+              월 예산 범위
+            </label>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs text-gray-600 mb-1">최소 금액 (만원)</label>
+                <input type="number" name="budgetMin" placeholder="100" min="0" step="10"
+                  class="w-full px-4 py-2 border rounded-lg" />
+              </div>
+              <div>
+                <label class="block text-xs text-gray-600 mb-1">최대 금액 (만원)</label>
+                <input type="number" name="budgetMax" placeholder="200" min="0" step="10"
+                  class="w-full px-4 py-2 border rounded-lg" />
+              </div>
+            </div>
+            <p class="text-xs text-gray-500 mt-1">※ 예산 범위를 입력하시면 더 정확한 견적을 받으실 수 있습니다</p>
+          </div>
+
+          {/* 희망 병실 타입 */}
+          <div>
+            <label class="block text-sm font-bold text-gray-700 mb-2">
+              <i class="fas fa-bed text-indigo-500 mr-1"></i>
+              희망 병실 타입
+            </label>
+            <select name="roomType" class="w-full px-4 py-2 border rounded-lg">
+              <option value="">선택사항</option>
+              <option value="1인실">1인실</option>
+              <option value="2인실">2인실</option>
+              <option value="3인실">3인실</option>
+              <option value="4인실 이상">4인실 이상</option>
+              <option value="무관">무관</option>
+            </select>
+          </div>
+
+          {/* 상세 요청사항 및 특이사항 */}
+          <div>
+            <label class="block text-sm font-bold text-gray-700 mb-2">
+              <i class="fas fa-comment-medical text-yellow-500 mr-1"></i>
+              상세 요청사항 및 특이사항
+            </label>
+            <textarea name="additionalNotes" rows="5"
+              placeholder="예시:
+- 환자의 현재 상태 (거동 가능 여부, 인지 능력 등)
+- 필요한 특수 케어 (욕창 관리, 튜브 영양, 인공호흡기 등)
+- 종교 및 식이 요구사항
+- 면회 관련 요청사항
+- 기타 중요한 특이사항"
               class="w-full px-4 py-2 border rounded-lg resize-none"></textarea>
+            <p class="text-xs text-gray-500 mt-1">※ 상세하게 작성하실수록 더 정확한 맞춤 견적을 받으실 수 있습니다</p>
           </div>
 
           {/* 개인정보 동의 */}
@@ -4229,17 +4292,20 @@ app.get('/quote-simple', (c) => {
           {/* 제출 버튼 */}
           <div class="flex gap-3">
             <button type="submit"
-              class="flex-1 bg-blue-600 text-white py-4 rounded-lg font-bold hover:bg-blue-700">
-              <i class="fas fa-paper-plane mr-2"></i>
-              견적 신청하기
+              class="flex-1 bg-green-600 text-white py-4 rounded-lg font-bold hover:bg-green-700 transition-colors">
+              <i class="fas fa-check-circle mr-2"></i>
+              상세 견적 신청하기
             </button>
           </div>
         </form>
 
-        <div class="mt-6 bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
-          <p class="text-sm text-blue-700">
+        <div class="mt-6 bg-green-50 border-l-4 border-green-500 p-4 rounded">
+          <p class="text-sm text-green-700">
             <i class="fas fa-info-circle mr-2"></i>
-            <strong>견적 신청 후</strong> 선택하신 지역의 등록된 시설에서 견적서를 받으실 수 있습니다.
+            <strong>상세 견적 신청 완료 후</strong> 선택하신 지역의 전문 시설에서 환자 상태에 맞는 맞춤 견적서를 보내드립니다.
+          </p>
+          <p class="text-xs text-green-600 mt-2">
+            ※ 정확한 정보 입력은 빠르고 정확한 견적 제공에 도움이 됩니다.
           </p>
         </div>
       </div>
