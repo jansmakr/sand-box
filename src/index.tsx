@@ -273,6 +273,20 @@ app.get('/login', (c) => {
           }
         }
       </script>
+      
+      <!-- 사업자 정보 푸터 -->
+      <footer class="fixed bottom-0 left-0 right-0 bg-gray-800 text-gray-400 py-3 text-center text-xs">
+        <div class="max-w-4xl mx-auto px-4">
+          <div class="flex flex-wrap justify-center gap-3 sm:gap-6">
+            <span>주식회사 이노메딕</span>
+            <span class="hidden sm:inline">|</span>
+            <span>대표: 박대수</span>
+            <span class="hidden sm:inline">|</span>
+            <span>사업자번호: 818-86-03381</span>
+          </div>
+          <p class="text-gray-500 mt-2 text-[10px]">(08517) 서울특별시 금천구 디지털로10길 78 10층</p>
+        </div>
+      </footer>
     </body>
     </html>
   `)
@@ -1470,11 +1484,36 @@ app.get('/', (c) => {
             </div>
           </div>
           
-          <div class="border-t border-gray-800 mt-8 pt-8 text-center">
-            <p class="text-sm text-blue-400 font-medium mb-3">
-              <i class="fas fa-certificate mr-1"></i>특허기반 실시간 요양 견적 및 상담 플랫폼
-            </p>
-            <p class="text-xs text-gray-400">© 2024 케어조아. All rights reserved.</p>
+          <div class="border-t border-gray-800 mt-8 pt-8">
+            <div class="text-center mb-6">
+              <p class="text-sm text-blue-400 font-medium mb-3">
+                <i class="fas fa-certificate mr-1"></i>특허기반 실시간 요양 견적 및 상담 플랫폼
+              </p>
+            </div>
+            
+            {/* 사업자 정보 */}
+            <div class="bg-gray-800 rounded-lg p-6 mb-6 max-w-4xl mx-auto">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs text-gray-400">
+                <div>
+                  <span class="text-gray-500 font-medium">상호(법인명)</span>
+                  <p class="text-gray-300 mt-1">주식회사 이노메딕</p>
+                </div>
+                <div>
+                  <span class="text-gray-500 font-medium">대표자명</span>
+                  <p class="text-gray-300 mt-1">박대수</p>
+                </div>
+                <div>
+                  <span class="text-gray-500 font-medium">사업자등록번호</span>
+                  <p class="text-gray-300 mt-1">818-86-03381</p>
+                </div>
+                <div>
+                  <span class="text-gray-500 font-medium">사업자 주소</span>
+                  <p class="text-gray-300 mt-1">(08517) 서울특별시 금천구 디지털로10길 78 10층</p>
+                </div>
+              </div>
+            </div>
+            
+            <p class="text-xs text-gray-400 text-center">© 2024 케어조아. All rights reserved.</p>
           </div>
         </div>
       </footer>
