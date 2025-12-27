@@ -2094,6 +2094,19 @@ app.get('/regional-consultation', (c) => {
             </div>
           </div>
 
+          {/* 로딩 표시 영역 */}
+          <div id="consultLoading" class="hidden">
+            <div class="bg-white rounded-2xl shadow-lg p-12 text-center">
+              <div class="flex flex-col items-center justify-center space-y-4">
+                <div class="animate-spin rounded-full h-16 w-16 border-4 border-green-500 border-t-transparent"></div>
+                <p class="text-xl font-semibold text-gray-700">
+                  <i class="fas fa-search mr-2 text-green-500"></i>상담센터를 찾고 있습니다...
+                </p>
+                <p class="text-sm text-gray-500">잠시만 기다려주세요</p>
+              </div>
+            </div>
+          </div>
+
           {/* 상담센터 결과 표시 영역 */}
           <div id="consultResults" class="hidden">
             <div class="bg-gradient-to-r from-blue-50 to-green-50 border-2 border-green-200 rounded-2xl p-6 mb-6">
@@ -2163,16 +2176,26 @@ app.get('/regional-consultation', (c) => {
             return;
           }
 
+          // 로딩 표시
+          const loadingElement = document.getElementById('consultLoading');
+          const resultsElement = document.getElementById('consultResults');
+          
+          loadingElement.classList.remove('hidden');
+          resultsElement.classList.add('hidden');
+
           try {
             const response = await axios.get('/api/regional-centers', {
               params: { sido, sigungu }
             });
 
+            // 로딩 숨기기
+            loadingElement.classList.add('hidden');
+
             // 선택한 지역 표시
             document.getElementById('selectedRegion').textContent = sido + ' ' + sigungu;
             
             // 결과 영역 표시
-            document.getElementById('consultResults').classList.remove('hidden');
+            resultsElement.classList.remove('hidden');
             
             // 상담센터 목록 생성
             const centersList = document.getElementById('consultCentersList');
@@ -2226,9 +2249,13 @@ app.get('/regional-consultation', (c) => {
             }
 
             // 결과 영역으로 스크롤
-            document.getElementById('consultResults').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
           } catch (error) {
             console.error('상담센터 검색 오류:', error);
+            
+            // 로딩 숨기기
+            loadingElement.classList.add('hidden');
+            
             alert('상담센터 정보를 불러오는데 실패했습니다. 대표번호(0507-1310-5873)로 연락해 주세요.');
           }
         });
