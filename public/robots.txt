@@ -1,28 +1,14 @@
-# robots.txt for carejoa.kr
+# robots.txt for CareJOA (케어조아)
+# 요양원/요양병원 실시간 비교 견적 플랫폼
 
-# 모든 검색 엔진 허용
 User-agent: *
 Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /dashboard/
 
-# 크롤링 속도 제한 (초당 1회)
-Crawl-delay: 1
-
-# 관리자 페이지 차단
-Disallow: /admin
-Disallow: /api/admin/*
-
-# 사이트맵 위치
+# Sitemap
 Sitemap: https://carejoa.kr/sitemap.xml
 
-# 주요 검색엔진별 설정
-User-agent: Googlebot
-Allow: /
-
-User-agent: Yeti
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Slurp
-Allow: /
+# Crawl-delay
+Crawl-delay: 1
