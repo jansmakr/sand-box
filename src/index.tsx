@@ -1084,9 +1084,6 @@ app.get('/', (c) => {
               <a href="/login" class="bg-teal-600 text-white hover:bg-teal-700 px-3 py-2 rounded-lg whitespace-nowrap">
                 <i class="fas fa-sign-in-alt mr-1"></i>로그인
               </a>
-              <a href="/admin" class="bg-gray-900 text-white hover:bg-black px-3 py-2 rounded-lg whitespace-nowrap">
-                <i class="fas fa-shield-alt mr-1"></i>관리자
-              </a>
             </nav>
             
             {/* 모바일 햄버거 메뉴 버튼 */}
@@ -1113,9 +1110,6 @@ app.get('/', (c) => {
             </a>
             <a href="/login" class="block bg-teal-600 text-white hover:bg-teal-700 px-4 py-3 rounded-lg text-center">
               <i class="fas fa-sign-in-alt mr-2"></i>로그인
-            </a>
-            <a href="/admin" class="block bg-gray-900 text-white hover:bg-black px-4 py-3 rounded-lg text-center">
-              <i class="fas fa-shield-alt mr-2"></i>관리자
             </a>
           </nav>
         </div>
@@ -1250,10 +1244,6 @@ app.get('/', (c) => {
           <a href="#partner-section" class="flex flex-col items-center py-2 bg-gray-600 text-white rounded-lg px-1.5 shadow-md">
             <i class="fas fa-handshake text-base mb-1"></i>
             <span class="text-[10px] font-medium">입점신청</span>
-          </a>
-          <a href="/admin" class="flex flex-col items-center py-2 bg-gray-900 text-white rounded-lg px-1.5 shadow-md">
-            <i class="fas fa-shield-alt text-base mb-1"></i>
-            <span class="text-[10px] font-medium">관리자</span>
           </a>
         </div>
       </div>
@@ -1446,96 +1436,65 @@ app.get('/', (c) => {
         </div>
       </section>
 
-      {/* 견적 테스트 섹션 */}
-      <section class="py-16 bg-gradient-to-br from-yellow-50 to-orange-50 border-t-4 border-yellow-400">
-        <div class="max-w-7xl mx-auto px-4">
-          <div class="text-center mb-8">
-            <div class="inline-block bg-yellow-100 text-yellow-800 px-4 py-2 rounded-full text-sm font-semibold mb-4">
-              <i class="fas fa-flask mr-2"></i>테스트 버전
-            </div>
-            <h3 class="text-3xl font-bold text-gray-900 mb-4">
-              <i class="fas fa-vial text-yellow-600 mr-3"></i>견적 테스트
-            </h3>
-            <p class="text-lg text-gray-600">새로운 견적 시스템을 테스트해보세요 (개발 중)</p>
+      {/* 견적 신청 섹션 */}
+      <section class="max-w-7xl mx-auto px-4 py-12">
+        <div class="text-center mb-10">
+          <div class="inline-block bg-blue-50 text-blue-700 px-4 py-1 rounded-full text-sm font-semibold mb-4 border border-blue-100">
+            <i class="fas fa-check-circle mr-2"></i>실시간 매칭 시스템 가동 중
           </div>
+          <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            어떤 요양 서비스가 필요하신가요?
+          </h2>
+          <p class="text-lg text-gray-600">
+            원하시는 조건을 선택하시면, 검증된 시설의 견적을 비교해 드립니다.
+          </p>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           
-          <div class="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {/* 간편견적 테스트 */}
-            <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 border-2 border-blue-200">
-              <div class="text-center">
-                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <i class="fas fa-bolt text-3xl text-blue-600"></i>
-                </div>
-                <h4 class="text-xl font-bold text-gray-900 mb-2">간편견적</h4>
-                <p class="text-sm text-gray-600 mb-6">3단계 빠른 신청</p>
-                <a href="/quote-request" 
-                   class="block bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
-                  <i class="fas fa-arrow-right mr-2"></i>테스트 시작
-                </a>
-              </div>
+          {/* 간편 견적 (Primary) */}
+          <div class="bg-white rounded-2xl shadow-xl p-8 hover:-translate-y-1 transition-all duration-300 border-2 border-blue-500 relative overflow-hidden group">
+            <div class="absolute top-0 right-0 bg-blue-500 text-white text-xs px-3 py-1 rounded-bl-lg font-bold">
+              인기
             </div>
-
-            {/* 상세견적 테스트 */}
-            <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 border-2 border-green-200">
-              <div class="text-center">
-                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <i class="fas fa-file-alt text-3xl text-green-600"></i>
-                </div>
-                <h4 class="text-xl font-bold text-gray-900 mb-2">상세견적</h4>
-                <p class="text-sm text-gray-600 mb-6">맞춤형 상세 정보 입력</p>
-                <a href="/quote-simple" 
-                   class="block bg-green-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-green-700 transition-colors">
-                  <i class="fas fa-arrow-right mr-2"></i>테스트 시작
-                </a>
+            <div class="text-center relative z-10">
+              <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-blue-100 transition-colors">
+                <i class="fas fa-bolt text-4xl text-blue-600"></i>
               </div>
-            </div>
-
-            {/* 관리자 테스트 */}
-            <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 border-2 border-purple-200">
-              <div class="text-center">
-                <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <i class="fas fa-shield-alt text-3xl text-purple-600"></i>
-                </div>
-                <h4 class="text-xl font-bold text-gray-900 mb-2">관리자</h4>
-                <p class="text-sm text-gray-600 mb-6">승인/거부 시스템</p>
-                <a href="/admin" 
-                   class="block bg-purple-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-purple-700 transition-colors">
-                  <i class="fas fa-arrow-right mr-2"></i>테스트 시작
-                </a>
-              </div>
+              <h3 class="text-2xl font-bold text-gray-900 mb-2">간편 견적 요청</h3>
+              <p class="text-gray-600 mb-8">
+                복잡한 정보 없이 1분 만에!<br/>
+                빠르게 여러 시설의 가격을 알아보세요.
+              </p>
+              <a href="/quote-request" class="block w-full bg-blue-600 text-white py-4 px-6 rounded-xl font-bold text-lg hover:bg-blue-700 shadow-lg hover:shadow-blue-500/30 transition-all">
+                1분 만에 견적 받기 <i class="fas fa-arrow-right ml-2"></i>
+              </a>
             </div>
           </div>
 
-          {/* 테스트 안내 */}
-          <div class="mt-8 bg-yellow-100 border-l-4 border-yellow-500 p-4 rounded max-w-3xl mx-auto">
-            <div class="flex">
-              <div class="flex-shrink-0">
-                <i class="fas fa-info-circle text-yellow-600 text-xl"></i>
+          {/* 상세 맞춤 상담 (Secondary) */}
+          <div class="bg-white rounded-2xl shadow-lg p-8 hover:-translate-y-1 transition-all duration-300 border border-gray-100 hover:border-green-200 group">
+            <div class="text-center">
+              <div class="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-green-100 transition-colors">
+                <i class="fas fa-notes-medical text-4xl text-green-600"></i>
               </div>
-              <div class="ml-3">
-                <p class="text-sm text-yellow-800">
-                  <strong class="font-semibold">테스트 기능:</strong> 견적 신청, 파트너 승인/거부, 지역 필터링이 구현되었습니다.
-                  테스트 완료 후 메인 버튼으로 교체 예정입니다.
-                </p>
-              </div>
+              <h3 class="text-2xl font-bold text-gray-900 mb-2">상세 맞춤 상담</h3>
+              <p class="text-gray-600 mb-8">
+                환자분의 상태와 등급에 맞춰<br/>
+                딱 맞는 전문 시설을 추천받으세요.
+              </p>
+              <a href="/quote-simple" class="block w-full bg-white text-green-700 border-2 border-green-600 py-4 px-6 rounded-xl font-bold text-lg hover:bg-green-50 transition-all">
+                상세 조건 입력하기
+              </a>
             </div>
           </div>
+        </div>
 
-          {/* 테스트 통계 (선택사항) */}
-          <div class="mt-8 grid grid-cols-3 gap-4 max-w-2xl mx-auto">
-            <div class="bg-white rounded-lg p-4 text-center shadow">
-              <div class="text-2xl font-bold text-blue-600">NEW</div>
-              <div class="text-xs text-gray-600 mt-1">간편견적</div>
-            </div>
-            <div class="bg-white rounded-lg p-4 text-center shadow">
-              <div class="text-2xl font-bold text-green-600">NEW</div>
-              <div class="text-xs text-gray-600 mt-1">승인시스템</div>
-            </div>
-            <div class="bg-white rounded-lg p-4 text-center shadow">
-              <div class="text-2xl font-bold text-purple-600">NEW</div>
-              <div class="text-xs text-gray-600 mt-1">지역필터</div>
-            </div>
-          </div>
+        <div class="mt-12 text-center">
+          <p class="text-gray-500 text-sm">
+            <i class="fas fa-shield-alt text-gray-400 mr-1"></i>
+            케어조아는 100% 검증된 요양시설 정보만을 제공합니다.
+          </p>
         </div>
       </section>
 
@@ -8546,9 +8505,20 @@ app.get('/dashboard/partner', async (c) => {
 
   const partnerTypeLabel = user.type === 'hospital_manager' ? '상급병원' : '정부복지담당자'
   const partnerIcon = user.type === 'hospital_manager' ? 'hospital' : 'landmark'
+  const referralTitle = user.type === 'hospital_manager' ? '환자 의뢰' : '주민 복지서비스 신청'
+  const patientLabel = user.type === 'hospital_manager' ? '환자 이름' : '주민 이름'
 
-  return c.render(
-    <div>
+  return c.html(`
+    <!DOCTYPE html>
+    <html lang="ko">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>${partnerTypeLabel} 대시보드 - 케어조아</title>
+      <script src="https://cdn.tailwindcss.com"></script>
+      <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+    </head>
+    <body class="bg-gray-50">
       <header class="bg-white shadow-sm border-b">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="flex justify-between items-center h-16">
@@ -8576,16 +8546,16 @@ app.get('/dashboard/partner', async (c) => {
       </header>
 
       <div class="max-w-7xl mx-auto px-4 py-8">
-        {/* 환영 메시지 */}
+        <!-- 환영 메시지 -->
         <div class="mb-8">
           <h2 class="text-2xl md:text-3xl font-bold text-gray-800">
-            <i class={`fas fa-${partnerIcon} text-purple-600 mr-2`}></i>
-            {user.name}님, 환영합니다!
+            <i class="fas fa-${partnerIcon} text-purple-600 mr-2"></i>
+            ${user.name}님, 환영합니다!
           </h2>
-          <p class="text-gray-600 mt-2">{partnerTypeLabel} 파트너 대시보드</p>
+          <p class="text-gray-600 mt-2">${partnerTypeLabel} 파트너 대시보드</p>
         </div>
 
-        {/* 기관 정보 카드 */}
+        <!-- 기관 정보 카드 -->
         <div class="bg-gradient-to-r from-purple-50 to-blue-50 rounded-2xl shadow-lg p-6 mb-8">
           <h3 class="text-xl font-bold text-gray-800 mb-4">
             <i class="fas fa-building text-purple-600 mr-2"></i>기관 정보
@@ -8593,34 +8563,34 @@ app.get('/dashboard/partner', async (c) => {
           <div class="grid md:grid-cols-3 gap-4">
             <div>
               <p class="text-sm text-gray-600">기관명</p>
-              <p class="font-semibold text-gray-800">{user.organization_name || '미등록'}</p>
+              <p class="font-semibold text-gray-800">${user.organization_name || '미등록'}</p>
             </div>
             <div>
               <p class="text-sm text-gray-600">부서</p>
-              <p class="font-semibold text-gray-800">{user.department || '미등록'}</p>
+              <p class="font-semibold text-gray-800">${user.department || '미등록'}</p>
             </div>
             <div>
               <p class="text-sm text-gray-600">직책</p>
-              <p class="font-semibold text-gray-800">{user.position || '미등록'}</p>
+              <p class="font-semibold text-gray-800">${user.position || '미등록'}</p>
             </div>
           </div>
           <div class="mt-4 pt-4 border-t">
             <p class="text-sm text-gray-600">이메일</p>
-            <p class="font-semibold text-gray-800">{user.email}</p>
+            <p class="font-semibold text-gray-800">${user.email}</p>
           </div>
           <div class="mt-4 pt-4 border-t">
             <p class="text-sm text-gray-600">연락처</p>
-            <p class="font-semibold text-gray-800">{user.phone || '미등록'}</p>
+            <p class="font-semibold text-gray-800">${user.phone || '미등록'}</p>
           </div>
         </div>
 
-        {/* 통계 카드 */}
+        <!-- 통계 카드 -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-8">
           <div class="bg-white rounded-xl shadow-md p-4 md:p-6 border-l-4 border-blue-500">
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-gray-600 text-xs md:text-sm">의뢰 건수</p>
-                <p class="text-2xl md:text-3xl font-bold text-gray-800 mt-1">0</p>
+                <p class="text-2xl md:text-3xl font-bold text-gray-800 mt-1" id="totalReferrals">0</p>
               </div>
               <div class="bg-blue-100 p-3 md:p-4 rounded-full">
                 <i class="fas fa-user-plus text-blue-600 text-lg md:text-2xl"></i>
@@ -8632,7 +8602,7 @@ app.get('/dashboard/partner', async (c) => {
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-gray-600 text-xs md:text-sm">매칭 완료</p>
-                <p class="text-2xl md:text-3xl font-bold text-gray-800 mt-1">0</p>
+                <p class="text-2xl md:text-3xl font-bold text-gray-800 mt-1" id="matchedCount">0</p>
               </div>
               <div class="bg-green-100 p-3 md:p-4 rounded-full">
                 <i class="fas fa-check-circle text-green-600 text-lg md:text-2xl"></i>
@@ -8644,7 +8614,7 @@ app.get('/dashboard/partner', async (c) => {
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-gray-600 text-xs md:text-sm">진행 중</p>
-                <p class="text-2xl md:text-3xl font-bold text-gray-800 mt-1">0</p>
+                <p class="text-2xl md:text-3xl font-bold text-gray-800 mt-1" id="pendingCount">0</p>
               </div>
               <div class="bg-purple-100 p-3 md:p-4 rounded-full">
                 <i class="fas fa-spinner text-purple-600 text-lg md:text-2xl"></i>
@@ -8656,7 +8626,7 @@ app.get('/dashboard/partner', async (c) => {
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-gray-600 text-xs md:text-sm">완료</p>
-                <p class="text-2xl md:text-3xl font-bold text-gray-800 mt-1">0</p>
+                <p class="text-2xl md:text-3xl font-bold text-gray-800 mt-1" id="completedCount">0</p>
               </div>
               <div class="bg-orange-100 p-3 md:p-4 rounded-full">
                 <i class="fas fa-flag-checkered text-orange-600 text-lg md:text-2xl"></i>
@@ -8665,48 +8635,74 @@ app.get('/dashboard/partner', async (c) => {
           </div>
         </div>
 
-        {/* 환자/주민 의뢰 폼 */}
+        <!-- 환자/주민 의뢰 폼 -->
         <div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
           <h3 class="text-xl font-bold text-gray-800 mb-4">
             <i class="fas fa-plus-circle text-teal-600 mr-2"></i>
-            {user.type === 'hospital_manager' ? '환자 의뢰' : '주민 복지서비스 신청'}
+            ${referralTitle}
           </h3>
           
           <form id="referralForm" class="space-y-4">
             <div class="grid md:grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">
-                  {user.type === 'hospital_manager' ? '환자 이름' : '주민 이름'} *
+                  ${patientLabel} *
                 </label>
-                <input type="text" required
-                  class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500" />
+                <input type="text" name="patient_name" required
+                  class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500" 
+                  placeholder="이름을 입력하세요" />
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">연령 *</label>
-                <input type="number" required
-                  class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500" />
+                <input type="number" name="patient_age" required min="1" max="150"
+                  class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500" 
+                  placeholder="나이를 입력하세요" />
               </div>
             </div>
 
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">건강 상태 / 요구사항 *</label>
-              <textarea rows={4} required
-                class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500"></textarea>
+              <textarea rows="4" name="patient_condition" required
+                class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500"
+                placeholder="건강 상태, 질병, 특별한 요구사항 등을 상세히 입력해주세요"></textarea>
             </div>
 
-            <div class="grid md:grid-cols-2 gap-4">
+            <div class="grid md:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">의뢰 유형 *</label>
+                <select name="referral_type" required class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500">
+                  <option value="">선택하세요</option>
+                  <option value="입원">입원</option>
+                  <option value="퇴원">퇴원 후 전원</option>
+                  <option value="상담">상담</option>
+                </select>
+              </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">선호 지역 (시/도) *</label>
-                <select required class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500">
+                <select name="preferred_region" required class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500">
                   <option value="">선택하세요</option>
                   <option value="서울특별시">서울특별시</option>
                   <option value="경기도">경기도</option>
                   <option value="인천광역시">인천광역시</option>
+                  <option value="부산광역시">부산광역시</option>
+                  <option value="대구광역시">대구광역시</option>
+                  <option value="대전광역시">대전광역시</option>
+                  <option value="광주광역시">광주광역시</option>
+                  <option value="울산광역시">울산광역시</option>
+                  <option value="세종특별자치시">세종특별자치시</option>
+                  <option value="강원도">강원도</option>
+                  <option value="충청북도">충청북도</option>
+                  <option value="충청남도">충청남도</option>
+                  <option value="전라북도">전라북도</option>
+                  <option value="전라남도">전라남도</option>
+                  <option value="경상북도">경상북도</option>
+                  <option value="경상남도">경상남도</option>
+                  <option value="제주특별자치도">제주특별자치도</option>
                 </select>
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">시설 유형 *</label>
-                <select required class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500">
+                <select name="target_facility_type" required class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500">
                   <option value="">선택하세요</option>
                   <option value="요양병원">요양병원</option>
                   <option value="요양원">요양원</option>
@@ -8716,6 +8712,16 @@ app.get('/dashboard/partner', async (c) => {
               </div>
             </div>
 
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">긴급도 *</label>
+              <select name="urgency_level" required class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500">
+                <option value="">선택하세요</option>
+                <option value="긴급">긴급 (24시간 이내)</option>
+                <option value="보통">보통 (1주일 이내)</option>
+                <option value="여유">여유 (시간 제약 없음)</option>
+              </select>
+            </div>
+
             <button type="submit"
               class="w-full bg-teal-600 text-white py-3 rounded-lg hover:bg-teal-700 font-semibold">
               <i class="fas fa-paper-plane mr-2"></i>의뢰하기
@@ -8723,20 +8729,109 @@ app.get('/dashboard/partner', async (c) => {
           </form>
         </div>
 
-        {/* 최근 의뢰 목록 */}
+        <!-- 최근 의뢰 목록 -->
         <div class="bg-white rounded-2xl shadow-lg p-6">
           <h3 class="text-xl font-bold text-gray-800 mb-4">
             <i class="fas fa-list text-teal-600 mr-2"></i>최근 의뢰 목록
           </h3>
           
-          <div class="text-center py-12 text-gray-500">
-            <i class="fas fa-inbox text-4xl mb-4"></i>
-            <p>아직 의뢰 내역이 없습니다</p>
+          <div id="referralList" class="space-y-4">
+            <div class="text-center py-12 text-gray-500">
+              <i class="fas fa-spinner fa-spin text-4xl mb-4"></i>
+              <p>의뢰 목록을 불러오는 중...</p>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  )
+
+      <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
+      <script>
+        // 의뢰 폼 제출
+        document.getElementById('referralForm').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          
+          const formData = new FormData(e.target);
+          const data = Object.fromEntries(formData.entries());
+          
+          try {
+            const response = await axios.post('/api/partner/referral', data);
+            
+            if (response.data.success) {
+              alert('✅ 의뢰가 성공적으로 등록되었습니다!\\n\\n의뢰 번호: ' + response.data.referral_id);
+              e.target.reset();
+              loadReferrals(); // 목록 새로고침
+            } else {
+              alert('❌ ' + response.data.message);
+            }
+          } catch (error) {
+            console.error('Error:', error);
+            alert('❌ 의뢰 등록 중 오류가 발생했습니다.');
+          }
+        });
+
+        // 의뢰 목록 로드
+        async function loadReferrals() {
+          try {
+            const response = await axios.get('/api/partner/referrals');
+            
+            const listContainer = document.getElementById('referralList');
+            
+            if (response.data.success && response.data.referrals.length > 0) {
+              const referrals = response.data.referrals;
+              
+              // 통계 업데이트
+              document.getElementById('totalReferrals').textContent = referrals.length;
+              document.getElementById('matchedCount').textContent = referrals.filter(r => r.status === 'matched').length;
+              document.getElementById('pendingCount').textContent = referrals.filter(r => r.status === 'pending').length;
+              document.getElementById('completedCount').textContent = referrals.filter(r => r.status === 'completed').length;
+              
+              listContainer.innerHTML = referrals.map(ref => \`
+                <div class="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                  <div class="flex justify-between items-start mb-2">
+                    <div>
+                      <h4 class="font-bold text-gray-800">\${ref.patient_name} (\${ref.patient_age}세)</h4>
+                      <p class="text-sm text-gray-600">\${ref.referral_type} · \${ref.target_facility_type}</p>
+                    </div>
+                    <span class="px-3 py-1 rounded-full text-xs font-semibold
+                      \${ref.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : ''}
+                      \${ref.status === 'matched' ? 'bg-blue-100 text-blue-800' : ''}
+                      \${ref.status === 'completed' ? 'bg-green-100 text-green-800' : ''}">
+                      \${ref.status === 'pending' ? '대기 중' : ref.status === 'matched' ? '매칭 완료' : '완료'}
+                    </span>
+                  </div>
+                  <p class="text-sm text-gray-700 mb-2">\${ref.patient_condition.substring(0, 100)}...</p>
+                  <div class="flex items-center justify-between text-xs text-gray-500">
+                    <span><i class="fas fa-map-marker-alt mr-1"></i>\${ref.preferred_region}</span>
+                    <span><i class="fas fa-clock mr-1"></i>\${ref.urgency_level}</span>
+                    <span>\${new Date(ref.created_at).toLocaleDateString('ko-KR')}</span>
+                  </div>
+                </div>
+              \`).join('');
+            } else {
+              listContainer.innerHTML = \`
+                <div class="text-center py-12 text-gray-500">
+                  <i class="fas fa-inbox text-4xl mb-4"></i>
+                  <p>아직 의뢰 내역이 없습니다</p>
+                </div>
+              \`;
+            }
+          } catch (error) {
+            console.error('Error loading referrals:', error);
+            document.getElementById('referralList').innerHTML = \`
+              <div class="text-center py-12 text-red-500">
+                <i class="fas fa-exclamation-triangle text-4xl mb-4"></i>
+                <p>의뢰 목록을 불러오는데 실패했습니다</p>
+              </div>
+            \`;
+          }
+        }
+
+        // 페이지 로드 시 의뢰 목록 로드
+        loadReferrals();
+      </script>
+    </body>
+    </html>
+  `)
 })
 
 // ========== 시설 템플릿 설정 페이지 ==========
@@ -10069,6 +10164,183 @@ app.post('/api/profile/change-password', async (c) => {
   dataStore.users[userIndex].password = newPassword
 
   return c.json({ success: true, message: '비밀번호가 변경되었습니다.' })
+})
+
+// ============================================
+// 파트너 의뢰 API
+// ============================================
+
+// 환자/주민 의뢰 생성 API
+app.post('/api/partner/referral', async (c) => {
+  const user = getUser(c)
+  
+  // 인증 확인
+  if (!user) {
+    return c.json({ success: false, message: '로그인이 필요합니다.' }, 401)
+  }
+
+  // 파트너 권한 확인
+  if (user.type !== 'hospital_manager' && user.type !== 'welfare_manager') {
+    return c.json({ success: false, message: '파트너 권한이 필요합니다.' }, 403)
+  }
+
+  try {
+    const { env } = c
+    const body = await c.req.json()
+    
+    // 필수 필드 검증
+    const requiredFields = ['patient_name', 'patient_age', 'patient_condition', 'referral_type', 'target_facility_type', 'preferred_region', 'urgency_level']
+    for (const field of requiredFields) {
+      if (!body[field]) {
+        return c.json({ success: false, message: `${field} 필드가 필요합니다.` }, 400)
+      }
+    }
+
+    // D1 데이터베이스에 의뢰 생성
+    const result = await env.DB.prepare(`
+      INSERT INTO partner_referrals (
+        partner_id,
+        patient_name,
+        patient_age,
+        patient_condition,
+        referral_type,
+        target_facility_type,
+        preferred_region,
+        urgency_level,
+        status,
+        created_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+    `).bind(
+      user.id,
+      body.patient_name,
+      body.patient_age,
+      body.patient_condition,
+      body.referral_type,
+      body.target_facility_type,
+      body.preferred_region,
+      body.urgency_level,
+      'pending'
+    ).run()
+
+    if (!result.success) {
+      return c.json({ success: false, message: '의뢰 생성에 실패했습니다.' }, 500)
+    }
+
+    return c.json({
+      success: true,
+      message: '의뢰가 성공적으로 생성되었습니다.',
+      referral_id: result.meta.last_row_id,
+      status: 'pending'
+    })
+
+  } catch (error) {
+    console.error('Referral creation error:', error)
+    return c.json({ success: false, message: '의뢰 생성 중 오류가 발생했습니다.' }, 500)
+  }
+})
+
+// 의뢰 목록 조회 API
+app.get('/api/partner/referrals', async (c) => {
+  const user = getUser(c)
+  
+  // 인증 확인
+  if (!user) {
+    return c.json({ success: false, message: '로그인이 필요합니다.' }, 401)
+  }
+
+  // 파트너 권한 확인
+  if (user.type !== 'hospital_manager' && user.type !== 'welfare_manager') {
+    return c.json({ success: false, message: '파트너 권한이 필요합니다.' }, 403)
+  }
+
+  try {
+    const { env } = c
+    
+    // 해당 파트너의 의뢰 목록 조회
+    const result = await env.DB.prepare(`
+      SELECT 
+        id,
+        patient_name,
+        patient_age,
+        patient_condition,
+        referral_type,
+        target_facility_type,
+        preferred_region,
+        urgency_level,
+        status,
+        matched_facility_id,
+        matched_at,
+        completed_at,
+        created_at
+      FROM partner_referrals
+      WHERE partner_id = ?
+      ORDER BY created_at DESC
+      LIMIT 50
+    `).bind(user.id).all()
+
+    return c.json({
+      success: true,
+      referrals: result.results || [],
+      total: result.results?.length || 0
+    })
+
+  } catch (error) {
+    console.error('Referral fetch error:', error)
+    return c.json({ success: false, message: '의뢰 목록 조회 중 오류가 발생했습니다.' }, 500)
+  }
+})
+
+// 의뢰 상세 조회 API
+app.get('/api/partner/referral/:id', async (c) => {
+  const user = getUser(c)
+  
+  // 인증 확인
+  if (!user) {
+    return c.json({ success: false, message: '로그인이 필요합니다.' }, 401)
+  }
+
+  // 파트너 권한 확인
+  if (user.type !== 'hospital_manager' && user.type !== 'welfare_manager') {
+    return c.json({ success: false, message: '파트너 권한이 필요합니다.' }, 403)
+  }
+
+  try {
+    const { env } = c
+    const referralId = c.req.param('id')
+    
+    // 의뢰 조회
+    const result = await env.DB.prepare(`
+      SELECT 
+        id,
+        patient_name,
+        patient_age,
+        patient_condition,
+        referral_type,
+        target_facility_type,
+        preferred_region,
+        urgency_level,
+        status,
+        matched_facility_id,
+        matched_at,
+        completed_at,
+        created_at
+      FROM partner_referrals
+      WHERE id = ? AND partner_id = ?
+    `).bind(referralId, user.id).first()
+
+    if (!result) {
+      return c.json({ success: false, message: '의뢰를 찾을 수 없습니다.' }, 404)
+    }
+
+    return c.json({
+      success: true,
+      referral: result
+    })
+
+  } catch (error) {
+    console.error('Referral detail fetch error:', error)
+    return c.json({ success: false, message: '의뢰 조회 중 오류가 발생했습니다.' }, 500)
+  }
 })
 
 // 긴급 전원 요청 페이지 (간단 버전)
