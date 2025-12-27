@@ -167,7 +167,7 @@ app.get('/login', (c) => {
 
             <div class="mb-6">
               <label class="block text-sm font-medium text-gray-700 mb-3">로그인 유형</label>
-              <div class="grid grid-cols-2 gap-3">
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <button type="button" id="btnCustomer" onclick="selectUserType('customer')"
                   class="px-4 py-3 border-2 border-teal-600 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-medium">
                   <i class="fas fa-user mr-2"></i>고객
@@ -175,6 +175,14 @@ app.get('/login', (c) => {
                 <button type="button" id="btnFacility" onclick="selectUserType('facility')"
                   class="px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-teal-600 hover:text-teal-600 transition-colors font-medium">
                   <i class="fas fa-building mr-2"></i>시설
+                </button>
+                <button type="button" id="btnHospital" onclick="selectUserType('hospital_manager')"
+                  class="px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-teal-600 hover:text-teal-600 transition-colors font-medium">
+                  <i class="fas fa-hospital mr-2"></i>상급병원
+                </button>
+                <button type="button" id="btnWelfare" onclick="selectUserType('welfare_manager')"
+                  class="px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-teal-600 hover:text-teal-600 transition-colors font-medium">
+                  <i class="fas fa-landmark mr-2"></i>정부복지
                 </button>
               </div>
             </div>
@@ -241,13 +249,25 @@ app.get('/login', (c) => {
           selectedUserType = type;
           const btnCustomer = document.getElementById('btnCustomer');
           const btnFacility = document.getElementById('btnFacility');
+          const btnHospital = document.getElementById('btnHospital');
+          const btnWelfare = document.getElementById('btnWelfare');
+          
+          const activeClass = 'px-4 py-3 border-2 border-teal-600 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-medium';
+          const inactiveClass = 'px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-teal-600 hover:text-teal-600 transition-colors font-medium';
+          
+          btnCustomer.className = inactiveClass;
+          btnFacility.className = inactiveClass;
+          btnHospital.className = inactiveClass;
+          btnWelfare.className = inactiveClass;
 
           if (type === 'customer') {
-            btnCustomer.className = 'px-4 py-3 border-2 border-teal-600 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-medium';
-            btnFacility.className = 'px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-teal-600 hover:text-teal-600 transition-colors font-medium';
-          } else {
-            btnFacility.className = 'px-4 py-3 border-2 border-teal-600 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-medium';
-            btnCustomer.className = 'px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-teal-600 hover:text-teal-600 transition-colors font-medium';
+            btnCustomer.className = activeClass;
+          } else if (type === 'facility') {
+            btnFacility.className = activeClass;
+          } else if (type === 'hospital_manager') {
+            btnHospital.className = activeClass;
+          } else if (type === 'welfare_manager') {
+            btnWelfare.className = activeClass;
           }
         }
 
@@ -270,8 +290,10 @@ app.get('/login', (c) => {
               alert('로그인 성공!');
               if (data.user.type === 'customer') {
                 window.location.href = '/dashboard/customer';
-              } else {
+              } else if (data.user.type === 'facility') {
                 window.location.href = '/dashboard/facility';
+              } else if (data.user.type === 'hospital_manager' || data.user.type === 'welfare_manager') {
+                window.location.href = '/dashboard/partner';
               }
             } else {
               alert(data.message || '로그인 실패');
@@ -389,7 +411,7 @@ app.get('/register', (c) => {
             <!-- 사용자 유형 선택 -->
             <div class="mb-6">
               <label class="block text-sm font-medium text-gray-700 mb-3">가입 유형</label>
-              <div class="grid grid-cols-2 gap-3">
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <button type="button" id="btnCustomer" onclick="selectUserType('customer')"
                   class="px-4 py-3 border-2 border-teal-600 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-medium">
                   <i class="fas fa-user mr-2"></i>고객
@@ -397,6 +419,14 @@ app.get('/register', (c) => {
                 <button type="button" id="btnFacility" onclick="selectUserType('facility')"
                   class="px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-teal-600 hover:text-teal-600 transition-colors font-medium">
                   <i class="fas fa-building mr-2"></i>시설
+                </button>
+                <button type="button" id="btnHospital" onclick="selectUserType('hospital_manager')"
+                  class="px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-teal-600 hover:text-teal-600 transition-colors font-medium">
+                  <i class="fas fa-hospital mr-2"></i>상급병원
+                </button>
+                <button type="button" id="btnWelfare" onclick="selectUserType('welfare_manager')"
+                  class="px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-teal-600 hover:text-teal-600 transition-colors font-medium">
+                  <i class="fas fa-landmark mr-2"></i>정부복지
                 </button>
               </div>
             </div>
@@ -477,6 +507,39 @@ app.get('/register', (c) => {
                 </div>
               </div>
 
+              <!-- 파트너 전용 정보 (숨김 처리) -->
+              <div id="partnerFields" style="display: none;" class="space-y-4 mb-6 p-4 bg-purple-50 rounded-lg">
+                <h3 class="font-bold text-gray-800 mb-3">
+                  <i class="fas fa-briefcase text-purple-600 mr-2"></i>기관 정보
+                </h3>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">기관명 *</label>
+                  <input type="text" id="organizationName" placeholder="서울대학교병원"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent" />
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">부서명 *</label>
+                  <input type="text" id="department" placeholder="사회복지팀"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent" />
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">직책 *</label>
+                  <input type="text" id="position" placeholder="사회복지사"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent" />
+                </div>
+
+                <div class="bg-yellow-50 border border-yellow-300 rounded-lg p-4">
+                  <p class="text-sm text-gray-700">
+                    <i class="fas fa-info-circle text-yellow-600 mr-2"></i>
+                    <strong>승인 안내:</strong> 파트너 가입은 관리자 승인이 필요합니다. 
+                    승인 완료 후 이메일로 안내드립니다.
+                  </p>
+                </div>
+              </div>
+
               <!-- 약관 동의 -->
               <div class="space-y-3 mb-6">
                 <label class="flex items-start">
@@ -523,16 +586,34 @@ app.get('/register', (c) => {
           selectedUserType = type;
           const btnCustomer = document.getElementById('btnCustomer');
           const btnFacility = document.getElementById('btnFacility');
+          const btnHospital = document.getElementById('btnHospital');
+          const btnWelfare = document.getElementById('btnWelfare');
           const facilityFields = document.getElementById('facilityFields');
+          const partnerFields = document.getElementById('partnerFields');
+          
+          // Reset all buttons
+          const activeClass = 'px-4 py-3 border-2 border-teal-600 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-medium';
+          const inactiveClass = 'px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-teal-600 hover:text-teal-600 transition-colors font-medium';
+          
+          btnCustomer.className = inactiveClass;
+          btnFacility.className = inactiveClass;
+          btnHospital.className = inactiveClass;
+          btnWelfare.className = inactiveClass;
+          
+          facilityFields.style.display = 'none';
+          partnerFields.style.display = 'none';
 
           if (type === 'customer') {
-            btnCustomer.className = 'px-4 py-3 border-2 border-teal-600 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-medium';
-            btnFacility.className = 'px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-teal-600 hover:text-teal-600 transition-colors font-medium';
-            facilityFields.style.display = 'none';
-          } else {
-            btnFacility.className = 'px-4 py-3 border-2 border-teal-600 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-medium';
-            btnCustomer.className = 'px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-teal-600 hover:text-teal-600 transition-colors font-medium';
+            btnCustomer.className = activeClass;
+          } else if (type === 'facility') {
+            btnFacility.className = activeClass;
             facilityFields.style.display = 'block';
+          } else if (type === 'hospital_manager') {
+            btnHospital.className = activeClass;
+            partnerFields.style.display = 'block';
+          } else if (type === 'welfare_manager') {
+            btnWelfare.className = activeClass;
+            partnerFields.style.display = 'block';
           }
         }
 
@@ -582,6 +663,19 @@ app.get('/register', (c) => {
             data.facilityType = facilityType;
             data.address = address;
             data.businessNumber = businessNumber;
+          } else if (selectedUserType === 'hospital_manager' || selectedUserType === 'welfare_manager') {
+            const organizationName = document.getElementById('organizationName').value;
+            const department = document.getElementById('department').value;
+            const position = document.getElementById('position').value;
+
+            if (!organizationName || !department || !position) {
+              alert('기관명, 부서명, 직책을 모두 입력해주세요.');
+              return;
+            }
+
+            data.organizationName = organizationName;
+            data.department = department;
+            data.position = position;
           }
 
           try {
@@ -594,7 +688,11 @@ app.get('/register', (c) => {
             const result = await response.json();
 
             if (result.success) {
-              alert('회원가입이 완료되었습니다! 로그인해주세요.');
+              if (selectedUserType === 'hospital_manager' || selectedUserType === 'welfare_manager') {
+                alert('회원가입이 완료되었습니다! 관리자 승인 후 로그인이 가능합니다. 승인 완료 시 이메일로 안내드립니다.');
+              } else {
+                alert('회원가입이 완료되었습니다! 로그인해주세요.');
+              }
               window.location.href = '/login';
             } else {
               alert(result.message || '회원가입 실패');
@@ -8436,6 +8534,209 @@ app.get('/dashboard/facility', async (c) => {
     </body>
     </html>
   `)
+})
+
+// ========== 파트너 대시보드 (상급병원/정부복지) ==========
+app.get('/dashboard/partner', async (c) => {
+  const user = getUser(c)
+  
+  if (!user || (user.type !== 'hospital_manager' && user.type !== 'welfare_manager')) {
+    return c.redirect('/login')
+  }
+
+  const partnerTypeLabel = user.type === 'hospital_manager' ? '상급병원' : '정부복지담당자'
+  const partnerIcon = user.type === 'hospital_manager' ? 'hospital' : 'landmark'
+
+  return c.render(
+    <div>
+      <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex justify-between items-center h-16">
+            <div class="flex items-center">
+              <img 
+                src="https://page.gensparksite.com/v1/base64_upload/b39dca8586af1dacd6d8417554313896" 
+                alt="케어조아 로고"
+                class="h-6 md:h-8 w-auto mr-3"
+              />
+              <h1 class="text-lg md:text-2xl font-bold text-teal-600">케어조아 파트너</h1>
+            </div>
+            
+            <div class="flex items-center space-x-2 md:space-x-4">
+              <a href="/" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-lg">
+                <i class="fas fa-home mr-1"></i>홈
+              </a>
+              <form method="POST" action="/api/auth/logout" class="inline">
+                <button type="submit" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg">
+                  <i class="fas fa-sign-out-alt mr-1"></i>로그아웃
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="max-w-7xl mx-auto px-4 py-8">
+        {/* 환영 메시지 */}
+        <div class="mb-8">
+          <h2 class="text-2xl md:text-3xl font-bold text-gray-800">
+            <i class={`fas fa-${partnerIcon} text-purple-600 mr-2`}></i>
+            {user.name}님, 환영합니다!
+          </h2>
+          <p class="text-gray-600 mt-2">{partnerTypeLabel} 파트너 대시보드</p>
+        </div>
+
+        {/* 기관 정보 카드 */}
+        <div class="bg-gradient-to-r from-purple-50 to-blue-50 rounded-2xl shadow-lg p-6 mb-8">
+          <h3 class="text-xl font-bold text-gray-800 mb-4">
+            <i class="fas fa-building text-purple-600 mr-2"></i>기관 정보
+          </h3>
+          <div class="grid md:grid-cols-3 gap-4">
+            <div>
+              <p class="text-sm text-gray-600">기관명</p>
+              <p class="font-semibold text-gray-800">{user.organization_name || '미등록'}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-600">부서</p>
+              <p class="font-semibold text-gray-800">{user.department || '미등록'}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-600">직책</p>
+              <p class="font-semibold text-gray-800">{user.position || '미등록'}</p>
+            </div>
+          </div>
+          <div class="mt-4 pt-4 border-t">
+            <p class="text-sm text-gray-600">이메일</p>
+            <p class="font-semibold text-gray-800">{user.email}</p>
+          </div>
+          <div class="mt-4 pt-4 border-t">
+            <p class="text-sm text-gray-600">연락처</p>
+            <p class="font-semibold text-gray-800">{user.phone || '미등록'}</p>
+          </div>
+        </div>
+
+        {/* 통계 카드 */}
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-8">
+          <div class="bg-white rounded-xl shadow-md p-4 md:p-6 border-l-4 border-blue-500">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-600 text-xs md:text-sm">의뢰 건수</p>
+                <p class="text-2xl md:text-3xl font-bold text-gray-800 mt-1">0</p>
+              </div>
+              <div class="bg-blue-100 p-3 md:p-4 rounded-full">
+                <i class="fas fa-user-plus text-blue-600 text-lg md:text-2xl"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl shadow-md p-4 md:p-6 border-l-4 border-green-500">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-600 text-xs md:text-sm">매칭 완료</p>
+                <p class="text-2xl md:text-3xl font-bold text-gray-800 mt-1">0</p>
+              </div>
+              <div class="bg-green-100 p-3 md:p-4 rounded-full">
+                <i class="fas fa-check-circle text-green-600 text-lg md:text-2xl"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl shadow-md p-4 md:p-6 border-l-4 border-purple-500">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-600 text-xs md:text-sm">진행 중</p>
+                <p class="text-2xl md:text-3xl font-bold text-gray-800 mt-1">0</p>
+              </div>
+              <div class="bg-purple-100 p-3 md:p-4 rounded-full">
+                <i class="fas fa-spinner text-purple-600 text-lg md:text-2xl"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl shadow-md p-4 md:p-6 border-l-4 border-orange-500">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-600 text-xs md:text-sm">완료</p>
+                <p class="text-2xl md:text-3xl font-bold text-gray-800 mt-1">0</p>
+              </div>
+              <div class="bg-orange-100 p-3 md:p-4 rounded-full">
+                <i class="fas fa-flag-checkered text-orange-600 text-lg md:text-2xl"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 환자/주민 의뢰 폼 */}
+        <div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
+          <h3 class="text-xl font-bold text-gray-800 mb-4">
+            <i class="fas fa-plus-circle text-teal-600 mr-2"></i>
+            {user.type === 'hospital_manager' ? '환자 의뢰' : '주민 복지서비스 신청'}
+          </h3>
+          
+          <form id="referralForm" class="space-y-4">
+            <div class="grid md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  {user.type === 'hospital_manager' ? '환자 이름' : '주민 이름'} *
+                </label>
+                <input type="text" required
+                  class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">연령 *</label>
+                <input type="number" required
+                  class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500" />
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">건강 상태 / 요구사항 *</label>
+              <textarea rows={4} required
+                class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500"></textarea>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">선호 지역 (시/도) *</label>
+                <select required class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500">
+                  <option value="">선택하세요</option>
+                  <option value="서울특별시">서울특별시</option>
+                  <option value="경기도">경기도</option>
+                  <option value="인천광역시">인천광역시</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">시설 유형 *</label>
+                <select required class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500">
+                  <option value="">선택하세요</option>
+                  <option value="요양병원">요양병원</option>
+                  <option value="요양원">요양원</option>
+                  <option value="주야간보호">주야간보호</option>
+                  <option value="재가복지센터">재가복지센터</option>
+                </select>
+              </div>
+            </div>
+
+            <button type="submit"
+              class="w-full bg-teal-600 text-white py-3 rounded-lg hover:bg-teal-700 font-semibold">
+              <i class="fas fa-paper-plane mr-2"></i>의뢰하기
+            </button>
+          </form>
+        </div>
+
+        {/* 최근 의뢰 목록 */}
+        <div class="bg-white rounded-2xl shadow-lg p-6">
+          <h3 class="text-xl font-bold text-gray-800 mb-4">
+            <i class="fas fa-list text-teal-600 mr-2"></i>최근 의뢰 목록
+          </h3>
+          
+          <div class="text-center py-12 text-gray-500">
+            <i class="fas fa-inbox text-4xl mb-4"></i>
+            <p>아직 의뢰 내역이 없습니다</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
 })
 
 // ========== 시설 템플릿 설정 페이지 ==========
