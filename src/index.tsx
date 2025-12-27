@@ -221,6 +221,15 @@ app.get('/login', (c) => {
                 </a>
               </div>
             </form>
+
+            <!-- 회원가입 링크 -->
+            <div class="mt-6 text-center">
+              <p class="text-gray-600 text-sm mb-3">아직 회원이 아니신가요?</p>
+              <a href="/register"
+                class="inline-flex items-center justify-center w-full py-3 border-2 border-teal-600 text-teal-600 rounded-lg hover:bg-teal-50 transition-colors font-semibold">
+                <i class="fas fa-user-plus mr-2"></i>회원가입
+              </a>
+            </div>
           </div>
         </div>
       </div>
