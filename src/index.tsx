@@ -368,11 +368,10 @@ app.post('/api/auth/login', async (c) => {
       `).bind(email, password, type).first()
     } catch (error) {
       console.error('D1 로그인 조회 오류:', error)
+      return c.json({ success: false, message: '로그인 처리 중 오류가 발생했습니다.' }, 500)
     }
-  }
-  
-  // D1 조회 실패 시 메모리 폴백
-  if (!user) {
+  } else {
+    // 로컬 개발 환경에서만 메모리 폴백 사용
     user = dataStore.users.find(u => 
       u.email === email && 
       u.password === password &&
@@ -420,16 +419,26 @@ app.post('/api/auth/login', async (c) => {
       id: user.id,
       email: user.email,
       name: user.name,
-      type: user.type,
-      facilityType: user.facilityType
+      type: user.type || user.user_type,
+      facilityType: user.facilityType || user.facility_type
     }
   })
 })
 
 // 로그아웃 API
-app.post('/api/auth/logout', (c) => {
+app.post('/api/auth/logout', async (c) => {
   const sessionId = getCookie(c, 'user_session')
   if (sessionId) {
+    // D1에서 세션 삭제
+    const db = c.env.DB
+    if (db) {
+      try {
+        await db.prepare(`DELETE FROM sessions WHERE session_id = ?`).bind(sessionId).run()
+      } catch (error) {
+        console.error('D1 세션 삭제 오류:', error)
+      }
+    }
+    // 메모리에서도 삭제
     dataStore.userSessions.delete(sessionId)
   }
   
