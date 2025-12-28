@@ -375,6 +375,33 @@ app.post('/api/auth/logout', (c) => {
   return c.json({ success: true, message: '로그아웃되었습니다.' })
 })
 
+// 현재 로그인한 사용자 정보 조회
+app.get('/api/auth/me', (c) => {
+  const user = getUser(c)
+  
+  if (!user) {
+    return c.json({ success: false, message: '로그인이 필요합니다.' }, 401)
+  }
+  
+  return c.json({ 
+    success: true, 
+    user: {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      type: user.type,
+      phone: user.phone,
+      address: user.address,
+      facility_type: user.facility_type,
+      region_sido: user.region_sido,
+      region_sigungu: user.region_sigungu,
+      facility_address: user.facility_address,
+      postal_code: user.postal_code,
+      business_number: user.business_number
+    }
+  })
+})
+
 // 회원가입 페이지
 app.get('/register', (c) => {
   return c.html(`
