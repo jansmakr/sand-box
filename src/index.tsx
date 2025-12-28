@@ -8493,6 +8493,27 @@ app.get('/dashboard/customer', async (c) => {
     return c.redirect('/login')
   }
 
+  // 상태 배지 생성 헬퍼 함수
+  const getStatusBadge = (status: string) => {
+    const statusMap: Record<string, { text: string; color: string }> = {
+      'pending': { text: '대기 중', color: 'yellow' },
+      'received': { text: '견적 수신', color: 'green' },
+      'completed': { text: '완료', color: 'blue' },
+      'cancelled': { text: '취소', color: 'red' }
+    };
+    
+    const statusInfo = statusMap[status] || { text: '알 수 없음', color: 'gray' };
+    const colorClasses: Record<string, string> = {
+      'yellow': 'bg-yellow-100 text-yellow-700',
+      'green': 'bg-green-100 text-green-700',
+      'blue': 'bg-blue-100 text-blue-700',
+      'red': 'bg-red-100 text-red-700',
+      'gray': 'bg-gray-100 text-gray-700'
+    };
+    
+    return `<span class="px-3 py-1 rounded-full text-xs font-semibold ${colorClasses[statusInfo.color]}">${statusInfo.text}</span>`;
+  };
+
   return c.html(`
     <!DOCTYPE html>
     <html lang="ko">
