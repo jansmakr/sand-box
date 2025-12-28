@@ -509,28 +509,18 @@ app.get('/register', (c) => {
                   <i class="fas fa-building text-teal-600 mr-2"></i>시설 정보
                 </h3>
 
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">시설 유형 *</label>
-                  <select id="facilityType"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent">
-                    <option value="">선택하세요</option>
-                    <option value="요양병원">요양병원</option>
-                    <option value="요양원">요양원</option>
-                    <option value="주야간보호">주야간보호</option>
-                    <option value="재가복지센터">재가복지센터</option>
-                  </select>
+                <div class="bg-teal-50 border border-teal-200 rounded-lg p-4 mb-4">
+                  <p class="text-sm text-gray-700">
+                    <i class="fas fa-info-circle text-teal-600 mr-2"></i>
+                    <strong>안내:</strong> 시설 유형, 주소 등 상세 정보는 로그인 후 <strong>시설 정보 수정</strong>에서 입력하실 수 있습니다.
+                  </p>
                 </div>
 
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">시설 주소 *</label>
-                  <input type="text" id="address" placeholder="서울특별시 강남구"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent" />
-                </div>
-
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">사업자등록번호</label>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">사업자등록번호 (선택)</label>
                   <input type="text" id="businessNumber" placeholder="123-45-67890"
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent" />
+                  <p class="text-xs text-gray-500 mt-1">사업자등록번호가 있으면 입력해주세요.</p>
                 </div>
               </div>
 
@@ -678,17 +668,8 @@ app.get('/register', (c) => {
           };
 
           if (selectedUserType === 'facility') {
-            const facilityType = document.getElementById('facilityType').value;
-            const address = document.getElementById('address').value;
             const businessNumber = document.getElementById('businessNumber').value;
 
-            if (!facilityType || !address) {
-              alert('시설 유형과 주소를 입력해주세요.');
-              return;
-            }
-
-            data.facilityType = facilityType;
-            data.address = address;
             data.businessNumber = businessNumber;
           } else if (selectedUserType === 'hospital_manager' || selectedUserType === 'welfare_manager') {
             const organizationName = document.getElementById('organizationName').value;
@@ -758,8 +739,6 @@ app.post('/api/auth/register', async (c) => {
 
   // 시설인 경우 추가 정보
   if (data.type === 'facility') {
-    newUser.facilityType = data.facilityType
-    newUser.address = data.address
     newUser.businessNumber = data.businessNumber
   }
 
