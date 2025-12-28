@@ -3300,7 +3300,7 @@ app.get('/admin/dashboard', (c) => {
 
       <div class="max-w-7xl mx-auto px-4 py-8">
         {/* 통계 카드 */}
-        <div class="grid md:grid-cols-2 gap-6 mb-8">
+        <div class="grid md:grid-cols-3 gap-6 mb-8">
           <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
             <div class="flex items-center justify-between">
               <div>
@@ -3321,6 +3321,21 @@ app.get('/admin/dashboard', (c) => {
               </div>
               <div class="bg-green-100 p-4 rounded-full">
                 <i class="fas fa-heart text-3xl text-green-600"></i>
+              </div>
+            </div>
+          </div>
+          
+          <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-purple-500">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-500 text-sm mb-1">견적 요청</p>
+                <p class="text-3xl font-bold text-gray-900" id="quoteRequestsCount">0</p>
+                <p class="text-xs text-gray-500 mt-1">
+                  <span id="quoteResponseRate">0%</span> 응답률
+                </p>
+              </div>
+              <div class="bg-purple-100 p-4 rounded-full">
+                <i class="fas fa-file-invoice text-3xl text-purple-600"></i>
               </div>
             </div>
           </div>
@@ -3436,6 +3451,60 @@ app.get('/admin/dashboard', (c) => {
           </div>
         </div>
 
+        {/* 견적서 수발신 모니터링 */}
+        <div class="bg-white rounded-xl shadow-lg mb-6">
+          <div class="border-b px-6 py-4">
+            <h3 class="text-xl font-bold flex items-center">
+              <i class="fas fa-file-invoice text-purple-600 mr-2"></i>
+              견적서 수발신 모니터링
+              <span class="ml-3 text-sm text-gray-500">(전체 견적 요청 및 응답 현황)</span>
+            </h3>
+          </div>
+          <div class="p-6">
+            {/* 필터 옵션 */}
+            <div class="mb-4 flex gap-3 flex-wrap">
+              <select id="filterStatus" class="border rounded-lg px-3 py-2 text-sm">
+                <option value="">전체 상태</option>
+                <option value="pending">대기중</option>
+                <option value="received">견적 받음</option>
+                <option value="completed">완료</option>
+              </select>
+              <select id="filterFacilityType" class="border rounded-lg px-3 py-2 text-sm">
+                <option value="">전체 시설유형</option>
+                <option value="요양병원">요양병원</option>
+                <option value="요양원">요양원</option>
+                <option value="주야간보호센터">주야간보호센터</option>
+                <option value="재가센터">재가센터</option>
+              </select>
+              <button onclick="filterQuotes()" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 text-sm">
+                <i class="fas fa-filter mr-1"></i>필터 적용
+              </button>
+              <button onclick="resetQuoteFilters()" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 text-sm">
+                <i class="fas fa-redo mr-1"></i>초기화
+              </button>
+            </div>
+            
+            <div class="overflow-x-auto">
+              <table class="w-full">
+                <thead class="bg-gray-50">
+                  <tr class="border-b">
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">순번</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">견적ID</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">신청자</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">환자명</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">시설유형</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">지역</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">응답수</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">상태</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">요청일시</th>
+                  </tr>
+                </thead>
+                <tbody id="quoteMonitoringList"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
         {/* 대표시설 신청 관리 */}
         <div class="bg-white rounded-xl shadow-lg mb-6">
           <div class="border-b px-6 py-4">
@@ -3509,6 +3578,9 @@ app.get('/admin/dashboard', (c) => {
             
             // 대표시설 신청 목록 로드
             await loadRepresentativeApplications();
+            
+            // 견적서 모니터링 로드
+            await loadQuoteMonitoring();
             
             const partnerList = document.getElementById('partnerList');
             partnerList.innerHTML = partners.map((p, index) => {
@@ -3746,6 +3818,111 @@ app.get('/admin/dashboard', (c) => {
             console.error('거부 처리 실패:', error);
             alert('거부 처리 중 오류가 발생했습니다.');
           }
+        }
+        
+        // 견적서 모니터링 로드
+        let allQuotes = [];
+        
+        async function loadQuoteMonitoring() {
+          try {
+            const response = await axios.get('/api/admin/quote-monitoring');
+            if (!response.data.success) {
+              throw new Error(response.data.message || '데이터 로드 실패');
+            }
+            
+            allQuotes = response.data.data || [];
+            
+            // 통계 업데이트
+            document.getElementById('quoteRequestsCount').textContent = allQuotes.length;
+            
+            const totalResponses = allQuotes.reduce((sum, q) => sum + (q.response_count || 0), 0);
+            const responseRate = allQuotes.length > 0 
+              ? Math.round((allQuotes.filter(q => q.response_count > 0).length / allQuotes.length) * 100)
+              : 0;
+            document.getElementById('quoteResponseRate').textContent = \`\${responseRate}%\`;
+            
+            renderQuotes(allQuotes);
+          } catch (error) {
+            console.error('견적서 모니터링 로드 실패:', error);
+            document.getElementById('quoteMonitoringList').innerHTML = 
+              '<tr><td colspan="9" class="px-4 py-8 text-center text-red-500">데이터 로드 실패</td></tr>';
+          }
+        }
+        
+        function renderQuotes(quotes) {
+          const list = document.getElementById('quoteMonitoringList');
+          
+          if (quotes.length === 0) {
+            list.innerHTML = '<tr><td colspan="9" class="px-4 py-8 text-center text-gray-500">견적 요청 내역이 없습니다</td></tr>';
+            return;
+          }
+          
+          list.innerHTML = quotes.map((quote, index) => {
+            const status = quote.request_status || 'pending';
+            const statusText = status === 'completed' ? '완료' : 
+                             status === 'received' ? '견적 받음' : 
+                             '대기중';
+            const statusColor = status === 'completed' ? 'bg-green-100 text-green-700' : 
+                              status === 'received' ? 'bg-blue-100 text-blue-700' : 
+                              'bg-yellow-100 text-yellow-700';
+            
+            const region = quote.sido && quote.sigungu ? \`\${quote.sido} \${quote.sigungu}\` : '-';
+            const responseCount = quote.response_count || 0;
+            const responseColor = responseCount > 0 ? 'text-green-600 font-bold' : 'text-gray-400';
+            
+            const requestedDate = quote.requested_at 
+              ? new Date(quote.requested_at).toLocaleString('ko-KR', {
+                  year: 'numeric',
+                  month: '2-digit',
+                  day: '2-digit',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })
+              : '-';
+            
+            return \`
+            <tr class="border-t hover:bg-gray-50">
+              <td class="px-4 py-3 text-center text-gray-700">\${index + 1}</td>
+              <td class="px-4 py-3 font-mono text-sm text-gray-600">\${quote.quote_id || '-'}</td>
+              <td class="px-4 py-3 text-gray-900">\${quote.applicant_name || '-'}</td>
+              <td class="px-4 py-3 text-gray-700">\${quote.patient_name || '-'}</td>
+              <td class="px-4 py-3 text-sm text-gray-600">\${quote.facility_type || '-'}</td>
+              <td class="px-4 py-3 text-sm text-gray-600">\${region}</td>
+              <td class="px-4 py-3 text-center">
+                <span class="\${responseColor}">\${responseCount}개</span>
+              </td>
+              <td class="px-4 py-3">
+                <span class="inline-flex px-3 py-1 rounded-full text-xs font-semibold \${statusColor}">
+                  \${statusText}
+                </span>
+              </td>
+              <td class="px-4 py-3 text-sm text-gray-600">\${requestedDate}</td>
+            </tr>
+            \`;
+          }).join('');
+        }
+        
+        function filterQuotes() {
+          const statusFilter = document.getElementById('filterStatus').value;
+          const typeFilter = document.getElementById('filterFacilityType').value;
+          
+          let filtered = allQuotes;
+          
+          if (statusFilter) {
+            filtered = filtered.filter(q => q.request_status === statusFilter);
+          }
+          
+          if (typeFilter) {
+            filtered = filtered.filter(q => q.facility_type === typeFilter);
+          }
+          
+          renderQuotes(filtered);
+        }
+        
+        function resetQuoteFilters() {
+          document.getElementById('filterStatus').value = '';
+          document.getElementById('filterFacilityType').value = '';
+          renderQuotes(allQuotes);
         }
         
         document.getElementById('logoutBtn').addEventListener('click', async () => {
