@@ -4841,6 +4841,7 @@ app.get('/quote-request', (c) => {
             const response = await fetch('/api/quote-request', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
               body: JSON.stringify(data)
             });
 
@@ -8410,7 +8411,7 @@ app.get('/dashboard/customer', async (c) => {
         // 대시보드 데이터 로드
         async function loadDashboardData() {
           try {
-            const response = await fetch('/api/customer/dashboard');
+            const response = await fetch('/api/customer/dashboard', { credentials: 'include' });
             const result = await response.json();
             
             if (result.success) {
@@ -8527,7 +8528,7 @@ app.get('/dashboard/customer', async (c) => {
 
         async function handleLogout() {
           try {
-            const response = await fetch('/api/auth/logout', { method: 'POST' });
+            const response = await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
             if (response.ok) {
               alert('로그아웃되었습니다.');
               window.location.href = '/';
@@ -8937,7 +8938,7 @@ app.get('/dashboard/facility', async (c) => {
         // 대시보드 데이터 로드
         async function loadDashboardData() {
           try {
-            const response = await fetch('/api/facility/dashboard');
+            const response = await fetch('/api/facility/dashboard', { credentials: 'include' });
             const result = await response.json();
             
             if (result.success) {
@@ -9165,7 +9166,7 @@ app.get('/dashboard/facility', async (c) => {
           // 템플릿 로드
           let template = null;
           try {
-            const templateResponse = await fetch('/api/facility/template');
+            const templateResponse = await fetch('/api/facility/template', { credentials: 'include' });
             const templateData = await templateResponse.json();
             if (templateData.success && templateData.data) {
               template = templateData.data;
@@ -9423,6 +9424,7 @@ app.get('/dashboard/facility', async (c) => {
             const response = await fetch('/api/facility/send-quote', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
               body: JSON.stringify(data)
             });
 
@@ -9462,7 +9464,7 @@ app.get('/dashboard/facility', async (c) => {
 
           // 현재 사용자 정보 로드
           try {
-            const response = await fetch('/api/auth/me');
+            const response = await fetch('/api/auth/me', { credentials: 'include' });
             const result = await response.json();
             
             if (result.success && result.user) {
@@ -9547,6 +9549,7 @@ app.get('/dashboard/facility', async (c) => {
             const response = await fetch('/api/facility/update-info', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
               body: JSON.stringify(data)
             });
 
@@ -9574,7 +9577,7 @@ app.get('/dashboard/facility', async (c) => {
         async function applyRepresentativeFacility() {
           try {
             // 먼저 현재 신청 상태 확인
-            const statusResponse = await fetch('/api/facility/representative-status');
+            const statusResponse = await fetch('/api/facility/representative-status', { credentials: 'include' });
             const statusResult = await statusResponse.json();
             
             if (statusResult.success && statusResult.data) {
@@ -9605,6 +9608,7 @@ app.get('/dashboard/facility', async (c) => {
             const response = await fetch('/api/facility/apply-representative', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
               body: JSON.stringify({ application_reason: reason })
             });
             
@@ -9623,7 +9627,7 @@ app.get('/dashboard/facility', async (c) => {
 
         async function handleLogout() {
           try {
-            const response = await fetch('/api/auth/logout', { method: 'POST' });
+            const response = await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
             if (response.ok) {
               alert('로그아웃되었습니다.');
               window.location.href = '/';
@@ -10845,8 +10849,9 @@ app.get('/quote-details/:quoteId', async (c) => {
 
             try {
               const response = await fetch('/api/messages/send', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
                 body: JSON.stringify({
                   responseId,
                   message: message
@@ -10926,8 +10931,9 @@ app.get('/quote-details/:quoteId', async (c) => {
 
             try {
               const response = await fetch('/api/reviews/create', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
                 body: JSON.stringify({
                   responseId,
                   rating: parseInt(rating),
@@ -11152,6 +11158,7 @@ app.get('/profile', (c) => {
             const response = await fetch('/api/profile/update', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
               body: JSON.stringify(data)
             });
 
@@ -11185,6 +11192,7 @@ app.get('/profile', (c) => {
             const response = await fetch('/api/profile/change-password', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
               body: JSON.stringify({ currentPassword, newPassword })
             });
 
@@ -11233,6 +11241,7 @@ app.get('/profile', (c) => {
             const response = await fetch('/api/messages/send', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
               body: JSON.stringify({
                 responseId,
                 message: messageContent
