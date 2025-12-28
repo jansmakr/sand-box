@@ -10484,7 +10484,16 @@ app.get('/quote-details/:quoteId', async (c) => {
             ${responsesData.map((response, index) => {
               const price = new Intl.NumberFormat('ko-KR').format(response.estimated_price)
               const date = new Date(response.created_at).toLocaleDateString('ko-KR')
-              const statusBadge = getStatusBadge(response.status)
+              
+              // 상태 배지 인라인 생성
+              const statusMap = {
+                'sent': { text: '전송됨', color: 'bg-blue-100 text-blue-700' },
+                'viewed': { text: '열람됨', color: 'bg-green-100 text-green-700' },
+                'accepted': { text: '수락됨', color: 'bg-purple-100 text-purple-700' },
+                'rejected': { text: '거절됨', color: 'bg-red-100 text-red-700' }
+              }
+              const statusInfo = statusMap[response.status] || { text: response.status, color: 'bg-gray-100 text-gray-700' }
+              const statusBadge = `<span class="px-3 py-1 rounded-full text-xs font-semibold ${statusInfo.color}">${statusInfo.text}</span>`
               
               return `
                 <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow quote-card" data-index="${index}">
