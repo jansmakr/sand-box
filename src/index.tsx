@@ -1851,6 +1851,10 @@ app.get('/facilities', (c) => {
         </div>
       </header>
 
+      {/* Leaflet.js CSS */}
+      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+      
       <section class="py-8 bg-gray-50 min-h-screen">
         <div class="max-w-7xl mx-auto px-4">
           {/* 페이지 헤더 */}
@@ -1859,7 +1863,7 @@ app.get('/facilities', (c) => {
               <i class="fas fa-search text-purple-600 mr-3"></i>
               전국 시설 찾기
             </h2>
-            <p class="text-gray-600">전국 요양시설을 검색하고 비교하세요</p>
+            <p class="text-gray-600">전국 요양시설을 지도에서 확인하고 검색하세요</p>
           </div>
 
           {/* 검색 필터 */}
@@ -1936,30 +1940,61 @@ app.get('/facilities', (c) => {
             </div>
           </div>
 
-          {/* 시설 목록 */}
-          <div id="facilitiesList" class="space-y-4">
-            {/* 시설 카드들이 동적으로 삽입됩니다 */}
-          </div>
+          {/* 지도와 시설 목록 2열 레이아웃 */}
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* 지도 영역 */}
+            <div class="bg-white rounded-xl shadow-lg p-4">
+              <div class="mb-3">
+                <h3 class="text-lg font-bold text-gray-800 flex items-center">
+                  <i class="fas fa-map text-blue-600 mr-2"></i>
+                  지도로 보기
+                  <span id="mapMarkerCount" class="ml-2 text-sm text-gray-500">(0개 표시)</span>
+                </h3>
+              </div>
+              <div id="map" style="height: 600px; width: 100%; border-radius: 0.75rem; overflow: hidden;"></div>
+            </div>
+            
+            {/* 시설 목록 */}
+            <div>
+              <div class="mb-4">
+                <h3 class="text-lg font-bold text-gray-800 flex items-center">
+                  <i class="fas fa-list text-purple-600 mr-2"></i>
+                  시설 목록
+                  <span id="facilityCount" class="ml-2 text-sm text-gray-500">(0개)</span>
+                </h3>
+              </div>
+              <div id="facilitiesList" class="space-y-4 overflow-y-auto" style="max-height: 650px;">
+                {/* 시설 카드들이 동적으로 삽입됩니다 */}
+              </div>
 
-          {/* 로딩 표시 */}
-          <div id="loadingSpinner" class="text-center py-12">
-            <i class="fas fa-spinner fa-spin text-4xl text-purple-600"></i>
-            <p class="text-gray-600 mt-4">시설 데이터를 불러오는 중...</p>
-          </div>
+              {/* 로딩 표시 */}
+              <div id="loadingSpinner" class="text-center py-12">
+                <i class="fas fa-spinner fa-spin text-4xl text-purple-600"></i>
+                <p class="text-gray-600 mt-4">시설 데이터를 불러오는 중...</p>
+              </div>
 
-          {/* 결과 없음 메시지 */}
-          <div id="noResults" class="hidden bg-white rounded-xl shadow-lg p-12 text-center">
-            <i class="fas fa-search text-6xl text-gray-300 mb-4"></i>
-            <h3 class="text-2xl font-bold text-gray-700 mb-2">검색 결과가 없습니다</h3>
-            <p class="text-gray-500">다른 조건으로 검색해 주세요</p>
+              {/* 결과 없음 메시지 */}
+              <div id="noResults" class="hidden bg-white rounded-xl shadow-lg p-12 text-center">
+                <i class="fas fa-search text-6xl text-gray-300 mb-4"></i>
+                <h3 class="text-2xl font-bold text-gray-700 mb-2">검색 결과가 없습니다</h3>
+                <p class="text-gray-500">다른 조건으로 검색해 주세요</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
+      {/* Leaflet.js JavaScript */}
+      <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" 
+        crossorigin=""></script>
+      
       {/* JavaScript for Facilities Search */}
       <script dangerouslySetInnerHTML={{__html: `
         let allFacilities = [];
         let filteredFacilities = [];
+        let map = null;
+        let markers = [];
 
         // 시도별 시군구 데이터
         const sigunguData = {
@@ -1985,12 +2020,16 @@ app.get('/facilities', (c) => {
         // 페이지 로드 시 시설 데이터 불러오기
         async function loadFacilities() {
           try {
+            // Leaflet.js 지도 초기화
+            initializeMap();
+            
             const response = await fetch('/static/facilities.json');
             allFacilities = await response.json();
             filteredFacilities = [...allFacilities];
             
             document.getElementById('loadingSpinner').style.display = 'none';
             displayFacilities();
+            updateMapMarkers();
           } catch (error) {
             console.error('시설 데이터 로딩 오류:', error);
             document.getElementById('loadingSpinner').innerHTML = \`
@@ -1999,15 +2038,144 @@ app.get('/facilities', (c) => {
             \`;
           }
         }
+        
+        // Leaflet.js 지도 초기화
+        function initializeMap() {
+          console.log('🗺️ Leaflet 지도 초기화 시작');
+          
+          // 지도 생성 (서울 중심, 확대 레벨 7)
+          map = L.map('map').setView([37.5665, 126.9780], 7);
+          
+          // OpenStreetMap 타일 레이어
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19
+          }).addTo(map);
+          
+          console.log('✅ Leaflet 지도 초기화 완료');
+        }
+        
+        // 지도 마커 업데이트
+        function updateMapMarkers() {
+          if (!map) return;
+          
+          // 기존 마커 제거
+          markers.forEach(marker => marker.remove());
+          markers = [];
+          
+          // 시설 유형별 색상
+          const typeColors = {
+            '요양병원': '#ef4444',  // 빨강
+            '요양원': '#3b82f6',    // 파랑
+            '재가복지센터': '#10b981', // 초록
+            '주야간보호': '#f59e0b'  // 주황
+          };
+          
+          // 최대 100개만 표시
+          const displayItems = filteredFacilities.slice(0, 100);
+          
+          displayItems.forEach((facility, index) => {
+            if (!facility.lat || !facility.lng) return;
+            
+            const color = typeColors[facility.type] || '#6b7280';
+            
+            // 커스텀 마커 아이콘
+            const markerIcon = L.divIcon({
+              className: 'custom-marker',
+              html: \`<div style="background-color: \${color}; width: 24px; height: 24px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>\`,
+              iconSize: [24, 24],
+              iconAnchor: [12, 12]
+            });
+            
+            // 마커 생성
+            const marker = L.marker([facility.lat, facility.lng], {
+              icon: markerIcon
+            }).addTo(map);
+            
+            // 팝업 내용
+            const popupContent = \`
+              <div style="min-width: 200px;">
+                <div style="font-weight: bold; font-size: 16px; margin-bottom: 8px; color: \${color};">
+                  \${facility.type}
+                </div>
+                <div style="font-weight: bold; font-size: 18px; margin-bottom: 8px;">
+                  \${facility.name}
+                </div>
+                <div style="color: #666; font-size: 14px; line-height: 1.6;">
+                  <div style="margin-bottom: 4px;">
+                    📍 \${facility.address}
+                  </div>
+                  <div style="margin-bottom: 8px;">
+                    🗺️ \${facility.sido} \${facility.sigungu}
+                  </div>
+                </div>
+                <button 
+                  onclick="focusOnFacility(\${index})"
+                  style="width: 100%; background-color: #3b82f6; color: white; padding: 8px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600;"
+                >
+                  상세보기
+                </button>
+              </div>
+            \`;
+            
+            marker.bindPopup(popupContent);
+            markers.push(marker);
+          });
+          
+          // 마커 개수 업데이트
+          document.getElementById('mapMarkerCount').textContent = \`(\${displayItems.length}개 표시)\`;
+          
+          // 첫 번째 시설로 지도 이동 (검색 결과가 있을 때만)
+          if (displayItems.length > 0 && displayItems[0].lat && displayItems[0].lng) {
+            map.setView([displayItems[0].lat, displayItems[0].lng], 10);
+          }
+          
+          console.log(\`📍 \${displayItems.length}개 마커 표시 완료\`);
+        }
+        
+        // 특정 시설로 지도 이동 및 팝업 열기
+        function showOnMap(lat, lng, name) {
+          if (!map) return;
+          
+          // 지도 중심 이동 및 확대
+          map.setView([lat, lng], 16);
+          
+          // 해당 위치의 마커 팝업 열기
+          markers.forEach(marker => {
+            const markerLatLng = marker.getLatLng();
+            if (Math.abs(markerLatLng.lat - lat) < 0.0001 && Math.abs(markerLatLng.lng - lng) < 0.0001) {
+              marker.openPopup();
+              
+              // 지도 영역으로 스크롤
+              document.getElementById('map').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+          });
+        }
+        
+        // 시설 목록에서 특정 시설로 포커스
+        function focusOnFacility(index) {
+          const facilityCard = document.querySelector(\`#facilitiesList > div:nth-child(\${index + 1})\`);
+          if (facilityCard) {
+            facilityCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            facilityCard.classList.add('ring-4', 'ring-purple-500');
+            setTimeout(() => {
+              facilityCard.classList.remove('ring-4', 'ring-purple-500');
+            }, 2000);
+          }
+        }
 
         // 시설 목록 표시
         function displayFacilities() {
           const listEl = document.getElementById('facilitiesList');
           const noResultsEl = document.getElementById('noResults');
           
+          // 시설 개수 업데이트
+          document.getElementById('facilityCount').textContent = \`(\${filteredFacilities.length}개)\`;
+          
           if (filteredFacilities.length === 0) {
             listEl.style.display = 'none';
             noResultsEl.classList.remove('hidden');
+            updateMapMarkers();
             return;
           }
           
@@ -2047,7 +2215,7 @@ app.get('/facilities', (c) => {
               
               <div class="mt-4 pt-4 border-t flex gap-2">
                 <button 
-                  onclick="showOnMap(\${facility.lat}, \${facility.lng}, '\${facility.name}')"
+                  onclick="showOnMap(\${facility.lat}, \${facility.lng}, '\${facility.name.replace(/'/g, "\\\\'")}')"
                   class="flex-1 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium"
                 >
                   <i class="fas fa-map-marked-alt mr-2"></i>지도에서 보기
@@ -2074,11 +2242,9 @@ app.get('/facilities', (c) => {
               </div>
             \`;
           }
-        }
-
-        // 지도 표시 (간단한 알림으로 대체)
-        function showOnMap(lat, lng, name) {
-          alert(\`\${name}\\n위도: \${lat}\\n경도: \${lng}\\n\\n지도 기능은 곧 추가될 예정입니다.\`);
+          
+          // 지도 마커 업데이트
+          updateMapMarkers();
         }
 
         // 필터 적용
@@ -7780,11 +7946,19 @@ app.get('/dashboard/customer', async (c) => {
       <!-- 메인 컨텐츠 -->
       <div class="max-w-7xl mx-auto px-4 py-8">
         <div class="mb-8">
-          <h2 class="text-3xl font-bold text-gray-800 mb-2">
-            <i class="fas fa-tachometer-alt text-teal-600 mr-3"></i>
-            고객 대시보드
-          </h2>
-          <p class="text-gray-600">안녕하세요, ${user.name}님! 요양시설 비교 및 견적 관리를 한눈에 확인하세요.</p>
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-3xl font-bold text-gray-800 mb-2">
+                <i class="fas fa-tachometer-alt text-teal-600 mr-3"></i>
+                고객 대시보드
+              </h2>
+              <p class="text-gray-600">안녕하세요, ${user.name}님! 요양시설 비교 및 견적 관리를 한눈에 확인하세요.</p>
+            </div>
+            <a href="/" class="bg-white border-2 border-teal-600 text-teal-600 px-6 py-3 rounded-lg hover:bg-teal-50 transition-colors font-semibold flex items-center gap-2 shadow-md">
+              <i class="fas fa-home text-xl"></i>
+              <span class="hidden sm:inline">홈으로</span>
+            </a>
+          </div>
         </div>
 
         <!-- 통계 카드 -->
