@@ -1581,23 +1581,21 @@ app.get('/', (c) => {
             
             <p class="text-xs text-gray-400 text-center">© 2024 케어조아. All rights reserved.</p>
             
-            {/* 관리자 로그인 (숨김) */}
-            <div class="mt-8 pt-4 border-t border-gray-800 max-w-md mx-auto">
-              <form id="admin-quick-login" class="flex items-center justify-center gap-2">
-                <input 
-                  type="password" 
-                  id="admin-password" 
-                  placeholder="관리자 비밀번호"
-                  class="flex-1 px-3 py-1 text-xs bg-gray-800 border border-gray-700 text-gray-400 rounded focus:outline-none focus:border-gray-600 placeholder-gray-600"
-                />
-                <button type="submit" class="px-3 py-1 text-xs bg-gray-800 text-gray-500 rounded hover:bg-gray-700 hover:text-gray-400 transition-colors">
-                  <i class="fas fa-sign-in-alt mr-1"></i>입장
-                </button>
-              </form>
-              <div class="text-center mt-2">
-                <a href="/admin" class="text-xs text-gray-600 hover:text-gray-500 transition-colors">
-                  관리자 페이지
-                </a>
+            {/* 관리자 로그인 */}
+            <div class="mt-6 pt-6 border-t border-gray-800">
+              <div class="max-w-xs mx-auto">
+                <p class="text-center text-xs text-gray-600 mb-2">관리자 전용</p>
+                <form id="admin-quick-login" class="space-y-2">
+                  <input 
+                    type="password" 
+                    id="admin-password" 
+                    placeholder="비밀번호 입력"
+                    class="w-full px-3 py-2 text-sm bg-gray-800 border border-gray-700 text-gray-300 rounded focus:outline-none focus:border-gray-600 placeholder-gray-600"
+                  />
+                  <button type="submit" class="w-full px-3 py-2 text-sm bg-gray-800 text-gray-400 rounded hover:bg-gray-700 hover:text-gray-300 transition-colors">
+                    <i class="fas fa-lock mr-2"></i>관리자 대시보드 입장
+                  </button>
+                </form>
               </div>
             </div>
           </div>
