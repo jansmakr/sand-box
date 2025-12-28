@@ -4466,12 +4466,41 @@ app.get('/quote-request', (c) => {
           e.preventDefault();
           
           const formData = new FormData(this);
+          const facility_type = formData.get('facility_type');
+          const sido = formData.get('sido');
+          const sigungu = formData.get('sigungu');
+          const current_status = formData.get('current_status');
+          
+          // 필수 필드 검증
+          if (!facility_type) {
+            alert('❌ 시설 유형을 선택해주세요.');
+            return;
+          }
+          
+          if (!sido) {
+            alert('❌ 시∙도를 선택해주세요.');
+            document.getElementById('simple-sido').focus();
+            return;
+          }
+          
+          if (!sigungu) {
+            alert('❌ 시∙군∙구를 선택해주세요.');
+            document.getElementById('simple-sigungu').focus();
+            return;
+          }
+          
+          if (!current_status || current_status.trim().length < 10) {
+            alert('❌ 현재 상태를 최소 10자 이상 입력해주세요.');
+            document.querySelector('[name="current_status"]').focus();
+            return;
+          }
+          
           const data = {
             type: 'simple',
-            facility_type: formData.get('facility_type'),
-            sido: formData.get('sido'),
-            sigungu: formData.get('sigungu'),
-            current_status: formData.get('current_status'),
+            facility_type,
+            sido,
+            sigungu,
+            current_status,
             created_at: new Date().toISOString()
           };
 
@@ -8291,6 +8320,36 @@ app.get('/dashboard/facility', async (c) => {
           </h2>
           <p class="text-gray-600">안녕하세요, ${user.name}님! 시설 운영 현황을 한눈에 확인하세요.</p>
         </div>
+        
+        <!-- 시설 정보 미등록 경고 배너 -->
+        ${!user.facility_type || !user.region_sido || !user.region_sigungu ? `
+        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-6 mb-8 rounded-r-lg shadow-md">
+          <div class="flex items-start">
+            <div class="flex-shrink-0">
+              <i class="fas fa-exclamation-triangle text-yellow-600 text-2xl"></i>
+            </div>
+            <div class="ml-4 flex-1">
+              <h3 class="text-lg font-bold text-yellow-800 mb-2">
+                ⚠️ 시설 정보 등록이 필요합니다
+              </h3>
+              <p class="text-yellow-700 mb-4">
+                견적서를 수신하려면 <strong>시설 유형</strong>, <strong>시/도</strong>, <strong>시/군/구</strong> 정보를 반드시 등록해야 합니다.
+                <br/>
+                현재 상태: ${!user.facility_type ? '<span class="text-red-600 font-semibold">❌ 시설 유형 미등록</span>' : '✅ 시설 유형 등록됨'} | 
+                ${!user.region_sido ? '<span class="text-red-600 font-semibold">❌ 시/도 미등록</span>' : '✅ 시/도 등록됨'} | 
+                ${!user.region_sigungu ? '<span class="text-red-600 font-semibold">❌ 시/군/구 미등록</span>' : '✅ 시/군/구 등록됨'}
+              </p>
+              <button 
+                onclick="document.getElementById('facilityEditModal').classList.remove('hidden')"
+                class="bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors inline-flex items-center"
+              >
+                <i class="fas fa-edit mr-2"></i>
+                지금 시설 정보 등록하기
+              </button>
+            </div>
+          </div>
+        </div>
+        ` : ''}
 
         <!-- 시설 정보 카드 -->
         <div class="bg-gradient-to-r from-teal-500 to-blue-500 text-white rounded-xl shadow-lg p-6 mb-8">
