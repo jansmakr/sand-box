@@ -1070,10 +1070,10 @@ app.get('/', (c) => {
             {/* 데스크톱 네비게이션 */}
             <nav class="hidden md:flex space-x-2 lg:space-x-3 text-sm">
               <a href="#partner-section" class="bg-red-600 text-white hover:bg-red-700 px-3 py-2 rounded-lg whitespace-nowrap">
-                <i class="fas fa-hospital mr-1"></i>상급병원담당자
+                <i class="fas fa-hospital mr-1"></i>일반병원담당자
               </a>
               <a href="#partner-section" class="bg-blue-600 text-white hover:bg-blue-700 px-3 py-2 rounded-lg whitespace-nowrap">
-                <i class="fas fa-building mr-1"></i>정부복지담당자
+                <i class="fas fa-building mr-1"></i>행정복지담당자
               </a>
               <a href="/family-care-register" class="bg-green-600 text-white hover:bg-green-700 px-3 py-2 rounded-lg whitespace-nowrap">
                 <i class="fas fa-heart mr-1"></i>가족간병등록
@@ -1097,10 +1097,10 @@ app.get('/', (c) => {
         <div id="mobile-menu" class="hidden md:hidden bg-white border-t">
           <nav class="px-4 py-3 space-y-2">
             <a href="#partner-section" class="block bg-red-600 text-white hover:bg-red-700 px-4 py-3 rounded-lg text-center">
-              <i class="fas fa-hospital mr-2"></i>상급병원담당자
+              <i class="fas fa-hospital mr-2"></i>일반병원담당자
             </a>
             <a href="#partner-section" class="block bg-blue-600 text-white hover:bg-blue-700 px-4 py-3 rounded-lg text-center">
-              <i class="fas fa-building mr-2"></i>정부복지담당자
+              <i class="fas fa-building mr-2"></i>행정복지담당자
             </a>
             <a href="/family-care-register" class="block bg-green-600 text-white hover:bg-green-700 px-4 py-3 rounded-lg text-center">
               <i class="fas fa-heart mr-2"></i>가족간병등록
@@ -1580,9 +1580,64 @@ app.get('/', (c) => {
             </div>
             
             <p class="text-xs text-gray-400 text-center">© 2024 케어조아. All rights reserved.</p>
+            
+            {/* 관리자 로그인 (숨김) */}
+            <div class="mt-8 pt-4 border-t border-gray-800 max-w-md mx-auto">
+              <form id="admin-quick-login" class="flex items-center justify-center gap-2">
+                <input 
+                  type="password" 
+                  id="admin-password" 
+                  placeholder="관리자 비밀번호"
+                  class="flex-1 px-3 py-1 text-xs bg-gray-800 border border-gray-700 text-gray-400 rounded focus:outline-none focus:border-gray-600 placeholder-gray-600"
+                />
+                <button type="submit" class="px-3 py-1 text-xs bg-gray-800 text-gray-500 rounded hover:bg-gray-700 hover:text-gray-400 transition-colors">
+                  <i class="fas fa-sign-in-alt mr-1"></i>입장
+                </button>
+              </form>
+              <div class="text-center mt-2">
+                <a href="/admin" class="text-xs text-gray-600 hover:text-gray-500 transition-colors">
+                  관리자 페이지
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </footer>
+      
+      <script dangerouslySetInnerHTML={{
+        __html: `
+          // 관리자 빠른 로그인
+          document.getElementById('admin-quick-login')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const password = document.getElementById('admin-password')?.value;
+            
+            if (!password) {
+              alert('비밀번호를 입력하세요.');
+              return;
+            }
+            
+            try {
+              const response = await fetch('/api/admin/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password })
+              });
+              
+              const data = await response.json();
+              
+              if (response.ok && data.success) {
+                window.location.href = '/admin';
+              } else {
+                alert(data.message || '로그인 실패');
+                document.getElementById('admin-password').value = '';
+              }
+            } catch (error) {
+              console.error('로그인 에러:', error);
+              alert('로그인 중 오류가 발생했습니다.');
+            }
+          });
+        `
+      }} />
 
       <script dangerouslySetInnerHTML={{
         __html: `
