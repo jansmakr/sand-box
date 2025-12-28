@@ -13,8 +13,8 @@ const app = new Hono<{ Bindings: Bindings }>()
 
 const ADMIN_CONFIG = { sessionKey: 'admin_session' }
 const KAKAO_CONFIG = {
-  restApiKey: '2610d68cb41f3ceba40f42f1f7fe5e91',
-  redirectUri: 'https://3000-i9rvbxi0ydi8a2ltypzm7-cbeee0f9.sandbox.novita.ai/api/auth/kakao/callback'
+  restApiKey: '1e58eebb2e1696dfe08aa1084119abd7', // REST API 키 (수정됨)
+  redirectUri: 'https://carejoa.kr/api/auth/kakao/callback' // 프로덕션 도메인
 }
 const dataStore = { 
   partners: [] as any[], 
