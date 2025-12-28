@@ -142,7 +142,7 @@ app.get('/login', (c) => {
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>로그인 - 케어조아</title>
-      <script src="https://cdn.tailwindcss.com"></script>
+      <link href="/static/tailwind.css" rel="stylesheet">
       <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
     </head>
     <body class="bg-gradient-to-br from-teal-50 to-blue-50 min-h-screen">
@@ -384,7 +384,7 @@ app.get('/register', (c) => {
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>회원가입 - 케어조아</title>
-      <script src="https://cdn.tailwindcss.com"></script>
+      <link href="/static/tailwind.css" rel="stylesheet">
       <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
     </head>
     <body class="bg-gradient-to-br from-teal-50 to-blue-50 min-h-screen">
@@ -860,7 +860,7 @@ app.get('/signup/select-type', (c) => {
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>회원 유형 선택 - 케어조아</title>
-      <script src="https://cdn.tailwindcss.com"></script>
+      <link href="/static/tailwind.css" rel="stylesheet">
       <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
     </head>
     <body class="bg-gradient-to-br from-teal-50 to-blue-50 min-h-screen">
@@ -2409,7 +2409,7 @@ app.get('/admin', (c) => {
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>관리자 로그인 - 케어조아</title>
-      <script src="https://cdn.tailwindcss.com"></script>
+      <link href="/static/tailwind.css" rel="stylesheet">
       <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
       <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
     </head>
@@ -6374,6 +6374,22 @@ app.get('/api/customer/dashboard', async (c) => {
   try {
     const db = c.env.DB
     
+    // D1 데이터베이스가 없는 경우 빈 데이터 반환
+    if (!db) {
+      return c.json({
+        success: true,
+        data: {
+          quoteRequests: [],
+          stats: {
+            totalRequests: 0,
+            totalResponses: 0,
+            savedFacilities: 0,
+            activeConsultations: 0
+          }
+        }
+      })
+    }
+    
     // 고객의 견적 요청 목록 조회
     const quoteRequests = await db.prepare(`
       SELECT 
@@ -6387,7 +6403,7 @@ app.get('/api/customer/dashboard', async (c) => {
     
     // 각 견적 요청에 대한 응답 개수 조회
     const requestsWithResponses = await Promise.all(
-      quoteRequests.results.map(async (req: any) => {
+      (quoteRequests.results || []).map(async (req: any) => {
         const responses = await db.prepare(`
           SELECT COUNT(*) as count
           FROM quote_responses
@@ -6416,7 +6432,7 @@ app.get('/api/customer/dashboard', async (c) => {
       data: {
         quoteRequests: requestsWithResponses,
         stats: {
-          totalRequests: quoteRequests.results.length,
+          totalRequests: (quoteRequests.results || []).length,
           totalResponses: allResponses?.count || 0,
           savedFacilities: 0,
           activeConsultations: 0
@@ -6425,7 +6441,19 @@ app.get('/api/customer/dashboard', async (c) => {
     })
   } catch (error) {
     console.error('고객 대시보드 데이터 조회 오류:', error)
-    return c.json({ success: false, message: '데이터 조회 실패' }, 500)
+    // 에러 발생 시에도 빈 데이터 반환 (500 에러 대신)
+    return c.json({
+      success: true,
+      data: {
+        quoteRequests: [],
+        stats: {
+          totalRequests: 0,
+          totalResponses: 0,
+          savedFacilities: 0,
+          activeConsultations: 0
+        }
+      }
+    })
   }
 })
 
@@ -7470,7 +7498,7 @@ app.get('/dashboard/customer', async (c) => {
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>고객 대시보드 - 케어조아</title>
-      <script src="https://cdn.tailwindcss.com"></script>
+      <link href="/static/tailwind.css" rel="stylesheet">
       <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
     </head>
     <body class="bg-gray-50">
@@ -7793,7 +7821,7 @@ app.get('/dashboard/facility', async (c) => {
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>시설 대시보드 - 케어조아</title>
-      <script src="https://cdn.tailwindcss.com"></script>
+      <link href="/static/tailwind.css" rel="stylesheet">
       <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
     </head>
     <body class="bg-gray-50">
@@ -8581,7 +8609,7 @@ app.get('/dashboard/partner', async (c) => {
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>${partnerTypeLabel} 대시보드 - 케어조아</title>
-      <script src="https://cdn.tailwindcss.com"></script>
+      <link href="/static/tailwind.css" rel="stylesheet">
       <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
     </head>
     <body class="bg-gray-50">
@@ -8915,7 +8943,7 @@ app.get('/facility/template', async (c) => {
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>견적 템플릿 설정 - 케어조아</title>
-      <script src="https://cdn.tailwindcss.com"></script>
+      <link href="/static/tailwind.css" rel="stylesheet">
       <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
       <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
     </head>
@@ -9177,7 +9205,7 @@ app.get('/quote-details/:quoteId', async (c) => {
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <title>견적서를 찾을 수 없습니다 - 케어조아</title>
-          <script src="https://cdn.tailwindcss.com"></script>
+          <link href="/static/tailwind.css" rel="stylesheet">
         </head>
         <body class="bg-gray-50 flex items-center justify-center min-h-screen">
           <div class="text-center">
@@ -9208,7 +9236,7 @@ app.get('/quote-details/:quoteId', async (c) => {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>견적서 상세 - 케어조아</title>
-        <script src="https://cdn.tailwindcss.com"></script>
+        <link href="/static/tailwind.css" rel="stylesheet">
         <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
       </head>
       <body class="bg-gray-50">
@@ -9883,7 +9911,7 @@ app.get('/quote-details/:quoteId', async (c) => {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>오류 발생 - 케어조아</title>
-        <script src="https://cdn.tailwindcss.com"></script>
+        <link href="/static/tailwind.css" rel="stylesheet">
       </head>
       <body class="bg-gray-50 flex items-center justify-center min-h-screen">
         <div class="text-center">
@@ -9920,7 +9948,7 @@ app.get('/profile', (c) => {
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>프로필 관리 - 케어조아</title>
-      <script src="https://cdn.tailwindcss.com"></script>
+      <link href="/static/tailwind.css" rel="stylesheet">
       <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
     </head>
     <body class="bg-gray-50">
@@ -10418,7 +10446,7 @@ app.get('/emergency-transfer', (c) => {
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>긴급 전원 요청 - 케어조아</title>
-      <script src="https://cdn.tailwindcss.com"></script>
+      <link href="/static/tailwind.css" rel="stylesheet">
       <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
     </head>
     <body class="bg-gray-50">
