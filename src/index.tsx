@@ -104,10 +104,35 @@ function generateSessionId() {
 }
 
 // 사용자 인증 함수
-function getUser(c: any) {
+async function getUser(c: any) {
   const sessionId = getCookie(c, 'user_session')
   if (!sessionId) return null
-  return dataStore.userSessions.get(sessionId) || null
+  
+  // D1에서 세션 조회
+  const db = c.env.DB
+  if (!db) {
+    // D1이 없으면 메모리 폴백
+    return dataStore.userSessions.get(sessionId) || null
+  }
+  
+  try {
+    const result = await db.prepare(`
+      SELECT user_id FROM sessions WHERE session_id = ? AND expires_at > datetime('now')
+    `).bind(sessionId).first()
+    
+    if (!result) return null
+    
+    // 사용자 정보 조회
+    const user = await db.prepare(`
+      SELECT * FROM users WHERE id = ?
+    `).bind(result.user_id).first()
+    
+    return user
+  } catch (error) {
+    console.error('getUser 오류:', error)
+    // D1 오류 시 메모리 폴백
+    return dataStore.userSessions.get(sessionId) || null
+  }
 }
 
 function requireAuth(userType?: UserType) {
@@ -327,17 +352,53 @@ app.get('/login', (c) => {
 app.post('/api/auth/login', async (c) => {
   const { email, password, type } = await c.req.json()
   
-  const user = dataStore.users.find(u => 
-    u.email === email && 
-    u.password === password &&
-    u.type === type
-  )
+  const db = c.env.DB
+  let user = null
+  
+  // D1에서 사용자 조회
+  if (db) {
+    try {
+      user = await db.prepare(`
+        SELECT * FROM users WHERE email = ? AND password = ? AND type = ?
+      `).bind(email, password, type).first()
+    } catch (error) {
+      console.error('D1 로그인 조회 오류:', error)
+    }
+  }
+  
+  // D1 조회 실패 시 메모리 폴백
+  if (!user) {
+    user = dataStore.users.find(u => 
+      u.email === email && 
+      u.password === password &&
+      u.type === type
+    )
+  }
 
   if (!user) {
     return c.json({ success: false, message: '이메일 또는 비밀번호가 올바르지 않습니다.' })
   }
 
   const sessionId = generateSessionId()
+  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() // 7일 후
+  
+  // D1에 세션 저장
+  if (db) {
+    try {
+      await db.prepare(`
+        INSERT INTO sessions (session_id, user_id, expires_at)
+        VALUES (?, ?, ?)
+        ON CONFLICT(session_id) DO UPDATE SET
+          user_id = excluded.user_id,
+          expires_at = excluded.expires_at,
+          updated_at = CURRENT_TIMESTAMP
+      `).bind(sessionId, user.id, expiresAt).run()
+    } catch (error) {
+      console.error('D1 세션 저장 오류:', error)
+    }
+  }
+  
+  // 메모리에도 세션 저장 (폴백용)
   dataStore.userSessions.set(sessionId, user)
   
   setCookie(c, 'user_session', sessionId, {
@@ -376,8 +437,8 @@ app.post('/api/auth/logout', (c) => {
 })
 
 // 현재 로그인한 사용자 정보 조회
-app.get('/api/auth/me', (c) => {
-  const user = getUser(c)
+app.get('/api/auth/me', async (c) => {
+  const user = await getUser(c)
   
   if (!user) {
     return c.json({ success: false, message: '로그인이 필요합니다.' }, 401)
