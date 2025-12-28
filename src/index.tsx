@@ -886,10 +886,15 @@ app.get('/api/auth/kakao/callback', async (c) => {
     
     if (db) {
       try {
-        // kakao_id 컬럼으로 조회
+        // password_hash 필드에 kakaoId를 저장했으므로 그걸로 조회
+        // (카카오 로그인 사용자는 비밀번호 대신 kakaoId를 password_hash에 저장)
         user = await db.prepare(`
-          SELECT * FROM users WHERE email = ? AND user_type IN ('customer', 'facility')
-        `).bind(kakaoUser.kakao_account?.email || kakaoId).first()
+          SELECT * FROM users 
+          WHERE password_hash = ? 
+          AND user_type IN ('customer', 'facility')
+        `).bind(kakaoId).first()
+        
+        console.log('[카카오 로그인] 기존 사용자 조회:', user ? '발견' : '없음', 'kakaoId:', kakaoId)
       } catch (error) {
         console.error('카카오 사용자 조회 오류:', error)
       }
