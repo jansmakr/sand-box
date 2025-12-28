@@ -127,6 +127,11 @@ async function getUser(c: any) {
       SELECT * FROM users WHERE id = ?
     `).bind(result.user_id).first()
     
+    // D1 user_type을 type으로 매핑
+    if (user && user.user_type) {
+      user.type = user.user_type
+    }
+    
     return user
   } catch (error) {
     console.error('getUser 오류:', error)
@@ -137,7 +142,7 @@ async function getUser(c: any) {
 
 function requireAuth(userType?: UserType) {
   return async (c: any, next: any) => {
-    const user = getUser(c)
+    const user = await getUser(c)
     if (!user) {
       return c.redirect('/login')
     }
@@ -359,7 +364,7 @@ app.post('/api/auth/login', async (c) => {
   if (db) {
     try {
       user = await db.prepare(`
-        SELECT * FROM users WHERE email = ? AND password = ? AND type = ?
+        SELECT * FROM users WHERE email = ? AND password_hash = ? AND user_type = ?
       `).bind(email, password, type).first()
     } catch (error) {
       console.error('D1 로그인 조회 오류:', error)
@@ -7166,7 +7171,7 @@ app.post('/api/facility/send-quote', async (c) => {
 
 // 시설 정보 수정 API
 app.post('/api/facility/update-info', async (c) => {
-  const user = getUser(c)
+  const user = await getUser(c)
   
   if (!user || user.type !== 'facility') {
     return c.json({ success: false, message: '인증 필요' }, 401)
