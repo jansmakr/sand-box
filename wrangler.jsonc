@@ -12,12 +12,5 @@
       "database_name": "carejoa-production",
       "database_id": "6bb51315-d991-4e62-a981-4cc19a5b23ed"
     }
-  ],
-
-  // Environment variables
-  "vars": {
-    "ADMIN_PASSWORD": "5874",
-    "KAKAO_REST_API_KEY": "2610d68c50d1030851cb426c29d69df0",
-    "KAKAO_REDIRECT_URI": "https://carejoa.kr/api/auth/kakao/callback"
-  }
+  ]
 }
