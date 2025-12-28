@@ -4051,6 +4051,141 @@ app.post('/api/admin/partner/set-representative', async (c) => {
   }
 })
 
+// 관리자: 대표시설 신청 목록 조회
+app.get('/api/admin/representative-applications', async (c) => {
+  if (!isAdmin(c)) {
+    return c.json({ error: 'Unauthorized' }, 401)
+  }
+  
+  try {
+    const db = c.env.DB
+    
+    const applications = await db.prepare(`
+      SELECT * FROM representative_facility_applications 
+      ORDER BY 
+        CASE status 
+          WHEN 'pending' THEN 1 
+          WHEN 'approved' THEN 2 
+          WHEN 'rejected' THEN 3 
+        END,
+        applied_at DESC
+    `).all()
+    
+    return c.json({
+      success: true,
+      data: applications.results || []
+    })
+  } catch (error) {
+    console.error('대표시설 신청 목록 조회 오류:', error)
+    return c.json({ success: false, message: '조회 실패' }, 500)
+  }
+})
+
+// 관리자: 대표시설 신청 승인
+app.post('/api/admin/representative-applications/approve', async (c) => {
+  if (!isAdmin(c)) {
+    return c.json({ error: 'Unauthorized' }, 401)
+  }
+  
+  try {
+    const db = c.env.DB
+    const { id, review_note } = await c.req.json()
+    
+    await db.prepare(`
+      UPDATE representative_facility_applications 
+      SET status = 'approved',
+          reviewed_at = CURRENT_TIMESTAMP,
+          reviewed_by = 'admin',
+          review_note = ?
+      WHERE id = ?
+    `).bind(review_note || '승인되었습니다.', id).run()
+    
+    return c.json({
+      success: true,
+      message: '대표시설로 승인되었습니다.'
+    })
+  } catch (error) {
+    console.error('대표시설 승인 오류:', error)
+    return c.json({ success: false, message: '승인 처리 실패' }, 500)
+  }
+})
+
+// 관리자: 대표시설 신청 거절
+app.post('/api/admin/representative-applications/reject', async (c) => {
+  if (!isAdmin(c)) {
+    return c.json({ error: 'Unauthorized' }, 401)
+  }
+  
+  try {
+    const db = c.env.DB
+    const { id, review_note } = await c.req.json()
+    
+    if (!review_note || review_note.trim().length < 5) {
+      return c.json({ 
+        success: false, 
+        message: '거절 사유를 최소 5자 이상 입력해주세요.' 
+      }, 400)
+    }
+    
+    await db.prepare(`
+      UPDATE representative_facility_applications 
+      SET status = 'rejected',
+          reviewed_at = CURRENT_TIMESTAMP,
+          reviewed_by = 'admin',
+          review_note = ?
+      WHERE id = ?
+    `).bind(review_note, id).run()
+    
+    return c.json({
+      success: true,
+      message: '대표시설 신청이 거절되었습니다.'
+    })
+  } catch (error) {
+    console.error('대표시설 거절 오류:', error)
+    return c.json({ success: false, message: '거절 처리 실패' }, 500)
+  }
+})
+
+// 관리자: 견적서 수발신 모니터링
+app.get('/api/admin/quote-monitoring', async (c) => {
+  if (!isAdmin(c)) {
+    return c.json({ error: 'Unauthorized' }, 401)
+  }
+  
+  try {
+    const db = c.env.DB
+    
+    // 견적 요청과 응답을 JOIN하여 조회
+    const quotes = await db.prepare(`
+      SELECT 
+        qr.id as request_id,
+        qr.quote_id,
+        qr.applicant_name,
+        qr.patient_name,
+        qr.sido,
+        qr.sigungu,
+        qr.facility_type,
+        qr.status as request_status,
+        qr.created_at as requested_at,
+        COUNT(qres.id) as response_count,
+        GROUP_CONCAT(qres.partner_id) as responder_ids
+      FROM quote_requests qr
+      LEFT JOIN quote_responses qres ON qr.quote_id = qres.quote_id
+      GROUP BY qr.id
+      ORDER BY qr.created_at DESC
+      LIMIT 100
+    `).all()
+    
+    return c.json({
+      success: true,
+      data: quotes.results || []
+    })
+  } catch (error) {
+    console.error('견적서 모니터링 조회 오류:', error)
+    return c.json({ success: false, message: '조회 실패' }, 500)
+  }
+})
+
 // 시설 데이터 로드 함수
 async function loadFacilities() {
   if (!dataStore.facilitiesLoaded) {
@@ -6996,6 +7131,99 @@ app.post('/api/facility/update-info', async (c) => {
   }
 })
 
+// ========== 대표시설 신청 API ==========
+
+// 대표시설 신청
+app.post('/api/facility/apply-representative', async (c) => {
+  const user = getUser(c)
+  
+  if (!user || user.type !== 'facility') {
+    return c.json({ success: false, message: '시설 권한이 필요합니다.' }, 401)
+  }
+
+  try {
+    const db = c.env.DB
+    const { application_reason } = await c.req.json()
+    
+    // 시설 정보 확인
+    if (!user.facility_type || !user.region_sido || !user.region_sigungu) {
+      return c.json({ 
+        success: false, 
+        message: '시설 유형, 시/도, 시/군/구 정보를 먼저 등록해주세요.' 
+      }, 400)
+    }
+    
+    // 이미 신청한 내역이 있는지 확인
+    const existing = await db.prepare(`
+      SELECT * FROM representative_facility_applications 
+      WHERE facility_id = ? AND status = 'pending'
+    `).bind(user.id).first()
+    
+    if (existing) {
+      return c.json({ 
+        success: false, 
+        message: '이미 대표시설 신청이 진행 중입니다. 관리자의 승인을 기다려주세요.' 
+      }, 400)
+    }
+    
+    // 신청 등록
+    await db.prepare(`
+      INSERT INTO representative_facility_applications (
+        facility_id, facility_name, facility_type,
+        region_sido, region_sigungu,
+        manager_name, manager_phone, business_number,
+        application_reason, status, applied_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', CURRENT_TIMESTAMP)
+    `).bind(
+      user.id,
+      user.name,
+      user.facility_type,
+      user.region_sido,
+      user.region_sigungu,
+      user.name,
+      user.phone,
+      user.business_number || '',
+      application_reason || '지역 대표시설로 활동하고 싶습니다.'
+    ).run()
+    
+    return c.json({
+      success: true,
+      message: '대표시설 신청이 완료되었습니다. 관리자의 승인 후 대표시설로 지정됩니다.'
+    })
+  } catch (error) {
+    console.error('대표시설 신청 오류:', error)
+    return c.json({ success: false, message: '신청 처리 실패' }, 500)
+  }
+})
+
+// 내 대표시설 신청 상태 조회
+app.get('/api/facility/representative-status', async (c) => {
+  const user = getUser(c)
+  
+  if (!user || user.type !== 'facility') {
+    return c.json({ success: false, message: '시설 권한이 필요합니다.' }, 401)
+  }
+
+  try {
+    const db = c.env.DB
+    
+    const application = await db.prepare(`
+      SELECT * FROM representative_facility_applications 
+      WHERE facility_id = ? 
+      ORDER BY applied_at DESC 
+      LIMIT 1
+    `).bind(user.id).first()
+    
+    return c.json({
+      success: true,
+      data: application
+    })
+  } catch (error) {
+    console.error('신청 상태 조회 오류:', error)
+    return c.json({ success: false, message: '조회 실패' }, 500)
+  }
+})
+
 // ========== 메시지 교환 API ==========
 
 // 메시지 전송 (고객 → 시설)
@@ -8430,10 +8658,14 @@ app.get('/dashboard/facility', async (c) => {
             <i class="fas fa-bolt text-yellow-500 mr-2"></i>
             빠른 액션
           </h3>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <button onclick="openFacilityEditModal()" class="bg-teal-600 text-white p-4 rounded-lg hover:bg-teal-700 transition-colors">
               <i class="fas fa-edit text-2xl mb-2"></i>
               <p class="font-semibold">시설 정보 수정</p>
+            </button>
+            <button onclick="applyRepresentativeFacility()" class="bg-purple-600 text-white p-4 rounded-lg hover:bg-purple-700 transition-colors">
+              <i class="fas fa-star text-2xl mb-2"></i>
+              <p class="font-semibold">대표시설 신청</p>
             </button>
             <button onclick="alert('요금표 관리 기능은 곧 출시됩니다')" class="bg-blue-600 text-white p-4 rounded-lg hover:bg-blue-700 transition-colors">
               <i class="fas fa-dollar-sign text-2xl mb-2"></i>
@@ -9254,6 +9486,57 @@ app.get('/dashboard/facility', async (c) => {
         document.getElementById('facilitySido').addEventListener('change', function() {
           updateSigunguOptions(this.value);
         });
+
+        // 대표시설 신청
+        async function applyRepresentativeFacility() {
+          try {
+            // 먼저 현재 신청 상태 확인
+            const statusResponse = await fetch('/api/facility/representative-status');
+            const statusResult = await statusResponse.json();
+            
+            if (statusResult.success && statusResult.data) {
+              const app = statusResult.data;
+              
+              if (app.status === 'pending') {
+                alert('⏳ 이미 대표시설 신청이 진행 중입니다.\\n\\n관리자의 승인을 기다려주세요.');
+                return;
+              } else if (app.status === 'approved') {
+                alert('✅ 이미 대표시설로 승인되었습니다!\\n\\n감사합니다.');
+                return;
+              } else if (app.status === 'rejected') {
+                const reapply = confirm('이전 신청이 거절되었습니다.\\n\\n거절 사유: ' + (app.review_note || '없음') + '\\n\\n다시 신청하시겠습니까?');
+                if (!reapply) return;
+              }
+            }
+            
+            // 신청 사유 입력
+            const reason = prompt('대표시설로 신청하시는 이유를 간단히 입력해주세요:\\n(예: 지역 내 최고의 시설로서 많은 분들께 도움을 드리고 싶습니다)', 
+                                  '지역 대표시설로 활동하여 더 많은 분들께 양질의 서비스를 제공하고 싶습니다.');
+            
+            if (!reason || reason.trim().length < 10) {
+              alert('신청 사유를 최소 10자 이상 입력해주세요.');
+              return;
+            }
+            
+            // 신청 처리
+            const response = await fetch('/api/facility/apply-representative', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ application_reason: reason })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+              alert('✅ 대표시설 신청이 완료되었습니다!\\n\\n관리자의 승인 후 대표시설로 지정됩니다.\\n승인까지 1-2일 정도 소요될 수 있습니다.');
+            } else {
+              alert('❌ ' + (result.message || '신청 처리 실패'));
+            }
+          } catch (error) {
+            console.error('대표시설 신청 오류:', error);
+            alert('❌ 신청 처리 중 오류가 발생했습니다.');
+          }
+        }
 
         async function handleLogout() {
           try {
