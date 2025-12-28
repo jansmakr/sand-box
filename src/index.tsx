@@ -844,6 +844,7 @@ app.get('/api/auth/kakao/login', (c) => {
 // 카카오 로그인 콜백
 app.get('/api/auth/kakao/callback', async (c) => {
   const code = c.req.query('code')
+  const db = c.env.DB
   
   if (!code) {
     return c.redirect('/login?error=kakao_auth_failed')
@@ -879,44 +880,78 @@ app.get('/api/auth/kakao/callback', async (c) => {
 
     const kakaoUser = await userResponse.json()
     
-    // 3. 기존 사용자 확인
+    // 3. 기존 사용자 확인 (D1에서 조회)
     const kakaoId = `kakao_${kakaoUser.id}`
-    let user = dataStore.users.find(u => u.kakaoId === kakaoId)
+    let user = null
+    
+    if (db) {
+      try {
+        // kakao_id 컬럼으로 조회
+        user = await db.prepare(`
+          SELECT * FROM users WHERE email = ? AND user_type IN ('customer', 'facility')
+        `).bind(kakaoUser.kakao_account?.email || kakaoId).first()
+      } catch (error) {
+        console.error('카카오 사용자 조회 오류:', error)
+      }
+    }
     
     if (user) {
-      // 기존 사용자 - 로그인 처리
+      // 기존 사용자 - 로그인 처리 (D1 세션)
       const sessionId = generateSessionId()
-      dataStore.userSessions.set(sessionId, user)
+      const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+      
+      if (db) {
+        try {
+          await db.prepare(`
+            INSERT INTO sessions (session_id, user_id, expires_at, created_at, updated_at)
+            VALUES (?, ?, ?, datetime('now'), datetime('now'))
+            ON CONFLICT(session_id) DO UPDATE SET
+              user_id = excluded.user_id,
+              expires_at = excluded.expires_at,
+              updated_at = datetime('now')
+          `).bind(sessionId, user.id, expiresAt).run()
+        } catch (error) {
+          console.error('카카오 로그인 세션 저장 오류:', error)
+        }
+      }
       
       setCookie(c, 'user_session', sessionId, {
         httpOnly: true,
         secure: true,
         sameSite: 'Lax',
-        maxAge: 60 * 60 * 24 * 7
+        maxAge: 60 * 60 * 24 * 7,
+        path: '/'
       })
 
+      // D1 user_type을 type으로 매핑
+      const userType = user.user_type || user.type
+
       // 대시보드로 리다이렉트
-      if (user.type === 'customer') {
+      if (userType === 'customer') {
         return c.redirect('/dashboard/customer')
       } else {
         return c.redirect('/dashboard/facility')
       }
     } else {
       // 신규 사용자 - 회원 타입 선택 페이지로
-      // 임시로 카카오 정보를 세션에 저장
+      // 임시로 카카오 정보를 D1 임시 테이블에 저장
       const tempSessionId = generateSessionId()
-      dataStore.userSessions.set(tempSessionId, {
+      const kakaoInfo = {
         kakaoId: kakaoId,
         email: kakaoUser.kakao_account?.email || '',
         name: kakaoUser.properties?.nickname || '카카오사용자',
         profileImage: kakaoUser.properties?.profile_image || ''
-      })
+      }
+      
+      // 메모리에도 저장 (10분간 유효)
+      dataStore.userSessions.set(tempSessionId, kakaoInfo)
       
       setCookie(c, 'kakao_temp_session', tempSessionId, {
         httpOnly: true,
         secure: true,
         sameSite: 'Lax',
-        maxAge: 60 * 10 // 10분
+        maxAge: 60 * 10, // 10분
+        path: '/'
       })
 
       return c.redirect('/signup/select-type')
@@ -1081,6 +1116,7 @@ app.get('/signup/select-type', (c) => {
 // 카카오 로그인 회원가입 완료
 app.post('/api/auth/kakao/complete', async (c) => {
   const tempSessionId = getCookie(c, 'kakao_temp_session')
+  const db = c.env.DB
   
   if (!tempSessionId) {
     return c.json({ success: false, message: '세션이 만료되었습니다.' })
@@ -1094,46 +1130,74 @@ app.post('/api/auth/kakao/complete', async (c) => {
 
   const { type, facilityType } = await c.req.json()
 
-  // 새 사용자 생성
-  const newUser = {
-    id: `user_${Date.now()}_${Math.random().toString(36).substring(2)}`,
-    kakaoId: kakaoInfo.kakaoId,
-    email: kakaoInfo.email,
-    name: kakaoInfo.name,
-    profileImage: kakaoInfo.profileImage,
-    phone: '',
-    type: type,
-    createdAt: new Date().toISOString()
+  try {
+    let userId: number | null = null
+    
+    if (db) {
+      // D1에 사용자 생성
+      const hashedPassword = kakaoInfo.kakaoId // 카카오 로그인은 비밀번호 대신 kakaoId 사용
+      
+      const insertResult = await db.prepare(`
+        INSERT INTO users (
+          user_type, email, password_hash, name, phone,
+          address, facility_type, region_sido, region_sigungu,
+          created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
+      `).bind(
+        type,
+        kakaoInfo.email || `${kakaoInfo.kakaoId}@kakao.temp`,
+        hashedPassword,
+        kakaoInfo.name || '카카오사용자',
+        '',
+        '',
+        type === 'facility' ? (facilityType || '') : null,
+        null,
+        null
+      ).run()
+      
+      userId = insertResult.meta.last_row_id as number
+    }
+    
+    if (!userId) {
+      return c.json({ success: false, message: '회원가입 처리 실패' }, 500)
+    }
+
+    // 임시 세션 삭제
+    dataStore.userSessions.delete(tempSessionId)
+    setCookie(c, 'kakao_temp_session', '', { maxAge: 0, path: '/' })
+
+    // 정식 로그인 세션 생성 (D1)
+    const sessionId = generateSessionId()
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+    
+    if (db) {
+      await db.prepare(`
+        INSERT INTO sessions (session_id, user_id, expires_at, created_at, updated_at)
+        VALUES (?, ?, ?, datetime('now'), datetime('now'))
+        ON CONFLICT(session_id) DO UPDATE SET
+          user_id = excluded.user_id,
+          expires_at = excluded.expires_at,
+          updated_at = datetime('now')
+      `).bind(sessionId, userId, expiresAt).run()
+    }
+    
+    setCookie(c, 'user_session', sessionId, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'Lax',
+      maxAge: 60 * 60 * 24 * 7,
+      path: '/'
+    })
+
+    return c.json({ 
+      success: true, 
+      message: '회원가입이 완료되었습니다.',
+      userId: userId
+    })
+  } catch (error) {
+    console.error('카카오 회원가입 완료 오류:', error)
+    return c.json({ success: false, message: '회원가입 처리 실패' }, 500)
   }
-
-  if (type === 'facility') {
-    newUser.facilityType = facilityType
-    newUser.address = ''
-    newUser.businessNumber = ''
-  }
-
-  dataStore.users.push(newUser)
-
-  // 임시 세션 삭제
-  dataStore.userSessions.delete(tempSessionId)
-  setCookie(c, 'kakao_temp_session', '', { maxAge: 0 })
-
-  // 정식 로그인 세션 생성
-  const sessionId = generateSessionId()
-  dataStore.userSessions.set(sessionId, newUser)
-  
-  setCookie(c, 'user_session', sessionId, {
-    httpOnly: true,
-    secure: true,
-    sameSite: 'Lax',
-    maxAge: 60 * 60 * 24 * 7
-  })
-
-  return c.json({ 
-    success: true, 
-    message: '회원가입이 완료되었습니다.',
-    userId: newUser.id
-  })
 })
 
 // ========== 대시보드 라우트 ========== (대시보드는 다음에 구현)
