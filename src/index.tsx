@@ -240,7 +240,9 @@ app.get('/login', (c) => {
                   <i class="fas fa-sign-in-alt mr-2"></i>로그인
                 </button>
 
-                <!-- 카카오 로그인 버튼 -->
+                <!-- 카카오 로그인 버튼 (임시 비활성화) -->
+                <!-- TODO: JavaScript SDK 방식으로 재구현 필요 -->
+                <!--
                 <div class="relative my-6">
                   <div class="absolute inset-0 flex items-center">
                     <div class="w-full border-t border-gray-300"></div>
@@ -257,6 +259,7 @@ app.get('/login', (c) => {
                   </svg>
                   카카오 로그인
                 </a>
+                -->
               </div>
             </form>
 
