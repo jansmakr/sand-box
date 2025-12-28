@@ -10304,10 +10304,14 @@ app.get('/quote-details/:quoteId', async (c) => {
   try {
     const db = c.env.DB
     
+    console.log('[quote-details] 견적 조회 시작:', quoteId)
+    
     // 견적 요청 정보 조회
     const quoteRequest = await db.prepare(`
       SELECT * FROM quote_requests WHERE quote_id = ?
     `).bind(quoteId).first()
+    
+    console.log('[quote-details] 견적 요청 조회 결과:', quoteRequest ? '발견' : '없음')
     
     if (!quoteRequest) {
       return c.html(`
@@ -10446,7 +10450,7 @@ app.get('/quote-details/:quoteId', async (c) => {
             ${quoteRequest.additional_notes ? `
             <div class="mt-6 pt-6 border-t">
               <p class="text-sm text-gray-500 mb-2">추가 요청사항</p>
-              <p class="text-gray-800">${quoteRequest.additional_notes}</p>
+              <p class="text-gray-800 whitespace-pre-wrap">${String(quoteRequest.additional_notes || '').replace(/[<>]/g, '')}</p>
             </div>
             ` : ''}
           </div>
@@ -11018,6 +11022,11 @@ app.get('/quote-details/:quoteId', async (c) => {
     `)
   } catch (error) {
     console.error('견적서 조회 오류:', error)
+    console.error('견적서 조회 오류 상세:', {
+      message: error.message,
+      stack: error.stack,
+      quoteId: quoteId
+    })
     return c.html(`
       <!DOCTYPE html>
       <html lang="ko">
