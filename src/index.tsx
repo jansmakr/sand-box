@@ -7188,23 +7188,9 @@ app.post('/api/facility/update-info', async (c) => {
       }
     }
 
-    // 세션 정보 업데이트
-    const updatedUser = {
-      ...user,
-      name: data.name,
-      facility_type: data.facility_type,
-      region_sido: data.region_sido,
-      region_sigungu: data.region_sigungu,
-      address: data.address,
-      phone: data.phone
-    }
-    
-    await updateUserSession(c, updatedUser)
-    
     return c.json({
       success: true,
-      message: '시설 정보가 수정되었습니다.',
-      user: updatedUser
+      message: '시설 정보가 수정되었습니다.'
     })
   } catch (error) {
     console.error('시설 정보 수정 오류:', error)
