@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS representative_facility_applications (
   reviewed_at DATETIME,
   reviewed_by TEXT,
   review_note TEXT,
-  FOREIGN KEY (facility_id) REFERENCES facilities(id)
+  FOREIGN KEY (facility_id) REFERENCES users(id)
 );
 
 -- 인덱스 생성

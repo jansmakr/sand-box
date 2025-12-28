@@ -10449,8 +10449,54 @@ app.get('/quote-details/:quoteId', async (c) => {
 
             ${quoteRequest.additional_notes ? `
             <div class="mt-6 pt-6 border-t">
-              <p class="text-sm text-gray-500 mb-2">추가 요청사항</p>
-              <p class="text-gray-800 whitespace-pre-wrap">${String(quoteRequest.additional_notes || '').replace(/[<>]/g, '')}</p>
+              <p class="text-sm text-gray-500 mb-4">추가 요청사항</p>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                ${(() => {
+                  try {
+                    const notes = typeof quoteRequest.additional_notes === 'string' 
+                      ? JSON.parse(quoteRequest.additional_notes) 
+                      : quoteRequest.additional_notes;
+                    
+                    // 표시할 필드만 선택 (이메일 등 민감 정보 제외)
+                    const fieldLabels: Record<string, string> = {
+                      insuranceType: '보험 유형',
+                      facilitySize: '희망 시설 규모',
+                      careCost: '희망 비용',
+                      carePrograms: '원하는 프로그램',
+                      religion: '종교',
+                      mainSymptoms: '주요 증상',
+                      communication: '의사소통',
+                      eating: '식사',
+                      dietType: '식사 형태',
+                      mobility: '거동',
+                      toiletUse: '화장실 사용',
+                      additionalCare: '추가 케어',
+                      otherSymptoms: '기타 증상'
+                    };
+                    
+                    return Object.entries(notes)
+                      .filter(([key, value]) => {
+                        // 이메일 등 민감 정보 제외
+                        if (key === 'applicantEmail' || key === 'birthYear' || key === 'guardianAge' || key === 'serviceType') {
+                          return false;
+                        }
+                        return value && String(value).trim();
+                      })
+                      .map(([key, value]) => `
+                        <div class="flex items-start space-x-2 p-3 bg-gray-50 rounded-lg">
+                          <i class="fas fa-check-circle text-teal-500 mt-1"></i>
+                          <div>
+                            <p class="text-sm font-medium text-gray-600">${fieldLabels[key] || key}</p>
+                            <p class="text-gray-800">${String(value).replace(/[<>]/g, '')}</p>
+                          </div>
+                        </div>
+                      `).join('');
+                  } catch (e) {
+                    console.error('[quote-details] additional_notes 파싱 오류:', e);
+                    return `<p class="text-gray-600">${String(quoteRequest.additional_notes).replace(/[<>]/g, '')}</p>`;
+                  }
+                })()}
+              </div>
             </div>
             ` : ''}
           </div>
