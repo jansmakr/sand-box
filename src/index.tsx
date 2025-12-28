@@ -3436,6 +3436,37 @@ app.get('/admin/dashboard', (c) => {
           </div>
         </div>
 
+        {/* 대표시설 신청 관리 */}
+        <div class="bg-white rounded-xl shadow-lg mb-6">
+          <div class="border-b px-6 py-4">
+            <h3 class="text-xl font-bold flex items-center">
+              <i class="fas fa-crown text-purple-600 mr-2"></i>
+              대표시설 신청 관리
+              <span class="ml-3 text-sm text-gray-500">(지역별 대표시설 신청 내역)</span>
+            </h3>
+          </div>
+          <div class="p-6">
+            <div class="overflow-x-auto">
+              <table class="w-full">
+                <thead class="bg-gray-50">
+                  <tr class="border-b">
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">순번</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">시설명</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">시설유형</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">신청지역</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">담당자</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">연락처</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">상태</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">신청일</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">관리</th>
+                  </tr>
+                </thead>
+                <tbody id="representativeApplicationsList"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
         {/* 가족 간병 신청 목록 */}
         <div class="bg-white rounded-xl shadow-lg">
           <div class="border-b px-6 py-4">
@@ -3475,6 +3506,9 @@ app.get('/admin/dashboard', (c) => {
             document.getElementById('partnerCount').textContent = partners.length;
             document.getElementById('familyCareCount').textContent = familyCare.length;
             document.getElementById('quoteRequestCount').textContent = quoteRequests ? quoteRequests.length : 0;
+            
+            // 대표시설 신청 목록 로드
+            await loadRepresentativeApplications();
             
             const partnerList = document.getElementById('partnerList');
             partnerList.innerHTML = partners.map((p, index) => {
@@ -3587,6 +3621,130 @@ app.get('/admin/dashboard', (c) => {
           } catch (error) {
             console.error('대표샵 설정 실패:', error);
             alert('대표샵 설정 중 오류가 발생했습니다.');
+          }
+        }
+        
+        // 대표시설 신청 목록 로드
+        async function loadRepresentativeApplications() {
+          try {
+            const response = await axios.get('/api/admin/representative-applications');
+            if (!response.data.success) {
+              throw new Error(response.data.message || '신청 내역 로드 실패');
+            }
+            
+            const applications = response.data.data || [];
+            const list = document.getElementById('representativeApplicationsList');
+            
+            if (applications.length === 0) {
+              list.innerHTML = '<tr><td colspan="9" class="px-4 py-8 text-center text-gray-500">대표시설 신청 내역이 없습니다</td></tr>';
+              return;
+            }
+            
+            list.innerHTML = applications.map((app, index) => {
+              const status = app.status || 'pending';
+              const statusText = status === 'approved' ? '승인' : status === 'rejected' ? '거부' : '대기중';
+              const statusColor = status === 'approved' ? 'bg-green-100 text-green-700' : 
+                                status === 'rejected' ? 'bg-red-100 text-red-700' : 
+                                'bg-yellow-100 text-yellow-700';
+              
+              const region = app.region_sido && app.region_sigungu 
+                ? \`\${app.region_sido} \${app.region_sigungu}\` 
+                : '-';
+              
+              const createdDate = app.created_at 
+                ? new Date(app.created_at).toLocaleDateString('ko-KR', { 
+                    year: 'numeric', 
+                    month: '2-digit', 
+                    day: '2-digit' 
+                  })
+                : '-';
+              
+              return \`
+              <tr class="border-t hover:bg-gray-50">
+                <td class="px-4 py-3 text-center text-gray-700">\${index + 1}</td>
+                <td class="px-4 py-3 font-medium text-gray-900">\${app.facility_name || '-'}</td>
+                <td class="px-4 py-3 text-sm text-gray-600">\${app.facility_type || '-'}</td>
+                <td class="px-4 py-3 text-sm text-gray-600">\${region}</td>
+                <td class="px-4 py-3 text-gray-700">\${app.contact_name || '-'}</td>
+                <td class="px-4 py-3 text-gray-700">\${app.contact_phone || '-'}</td>
+                <td class="px-4 py-3">
+                  <span class="inline-flex px-3 py-1 rounded-full text-xs font-semibold \${statusColor}">
+                    \${statusText}
+                  </span>
+                </td>
+                <td class="px-4 py-3 text-sm text-gray-600">\${createdDate}</td>
+                <td class="px-4 py-3">
+                  <div class="flex gap-2 flex-wrap">
+                    \${status === 'pending' ? \`
+                      <button onclick="approveRepresentativeApplication(\${app.id})" 
+                        class="px-3 py-1 bg-green-500 text-white text-xs rounded hover:bg-green-600 transition-colors">
+                        <i class="fas fa-check"></i> 승인
+                      </button>
+                      <button onclick="rejectRepresentativeApplication(\${app.id})" 
+                        class="px-3 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600 transition-colors">
+                        <i class="fas fa-times"></i> 거부
+                      </button>
+                    \` : \`
+                      <span class="text-xs text-gray-500">
+                        \${status === 'approved' ? '✓ 승인됨' : '✗ 거부됨'}
+                      </span>
+                    \`}
+                  </div>
+                </td>
+              </tr>
+              \`;
+            }).join('');
+          } catch (error) {
+            console.error('대표시설 신청 목록 로드 실패:', error);
+            const list = document.getElementById('representativeApplicationsList');
+            list.innerHTML = '<tr><td colspan="9" class="px-4 py-8 text-center text-red-500">데이터 로드 실패</td></tr>';
+          }
+        }
+        
+        // 대표시설 신청 승인
+        async function approveRepresentativeApplication(applicationId) {
+          if (!confirm('이 대표시설 신청을 승인하시겠습니까?')) return;
+          
+          try {
+            const response = await axios.post('/api/admin/representative-applications/approve', { 
+              application_id: applicationId 
+            });
+            
+            if (response.data.success) {
+              alert('대표시설 신청이 승인되었습니다.');
+              await loadRepresentativeApplications();
+            } else {
+              alert(response.data.message || '승인 실패');
+            }
+          } catch (error) {
+            console.error('승인 처리 실패:', error);
+            alert('승인 처리 중 오류가 발생했습니다.');
+          }
+        }
+        
+        // 대표시설 신청 거부
+        async function rejectRepresentativeApplication(applicationId) {
+          const reason = prompt('거부 사유를 입력하세요:');
+          if (!reason || reason.trim() === '') {
+            alert('거부 사유를 입력해주세요.');
+            return;
+          }
+          
+          try {
+            const response = await axios.post('/api/admin/representative-applications/reject', { 
+              application_id: applicationId,
+              rejection_reason: reason.trim()
+            });
+            
+            if (response.data.success) {
+              alert('대표시설 신청이 거부되었습니다.');
+              await loadRepresentativeApplications();
+            } else {
+              alert(response.data.message || '거부 실패');
+            }
+          } catch (error) {
+            console.error('거부 처리 실패:', error);
+            alert('거부 처리 중 오류가 발생했습니다.');
           }
         }
         
@@ -4116,7 +4274,7 @@ app.post('/api/admin/representative-applications/approve', async (c) => {
   
   try {
     const db = c.env.DB
-    const { id, review_note } = await c.req.json()
+    const { application_id, review_note } = await c.req.json()
     
     await db.prepare(`
       UPDATE representative_facility_applications 
@@ -4125,7 +4283,7 @@ app.post('/api/admin/representative-applications/approve', async (c) => {
           reviewed_by = 'admin',
           review_note = ?
       WHERE id = ?
-    `).bind(review_note || '승인되었습니다.', id).run()
+    `).bind(review_note || '승인되었습니다.', application_id).run()
     
     return c.json({
       success: true,
@@ -4145,9 +4303,9 @@ app.post('/api/admin/representative-applications/reject', async (c) => {
   
   try {
     const db = c.env.DB
-    const { id, review_note } = await c.req.json()
+    const { application_id, rejection_reason } = await c.req.json()
     
-    if (!review_note || review_note.trim().length < 5) {
+    if (!rejection_reason || rejection_reason.trim().length < 5) {
       return c.json({ 
         success: false, 
         message: '거절 사유를 최소 5자 이상 입력해주세요.' 
@@ -4161,7 +4319,7 @@ app.post('/api/admin/representative-applications/reject', async (c) => {
           reviewed_by = 'admin',
           review_note = ?
       WHERE id = ?
-    `).bind(review_note, id).run()
+    `).bind(rejection_reason, application_id).run()
     
     return c.json({
       success: true,
