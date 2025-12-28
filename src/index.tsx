@@ -421,7 +421,10 @@ app.post('/api/auth/login', async (c) => {
       email: user.email,
       name: user.name,
       type: user.type || user.user_type,
-      facilityType: user.facilityType || user.facility_type
+      facilityType: user.facilityType || user.facility_type,
+      region_sido: user.region_sido,
+      region_sigungu: user.region_sigungu,
+      facility_type: user.facility_type
     }
   })
 })
@@ -7036,9 +7039,17 @@ app.get('/api/facility/dashboard', async (c) => {
     }
     
     try {
-      // 시설이 속한 지역 파악
-      const userSido = user.address ? user.address.split(' ')[0] : ''
-      const userSigungu = user.address ? user.address.split(' ')[1] : ''
+      // 시설이 속한 지역 파악 (region_sido, region_sigungu, facility_type 사용)
+      const userSido = user.region_sido || ''
+      const userSigungu = user.region_sigungu || ''
+      const userFacilityType = user.facility_type || ''
+      
+      console.log('시설 대시보드 조회:', {
+        userId: user.id,
+        sido: userSido,
+        sigungu: userSigungu,
+        facilityType: userFacilityType
+      })
       
       // 해당 지역의 견적 요청 목록 조회
       const quoteRequests = await db.prepare(`
@@ -7051,7 +7062,7 @@ app.get('/api/facility/dashboard', async (c) => {
         AND status = 'pending'
         ORDER BY created_at DESC
         LIMIT 50
-      `).bind(userSido, userSigungu, user.facilityType).all()
+      `).bind(userSido, userSigungu, userFacilityType).all()
       
       // 이미 응답한 견적 요청 제외
       const requestsNotResponded = await Promise.all(
