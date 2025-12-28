@@ -3519,50 +3519,58 @@ app.post('/api/quote-request', async (c) => {
     
     // D1 Database에 저장 (실제 스키마에 맞춤)
     if (db) {
-      await db.prepare(`
-        INSERT INTO quote_requests (
-          quote_id, quote_type, applicant_name, applicant_phone,
-          patient_name, patient_age, patient_gender,
-          sido, sigungu, facility_type, care_grade,
-          additional_notes, status, created_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', CURRENT_TIMESTAMP)
-      `).bind(
-        quoteId,
-        data.quoteType || 'simple',
-        data.applicantName || '',
-        data.applicantPhone || '',
-        data.patientName || '',
-        data.patientAge || 0,
-        data.patientGender || '',
-        data.sido || '',
-        data.sigungu || '',
-        data.facilityType || '',
-        data.careGrade || '',
-        additionalNotes
-      ).run()
-      
-      // 🔥 견적 매칭 시스템: 동일 지역 + 시설 유형의 모든 시설에 발송
-      const matchedFacilities = await db.prepare(`
-        SELECT id, name, phone, email
-        FROM users
-        WHERE user_type = 'facility'
-          AND facility_type = ?
-          AND region_sido = ?
-          AND region_sigungu = ?
-      `).bind(
-        data.facilityType || '',
-        data.sido || '',
-        data.sigungu || ''
-      ).all()
-      
-      // 매칭된 시설에 견적 요청 알림 생성
-      const matchCount = matchedFacilities.results?.length || 0
-      console.log(`✅ 견적 매칭: ${matchCount}개 시설에 발송 - ${data.sido} ${data.sigungu} ${data.facilityType}`)
-      
-      // 실제로는 각 시설에 알림 발송 (SMS, 이메일, 푸시 등)
-      // 여기서는 로그만 출력
-      for (const facility of matchedFacilities.results || []) {
-        console.log(`  - ${facility.name} (${facility.phone})`)
+      try {
+        await db.prepare(`
+          INSERT INTO quote_requests (
+            quote_id, quote_type, applicant_name, applicant_phone,
+            patient_name, patient_age, patient_gender,
+            sido, sigungu, facility_type, care_grade,
+            additional_notes, status, created_at
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', CURRENT_TIMESTAMP)
+        `).bind(
+          quoteId,
+          data.quoteType || 'simple',
+          data.applicantName || '',
+          data.applicantPhone || '',
+          data.patientName || '',
+          data.patientAge || 0,
+          data.patientGender || '',
+          data.sido || '',
+          data.sigungu || '',
+          data.facilityType || '',
+          data.careGrade || '',
+          additionalNotes
+        ).run()
+        
+        // 🔥 견적 매칭 시스템: 동일 지역 + 시설 유형의 모든 시설에 발송
+        try {
+          const matchedFacilities = await db.prepare(`
+            SELECT id, name, phone, email
+            FROM users
+            WHERE user_type = 'facility'
+              AND facility_type = ?
+              AND region_sido = ?
+              AND region_sigungu = ?
+          `).bind(
+            data.facilityType || '',
+            data.sido || '',
+            data.sigungu || ''
+          ).all()
+          
+          // 매칭된 시설에 견적 요청 알림 생성
+          const matchCount = matchedFacilities.results?.length || 0
+          console.log(`✅ 견적 매칭: ${matchCount}개 시설에 발송 - ${data.sido} ${data.sigungu} ${data.facilityType}`)
+          
+          // 실제로는 각 시설에 알림 발송 (SMS, 이메일, 푸시 등)
+          // 여기서는 로그만 출력
+          for (const facility of matchedFacilities.results || []) {
+            console.log(`  - ${facility.name} (${facility.phone})`)
+          }
+        } catch (matchError) {
+          console.error('매칭 오류 (무시):', matchError)
+        }
+      } catch (dbError) {
+        console.error('D1 저장 오류 (메모리로 fallback):', dbError)
       }
     }
     
