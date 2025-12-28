@@ -6902,7 +6902,7 @@ app.get('/quote-new', (c) => {
 
 // 고객 대시보드 데이터 조회 API
 app.get('/api/customer/dashboard', async (c) => {
-  const user = getUser(c)
+  const user = await getUser(c)
   
   if (!user || user.type !== 'customer') {
     return c.json({ success: false, message: '인증 필요' }, 401)
@@ -6996,7 +6996,7 @@ app.get('/api/customer/dashboard', async (c) => {
 
 // 시설 대시보드 데이터 조회 API
 app.get('/api/facility/dashboard', async (c) => {
-  const user = getUser(c)
+  const user = await getUser(c)
   
   if (!user || user.type !== 'facility') {
     return c.json({ success: false, message: '인증 필요' }, 401)
@@ -7125,7 +7125,7 @@ app.get('/api/facility/dashboard', async (c) => {
 
 // 견적서 작성 및 전송 API
 app.post('/api/facility/send-quote', async (c) => {
-  const user = getUser(c)
+  const user = await getUser(c)
   
   if (!user || user.type !== 'facility') {
     return c.json({ success: false, message: '인증 필요' }, 401)
@@ -7247,7 +7247,7 @@ app.post('/api/facility/update-info', async (c) => {
 
 // 대표시설 신청
 app.post('/api/facility/apply-representative', async (c) => {
-  const user = getUser(c)
+  const user = await getUser(c)
   
   if (!user || user.type !== 'facility') {
     return c.json({ success: false, message: '시설 권한이 필요합니다.' }, 401)
@@ -7310,7 +7310,7 @@ app.post('/api/facility/apply-representative', async (c) => {
 
 // 내 대표시설 신청 상태 조회
 app.get('/api/facility/representative-status', async (c) => {
-  const user = getUser(c)
+  const user = await getUser(c)
   
   if (!user || user.type !== 'facility') {
     return c.json({ success: false, message: '시설 권한이 필요합니다.' }, 401)
@@ -7340,7 +7340,7 @@ app.get('/api/facility/representative-status', async (c) => {
 
 // 메시지 전송 (고객 → 시설)
 app.post('/api/messages/send', async (c) => {
-  const user = getUser(c)
+  const user = await getUser(c)
   
   if (!user || user.type !== 'customer') {
     return c.json({ success: false, message: '인증 필요' }, 401)
@@ -7394,7 +7394,7 @@ app.post('/api/messages/send', async (c) => {
 
 // 메시지 목록 조회 (견적서별)
 app.get('/api/messages/:responseId', async (c) => {
-  const user = getUser(c)
+  const user = await getUser(c)
   
   if (!user) {
     return c.json({ success: false, message: '인증 필요' }, 401)
@@ -7430,7 +7430,7 @@ app.get('/api/messages/:responseId', async (c) => {
 
 // 시설 메시지 응답
 app.post('/api/messages/reply', async (c) => {
-  const user = getUser(c)
+  const user = await getUser(c)
   
   if (!user || user.type !== 'facility') {
     return c.json({ success: false, message: '인증 필요' }, 401)
@@ -7483,7 +7483,7 @@ app.post('/api/messages/reply', async (c) => {
 
 // 리뷰 작성 (고객만 가능, 견적서 받은 경우에만)
 app.post('/api/reviews/create', async (c) => {
-  const user = getUser(c)
+  const user = await getUser(c)
   
   if (!user || user.type !== 'customer') {
     return c.json({ success: false, message: '고객만 리뷰를 작성할 수 있습니다.' }, 401)
@@ -7638,7 +7638,7 @@ app.get('/api/reviews/response/:responseId', async (c) => {
 
 // 시설의 리뷰 답변 작성
 app.post('/api/reviews/respond', async (c) => {
-  const user = getUser(c)
+  const user = await getUser(c)
   
   if (!user || user.type !== 'facility') {
     return c.json({ success: false, message: '시설만 답변할 수 있습니다.' }, 401)
@@ -7693,7 +7693,7 @@ app.post('/api/reviews/respond', async (c) => {
 
 // 관리자: 리뷰 승인/거부
 app.post('/api/admin/reviews/:reviewId/status', async (c) => {
-  const user = getUser(c)
+  const user = await getUser(c)
   
   // 관리자 권한 확인 (간단하게 처리)
   const sessionId = getCookie(c, 'admin_session')
@@ -7992,7 +7992,7 @@ app.post('/api/social-worker/login', async (c) => {
 
 // 시설 템플릿 조회
 app.get('/api/facility/template', async (c) => {
-  const user = getUser(c)
+  const user = await getUser(c)
   
   if (!user || user.type !== 'facility') {
     return c.json({ success: false, message: '인증 필요' }, 401)
@@ -8017,7 +8017,7 @@ app.get('/api/facility/template', async (c) => {
 
 // 시설 템플릿 저장/수정
 app.post('/api/facility/template', async (c) => {
-  const user = getUser(c)
+  const user = await getUser(c)
   
   if (!user || user.type !== 'facility') {
     return c.json({ success: false, message: '인증 필요' }, 401)
@@ -8093,7 +8093,7 @@ app.post('/api/facility/template', async (c) => {
 
 // 메시지 전송 API
 app.post('/api/messages/send', async (c) => {
-  const user = getUser(c)
+  const user = await getUser(c)
   
   if (!user) {
     return c.json({ success: false, message: '인증 필요' }, 401)
@@ -8133,7 +8133,7 @@ app.post('/api/messages/send', async (c) => {
 
 // 메시지 목록 조회 API
 app.get('/api/messages/:quoteId', async (c) => {
-  const user = getUser(c)
+  const user = await getUser(c)
   
   if (!user) {
     return c.json({ success: false, message: '인증 필요' }, 401)
@@ -8169,7 +8169,7 @@ app.get('/api/messages/:quoteId', async (c) => {
 
 // 읽지 않은 메시지 개수 조회 API
 app.get('/api/messages/unread-count/:quoteId', async (c) => {
-  const user = getUser(c)
+  const user = await getUser(c)
   
   if (!user) {
     return c.json({ success: false, message: '인증 필요' }, 401)
@@ -8197,7 +8197,7 @@ app.get('/api/messages/unread-count/:quoteId', async (c) => {
 
 // 고객이 받은 견적서 상세 조회 API
 app.get('/api/customer/quote-responses/:quoteId', async (c) => {
-  const user = getUser(c)
+  const user = await getUser(c)
   
   if (!user || user.type !== 'customer') {
     return c.json({ success: false, message: '인증 필요' }, 401)
@@ -8237,7 +8237,7 @@ app.get('/api/customer/quote-responses/:quoteId', async (c) => {
 
 // 고객 대시보드
 app.get('/dashboard/customer', async (c) => {
-  const user = getUser(c)
+  const user = await getUser(c)
   
   if (!user || user.type !== 'customer') {
     return c.redirect('/login')
@@ -8580,7 +8580,7 @@ app.get('/dashboard/customer', async (c) => {
 
 // 시설 대시보드
 app.get('/dashboard/facility', async (c) => {
-  const user = getUser(c)
+  const user = await getUser(c)
   
   if (!user || user.type !== 'facility') {
     return c.redirect('/login')
@@ -9679,7 +9679,7 @@ app.get('/dashboard/facility', async (c) => {
 
 // ========== 파트너 대시보드 (상급병원/정부복지) ==========
 app.get('/dashboard/partner', async (c) => {
-  const user = getUser(c)
+  const user = await getUser(c)
   
   if (!user || (user.type !== 'hospital_manager' && user.type !== 'welfare_manager')) {
     return c.redirect('/login')
@@ -10018,7 +10018,7 @@ app.get('/dashboard/partner', async (c) => {
 
 // ========== 시설 템플릿 설정 페이지 ==========
 app.get('/facility/template', async (c) => {
-  const user = getUser(c)
+  const user = await getUser(c)
   
   if (!user || user.type !== 'facility') {
     return c.redirect('/login')
@@ -10269,7 +10269,7 @@ app.get('/facility/template', async (c) => {
 
 // 견적서 상세 페이지
 app.get('/quote-details/:quoteId', async (c) => {
-  const user = getUser(c)
+  const user = await getUser(c)
   
   if (!user || user.type !== 'customer') {
     return c.redirect('/login')
@@ -11021,8 +11021,8 @@ app.get('/quote-details/:quoteId', async (c) => {
 // ========== 프로필 관리 ==========
 
 // 프로필 조회 페이지
-app.get('/profile', (c) => {
-  const user = getUser(c)
+app.get('/profile', async (c) => {
+  const user = await getUser(c)
   
   if (!user) {
     return c.redirect('/login')
@@ -11300,7 +11300,7 @@ app.get('/profile', (c) => {
 
 // 프로필 업데이트 API
 app.post('/api/profile/update', async (c) => {
-  const user = getUser(c)
+  const user = await getUser(c)
   if (!user) {
     return c.json({ success: false, message: '로그인이 필요합니다.' }, 401)
   }
@@ -11332,7 +11332,7 @@ app.post('/api/profile/update', async (c) => {
 
 // 비밀번호 변경 API
 app.post('/api/profile/change-password', async (c) => {
-  const user = getUser(c)
+  const user = await getUser(c)
   if (!user) {
     return c.json({ success: false, message: '로그인이 필요합니다.' }, 401)
   }
@@ -11359,7 +11359,7 @@ app.post('/api/profile/change-password', async (c) => {
 
 // 환자/주민 의뢰 생성 API
 app.post('/api/partner/referral', async (c) => {
-  const user = getUser(c)
+  const user = await getUser(c)
   
   // 인증 확인
   if (!user) {
@@ -11428,7 +11428,7 @@ app.post('/api/partner/referral', async (c) => {
 
 // 의뢰 목록 조회 API
 app.get('/api/partner/referrals', async (c) => {
-  const user = getUser(c)
+  const user = await getUser(c)
   
   // 인증 확인
   if (!user) {
@@ -11479,7 +11479,7 @@ app.get('/api/partner/referrals', async (c) => {
 
 // 의뢰 상세 조회 API
 app.get('/api/partner/referral/:id', async (c) => {
-  const user = getUser(c)
+  const user = await getUser(c)
   
   // 인증 확인
   if (!user) {
