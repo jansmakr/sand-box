@@ -6713,6 +6713,94 @@ app.post('/api/facility/send-quote', async (c) => {
   }
 })
 
+// 시설 정보 수정 API
+app.post('/api/facility/update-info', async (c) => {
+  const user = getUser(c)
+  
+  if (!user || user.type !== 'facility') {
+    return c.json({ success: false, message: '인증 필요' }, 401)
+  }
+
+  try {
+    const db = c.env.DB
+    const data = await c.req.json()
+    
+    // users 테이블 업데이트
+    if (db) {
+      try {
+        await db.prepare(`
+          UPDATE users 
+          SET 
+            name = ?,
+            facility_type = ?,
+            region_sido = ?,
+            region_sigungu = ?,
+            address = ?,
+            phone = ?,
+            updated_at = CURRENT_TIMESTAMP
+          WHERE id = ?
+        `).bind(
+          data.name,
+          data.facility_type,
+          data.region_sido,
+          data.region_sigungu,
+          data.address,
+          data.phone,
+          user.id
+        ).run()
+
+        // facilities 테이블도 업데이트 (존재하는 경우)
+        await db.prepare(`
+          UPDATE facilities 
+          SET 
+            name = ?,
+            facility_type = ?,
+            sido = ?,
+            sigungu = ?,
+            address = ?,
+            phone = ?,
+            postal_code = ?,
+            updated_at = CURRENT_TIMESTAMP
+          WHERE id IN (SELECT facility_id FROM users WHERE id = ?)
+        `).bind(
+          data.name,
+          data.facility_type,
+          data.region_sido,
+          data.region_sigungu,
+          data.address,
+          data.phone,
+          data.postal_code || null,
+          user.id
+        ).run()
+      } catch (dbError) {
+        console.error('DB 업데이트 오류 (무시):', dbError)
+      }
+    }
+
+    // 세션 정보 업데이트
+    const updatedUser = {
+      ...user,
+      name: data.name,
+      facility_type: data.facility_type,
+      region_sido: data.region_sido,
+      region_sigungu: data.region_sigungu,
+      address: data.address,
+      phone: data.phone
+    }
+    
+    await updateUserSession(c, updatedUser)
+    
+    return c.json({
+      success: true,
+      message: '시설 정보가 수정되었습니다.',
+      user: updatedUser
+    })
+  } catch (error) {
+    console.error('시설 정보 수정 오류:', error)
+    return c.json({ success: false, message: '시설 정보 수정 실패' }, 500)
+  }
+})
+
 // ========== 메시지 교환 API ==========
 
 // 메시지 전송 (고객 → 시설)
@@ -8110,15 +8198,15 @@ app.get('/dashboard/facility', async (c) => {
             빠른 액션
           </h3>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <button class="bg-teal-600 text-white p-4 rounded-lg hover:bg-teal-700 transition-colors">
+            <button onclick="openFacilityEditModal()" class="bg-teal-600 text-white p-4 rounded-lg hover:bg-teal-700 transition-colors">
               <i class="fas fa-edit text-2xl mb-2"></i>
               <p class="font-semibold">시설 정보 수정</p>
             </button>
-            <button class="bg-blue-600 text-white p-4 rounded-lg hover:bg-blue-700 transition-colors">
+            <button onclick="alert('요금표 관리 기능은 곧 출시됩니다')" class="bg-blue-600 text-white p-4 rounded-lg hover:bg-blue-700 transition-colors">
               <i class="fas fa-dollar-sign text-2xl mb-2"></i>
               <p class="font-semibold">요금표 관리</p>
             </button>
-            <button class="bg-green-600 text-white p-4 rounded-lg hover:bg-green-700 transition-colors">
+            <button onclick="alert('시설 사진 관리 기능은 곧 출시됩니다')" class="bg-green-600 text-white p-4 rounded-lg hover:bg-green-700 transition-colors">
               <i class="fas fa-images text-2xl mb-2"></i>
               <p class="font-semibold">시설 사진 관리</p>
             </button>
@@ -8169,6 +8257,128 @@ app.get('/dashboard/facility', async (c) => {
           <div id="quoteModalContent" class="p-6">
             <!-- 견적서 폼 내용 -->
           </div>
+        </div>
+      </div>
+
+      <!-- 시설 정보 수정 모달 -->
+      <div id="facilityEditModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto m-4">
+          <div class="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center">
+            <h3 class="text-2xl font-bold text-gray-800">
+              <i class="fas fa-edit text-teal-600 mr-2"></i>
+              시설 정보 수정
+            </h3>
+            <button onclick="closeFacilityEditModal()" class="text-gray-500 hover:text-gray-700">
+              <i class="fas fa-times text-2xl"></i>
+            </button>
+          </div>
+          <form id="facilityEditForm" class="p-6 space-y-6">
+            <!-- 시설명 -->
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">
+                시설명 <span class="text-red-500">*</span>
+              </label>
+              <input type="text" id="facilityName" required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                placeholder="예: 청은노인요양원">
+            </div>
+
+            <!-- 시설 유형 -->
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">
+                시설 유형 <span class="text-red-500">*</span>
+              </label>
+              <select id="facilityType" required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent">
+                <option value="">선택하세요</option>
+                <option value="요양원">요양원</option>
+                <option value="요양병원">요양병원</option>
+                <option value="주야간보호센터">주야간보호센터</option>
+                <option value="재가복지">재가복지센터</option>
+              </select>
+            </div>
+
+            <!-- 시/도 -->
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">
+                시/도 <span class="text-red-500">*</span>
+              </label>
+              <select id="facilitySido" required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent">
+                <option value="">선택하세요</option>
+                <option value="서울특별시">서울특별시</option>
+                <option value="부산광역시">부산광역시</option>
+                <option value="대구광역시">대구광역시</option>
+                <option value="인천광역시">인천광역시</option>
+                <option value="광주광역시">광주광역시</option>
+                <option value="대전광역시">대전광역시</option>
+                <option value="울산광역시">울산광역시</option>
+                <option value="세종특별자치시">세종특별자치시</option>
+                <option value="경기도">경기도</option>
+                <option value="강원도">강원도</option>
+                <option value="충청북도">충청북도</option>
+                <option value="충청남도">충청남도</option>
+                <option value="전라북도">전라북도</option>
+                <option value="전라남도">전라남도</option>
+                <option value="경상북도">경상북도</option>
+                <option value="경상남도">경상남도</option>
+                <option value="제주특별자치도">제주특별자치도</option>
+              </select>
+            </div>
+
+            <!-- 시/군/구 -->
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">
+                시/군/구 <span class="text-red-500">*</span>
+              </label>
+              <select id="facilitySigungu" required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent">
+                <option value="">시/도를 먼저 선택하세요</option>
+              </select>
+            </div>
+
+            <!-- 상세 주소 -->
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">
+                상세 주소 <span class="text-red-500">*</span>
+              </label>
+              <textarea id="facilityAddress" required rows="2"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                placeholder="예: 서울특별시 종로구 비봉길 76 (구기동)"></textarea>
+            </div>
+
+            <!-- 연락처 -->
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">
+                대표 연락처 <span class="text-red-500">*</span>
+              </label>
+              <input type="tel" id="facilityPhone" required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                placeholder="02-1234-5678">
+            </div>
+
+            <!-- 우편번호 (선택) -->
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">
+                우편번호
+              </label>
+              <input type="text" id="facilityPostalCode"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                placeholder="3001">
+            </div>
+
+            <!-- 저장 버튼 -->
+            <div class="flex gap-4">
+              <button type="submit" class="flex-1 bg-teal-600 text-white py-3 rounded-lg hover:bg-teal-700 transition-colors font-semibold">
+                <i class="fas fa-save mr-2"></i>
+                저장
+              </button>
+              <button type="button" onclick="closeFacilityEditModal()" class="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg hover:bg-gray-300 transition-colors font-semibold">
+                <i class="fas fa-times mr-2"></i>
+                취소
+              </button>
+            </div>
+          </form>
         </div>
       </div>
 
@@ -8696,6 +8906,121 @@ app.get('/dashboard/facility', async (c) => {
             </div>
           \`;
         }
+
+        // 시설 정보 수정 모달 열기
+        async function openFacilityEditModal() {
+          const modal = document.getElementById('facilityEditModal');
+          modal.classList.remove('hidden');
+
+          // 현재 사용자 정보 로드
+          try {
+            const response = await fetch('/api/auth/me');
+            const result = await response.json();
+            
+            if (result.success && result.user) {
+              const user = result.user;
+              document.getElementById('facilityName').value = user.name || '';
+              document.getElementById('facilityType').value = user.facility_type || '';
+              document.getElementById('facilitySido').value = user.region_sido || '';
+              
+              // 시도 선택 시 시군구 업데이트
+              if (user.region_sido) {
+                updateSigunguOptions(user.region_sido);
+                setTimeout(() => {
+                  document.getElementById('facilitySigungu').value = user.region_sigungu || '';
+                }, 100);
+              }
+              
+              document.getElementById('facilityAddress').value = user.address || '';
+              document.getElementById('facilityPhone').value = user.phone || '';
+              document.getElementById('facilityPostalCode').value = user.postal_code || '';
+            }
+          } catch (error) {
+            console.error('사용자 정보 로드 실패:', error);
+          }
+        }
+
+        // 시설 정보 수정 모달 닫기
+        function closeFacilityEditModal() {
+          const modal = document.getElementById('facilityEditModal');
+          modal.classList.add('hidden');
+        }
+
+        // 시군구 옵션 업데이트
+        function updateSigunguOptions(sido) {
+          const sigunguSelect = document.getElementById('facilitySigungu');
+          const sigunguData = {
+            '서울특별시': ['강남구', '강동구', '강북구', '강서구', '관악구', '광진구', '구로구', '금천구', '노원구', '도봉구', '동대문구', '동작구', '마포구', '서대문구', '서초구', '성동구', '성북구', '송파구', '양천구', '영등포구', '용산구', '은평구', '종로구', '중구', '중랑구'],
+            '부산광역시': ['강서구', '금정구', '남구', '동구', '동래구', '부산진구', '북구', '사상구', '사하구', '서구', '수영구', '연제구', '영도구', '중구', '해운대구', '기장군'],
+            '대구광역시': ['남구', '달서구', '동구', '북구', '서구', '수성구', '중구', '달성군'],
+            '인천광역시': ['계양구', '남동구', '동구', '미추홀구', '부평구', '서구', '연수구', '중구', '강화군', '옹진군'],
+            '광주광역시': ['광산구', '남구', '동구', '북구', '서구'],
+            '대전광역시': ['대덕구', '동구', '서구', '유성구', '중구'],
+            '울산광역시': ['남구', '동구', '북구', '중구', '울주군'],
+            '세종특별자치시': ['세종시'],
+            '경기도': ['고양시', '과천시', '광명시', '광주시', '구리시', '군포시', '김포시', '남양주시', '동두천시', '부천시', '성남시', '수원시', '시흥시', '안산시', '안성시', '안양시', '양주시', '오산시', '용인시', '의왕시', '의정부시', '이천시', '파주시', '평택시', '포천시', '하남시', '화성시', '가평군', '양평군', '여주군', '연천군'],
+            '강원도': ['강릉시', '동해시', '삼척시', '속초시', '원주시', '춘천시', '태백시', '고성군', '양구군', '양양군', '영월군', '인제군', '정선군', '철원군', '평창군', '홍천군', '화천군', '횡성군'],
+            '충청북도': ['제천시', '청주시', '충주시', '괴산군', '단양군', '보은군', '영동군', '옥천군', '음성군', '증평군', '진천군'],
+            '충청남도': ['계룡시', '공주시', '논산시', '보령시', '서산시', '아산시', '천안시', '금산군', '당진군', '부여군', '서천군', '연기군', '예산군', '청양군', '태안군', '홍성군'],
+            '전라북도': ['군산시', '김제시', '남원시', '익산시', '전주시', '정읍시', '고창군', '무주군', '부안군', '순창군', '완주군', '임실군', '장수군', '진안군'],
+            '전라남도': ['광양시', '나주시', '목포시', '순천시', '여수시', '강진군', '고흥군', '곡성군', '구례군', '담양군', '무안군', '보성군', '신안군', '영광군', '영암군', '완도군', '장성군', '장흥군', '진도군', '함평군', '해남군', '화순군'],
+            '경상북도': ['경산시', '경주시', '구미시', '김천시', '문경시', '상주시', '안동시', '영주시', '영천시', '포항시', '고령군', '군위군', '봉화군', '성주군', '영덕군', '영양군', '예천군', '울릉군', '울진군', '의성군', '청도군', '청송군', '칠곡군'],
+            '경상남도': ['거제시', '김해시', '마산시', '밀양시', '사천시', '양산시', '진주시', '진해시', '창원시', '통영시', '거창군', '고성군', '남해군', '산청군', '의령군', '창녕군', '하동군', '함안군', '함양군', '합천군'],
+            '제주특별자치도': ['서귀포시', '제주시']
+          };
+
+          sigunguSelect.innerHTML = '<option value="">선택하세요</option>';
+          
+          if (sigunguData[sido]) {
+            sigunguData[sido].forEach(sigungu => {
+              const option = document.createElement('option');
+              option.value = sigungu;
+              option.textContent = sigungu;
+              sigunguSelect.appendChild(option);
+            });
+          }
+        }
+
+        // 시설 정보 수정 폼 제출
+        document.getElementById('facilityEditForm').addEventListener('submit', async (e) => {
+          e.preventDefault();
+
+          const data = {
+            name: document.getElementById('facilityName').value,
+            facility_type: document.getElementById('facilityType').value,
+            region_sido: document.getElementById('facilitySido').value,
+            region_sigungu: document.getElementById('facilitySigungu').value,
+            address: document.getElementById('facilityAddress').value,
+            phone: document.getElementById('facilityPhone').value,
+            postal_code: document.getElementById('facilityPostalCode').value || null
+          };
+
+          try {
+            const response = await fetch('/api/facility/update-info', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+              alert('시설 정보가 성공적으로 수정되었습니다!');
+              closeFacilityEditModal();
+              window.location.reload(); // 페이지 새로고침
+            } else {
+              alert(result.message || '시설 정보 수정 실패');
+            }
+          } catch (error) {
+            console.error('시설 정보 수정 오류:', error);
+            alert('시설 정보 수정 중 오류가 발생했습니다.');
+          }
+        });
+
+        // 시도 선택 시 시군구 업데이트
+        document.getElementById('facilitySido').addEventListener('change', function() {
+          updateSigunguOptions(this.value);
+        });
 
         async function handleLogout() {
           try {
