@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "carejoa-webapp",
+  "name": "carejoa-kr-auto",
   "compatibility_date": "2025-10-03",
   "pages_build_output_dir": "./dist",
   "compatibility_flags": ["nodejs_compat"],
@@ -8,8 +8,8 @@
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "carejoa-webapp-db",
-      "database_id": "acae82af-3eb2-454a-ae79-1c495bdf42a5"
+      "database_name": "carejoa-production",
+      "database_id": "6bb51315-d991-4e62-a981-4cc19a5b23ed"
     }
   ]
 }
