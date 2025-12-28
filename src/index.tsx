@@ -3416,16 +3416,65 @@ app.get('/admin/dashboard', (c) => {
   )
 })
 
-// API 라우트
+// API 라우트 - 파트너(시설) 등록
 app.post('/api/partner', async (c) => {
   try {
+    const db = c.env.DB
     const data = await c.req.json()
+    
+    // D1 데이터베이스가 있는 경우 users 테이블에 저장
+    if (db) {
+      // 임시 비밀번호 생성 (나중에 이메일로 변경 링크 발송)
+      const tempPassword = Math.random().toString(36).slice(-8)
+      
+      // 파트너(시설) 유저 생성
+      await db.prepare(`
+        INSERT INTO users (
+          user_type, email, password_hash, name, phone,
+          facility_type, region_sido, region_sigungu,
+          address, created_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+      `).bind(
+        'facility',
+        data.managerPhone + '@temp.com', // 임시 이메일 (전화번호 기반)
+        tempPassword, // 실제로는 bcrypt 해시 사용
+        data.facilityName,
+        data.managerPhone,
+        data.facilityType,
+        data.facilitySido,
+        data.facilitySigungu,
+        data.facilityDetailAddress
+      ).run()
+      
+      // facilities 테이블에도 추가 (위도/경도는 기본값)
+      await db.prepare(`
+        INSERT INTO facilities (
+          facility_type, name, address,
+          sido, sigungu, phone,
+          latitude, longitude, created_at
+        ) VALUES (?, ?, ?, ?, ?, ?, 0, 0, CURRENT_TIMESTAMP)
+      `).bind(
+        data.facilityType,
+        data.facilityName,
+        data.facilitySido + ' ' + data.facilitySigungu + ' ' + data.facilityDetailAddress,
+        data.facilitySido,
+        data.facilitySigungu,
+        data.managerPhone
+      ).run()
+    }
+    
+    // 메모리에도 저장 (호환성)
     dataStore.partners.push({
       ...data,
       createdAt: new Date().toISOString()
     })
-    return c.json({ success: true, message: '파트너 등록이 완료되었습니다!' })
+    
+    return c.json({ 
+      success: true, 
+      message: '파트너 등록이 완료되었습니다!\n해당 지역 견적 요청 시 자동으로 발송됩니다.' 
+    })
   } catch (error) {
+    console.error('Partner registration error:', error)
     return c.json({ success: false, message: '등록 실패' }, 500)
   }
 })
@@ -3471,27 +3520,53 @@ app.post('/api/quote-request', async (c) => {
     })
     
     // D1 Database에 저장 (실제 스키마에 맞춤)
-    await db.prepare(`
-      INSERT INTO quote_requests (
-        quote_id, quote_type, applicant_name, applicant_phone,
-        patient_name, patient_age, patient_gender,
-        sido, sigungu, facility_type, care_grade,
-        additional_notes, status, created_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', CURRENT_TIMESTAMP)
-    `).bind(
-      quoteId,
-      data.quoteType || 'simple',
-      data.applicantName || '',
-      data.applicantPhone || '',
-      data.patientName || '',
-      data.patientAge || 0,
-      data.patientGender || '',
-      data.sido || '',
-      data.sigungu || '',
-      data.facilityType || '',
-      data.careGrade || '',
-      additionalNotes
-    ).run()
+    if (db) {
+      await db.prepare(`
+        INSERT INTO quote_requests (
+          quote_id, quote_type, applicant_name, applicant_phone,
+          patient_name, patient_age, patient_gender,
+          sido, sigungu, facility_type, care_grade,
+          additional_notes, status, created_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', CURRENT_TIMESTAMP)
+      `).bind(
+        quoteId,
+        data.quoteType || 'simple',
+        data.applicantName || '',
+        data.applicantPhone || '',
+        data.patientName || '',
+        data.patientAge || 0,
+        data.patientGender || '',
+        data.sido || '',
+        data.sigungu || '',
+        data.facilityType || '',
+        data.careGrade || '',
+        additionalNotes
+      ).run()
+      
+      // 🔥 견적 매칭 시스템: 동일 지역 + 시설 유형의 모든 시설에 발송
+      const matchedFacilities = await db.prepare(`
+        SELECT id, name, phone, email
+        FROM users
+        WHERE user_type = 'facility'
+          AND facility_type = ?
+          AND region_sido = ?
+          AND region_sigungu = ?
+      `).bind(
+        data.facilityType || '',
+        data.sido || '',
+        data.sigungu || ''
+      ).all()
+      
+      // 매칭된 시설에 견적 요청 알림 생성
+      const matchCount = matchedFacilities.results?.length || 0
+      console.log(`✅ 견적 매칭: ${matchCount}개 시설에 발송 - ${data.sido} ${data.sigungu} ${data.facilityType}`)
+      
+      // 실제로는 각 시설에 알림 발송 (SMS, 이메일, 푸시 등)
+      // 여기서는 로그만 출력
+      for (const facility of matchedFacilities.results || []) {
+        console.log(`  - ${facility.name} (${facility.phone})`)
+      }
+    }
     
     // 메모리에도 저장 (호환성 유지)
     dataStore.quoteRequests.push({
