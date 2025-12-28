@@ -407,9 +407,10 @@ app.post('/api/auth/login', async (c) => {
   
   setCookie(c, 'user_session', sessionId, {
     httpOnly: true,
-    secure: false,
+    secure: true,  // HTTPS 필수 (Cloudflare Pages는 항상 HTTPS)
     sameSite: 'Lax',
-    maxAge: 60 * 60 * 24 * 7 // 7일
+    maxAge: 60 * 60 * 24 * 7, // 7일
+    path: '/'
   })
 
   return c.json({ 
@@ -444,7 +445,10 @@ app.post('/api/auth/logout', async (c) => {
   
   setCookie(c, 'user_session', '', {
     httpOnly: true,
-    maxAge: 0
+    secure: true,
+    sameSite: 'Lax',
+    maxAge: 0,
+    path: '/'
   })
 
   return c.json({ success: true, message: '로그아웃되었습니다.' })
@@ -883,7 +887,7 @@ app.get('/api/auth/kakao/callback', async (c) => {
       
       setCookie(c, 'user_session', sessionId, {
         httpOnly: true,
-        secure: false,
+        secure: true,
         sameSite: 'Lax',
         maxAge: 60 * 60 * 24 * 7
       })
@@ -907,7 +911,7 @@ app.get('/api/auth/kakao/callback', async (c) => {
       
       setCookie(c, 'kakao_temp_session', tempSessionId, {
         httpOnly: true,
-        secure: false,
+        secure: true,
         sameSite: 'Lax',
         maxAge: 60 * 10 // 10분
       })
@@ -1117,7 +1121,7 @@ app.post('/api/auth/kakao/complete', async (c) => {
   
   setCookie(c, 'user_session', sessionId, {
     httpOnly: true,
-    secure: false,
+    secure: true,
     sameSite: 'Lax',
     maxAge: 60 * 60 * 24 * 7
   })
