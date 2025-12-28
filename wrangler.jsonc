@@ -1,16 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "carejoa-kr",
+  "name": "carejoa-webapp",
   "compatibility_date": "2025-10-03",
   "pages_build_output_dir": "./dist",
-  "compatibility_flags": ["nodejs_compat"],
-  
-  // D1 Database for persistent storage
-  "d1_databases": [
-    {
-      "binding": "DB",
-      "database_name": "carejoa-production",
-      "database_id": "6bb51315-d991-4e62-a981-4cc19a5b23ed"
-    }
-  ]
+  "compatibility_flags": ["nodejs_compat"]
 }

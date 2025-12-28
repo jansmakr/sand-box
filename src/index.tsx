@@ -1080,9 +1080,7 @@ app.post('/api/auth/kakao/complete', async (c) => {
 // 메인 페이지 (전체 디자인)
 app.get('/', (c) => {
   return c.render(
-    <div>
-      {/* 헤더 */}
-      <header class="bg-white shadow-sm border-b">
+    <div><header class="bg-white shadow-sm border-b">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="flex justify-between items-center h-16">
             <div class="flex items-center">
@@ -1092,10 +1090,7 @@ app.get('/', (c) => {
                 class="h-8 w-auto mr-2 sm:mr-3"
               />
               <h1 class="text-xl sm:text-2xl font-bold text-teal-600">케어조아</h1>
-            </div>
-            
-            {/* 데스크톱 네비게이션 */}
-            <nav class="hidden md:flex space-x-2 lg:space-x-3 text-sm">
+            </div><nav class="hidden md:flex space-x-2 lg:space-x-3 text-sm">
               <a href="#partner-section" class="bg-red-600 text-white hover:bg-red-700 px-3 py-2 rounded-lg whitespace-nowrap">
                 <i class="fas fa-hospital mr-1"></i>일반병원담당자
               </a>
@@ -1111,17 +1106,11 @@ app.get('/', (c) => {
               <a href="/login" class="bg-teal-600 text-white hover:bg-teal-700 px-3 py-2 rounded-lg whitespace-nowrap">
                 <i class="fas fa-sign-in-alt mr-1"></i>로그인
               </a>
-            </nav>
-            
-            {/* 모바일 햄버거 메뉴 버튼 */}
-            <button id="mobile-menu-btn" class="md:hidden p-2 text-gray-600 hover:text-teal-600 focus:outline-none">
+            </nav><button id="mobile-menu-btn" class="md:hidden p-2 text-gray-600 hover:text-teal-600 focus:outline-none">
               <i class="fas fa-bars text-2xl"></i>
             </button>
           </div>
-        </div>
-        
-        {/* 모바일 메뉴 (숨김) */}
-        <div id="mobile-menu" class="hidden md:hidden bg-white border-t">
+        </div><div id="mobile-menu" class="hidden md:hidden bg-white border-t">
           <nav class="px-4 py-3 space-y-2">
             <a href="#partner-section" class="block bg-red-600 text-white hover:bg-red-700 px-4 py-3 rounded-lg text-center">
               <i class="fas fa-hospital mr-2"></i>일반병원담당자
@@ -1152,10 +1141,7 @@ app.get('/', (c) => {
             }
           });
         `
-      }} />
-
-      {/* 메인 섹션 */}
-      <section class="relative bg-white">
+      }} /><section class="relative bg-white">
         <div class="max-w-6xl mx-auto px-4 py-8 md:py-16">
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
             <div class="space-y-6 md:space-y-8">
@@ -1169,10 +1155,7 @@ app.get('/', (c) => {
                   희망하는 지역의, 희망하는 시설만! 입력하면<br />
                   그 지역 <strong class="text-blue-600">모든 시설의 정보를</strong> 실시간으로 받아볼 수 있어요
                 </p>
-              </div>
-
-              {/* 특허기반 실시간 요양견적 및 상담 플랫폼 안내 */}
-              <div class="bg-gradient-to-r from-blue-50 to-teal-50 border-2 border-blue-200 rounded-2xl p-6 mb-6 shadow-lg">
+              </div><div class="bg-gradient-to-r from-blue-50 to-teal-50 border-2 border-blue-200 rounded-2xl p-6 mb-6 shadow-lg">
                 <div class="flex items-center justify-center text-center">
                   <div>
                     <div class="flex items-center justify-center mb-2">
@@ -1182,22 +1165,14 @@ app.get('/', (c) => {
                     <p class="text-sm text-gray-600">희망하는 지역의 모든 시설 정보를 실시간으로 받아볼 수 있어요</p>
                   </div>
                 </div>
-              </div>
-
-              {/* 주요 액션 버튼 그리드 (2x2) */}
-              <div class="grid grid-cols-2 gap-3 md:gap-4 mb-8">
-                {/* 1. Android 앱 다운로드 */}
-                <a href="https://play.google.com/store/apps/details?id=app.netlify.std_care_joa.twa" 
+              </div><div class="grid grid-cols-2 gap-3 md:gap-4 mb-8"><a href="https://play.google.com/store/apps/details?id=app.netlify.std_care_joa.twa" 
                    target="_blank" rel="noopener noreferrer"
                    class="flex flex-col items-center justify-center bg-gradient-to-br from-blue-500 to-blue-600 text-white py-6 px-4 rounded-2xl shadow-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 min-h-[120px]">
                   <div class="bg-white bg-opacity-20 rounded-xl p-3 mb-3">
                     <i class="fas fa-mobile-alt text-3xl"></i>
                   </div>
                   <span class="font-bold text-center">Android<br/>앱 다운로드</span>
-                </a>
-
-                {/* 2. 실시간 견적 */}
-                <a href="https://carejoa.com"
+                </a><a href="https://carejoa.com"
                    target="_blank"
                    rel="noopener noreferrer"
                    class="flex flex-col items-center justify-center bg-gradient-to-br from-amber-100 to-orange-100 text-gray-800 border-2 border-orange-200 py-6 px-4 rounded-2xl shadow-lg hover:from-amber-200 hover:to-orange-200 transition-all duration-300 transform hover:scale-105 min-h-[120px]">
@@ -1205,19 +1180,13 @@ app.get('/', (c) => {
                     <i class="fas fa-clipboard text-3xl text-orange-600"></i>
                   </div>
                   <span class="font-bold text-center">실시간 견적<br/>상담 신청</span>
-                </a>
-
-                {/* 3. 지역별 전화상담 */}
-                <a href="/regional-consultation"
+                </a><a href="/regional-consultation"
                    class="flex flex-col items-center justify-center bg-gradient-to-br from-green-500 to-emerald-600 text-white py-6 px-4 rounded-2xl shadow-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 min-h-[120px]">
                   <div class="bg-white bg-opacity-20 rounded-xl p-3 mb-3">
                     <i class="fas fa-phone-alt text-3xl"></i>
                   </div>
                   <span class="font-bold text-center">지역별<br/>전화상담</span>
-                </a>
-
-                {/* 4. 전국 시설 찾기 */}
-                <a href="/facilities"
+                </a><a href="/facilities"
                    class="flex flex-col items-center justify-center bg-gradient-to-br from-purple-500 to-pink-600 text-white py-6 px-4 rounded-2xl shadow-lg hover:from-purple-600 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 min-h-[120px]">
                   <div class="bg-white bg-opacity-20 rounded-xl p-3 mb-3">
                     <i class="fas fa-search text-3xl"></i>
@@ -1251,10 +1220,7 @@ app.get('/', (c) => {
             </div>
           </div>
         </div>
-      </section>
-
-      {/* 모바일 하단 네비게이션 */}
-      <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-1 py-2 z-50 md:hidden">
+      </section><div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-1 py-2 z-50 md:hidden">
         <div class="flex justify-around items-center">
           <a href="#partner-section" class="flex flex-col items-center py-2 bg-red-600 text-white rounded-lg px-1.5 shadow-md">
             <i class="fas fa-hospital text-base mb-1"></i>
@@ -1273,10 +1239,7 @@ app.get('/', (c) => {
             <span class="text-[10px] font-medium">입점신청</span>
           </a>
         </div>
-      </div>
-
-      {/* 서비스 특징 */}
-      <section class="py-20">
+      </div><section class="py-20">
         <div class="max-w-7xl mx-auto px-4">
           <div class="text-center mb-16">
             <h3 class="text-3xl font-bold text-gray-900 mb-4">
@@ -1318,10 +1281,7 @@ app.get('/', (c) => {
             </div>
           </div>
         </div>
-      </section>
-
-      {/* 3단계 프로세스 */}
-      <section class="py-20 bg-gray-50">
+      </section><section class="py-20 bg-gray-50">
         <div class="max-w-7xl mx-auto px-4">
           <div class="text-center mb-16">
             <h3 class="text-3xl font-bold text-gray-900 mb-4">
@@ -1355,10 +1315,7 @@ app.get('/', (c) => {
             </div>
           </div>
         </div>
-      </section>
-
-      {/* 파트너 입점 섹션 */}
-      <section id="partner-section" class="py-20 bg-gradient-to-br from-teal-50 to-emerald-50">
+      </section><section id="partner-section" class="py-20 bg-gradient-to-br from-teal-50 to-emerald-50">
         <div class="max-w-7xl mx-auto px-4">
           <div class="text-center mb-12">
             <h3 class="text-3xl font-bold text-gray-900 mb-4">
@@ -1395,10 +1352,7 @@ app.get('/', (c) => {
                     <option value="기타">기타</option>
                   </select>
                 </div>
-              </div>
-              
-              {/* 주소 필드 추가 */}
-              <div class="space-y-4">
+              </div><div class="space-y-4">
                 <label class="block text-sm font-medium text-gray-700">
                   <i class="fas fa-map-marker-alt mr-1 text-red-500"></i>시설 주소*
                 </label>
@@ -1461,10 +1415,7 @@ app.get('/', (c) => {
             </form>
           </div>
         </div>
-      </section>
-
-      {/* 견적 신청 섹션 */}
-      <section class="max-w-7xl mx-auto px-4 py-12">
+      </section><section class="max-w-7xl mx-auto px-4 py-12">
         <div class="text-center mb-10">
           <div class="inline-block bg-blue-50 text-blue-700 px-4 py-1 rounded-full text-sm font-semibold mb-4 border border-blue-100">
             <i class="fas fa-check-circle mr-2"></i>실시간 매칭 시스템 가동 중
@@ -1477,10 +1428,7 @@ app.get('/', (c) => {
           </p>
         </div>
 
-        <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          
-          {/* 간편 견적 (Primary) */}
-          <div class="bg-white rounded-2xl shadow-xl p-8 hover:-translate-y-1 transition-all duration-300 border-2 border-blue-500 relative overflow-hidden group">
+        <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto"><div class="bg-white rounded-2xl shadow-xl p-8 hover:-translate-y-1 transition-all duration-300 border-2 border-blue-500 relative overflow-hidden group">
             <div class="absolute top-0 right-0 bg-blue-500 text-white text-xs px-3 py-1 rounded-bl-lg font-bold">
               인기
             </div>
@@ -1497,10 +1445,7 @@ app.get('/', (c) => {
                 1분 만에 견적 받기 <i class="fas fa-arrow-right ml-2"></i>
               </a>
             </div>
-          </div>
-
-          {/* 상세 맞춤 상담 (Secondary) */}
-          <div class="bg-white rounded-2xl shadow-lg p-8 hover:-translate-y-1 transition-all duration-300 border border-gray-100 hover:border-green-200 group">
+          </div><div class="bg-white rounded-2xl shadow-lg p-8 hover:-translate-y-1 transition-all duration-300 border border-gray-100 hover:border-green-200 group">
             <div class="text-center">
               <div class="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-green-100 transition-colors">
                 <i class="fas fa-notes-medical text-4xl text-green-600"></i>
@@ -1523,10 +1468,7 @@ app.get('/', (c) => {
             케어조아는 100% 검증된 요양시설 정보만을 제공합니다.
           </p>
         </div>
-      </section>
-
-      {/* 푸터 */}
-      <footer class="bg-gray-900 text-white py-12">
+      </section><footer class="bg-gray-900 text-white py-12">
         <div class="max-w-7xl mx-auto px-4">
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             <div>
@@ -1582,10 +1524,7 @@ app.get('/', (c) => {
               <p class="text-sm text-blue-400 font-medium mb-3">
                 <i class="fas fa-certificate mr-1"></i>특허기반 실시간 요양 견적 및 상담 플랫폼
               </p>
-            </div>
-            
-            {/* 사업자 정보 */}
-            <div class="bg-gray-800 rounded-lg p-6 mb-6 max-w-4xl mx-auto">
+            </div><div class="bg-gray-800 rounded-lg p-6 mb-6 max-w-4xl mx-auto">
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs text-gray-400">
                 <div>
                   <span class="text-gray-500 font-medium">상호(법인명)</span>
@@ -1606,10 +1545,7 @@ app.get('/', (c) => {
               </div>
             </div>
             
-            <p class="text-xs text-gray-400 text-center">© 2024 케어조아. All rights reserved.</p>
-            
-            {/* 관리자 로그인 */}
-            <div class="mt-6 pt-6 border-t border-gray-800">
+            <p class="text-xs text-gray-400 text-center">© 2024 케어조아. All rights reserved.</p><div class="mt-6 pt-6 border-t border-gray-800">
               <div class="max-w-xs mx-auto">
                 <p class="text-center text-xs text-gray-600 mb-2">관리자 전용</p>
                 <form id="admin-quick-login" class="space-y-2">
@@ -1876,25 +1812,17 @@ app.get('/facilities', (c) => {
             </a>
           </div>
         </div>
-      </header>
-
-      {/* Leaflet.js CSS */}
-      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
+      </header><link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
       
       <section class="py-8 bg-gray-50 min-h-screen">
-        <div class="max-w-7xl mx-auto px-4">
-          {/* 페이지 헤더 */}
-          <div class="mb-6">
+        <div class="max-w-7xl mx-auto px-4"><div class="mb-6">
             <h2 class="text-3xl font-bold text-gray-900 mb-2 flex items-center">
               <i class="fas fa-search text-purple-600 mr-3"></i>
               전국 시설 찾기
             </h2>
             <p class="text-gray-600">전국 요양시설을 지도에서 확인하고 검색하세요</p>
-          </div>
-
-          {/* 검색 필터 */}
-          <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+          </div><div class="bg-white rounded-xl shadow-lg p-6 mb-6">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">
@@ -1965,12 +1893,7 @@ app.get('/facilities', (c) => {
                 <i class="fas fa-redo mr-2"></i>필터 초기화
               </button>
             </div>
-          </div>
-
-          {/* 지도와 시설 목록 2열 레이아웃 */}
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* 지도 영역 */}
-            <div class="bg-white rounded-xl shadow-lg p-4">
+          </div><div class="grid grid-cols-1 lg:grid-cols-2 gap-6"><div class="bg-white rounded-xl shadow-lg p-4">
               <div class="mb-3">
                 <h3 class="text-lg font-bold text-gray-800 flex items-center">
                   <i class="fas fa-map text-blue-600 mr-2"></i>
@@ -1979,10 +1902,7 @@ app.get('/facilities', (c) => {
                 </h3>
               </div>
               <div id="map" style="height: 600px; width: 100%; border-radius: 0.75rem; overflow: hidden;"></div>
-            </div>
-            
-            {/* 시설 목록 */}
-            <div>
+            </div><div>
               <div class="mb-4">
                 <h3 class="text-lg font-bold text-gray-800 flex items-center">
                   <i class="fas fa-list text-purple-600 mr-2"></i>
@@ -1990,18 +1910,10 @@ app.get('/facilities', (c) => {
                   <span id="facilityCount" class="ml-2 text-sm text-gray-500">(0개)</span>
                 </h3>
               </div>
-              <div id="facilitiesList" class="space-y-4 overflow-y-auto" style="max-height: 650px;">
-                {/* 시설 카드들이 동적으로 삽입됩니다 */}
-              </div>
-
-              {/* 로딩 표시 */}
-              <div id="loadingSpinner" class="text-center py-12">
+              <div id="facilitiesList" class="space-y-4 overflow-y-auto" style="max-height: 650px;"></div><div id="loadingSpinner" class="text-center py-12">
                 <i class="fas fa-spinner fa-spin text-4xl text-purple-600"></i>
                 <p class="text-gray-600 mt-4">시설 데이터를 불러오는 중...</p>
-              </div>
-
-              {/* 결과 없음 메시지 */}
-              <div id="noResults" class="hidden bg-white rounded-xl shadow-lg p-12 text-center">
+              </div><div id="noResults" class="hidden bg-white rounded-xl shadow-lg p-12 text-center">
                 <i class="fas fa-search text-6xl text-gray-300 mb-4"></i>
                 <h3 class="text-2xl font-bold text-gray-700 mb-2">검색 결과가 없습니다</h3>
                 <p class="text-gray-500">다른 조건으로 검색해 주세요</p>
@@ -2009,15 +1921,9 @@ app.get('/facilities', (c) => {
             </div>
           </div>
         </div>
-      </section>
-
-      {/* Leaflet.js JavaScript */}
-      <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      </section><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" 
-        crossorigin=""></script>
-      
-      {/* JavaScript for Facilities Search */}
-      <script dangerouslySetInnerHTML={{__html: `
+        crossorigin=""></script><script dangerouslySetInnerHTML={{__html: `
         let allFacilities = [];
         let filteredFacilities = [];
         let map = null;
@@ -2356,9 +2262,7 @@ app.get('/regional-consultation', (c) => {
       </header>
 
       <section class="py-16 bg-gradient-to-br from-green-50 to-emerald-50 min-h-screen">
-        <div class="max-w-6xl mx-auto px-4">
-          {/* 페이지 헤더 */}
-          <div class="text-center mb-12">
+        <div class="max-w-6xl mx-auto px-4"><div class="text-center mb-12">
             <div class="inline-block bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-semibold mb-4">
               <i class="fas fa-phone-alt mr-2"></i>전문 상담사 연결
             </div>
@@ -2366,10 +2270,7 @@ app.get('/regional-consultation', (c) => {
               지역별 전화상담
             </h2>
             <p class="text-lg text-gray-600">희망하는 지역을 선택하시면 해당 지역 전문 상담사와 바로 연결됩니다</p>
-          </div>
-
-          {/* 지역 선택 폼 */}
-          <div class="bg-white p-8 rounded-2xl shadow-lg mb-8">
+          </div><div class="bg-white p-8 rounded-2xl shadow-lg mb-8">
             <div class="grid md:grid-cols-2 gap-6 mb-6">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">
@@ -2415,10 +2316,7 @@ app.get('/regional-consultation', (c) => {
                 <i class="fas fa-search mr-2"></i>상담센터 찾기
               </button>
             </div>
-          </div>
-
-          {/* 로딩 표시 영역 */}
-          <div id="consultLoading" class="hidden">
+          </div><div id="consultLoading" class="hidden">
             <div class="bg-white rounded-2xl shadow-lg p-12 text-center">
               <div class="flex flex-col items-center justify-center space-y-4">
                 <div class="animate-spin rounded-full h-16 w-16 border-4 border-green-500 border-t-transparent"></div>
@@ -2428,10 +2326,7 @@ app.get('/regional-consultation', (c) => {
                 <p class="text-sm text-gray-500">잠시만 기다려주세요</p>
               </div>
             </div>
-          </div>
-
-          {/* 상담센터 결과 표시 영역 */}
-          <div id="consultResults" class="hidden">
+          </div><div id="consultResults" class="hidden">
             <div class="bg-gradient-to-r from-blue-50 to-green-50 border-2 border-green-200 rounded-2xl p-6 mb-6">
               <div class="flex items-center justify-center text-center">
                 <i class="fas fa-info-circle text-green-600 text-2xl mr-3"></i>
@@ -2441,16 +2336,11 @@ app.get('/regional-consultation', (c) => {
               </div>
             </div>
 
-            <div id="consultCentersList" class="grid md:grid-cols-2 gap-6">
-              {/* 상담센터 카드들이 동적으로 삽입됩니다 */}
-            </div>
+            <div id="consultCentersList" class="grid md:grid-cols-2 gap-6"></div>
           </div>
 
         </div>
-      </section>
-
-      {/* JavaScript for Regional Consultation */}
-      <script dangerouslySetInnerHTML={{__html: `
+      </section><script dangerouslySetInnerHTML={{__html: `
         // 시도별 시군구 데이터 (동일한 데이터)
         const sigunguData = {
           '서울특별시': ['강남구', '강동구', '강북구', '강서구', '관악구', '광진구', '구로구', '금천구', '노원구', '도봉구', '동대문구', '동작구', '마포구', '서대문구', '서초구', '성동구', '성북구', '송파구', '양천구', '영등포구', '용산구', '은평구', '종로구', '중구', '중랑구'],
@@ -2698,9 +2588,7 @@ app.get('/admin/facilities', (c) => {
         </div>
       </header>
 
-      <div class="max-w-7xl mx-auto px-4 py-8">
-        {/* 검색 및 필터 */}
-        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+      <div class="max-w-7xl mx-auto px-4 py-8"><div class="bg-white rounded-xl shadow-lg p-6 mb-6">
           <h3 class="text-xl font-bold mb-4 flex items-center">
             <i class="fas fa-search text-purple-600 mr-2"></i>
             시설 검색 및 관리
@@ -2759,10 +2647,7 @@ app.get('/admin/facilities', (c) => {
               <i class="fas fa-redo mr-2"></i>초기화
             </button>
           </div>
-        </div>
-
-        {/* 시설 목록 */}
-        <div class="bg-white rounded-xl shadow-lg">
+        </div><div class="bg-white rounded-xl shadow-lg">
           <div class="border-b px-6 py-4 flex justify-between items-center">
             <h3 class="text-xl font-bold flex items-center">
               <i class="fas fa-building text-purple-600 mr-2"></i>
@@ -2798,10 +2683,7 @@ app.get('/admin/facilities', (c) => {
             </div>
           </div>
         </div>
-      </div>
-
-      {/* 시설 수정 모달 */}
-      <div id="editModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      </div><div id="editModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
           <div class="border-b px-6 py-4 flex justify-between items-center">
             <h3 class="text-xl font-bold text-gray-900">
@@ -3298,9 +3180,7 @@ app.get('/admin/dashboard', (c) => {
         </div>
       </header>
 
-      <div class="max-w-7xl mx-auto px-4 py-8">
-        {/* 통계 카드 */}
-        <div class="grid md:grid-cols-3 gap-6 mb-8">
+      <div class="max-w-7xl mx-auto px-4 py-8"><div class="grid md:grid-cols-3 gap-6 mb-8">
           <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
             <div class="flex items-center justify-between">
               <div>
@@ -3339,19 +3219,14 @@ app.get('/admin/dashboard', (c) => {
               </div>
             </div>
           </div>
-        </div>
-
-        {/* 테스트 계정 정보 */}
-        <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl shadow-lg p-6 mb-8 border-2 border-purple-200">
+        </div><div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl shadow-lg p-6 mb-8 border-2 border-purple-200">
           <h3 class="text-xl font-bold text-purple-800 mb-4 flex items-center">
             <i class="fas fa-user-shield mr-2"></i>
             테스트 계정 정보
             <span class="ml-3 text-sm text-purple-600 font-normal">(개발/테스트 전용)</span>
           </h3>
           
-          <div class="grid md:grid-cols-2 gap-6">
-            {/* 고객 계정 */}
-            <div class="bg-white rounded-lg p-4 border border-purple-200">
+          <div class="grid md:grid-cols-2 gap-6"><div class="bg-white rounded-lg p-4 border border-purple-200">
               <h4 class="font-bold text-gray-800 mb-3 flex items-center">
                 <i class="fas fa-user text-blue-600 mr-2"></i>
                 고객 계정
@@ -3370,10 +3245,7 @@ app.get('/admin/dashboard', (c) => {
                   <span class="text-gray-800">김철수</span>
                 </div>
               </div>
-            </div>
-
-            {/* 시설 계정들 */}
-            <div class="bg-white rounded-lg p-4 border border-purple-200">
+            </div><div class="bg-white rounded-lg p-4 border border-purple-200">
               <h4 class="font-bold text-gray-800 mb-3 flex items-center">
                 <i class="fas fa-building text-teal-600 mr-2"></i>
                 시설 계정
@@ -3417,10 +3289,7 @@ app.get('/admin/dashboard', (c) => {
               <span><strong>주의:</strong> 이 계정들은 테스트/개발 목적으로만 사용하세요. 프로덕션 환경에서는 삭제하거나 비활성화해야 합니다.</span>
             </p>
           </div>
-        </div>
-
-        {/* 파트너 신청 목록 */}
-        <div class="bg-white rounded-xl shadow-lg mb-6">
+        </div><div class="bg-white rounded-xl shadow-lg mb-6">
           <div class="border-b px-6 py-4">
             <h3 class="text-xl font-bold flex items-center">
               <i class="fas fa-handshake text-blue-600 mr-2"></i>
@@ -3449,10 +3318,7 @@ app.get('/admin/dashboard', (c) => {
               </table>
             </div>
           </div>
-        </div>
-
-        {/* 견적서 수발신 모니터링 */}
-        <div class="bg-white rounded-xl shadow-lg mb-6">
+        </div><div class="bg-white rounded-xl shadow-lg mb-6">
           <div class="border-b px-6 py-4">
             <h3 class="text-xl font-bold flex items-center">
               <i class="fas fa-file-invoice text-purple-600 mr-2"></i>
@@ -3460,9 +3326,7 @@ app.get('/admin/dashboard', (c) => {
               <span class="ml-3 text-sm text-gray-500">(전체 견적 요청 및 응답 현황)</span>
             </h3>
           </div>
-          <div class="p-6">
-            {/* 필터 옵션 */}
-            <div class="mb-4 flex gap-3 flex-wrap">
+          <div class="p-6"><div class="mb-4 flex gap-3 flex-wrap">
               <select id="filterStatus" class="border rounded-lg px-3 py-2 text-sm">
                 <option value="">전체 상태</option>
                 <option value="pending">대기중</option>
@@ -3503,10 +3367,7 @@ app.get('/admin/dashboard', (c) => {
               </table>
             </div>
           </div>
-        </div>
-
-        {/* 대표시설 신청 관리 */}
-        <div class="bg-white rounded-xl shadow-lg mb-6">
+        </div><div class="bg-white rounded-xl shadow-lg mb-6">
           <div class="border-b px-6 py-4">
             <h3 class="text-xl font-bold flex items-center">
               <i class="fas fa-crown text-purple-600 mr-2"></i>
@@ -3534,10 +3395,7 @@ app.get('/admin/dashboard', (c) => {
               </table>
             </div>
           </div>
-        </div>
-
-        {/* 가족 간병 신청 목록 */}
-        <div class="bg-white rounded-xl shadow-lg">
+        </div><div class="bg-white rounded-xl shadow-lg">
           <div class="border-b px-6 py-4">
             <h3 class="text-xl font-bold flex items-center">
               <i class="fas fa-heart text-green-600 mr-2"></i>
@@ -4727,9 +4585,7 @@ app.post('/api/admin/facility/delete', async (c) => {
 // 실시간 견적 플랫폼 페이지
 app.get('/quote-request', (c) => {
   return c.render(
-    <div class="min-h-screen bg-gradient-to-br from-teal-50 via-white to-blue-50">
-      {/* 헤더 */}
-      <header class="bg-white shadow-md border-b-2 border-teal-500">
+    <div class="min-h-screen bg-gradient-to-br from-teal-50 via-white to-blue-50"><header class="bg-white shadow-md border-b-2 border-teal-500">
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="flex justify-between items-center h-16">
             <div class="flex items-center">
@@ -4750,9 +4606,7 @@ app.get('/quote-request', (c) => {
       </header>
 
 
-      <div class="max-w-4xl mx-auto px-4 py-12">
-        {/* 타이틀 */}
-        <div class="text-center mb-12">
+      <div class="max-w-4xl mx-auto px-4 py-12"><div class="text-center mb-12">
           <h2 class="text-5xl font-extrabold text-gray-900 mb-4">
             <i class="fas fa-bolt text-teal-600 mr-3"></i>
             간편 견적 신청
@@ -4760,14 +4614,8 @@ app.get('/quote-request', (c) => {
           <p class="text-xl text-gray-600">
             3단계만 입력하면 해당 지역 시설에 자동으로 견적 요청이 전송됩니다
           </p>
-        </div>
-
-        {/* 3단계 폼 */}
-        <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
-          <form id="simpleQuoteForm" class="p-8 space-y-8">
-            
-            {/* 1단계: 시설 선택 */}
-            <div class="border-b-2 border-gray-200 pb-8">
+        </div><div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
+          <form id="simpleQuoteForm" class="p-8 space-y-8"><div class="border-b-2 border-gray-200 pb-8">
               <div class="flex items-center mb-6">
                 <div class="w-10 h-10 bg-teal-600 text-white rounded-full flex items-center justify-center font-bold text-lg mr-4">
                   1
@@ -4808,10 +4656,7 @@ app.get('/quote-request', (c) => {
                   </div>
                 </label>
               </div>
-            </div>
-
-            {/* 2단계: 지역 선택 */}
-            <div class="border-b-2 border-gray-200 pb-8">
+            </div><div class="border-b-2 border-gray-200 pb-8">
               <div class="flex items-center mb-6">
                 <div class="w-10 h-10 bg-teal-600 text-white rounded-full flex items-center justify-center font-bold text-lg mr-4">
                   2
@@ -4857,10 +4702,7 @@ app.get('/quote-request', (c) => {
                   </select>
                 </div>
               </div>
-            </div>
-
-            {/* 3단계: 현재 상태 입력 */}
-            <div class="pb-4">
+            </div><div class="pb-4">
               <div class="flex items-center mb-6">
                 <div class="w-10 h-10 bg-teal-600 text-white rounded-full flex items-center justify-center font-bold text-lg mr-4">
                   3
@@ -4882,10 +4724,7 @@ app.get('/quote-request', (c) => {
                 placeholder="예시:&#10;- 나이: 75세&#10;- 진단명: 뇌경색 (중풍)&#10;- 거동 상태: 휠체어 사용&#10;- 장기요양등급: 2등급&#10;- 특이사항: 당뇨 있음, 식사 도움 필요&#10;&#10;환자의 현재 상태를 자세히 적어주실수록 정확한 견적을 받으실 수 있습니다."
                 class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition text-base"
               ></textarea>
-            </div>
-
-            {/* 제출 버튼 */}
-            <div class="flex justify-center pt-4">
+            </div><div class="flex justify-center pt-4">
               <button type="submit" 
                 class="bg-gradient-to-r from-teal-500 to-teal-600 text-white px-16 py-5 rounded-2xl text-xl font-bold hover:from-teal-600 hover:to-teal-700 shadow-2xl transform hover:scale-105 transition-all duration-200">
                 <i class="fas fa-paper-plane mr-3"></i>
@@ -4893,10 +4732,7 @@ app.get('/quote-request', (c) => {
               </button>
             </div>
           </form>
-        </div>
-
-        {/* 안내 메시지 */}
-        <div class="mt-8 bg-blue-50 border border-blue-200 rounded-xl p-6">
+        </div><div class="mt-8 bg-blue-50 border border-blue-200 rounded-xl p-6">
           <h4 class="font-bold text-blue-900 mb-3 text-lg">
             <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>
             견적 신청 후 진행 안내
@@ -5152,9 +4988,7 @@ app.get('/quote-simple', (c) => {
         </div>
       </header>
 
-      <div class="max-w-4xl mx-auto px-4 py-12">
-        {/* 타이틀 */}
-        <div class="text-center mb-12">
+      <div class="max-w-4xl mx-auto px-4 py-12"><div class="text-center mb-12">
           <h2 class="text-5xl font-extrabold text-gray-900 mb-4">
             <i class="fas fa-file-invoice text-green-600 mr-3"></i>
             상세 견적 신청
@@ -5162,10 +4996,7 @@ app.get('/quote-simple', (c) => {
           <p class="text-xl text-gray-600">
             정확한 맞춤 견적을 위해 상세 정보를 입력해주세요
           </p>
-        </div>
-
-        {/* 단계 표시 */}
-        <div class="mb-8 flex justify-center items-center space-x-4">
+        </div><div class="mb-8 flex justify-center items-center space-x-4">
           <div id="step-indicator-1" class="flex items-center">
             <div class="w-10 h-10 bg-green-600 text-white rounded-full flex items-center justify-center font-bold">1</div>
             <span class="ml-2 font-semibold text-green-600">시설정보</span>
@@ -5175,17 +5006,8 @@ app.get('/quote-simple', (c) => {
             <div class="w-10 h-10 bg-gray-300 text-white rounded-full flex items-center justify-center font-bold">2</div>
             <span class="ml-2 font-semibold text-gray-500">환자정보</span>
           </div>
-        </div>
-        
-        {/* 2단계 폼 */}
-        <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
-        <form id="detailedQuoteForm" class="p-8 space-y-8">
-          
-          {/* 첫 번째 화면: 시설정보 */}
-          <div id="page-1" class="space-y-8">
-            
-            {/* 1. 시설 유형 선택 */}
-            <div class="border-b-2 border-gray-200 pb-8">
+        </div><div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
+        <form id="detailedQuoteForm" class="p-8 space-y-8"><div id="page-1" class="space-y-8"><div class="border-b-2 border-gray-200 pb-8">
               <h3 class="text-xl font-bold text-gray-900 mb-4">
                 1. 시설 유형을 선택해 주세요.
               </h3>
@@ -5227,10 +5049,7 @@ app.get('/quote-simple', (c) => {
                   </div>
                 </label>
               </div>
-            </div>
-
-            {/* 2. 지역 선택 */}
-            <div class="border-b-2 border-gray-200 pb-8">
+            </div><div class="border-b-2 border-gray-200 pb-8">
               <h3 class="text-xl font-bold text-gray-900 mb-4">
                 2. 지역을 선택해 주세요.
               </h3>
@@ -5273,16 +5092,10 @@ app.get('/quote-simple', (c) => {
                 </select>
               </div>
             </div>
-          </div>
-
-            {/* 3. 보험 유형 및 등급 */}
-            <div class="border-b-2 border-gray-200 pb-8">
+          </div><div class="border-b-2 border-gray-200 pb-8">
               <h3 class="text-xl font-bold text-gray-900 mb-4">
                 3. 보험 유형 및 등급을 선택해 주세요.
-              </h3>
-              
-              {/* 요양병원 선택시 표시 */}
-              <div id="insurance-hospital" class="hidden space-y-4">
+              </h3><div id="insurance-hospital" class="hidden space-y-4">
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                   <label class="cursor-pointer">
                     <input type="radio" name="insuranceType" value="건강보험" class="peer sr-only" />
@@ -5337,10 +5150,7 @@ app.get('/quote-simple', (c) => {
                   <input type="text" name="insuranceTypeEtc" placeholder="기타 보험 유형을 입력해주세요"
                     class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition" />
                 </div>
-              </div>
-              
-              {/* 그 외 시설 선택시 표시 */}
-              <div id="insurance-other" class="hidden space-y-4">
+              </div><div id="insurance-other" class="hidden space-y-4">
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                   <label class="cursor-pointer">
                     <input type="radio" name="careGrade" value="기초수급자" class="peer sr-only" />
@@ -5396,10 +5206,7 @@ app.get('/quote-simple', (c) => {
                     class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition" />
                 </div>
               </div>
-            </div>
-            
-            {/* 4. 요양 시설 크기 */}
-            <div class="border-b-2 border-gray-200 pb-8">
+            </div><div class="border-b-2 border-gray-200 pb-8">
               <h3 class="text-xl font-bold text-gray-900 mb-4">
                 4. 요양 시설 크기를 선택해 주세요.
               </h3>
@@ -5435,10 +5242,7 @@ app.get('/quote-simple', (c) => {
                   </div>
                 </label>
               </div>
-            </div>
-            
-            {/* 5. 요양 비용 */}
-            <div class="border-b-2 border-gray-200 pb-8">
+            </div><div class="border-b-2 border-gray-200 pb-8">
               <h3 class="text-xl font-bold text-gray-900 mb-4">
                 5. 요양 비용을 선택해 주세요.
               </h3>
@@ -5468,10 +5272,7 @@ app.get('/quote-simple', (c) => {
                   </div>
                 </label>
               </div>
-            </div>
-            
-            {/* 6. 요양 프로그램 (복수선택) */}
-            <div class="border-b-2 border-gray-200 pb-8">
+            </div><div class="border-b-2 border-gray-200 pb-8">
               <h3 class="text-xl font-bold text-gray-900 mb-4">
                 6. 요양 프로그램을 선택해 주세요 (복수 선택 가능).
               </h3>
@@ -5513,10 +5314,7 @@ app.get('/quote-simple', (c) => {
                   </div>
                 </label>
               </div>
-            </div>
-            
-            {/* 7. 종교 활동 지원 */}
-            <div class="pb-8">
+            </div><div class="pb-8">
               <h3 class="text-xl font-bold text-gray-900 mb-4">
                 7. 종교 활동 지원 여부를 선택해 주세요.
               </h3>
@@ -5546,23 +5344,14 @@ app.get('/quote-simple', (c) => {
                   </div>
                 </label>
               </div>
-            </div>
-            
-            {/* 다음 버튼 */}
-            <div class="flex justify-center pt-4">
+            </div><div class="flex justify-center pt-4">
               <button type="button" id="next-to-page2" 
                 class="bg-gradient-to-r from-green-500 to-green-600 text-white px-16 py-5 rounded-2xl text-xl font-bold hover:from-green-600 hover:to-green-700 shadow-2xl transform hover:scale-105 transition-all duration-200">
                 <span>다음</span>
                 <i class="fas fa-arrow-right ml-3"></i>
               </button>
             </div>
-          </div>
-
-          {/* 두 번째 화면: 환자정보 */}
-          <div id="page-2" class="hidden space-y-8">
-            
-            {/* 1. 주요 증상 */}
-            <div class="border-b-2 border-gray-200 pb-8">
+          </div><div id="page-2" class="hidden space-y-8"><div class="border-b-2 border-gray-200 pb-8">
               <h3 class="text-xl font-bold text-gray-900 mb-4">
                 1. 주요 증상을 선택해 주세요.
               </h3>
@@ -5616,10 +5405,7 @@ app.get('/quote-simple', (c) => {
                   </div>
                 </label>
               </div>
-            </div>
-            
-            {/* 2. 연세 */}
-            <div class="border-b-2 border-gray-200 pb-8">
+            </div><div class="border-b-2 border-gray-200 pb-8">
               <h3 class="text-xl font-bold text-gray-900 mb-4">
                 2. 연세를 선택해 주세요.
               </h3>
@@ -5649,10 +5435,7 @@ app.get('/quote-simple', (c) => {
                   </div>
                 </label>
               </div>
-            </div>
-            
-            {/* 3. 의사소통 */}
-            <div class="border-b-2 border-gray-200 pb-8">
+            </div><div class="border-b-2 border-gray-200 pb-8">
               <h3 class="text-xl font-bold text-gray-900 mb-4">
                 3. 의사소통 가능 여부를 선택해 주세요.
               </h3>
@@ -5676,10 +5459,7 @@ app.get('/quote-simple', (c) => {
                   </div>
                 </label>
               </div>
-            </div>
-            
-            {/* 4. 식사 가능 여부 */}
-            <div class="border-b-2 border-gray-200 pb-8">
+            </div><div class="border-b-2 border-gray-200 pb-8">
               <h3 class="text-xl font-bold text-gray-900 mb-4">
                 4. 식사 가능 여부를 선택해 주세요.
               </h3>
@@ -5697,10 +5477,7 @@ app.get('/quote-simple', (c) => {
                   </div>
                 </label>
               </div>
-            </div>
-            
-            {/* 5. 식사 종류 */}
-            <div class="border-b-2 border-gray-200 pb-8">
+            </div><div class="border-b-2 border-gray-200 pb-8">
               <h3 class="text-xl font-bold text-gray-900 mb-4">
                 5. 식사 종류를 선택해 주세요.
               </h3>
@@ -5742,10 +5519,7 @@ app.get('/quote-simple', (c) => {
                   </div>
                 </label>
               </div>
-            </div>
-            
-            {/* 6. 거동 여부 */}
-            <div class="border-b-2 border-gray-200 pb-8">
+            </div><div class="border-b-2 border-gray-200 pb-8">
               <h3 class="text-xl font-bold text-gray-900 mb-4">
                 6. 거동 여부를 선택해 주세요.
               </h3>
@@ -5775,10 +5549,7 @@ app.get('/quote-simple', (c) => {
                   </div>
                 </label>
               </div>
-            </div>
-            
-            {/* 7. 화장실 출입 */}
-            <div class="border-b-2 border-gray-200 pb-8">
+            </div><div class="border-b-2 border-gray-200 pb-8">
               <h3 class="text-xl font-bold text-gray-900 mb-4">
                 7. 화장실 출입 가능 여부를 선택해 주세요.
               </h3>
@@ -5814,10 +5585,7 @@ app.get('/quote-simple', (c) => {
                   </div>
                 </label>
               </div>
-            </div>
-            
-            {/* 8. 추가사항 (복수선택) */}
-            <div class="border-b-2 border-gray-200 pb-8">
+            </div><div class="border-b-2 border-gray-200 pb-8">
               <h3 class="text-xl font-bold text-gray-900 mb-4">
                 8. 추가사항을 선택해 주세요 (복수 선택 가능).
               </h3>
@@ -5865,19 +5633,13 @@ app.get('/quote-simple', (c) => {
                   </div>
                 </label>
               </div>
-            </div>
-            
-            {/* 9. 기타 증상 */}
-            <div class="border-b-2 border-gray-200 pb-8">
+            </div><div class="border-b-2 border-gray-200 pb-8">
               <h3 class="text-xl font-bold text-gray-900 mb-4">
                 9. 기타 증상을 입력해 주세요.
               </h3>
               <textarea name="otherSymptoms" rows="4" placeholder="환자 상태 입력"
                 class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition"></textarea>
-            </div>
-            
-            {/* 10. 서류 첨부 */}
-            <div class="pb-8">
+            </div><div class="pb-8">
               <h3 class="text-xl font-bold text-gray-900 mb-4">
                 10. 서류 첨부
               </h3>
@@ -5893,10 +5655,7 @@ app.get('/quote-simple', (c) => {
                 </label>
               </div>
               <div id="file-list" class="mt-4 space-y-2 hidden"></div>
-            </div>
-            
-            {/* 버튼 영역 */}
-            <div class="flex justify-between pt-4">
+            </div><div class="flex justify-between pt-4">
               <button type="button" id="back-to-page1" 
                 class="bg-gray-500 text-white px-12 py-4 rounded-xl text-lg font-bold hover:bg-gray-600 shadow-lg transition-all duration-200">
                 <i class="fas fa-arrow-left mr-3"></i>
@@ -5910,10 +5669,7 @@ app.get('/quote-simple', (c) => {
             </div>
           </div>
         </form>
-        </div>
-
-        {/* 안내 메시지 */}
-        <div class="mt-8 bg-green-50 border border-green-200 rounded-xl p-6">
+        </div><div class="mt-8 bg-green-50 border border-green-200 rounded-xl p-6">
           <h4 class="font-bold text-green-900 mb-3 text-lg">
             <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>
             상세 견적 신청 후 진행 안내
@@ -6198,9 +5954,7 @@ app.get('/quote-simple', (c) => {
 // 새로운 다단계 견적 신청 페이지
 app.get('/quote-new', (c) => {
   return c.render(
-    <div class="min-h-screen bg-gray-50">
-      {/* 헤더 */}
-      <header class="bg-white shadow-sm border-b">
+    <div class="min-h-screen bg-gray-50"><header class="bg-white shadow-sm border-b">
         <div class="max-w-4xl mx-auto px-4 py-4">
           <div class="flex justify-between items-center">
             <div class="flex items-center">
@@ -6216,10 +5970,7 @@ app.get('/quote-new', (c) => {
             </a>
           </div>
         </div>
-      </header>
-
-      {/* 프로그레스 바 */}
-      <div class="bg-white border-b">
+      </header><div class="bg-white border-b">
         <div class="max-w-4xl mx-auto px-4 py-4">
           <div class="flex items-center justify-between mb-2">
             <div class="flex-1">
@@ -6233,14 +5984,8 @@ app.get('/quote-new', (c) => {
             <span id="stepTitle">견적서 전체 선택</span>
           </div>
         </div>
-      </div>
-
-      {/* 메인 컨텐츠 */}
-      <div class="max-w-4xl mx-auto px-4 py-8">
-        <div class="bg-white rounded-xl shadow-lg p-6 md:p-8">
-          
-          {/* Step 1: 견적서 전체 선택 */}
-          <div id="step1" class="step-content">
+      </div><div class="max-w-4xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-xl shadow-lg p-6 md:p-8"><div id="step1" class="step-content">
             <h2 class="text-2xl font-bold text-gray-900 mb-2">견적서 전체 선택</h2>
             <p class="text-sm text-gray-600 mb-6">
               계속 진행할 견적서를 선택하세요<br/>
@@ -6264,10 +6009,7 @@ app.get('/quote-new', (c) => {
                 </div>
               </button>
             </div>
-          </div>
-
-          {/* Step 2: 신청 정보 입력 */}
-          <div id="step2" class="step-content hidden">
+          </div><div id="step2" class="step-content hidden">
             <h2 class="text-2xl font-bold text-gray-900 mb-2">신청 정보 입력</h2>
             <p class="text-sm text-gray-600 mb-6">신청자의 기본 정보를 입력해주세요</p>
             
@@ -6310,10 +6052,7 @@ app.get('/quote-new', (c) => {
                 </div>
               </div>
             </div>
-          </div>
-
-          {/* Step 3: 지역 선택 */}
-          <div id="step3" class="step-content hidden">
+          </div><div id="step3" class="step-content hidden">
             <h2 class="text-2xl font-bold text-gray-900 mb-2">지역 선택</h2>
             <p class="text-sm text-gray-600 mb-6">희망하시는 시설의 지역을 선택해주세요</p>
             
@@ -6351,10 +6090,7 @@ app.get('/quote-new', (c) => {
                 </select>
               </div>
             </div>
-          </div>
-
-          {/* Step 4: 환자 정보 상세 (요양병원) */}
-          <div id="step4-hospital" class="step-content hidden">
+          </div><div id="step4-hospital" class="step-content hidden">
             <h2 class="text-2xl font-bold text-gray-900 mb-2">환자 정보 입력</h2>
             <p class="text-sm text-gray-600 mb-6">환자분의 상세 정보를 입력해주세요</p>
             
@@ -6503,10 +6239,7 @@ app.get('/quote-new', (c) => {
                 </div>
               </div>
             </div>
-          </div>
-
-          {/* Step 4: 환자 정보 상세 (재가복지) */}
-          <div id="step4-homecare" class="step-content hidden">
+          </div><div id="step4-homecare" class="step-content hidden">
             <h2 class="text-2xl font-bold text-gray-900 mb-2">서비스 정보 입력</h2>
             <p class="text-sm text-gray-600 mb-6">필요하신 서비스 정보를 입력해주세요</p>
             
@@ -6576,10 +6309,7 @@ app.get('/quote-new', (c) => {
                 </select>
               </div>
             </div>
-          </div>
-
-          {/* Step 5: 본인/배우자 정보 */}
-          <div id="step5" class="step-content hidden">
+          </div><div id="step5" class="step-content hidden">
             <h2 class="text-2xl font-bold text-gray-900 mb-2">본인/배우자 정보</h2>
             <p class="text-sm text-gray-600 mb-6">보호자의 정보를 입력해주세요</p>
             
@@ -6656,10 +6386,7 @@ app.get('/quote-new', (c) => {
                 </div>
               </div>
             </div>
-          </div>
-
-          {/* Step 6: 질환/선호사항 */}
-          <div id="step6" class="step-content hidden">
+          </div><div id="step6" class="step-content hidden">
             <h2 class="text-2xl font-bold text-gray-900 mb-2">질환/선호사항</h2>
             <p class="text-sm text-gray-600 mb-6">추가 정보를 입력해주세요</p>
             
@@ -6714,10 +6441,7 @@ app.get('/quote-new', (c) => {
                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"></textarea>
               </div>
             </div>
-          </div>
-
-          {/* Step 7: 최종 확인 */}
-          <div id="step7" class="step-content hidden">
+          </div><div id="step7" class="step-content hidden">
             <h2 class="text-2xl font-bold text-gray-900 mb-4">견적 신청 완료</h2>
             <p class="text-sm text-gray-600 mb-6">입력하신 정보를 확인해주세요</p>
             
@@ -6751,10 +6475,7 @@ app.get('/quote-new', (c) => {
                 마이페이지에서 받은 견적서를 확인하실 수 있습니다.
               </p>
             </div>
-          </div>
-
-          {/* 네비게이션 버튼 */}
-          <div class="flex justify-between mt-8 pt-6 border-t">
+          </div><div class="flex justify-between mt-8 pt-6 border-t">
             <button type="button" id="prevBtn" onclick="prevStep()" 
               class="px-6 py-3 border-2 border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors hidden">
               <i class="fas fa-chevron-left mr-2"></i>이전
@@ -6770,10 +6491,7 @@ app.get('/quote-new', (c) => {
             </button>
           </div>
         </div>
-      </div>
-
-      {/* JavaScript */}
-      <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
+      </div><script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
       <script dangerouslySetInnerHTML={{__html: `
         let currentStep = 1;
         const totalSteps = 7;
@@ -8533,10 +8251,7 @@ app.get('/dashboard/customer', async (c) => {
               <img src="https://page.gensparksite.com/v1/base64_upload/b39dca8586af1dacd6d8417554313896" 
                    alt="케어조아 로고" class="h-6 sm:h-8 w-auto mr-2 sm:mr-3" />
               <h1 class="text-lg sm:text-2xl font-bold text-teal-600">케어조아</h1>
-            </div>
-            
-            {/* 데스크톱 네비게이션 */}
-            <div class="hidden md:flex items-center space-x-4">
+            </div><div class="hidden md:flex items-center space-x-4">
               <span class="text-gray-700">
                 <i class="fas fa-user-circle text-teal-600 mr-2"></i>
                 <strong>${user.name}</strong>님
@@ -8547,17 +8262,11 @@ app.get('/dashboard/customer', async (c) => {
               <button onclick="handleLogout()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 whitespace-nowrap">
                 <i class="fas fa-sign-out-alt mr-1"></i>로그아웃
               </button>
-            </div>
-            
-            {/* 모바일 메뉴 버튼 */}
-            <button id="mobile-menu-btn" class="md:hidden p-2 text-gray-600 hover:text-teal-600">
+            </div><button id="mobile-menu-btn" class="md:hidden p-2 text-gray-600 hover:text-teal-600">
               <i class="fas fa-bars text-xl"></i>
             </button>
           </div>
-        </div>
-        
-        {/* 모바일 메뉴 */}
-        <div id="mobile-menu" class="hidden md:hidden bg-white border-t">
+        </div><div id="mobile-menu" class="hidden md:hidden bg-white border-t">
           <nav class="px-4 py-3 space-y-2">
             <div class="text-gray-700 py-2 px-4 bg-gray-100 rounded-lg">
               <i class="fas fa-user-circle text-teal-600 mr-2"></i>
@@ -8864,10 +8573,7 @@ app.get('/dashboard/facility', async (c) => {
               <img src="https://page.gensparksite.com/v1/base64_upload/b39dca8586af1dacd6d8417554313896" 
                    alt="케어조아 로고" class="h-6 sm:h-8 w-auto mr-2 sm:mr-3" />
               <h1 class="text-lg sm:text-2xl font-bold text-teal-600">케어조아</h1>
-            </div>
-            
-            {/* 데스크톱 네비게이션 */}
-            <div class="hidden md:flex items-center space-x-4">
+            </div><div class="hidden md:flex items-center space-x-4">
               <span class="text-gray-700">
                 <i class="fas fa-building text-teal-600 mr-2"></i>
                 <strong>${user.name}</strong>
@@ -8882,17 +8588,11 @@ app.get('/dashboard/facility', async (c) => {
               <button onclick="handleLogout()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 whitespace-nowrap">
                 <i class="fas fa-sign-out-alt mr-1"></i>로그아웃
               </button>
-            </div>
-            
-            {/* 모바일 메뉴 버튼 */}
-            <button id="mobile-menu-btn" class="md:hidden p-2 text-gray-600 hover:text-teal-600">
+            </div><button id="mobile-menu-btn" class="md:hidden p-2 text-gray-600 hover:text-teal-600">
               <i class="fas fa-bars text-xl"></i>
             </button>
           </div>
-        </div>
-        
-        {/* 모바일 메뉴 */}
-        <div id="mobile-menu" class="hidden md:hidden bg-white border-t">
+        </div><div id="mobile-menu" class="hidden md:hidden bg-white border-t">
           <nav class="px-4 py-3 space-y-2">
             <div class="text-gray-700 py-2 px-4 bg-gray-100 rounded-lg">
               <i class="fas fa-building text-teal-600 mr-2"></i>
