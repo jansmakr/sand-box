@@ -1204,6 +1204,528 @@ app.post('/api/auth/kakao/complete', async (c) => {
     return c.json({ success: false, message: '회원가입 처리 실패' }, 500)
   }
 })
+// ========== 채팅 API ==========
+
+// 메시지 목록 조회 (실시간 폴링용)
+app.get('/api/chat/messages', async (c) => {
+  const user = await getUser(c)
+  const db = c.env.DB
+  
+  if (!user) {
+    return c.json({ success: false, message: '인증 필요' }, 401)
+  }
+
+  try {
+    const quoteId = c.req.query('quote_id')
+    
+    if (!quoteId) {
+      return c.json({ success: false, message: 'quote_id가 필요합니다.' }, 400)
+    }
+
+    if (!db) {
+      return c.json({ success: false, message: 'Database not available' }, 500)
+    }
+
+    // 견적 요청 확인 (권한 체크)
+    const quote = await db.prepare(`
+      SELECT * FROM quote_requests
+      WHERE quote_id = ?
+    `).bind(quoteId).first()
+
+    if (!quote) {
+      return c.json({ success: false, message: '견적을 찾을 수 없습니다.' }, 404)
+    }
+
+    // 권한 확인: 고객이면 자신의 견적만, 시설이면 응답한 견적만
+    if (user.type === 'customer' && quote.user_id !== user.id) {
+      return c.json({ success: false, message: '권한이 없습니다.' }, 403)
+    }
+
+    // 메시지 조회 (최신순)
+    const messages = await db.prepare(`
+      SELECT 
+        m.*,
+        u.name as sender_name,
+        u.user_type as sender_user_type
+      FROM messages m
+      LEFT JOIN users u ON m.sender_id = u.id
+      WHERE m.request_id = (
+        SELECT id FROM quote_requests WHERE quote_id = ?
+      )
+      ORDER BY m.created_at ASC
+    `).bind(quoteId).all()
+
+    return c.json({
+      success: true,
+      messages: messages.results || [],
+      quote_id: quoteId
+    })
+  } catch (error) {
+    console.error('[채팅] 메시지 조회 오류:', error)
+    return c.json({ success: false, message: '메시지 조회 실패' }, 500)
+  }
+})
+
+// 메시지 전송
+app.post('/api/chat/send', async (c) => {
+  const user = await getUser(c)
+  const db = c.env.DB
+  
+  if (!user) {
+    return c.json({ success: false, message: '인증 필요' }, 401)
+  }
+
+  try {
+    const { quote_id, message, attachment_url, attachment_type, attachment_name } = await c.req.json()
+    
+    if (!quote_id || !message) {
+      return c.json({ success: false, message: '필수 정보가 없습니다.' }, 400)
+    }
+
+    if (!db) {
+      return c.json({ success: false, message: 'Database not available' }, 500)
+    }
+
+    // 견적 요청 ID 조회
+    const quote = await db.prepare(`
+      SELECT id, user_id FROM quote_requests
+      WHERE quote_id = ?
+    `).bind(quote_id).first()
+
+    if (!quote) {
+      return c.json({ success: false, message: '견적을 찾을 수 없습니다.' }, 404)
+    }
+
+    // 권한 확인
+    if (user.type === 'customer' && quote.user_id !== user.id) {
+      return c.json({ success: false, message: '권한이 없습니다.' }, 403)
+    }
+
+    // 메시지 저장
+    const result = await db.prepare(`
+      INSERT INTO messages (
+        request_id,
+        sender_id,
+        sender_type,
+        message,
+        attachment_url,
+        attachment_type,
+        attachment_name,
+        is_read,
+        created_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, 0, CURRENT_TIMESTAMP)
+    `).bind(
+      quote.id,
+      user.id,
+      user.type,
+      message,
+      attachment_url || null,
+      attachment_type || null,
+      attachment_name || null
+    ).run()
+
+    return c.json({
+      success: true,
+      message_id: result.meta.last_row_id,
+      message: '메시지가 전송되었습니다.'
+    })
+  } catch (error) {
+    console.error('[채팅] 메시지 전송 오류:', error)
+    return c.json({ success: false, message: '메시지 전송 실패' }, 500)
+  }
+})
+
+// 메시지 읽음 처리
+app.post('/api/chat/mark-read', async (c) => {
+  const user = await getUser(c)
+  const db = c.env.DB
+  
+  if (!user) {
+    return c.json({ success: false, message: '인증 필요' }, 401)
+  }
+
+  try {
+    const { quote_id } = await c.req.json()
+    
+    if (!quote_id) {
+      return c.json({ success: false, message: 'quote_id가 필요합니다.' }, 400)
+    }
+
+    if (!db) {
+      return c.json({ success: false, message: 'Database not available' }, 500)
+    }
+
+    // 상대방이 보낸 메시지를 읽음 처리
+    await db.prepare(`
+      UPDATE messages
+      SET is_read = 1
+      WHERE request_id = (
+        SELECT id FROM quote_requests WHERE quote_id = ?
+      )
+      AND sender_id != ?
+      AND is_read = 0
+    `).bind(quote_id, user.id).run()
+
+    return c.json({
+      success: true,
+      message: '읽음 처리 완료'
+    })
+  } catch (error) {
+    console.error('[채팅] 읽음 처리 오류:', error)
+    return c.json({ success: false, message: '읽음 처리 실패' }, 500)
+  }
+})
+
+// 안읽은 메시지 수 조회
+app.get('/api/chat/unread-count', async (c) => {
+  const user = await getUser(c)
+  const db = c.env.DB
+  
+  if (!user) {
+    return c.json({ success: false, message: '인증 필요' }, 401)
+  }
+
+  try {
+    if (!db) {
+      return c.json({ success: false, message: 'Database not available' }, 500)
+    }
+
+    // 사용자별 안읽은 메시지 수
+    const result = await db.prepare(`
+      SELECT COUNT(*) as unread_count
+      FROM messages m
+      JOIN quote_requests qr ON m.request_id = qr.id
+      WHERE m.sender_id != ?
+      AND m.is_read = 0
+      AND (
+        (? = 'customer' AND qr.user_id = ?)
+        OR (? = 'facility')
+      )
+    `).bind(user.id, user.type, user.id, user.type).first()
+
+    return c.json({
+      success: true,
+      unread_count: result?.unread_count || 0
+    })
+  } catch (error) {
+    console.error('[채팅] 안읽은 메시지 수 조회 오류:', error)
+    return c.json({ success: false, message: '조회 실패' }, 500)
+  }
+})
+// 채팅 페이지
+app.get('/chat', async (c) => {
+  const user = await getUser(c)
+  
+  if (!user) {
+    return c.redirect('/login')
+  }
+
+  const quoteId = c.req.query('quote_id')
+  
+  if (!quoteId) {
+    return c.html('<h1>견적 ID가 필요합니다.</h1>')
+  }
+
+  const db = c.env.DB
+  let quoteInfo: any = null
+
+  if (db) {
+    quoteInfo = await db.prepare(`
+      SELECT * FROM quote_requests
+      WHERE quote_id = ?
+    `).bind(quoteId).first()
+  }
+
+  return c.html(`
+    <!DOCTYPE html>
+    <html lang="ko">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>채팅 - 케어조아</title>
+      <script src="https://cdn.tailwindcss.com"></script>
+      <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+      <style>
+        .chat-container {
+          height: calc(100vh - 200px);
+          max-height: 600px;
+        }
+        .message-bubble {
+          max-width: 70%;
+          word-wrap: break-word;
+        }
+        .message-left {
+          background-color: #f3f4f6;
+        }
+        .message-right {
+          background-color: #0d9488;
+          color: white;
+        }
+      </style>
+    </head>
+    <body class="bg-gray-50">
+      <!-- 헤더 -->
+      <header class="bg-white shadow-sm border-b">
+        <div class="max-w-4xl mx-auto px-4 py-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+              <a href="/dashboard/${user.type}" class="text-gray-600 hover:text-gray-900">
+                <i class="fas fa-arrow-left"></i>
+              </a>
+              <div>
+                <h1 class="text-lg font-bold text-gray-900">견적 상담</h1>
+                <p class="text-sm text-gray-500">견적 ID: ${quoteId}</p>
+              </div>
+            </div>
+            ${quoteInfo ? `
+              <div class="text-right">
+                <p class="text-sm font-semibold text-gray-900">${quoteInfo.applicant_name || '고객'}</p>
+                <p class="text-xs text-gray-500">${quoteInfo.sido || ''} ${quoteInfo.sigungu || ''}</p>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+      </header>
+
+      <!-- 채팅 영역 -->
+      <div class="max-w-4xl mx-auto px-4 py-6">
+        <div class="bg-white rounded-lg shadow-sm border overflow-hidden">
+          <!-- 메시지 목록 -->
+          <div id="messageList" class="chat-container overflow-y-auto p-4 space-y-3">
+            <div class="text-center py-8">
+              <i class="fas fa-spinner fa-spin text-3xl text-gray-400"></i>
+              <p class="text-gray-500 mt-2">메시지 불러오는 중...</p>
+            </div>
+          </div>
+
+          <!-- 메시지 입력 -->
+          <div class="border-t p-4 bg-gray-50">
+            <form id="messageForm" class="flex space-x-2">
+              <input type="file" id="fileInput" accept="image/*" class="hidden">
+              <button type="button" onclick="document.getElementById('fileInput').click()" 
+                class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+                <i class="fas fa-paperclip"></i>
+              </button>
+              <input type="text" id="messageInput" placeholder="메시지를 입력하세요..." 
+                class="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
+              <button type="submit" 
+                class="px-6 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-semibold">
+                <i class="fas fa-paper-plane mr-2"></i>전송
+              </button>
+            </form>
+            <div id="filePreview" class="mt-2 hidden">
+              <div class="inline-block relative">
+                <img id="previewImage" src="" alt="Preview" class="h-20 rounded">
+                <button onclick="clearFilePreview()" 
+                  class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600">
+                  <i class="fas fa-times text-xs"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        const quoteId = '${quoteId}';
+        const currentUserId = ${user.id};
+        const currentUserType = '${user.type}';
+        let pollingInterval = null;
+        let selectedFile = null;
+
+        // 메시지 목록 로드
+        async function loadMessages() {
+          try {
+            const response = await fetch('/api/chat/messages?quote_id=' + quoteId);
+            const data = await response.json();
+
+            if (data.success) {
+              displayMessages(data.messages);
+              // 읽음 처리
+              await markMessagesAsRead();
+            }
+          } catch (error) {
+            console.error('메시지 로드 오류:', error);
+          }
+        }
+
+        // 메시지 표시
+        function displayMessages(messages) {
+          const messageList = document.getElementById('messageList');
+          
+          if (messages.length === 0) {
+            messageList.innerHTML = \`
+              <div class="text-center py-8">
+                <i class="fas fa-comments text-4xl text-gray-300"></i>
+                <p class="text-gray-500 mt-2">아직 메시지가 없습니다.</p>
+                <p class="text-sm text-gray-400">첫 메시지를 보내보세요!</p>
+              </div>
+            \`;
+            return;
+          }
+
+          messageList.innerHTML = messages.map(msg => {
+            const isMyMessage = msg.sender_id === currentUserId;
+            const alignClass = isMyMessage ? 'justify-end' : 'justify-start';
+            const bubbleClass = isMyMessage ? 'message-right' : 'message-left';
+            const senderName = msg.sender_name || (msg.sender_type === 'customer' ? '고객' : '시설');
+            
+            return \`
+              <div class="flex \${alignClass}">
+                <div>
+                  \${!isMyMessage ? \`<p class="text-xs text-gray-500 mb-1">\${senderName}</p>\` : ''}
+                  <div class="message-bubble \${bubbleClass} px-4 py-2 rounded-lg">
+                    \${msg.attachment_url ? \`
+                      <img src="\${msg.attachment_url}" alt="첨부 이미지" 
+                        class="max-w-xs rounded mb-2 cursor-pointer" 
+                        onclick="window.open('\${msg.attachment_url}', '_blank')">
+                    \` : ''}
+                    <p class="text-sm">\${msg.message.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>
+                    <p class="text-xs \${isMyMessage ? 'text-teal-100' : 'text-gray-400'} mt-1">
+                      \${new Date(msg.created_at).toLocaleTimeString('ko-KR', {hour: '2-digit', minute: '2-digit'})}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            \`;
+          }).join('');
+
+          // 스크롤을 맨 아래로
+          messageList.scrollTop = messageList.scrollHeight;
+        }
+
+        // 메시지 전송
+        document.getElementById('messageForm').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          
+          const messageInput = document.getElementById('messageInput');
+          const message = messageInput.value.trim();
+          
+          if (!message && !selectedFile) return;
+
+          try {
+            let attachmentUrl = null;
+            let attachmentType = null;
+            let attachmentName = null;
+
+            // 파일이 선택되었다면 Base64로 변환
+            if (selectedFile) {
+              attachmentUrl = await fileToBase64(selectedFile);
+              attachmentType = 'image';
+              attachmentName = selectedFile.name;
+            }
+
+            const response = await fetch('/api/chat/send', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                quote_id: quoteId,
+                message: message || '(이미지)',
+                attachment_url: attachmentUrl,
+                attachment_type: attachmentType,
+                attachment_name: attachmentName
+              })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+              messageInput.value = '';
+              clearFilePreview();
+              await loadMessages();
+            } else {
+              alert('메시지 전송 실패: ' + data.message);
+            }
+          } catch (error) {
+            console.error('메시지 전송 오류:', error);
+            alert('메시지 전송 중 오류가 발생했습니다.');
+          }
+        });
+
+        // 파일을 Base64로 변환
+        function fileToBase64(file) {
+          return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+          });
+        }
+
+        // 파일 선택 처리
+        document.getElementById('fileInput').addEventListener('change', (e) => {
+          const file = e.target.files[0];
+          if (file) {
+            if (file.size > 5 * 1024 * 1024) {
+              alert('파일 크기는 5MB 이하여야 합니다.');
+              return;
+            }
+            selectedFile = file;
+            showFilePreview(file);
+          }
+        });
+
+        // 파일 미리보기
+        function showFilePreview(file) {
+          const preview = document.getElementById('filePreview');
+          const previewImage = document.getElementById('previewImage');
+          
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            previewImage.src = e.target.result;
+            preview.classList.remove('hidden');
+          };
+          reader.readAsDataURL(file);
+        }
+
+        // 파일 미리보기 제거
+        function clearFilePreview() {
+          selectedFile = null;
+          document.getElementById('fileInput').value = '';
+          document.getElementById('filePreview').classList.add('hidden');
+        }
+
+        // 읽음 처리
+        async function markMessagesAsRead() {
+          try {
+            await fetch('/api/chat/mark-read', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ quote_id: quoteId })
+            });
+          } catch (error) {
+            console.error('읽음 처리 오류:', error);
+          }
+        }
+
+        // 실시간 폴링 시작
+        function startPolling() {
+          loadMessages(); // 즉시 로드
+          pollingInterval = setInterval(loadMessages, 5000); // 5초마다 폴링
+        }
+
+        // 폴링 중지
+        function stopPolling() {
+          if (pollingInterval) {
+            clearInterval(pollingInterval);
+            pollingInterval = null;
+          }
+        }
+
+        // 페이지 로드 시 시작
+        window.addEventListener('load', startPolling);
+
+        // 페이지 언로드 시 정리
+        window.addEventListener('beforeunload', stopPolling);
+      </script>
+    </body>
+    </html>
+  `)
+})
 
 // ========== 대시보드 라우트 ========== (대시보드는 다음에 구현)
 
@@ -10688,10 +11210,14 @@ app.get('/quote-details/:quoteId', async (c) => {
                         <i class="fas fa-user-tie text-gray-400 mr-2"></i>
                         <span>${response.contact_person || '담당자'} | ${response.contact_phone}</span>
                       </div>
-                      <div class="flex space-x-2">
+                      <div class="flex flex-wrap gap-2">
                         <a href="tel:${response.contact_phone}"
                           class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-semibold">
                           <i class="fas fa-phone mr-1"></i>전화 상담
+                        </a>
+                        <a href="/chat?quote_id=${quoteRequest.quote_id}"
+                          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-semibold">
+                          <i class="fas fa-comments mr-1"></i>채팅하기
                         </a>
                         <button onclick="openMessageModal('${response.response_id}')"
                           class="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors text-sm font-semibold">
