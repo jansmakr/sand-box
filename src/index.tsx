@@ -1441,88 +1441,124 @@ app.get('/chat', async (c) => {
     <html lang="ko">
     <head>
       <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>채팅 - 케어조아</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+      <meta name="theme-color" content="#0d9488">
+      <title>상담 채팅 - 케어조아</title>
       <script src="https://cdn.tailwindcss.com"></script>
       <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
       <style>
+        * {
+          -webkit-tap-highlight-color: transparent;
+          -webkit-touch-callout: none;
+        }
+        body {
+          position: fixed;
+          width: 100%;
+          height: 100%;
+          overflow: hidden;
+        }
         .chat-container {
-          height: calc(100vh - 200px);
-          max-height: 600px;
+          height: calc(100vh - 140px);
+          overflow-y: auto;
+          -webkit-overflow-scrolling: touch;
+        }
+        @media (min-width: 768px) {
+          .chat-container {
+            height: calc(100vh - 180px);
+          }
         }
         .message-bubble {
-          max-width: 70%;
+          max-width: 75%;
           word-wrap: break-word;
+          word-break: break-word;
+          line-height: 1.5;
+        }
+        @media (min-width: 768px) {
+          .message-bubble {
+            max-width: 60%;
+          }
         }
         .message-left {
           background-color: #f3f4f6;
+          color: #1f2937;
         }
         .message-right {
           background-color: #0d9488;
           color: white;
         }
+        .btn-touch {
+          min-height: 44px;
+          min-width: 44px;
+        }
+        input, textarea {
+          font-size: 16px !important; /* iOS 자동 줌 방지 */
+        }
       </style>
     </head>
-    <body class="bg-gray-50">
+    <body class="bg-gray-50 overflow-hidden">
       <!-- 헤더 -->
-      <header class="bg-white shadow-sm border-b">
-        <div class="max-w-4xl mx-auto px-4 py-4">
+      <header class="bg-teal-600 text-white sticky top-0 z-50">
+        <div class="px-3 py-3 md:px-4 md:py-4">
           <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-4">
-              <a href="/dashboard/${user.type}" class="text-gray-600 hover:text-gray-900">
-                <i class="fas fa-arrow-left"></i>
+            <div class="flex items-center space-x-3">
+              <a href="/dashboard/${user.type}" 
+                 class="btn-touch flex items-center justify-center w-10 h-10 rounded-full hover:bg-teal-700 transition-colors">
+                <i class="fas fa-arrow-left text-lg"></i>
               </a>
-              <div>
-                <h1 class="text-lg font-bold text-gray-900">견적 상담</h1>
-                <p class="text-sm text-gray-500">견적 ID: ${quoteId}</p>
+              <div class="flex-1 min-w-0">
+                <h1 class="text-base md:text-lg font-bold truncate">
+                  ${quoteInfo ? (quoteInfo.applicant_name || '고객') : '상담 채팅'}
+                </h1>
+                <p class="text-xs text-teal-100 truncate">
+                  ${quoteInfo ? `${quoteInfo.sido || ''} ${quoteInfo.sigungu || ''}` : `ID: ${quoteId}`}
+                </p>
               </div>
             </div>
-            ${quoteInfo ? `
-              <div class="text-right">
-                <p class="text-sm font-semibold text-gray-900">${quoteInfo.applicant_name || '고객'}</p>
-                <p class="text-xs text-gray-500">${quoteInfo.sido || ''} ${quoteInfo.sigungu || ''}</p>
-              </div>
-            ` : ''}
           </div>
         </div>
       </header>
 
       <!-- 채팅 영역 -->
-      <div class="max-w-4xl mx-auto px-4 py-6">
-        <div class="bg-white rounded-lg shadow-sm border overflow-hidden">
-          <!-- 메시지 목록 -->
-          <div id="messageList" class="chat-container overflow-y-auto p-4 space-y-3">
-            <div class="text-center py-8">
-              <i class="fas fa-spinner fa-spin text-3xl text-gray-400"></i>
-              <p class="text-gray-500 mt-2">메시지 불러오는 중...</p>
-            </div>
+      <div class="flex flex-col" style="height: calc(100vh - 64px);">
+        <!-- 메시지 목록 -->
+        <div id="messageList" class="chat-container flex-1 overflow-y-auto p-3 md:p-4 space-y-2">
+          <div class="text-center py-12">
+            <i class="fas fa-spinner fa-spin text-4xl text-gray-400"></i>
+            <p class="text-gray-500 mt-3 text-sm md:text-base">메시지를 불러오는 중...</p>
           </div>
+        </div>
 
-          <!-- 메시지 입력 -->
-          <div class="border-t p-4 bg-gray-50">
-            <form id="messageForm" class="flex space-x-2">
-              <input type="file" id="fileInput" accept="image/*" class="hidden">
-              <button type="button" onclick="document.getElementById('fileInput').click()" 
-                class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
-                <i class="fas fa-paperclip"></i>
+        <!-- 메시지 입력 -->
+        <div class="bg-white border-t p-2 md:p-3 safe-area-bottom">
+          <div id="filePreview" class="mb-2 hidden">
+            <div class="inline-block relative">
+              <img id="previewImage" src="" alt="미리보기" class="h-16 md:h-20 rounded-lg shadow">
+              <button onclick="clearFilePreview()" 
+                class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-7 h-7 flex items-center justify-center hover:bg-red-600 shadow-md btn-touch">
+                <i class="fas fa-times text-xs"></i>
               </button>
-              <input type="text" id="messageInput" placeholder="메시지를 입력하세요..." 
-                class="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
-              <button type="submit" 
-                class="px-6 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-semibold">
-                <i class="fas fa-paper-plane mr-2"></i>전송
-              </button>
-            </form>
-            <div id="filePreview" class="mt-2 hidden">
-              <div class="inline-block relative">
-                <img id="previewImage" src="" alt="Preview" class="h-20 rounded">
-                <button onclick="clearFilePreview()" 
-                  class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600">
-                  <i class="fas fa-times text-xs"></i>
-                </button>
-              </div>
             </div>
           </div>
+          
+          <form id="messageForm" class="flex items-end space-x-2">
+            <input type="file" id="fileInput" accept="image/*" class="hidden">
+            
+            <button type="button" onclick="document.getElementById('fileInput').click()" 
+              class="btn-touch flex-shrink-0 w-11 h-11 flex items-center justify-center bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 active:bg-gray-300 transition-colors">
+              <i class="fas fa-paperclip text-lg"></i>
+            </button>
+            
+            <div class="flex-1 relative">
+              <input type="text" id="messageInput" placeholder="메시지 입력..." 
+                class="w-full px-4 py-3 pr-12 border-2 border-gray-200 rounded-full focus:outline-none focus:border-teal-500 transition-colors text-sm md:text-base"
+                autocomplete="off">
+            </div>
+            
+            <button type="submit" 
+              class="btn-touch flex-shrink-0 w-11 h-11 flex items-center justify-center bg-teal-600 text-white rounded-full hover:bg-teal-700 active:bg-teal-800 transition-colors shadow-md">
+              <i class="fas fa-paper-plane"></i>
+            </button>
+          </form>
         </div>
       </div>
 
@@ -1555,10 +1591,10 @@ app.get('/chat', async (c) => {
           
           if (messages.length === 0) {
             messageList.innerHTML = \`
-              <div class="text-center py-8">
-                <i class="fas fa-comments text-4xl text-gray-300"></i>
-                <p class="text-gray-500 mt-2">아직 메시지가 없습니다.</p>
-                <p class="text-sm text-gray-400">첫 메시지를 보내보세요!</p>
+              <div class="text-center py-16">
+                <i class="fas fa-comments text-5xl md:text-6xl text-gray-300"></i>
+                <p class="text-gray-500 mt-4 text-base md:text-lg font-medium">아직 메시지가 없습니다</p>
+                <p class="text-sm md:text-base text-gray-400 mt-1">첫 메시지를 보내보세요!</p>
               </div>
             \`;
             return;
@@ -1571,17 +1607,23 @@ app.get('/chat', async (c) => {
             const senderName = msg.sender_name || (msg.sender_type === 'customer' ? '고객' : '시설');
             
             return \`
-              <div class="flex \${alignClass}">
-                <div>
-                  \${!isMyMessage ? \`<p class="text-xs text-gray-500 mb-1">\${senderName}</p>\` : ''}
-                  <div class="message-bubble \${bubbleClass} px-4 py-2 rounded-lg">
+              <div class="flex \${alignClass} mb-2">
+                <div class="max-w-full">
+                  \${!isMyMessage ? \`
+                    <p class="text-xs text-gray-500 mb-1 px-1">\${senderName}</p>
+                  \` : ''}
+                  <div class="message-bubble \${bubbleClass} px-3 py-2 md:px-4 md:py-2.5 rounded-2xl shadow-sm">
                     \${msg.attachment_url ? \`
-                      <img src="\${msg.attachment_url}" alt="첨부 이미지" 
-                        class="max-w-xs rounded mb-2 cursor-pointer" 
-                        onclick="window.open('\${msg.attachment_url}', '_blank')">
+                      <img src="\${msg.attachment_url}" 
+                           alt="첨부 이미지" 
+                           class="max-w-full rounded-lg mb-2 cursor-pointer shadow-sm"
+                           style="max-height: 240px; width: auto;"
+                           onclick="window.open('\${msg.attachment_url}', '_blank')">
                     \` : ''}
-                    <p class="text-sm">\${msg.message.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>
-                    <p class="text-xs \${isMyMessage ? 'text-teal-100' : 'text-gray-400'} mt-1">
+                    \${msg.message && msg.message !== '(이미지)' ? \`
+                      <p class="text-sm md:text-base whitespace-pre-wrap">\${msg.message.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>
+                    \` : ''}
+                    <p class="text-xs \${isMyMessage ? 'text-teal-100' : 'text-gray-500'} mt-1">
                       \${new Date(msg.created_at).toLocaleTimeString('ko-KR', {hour: '2-digit', minute: '2-digit'})}
                     </p>
                   </div>
@@ -1591,7 +1633,9 @@ app.get('/chat', async (c) => {
           }).join('');
 
           // 스크롤을 맨 아래로
-          messageList.scrollTop = messageList.scrollHeight;
+          setTimeout(() => {
+            messageList.scrollTop = messageList.scrollHeight;
+          }, 100);
         }
 
         // 메시지 전송
@@ -11210,22 +11254,26 @@ app.get('/quote-details/:quoteId', async (c) => {
                         <i class="fas fa-user-tie text-gray-400 mr-2"></i>
                         <span>${response.contact_person || '담당자'} | ${response.contact_phone}</span>
                       </div>
-                      <div class="flex flex-wrap gap-2">
+                      <div class="grid grid-cols-2 gap-2 mt-3">
                         <a href="tel:${response.contact_phone}"
-                          class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-semibold">
-                          <i class="fas fa-phone mr-1"></i>전화 상담
+                          class="flex items-center justify-center px-3 py-2.5 md:px-4 md:py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 active:bg-green-800 transition-all text-sm font-semibold shadow-sm touch-manipulation">
+                          <i class="fas fa-phone mr-1.5 text-base"></i>
+                          <span>전화</span>
                         </a>
                         <a href="/chat?quote_id=${quoteRequest.quote_id}"
-                          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-semibold">
-                          <i class="fas fa-comments mr-1"></i>채팅하기
+                          class="flex items-center justify-center px-3 py-2.5 md:px-4 md:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 active:bg-blue-800 transition-all text-sm font-semibold shadow-sm touch-manipulation">
+                          <i class="fas fa-comments mr-1.5 text-base"></i>
+                          <span>채팅</span>
                         </a>
                         <button onclick="openMessageModal('${response.response_id}')"
-                          class="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors text-sm font-semibold">
-                          <i class="fas fa-envelope mr-1"></i>문의하기
+                          class="flex items-center justify-center px-3 py-2.5 md:px-4 md:py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700 active:bg-teal-800 transition-all text-sm font-semibold shadow-sm touch-manipulation">
+                          <i class="fas fa-envelope mr-1.5 text-base"></i>
+                          <span>문의</span>
                         </button>
                         <button onclick="openReviewModal('${response.response_id}')"
-                          class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors text-sm font-semibold">
-                          <i class="fas fa-star mr-1"></i>리뷰 작성
+                          class="flex items-center justify-center px-3 py-2.5 md:px-4 md:py-3 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 active:bg-yellow-700 transition-all text-sm font-semibold shadow-sm touch-manipulation">
+                          <i class="fas fa-star mr-1.5 text-base"></i>
+                          <span>리뷰</span>
                         </button>
                       </div>
                     </div>
