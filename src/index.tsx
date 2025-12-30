@@ -12579,18 +12579,10 @@ app.get('/api/representative-facilities', async (c) => {
 // ========== Cloudflare Workers 설정 ==========
 
 export default {
-  fetch: app.fetch,
+  fetch: app.fetch
   
-  // Cron Trigger: 매일 0시에 대표시설 자동 업데이트
-  async scheduled(event: ScheduledEvent, env: { DB: D1Database }, ctx: ExecutionContext) {
-    console.log('[Cron] 대표시설 자동 업데이트 시작')
-    
-    try {
-      const result = await updateRepresentativeFacilities(env.DB)
-      console.log('[Cron] 대표시설 자동 업데이트 결과:', result)
-    } catch (error) {
-      console.error('[Cron] 대표시설 자동 업데이트 실패:', error)
-    }
-  }
+  // 참고: Cloudflare Pages는 Cron Triggers를 지원하지 않습니다
+  // 대표시설 자동 업데이트는 POST /api/admin/update-representative-facilities API를 통해 수동으로 트리거하거나
+  // 외부 Cron 서비스(예: GitHub Actions, Uptime Robot 등)를 통해 주기적으로 호출할 수 있습니다
 }
 

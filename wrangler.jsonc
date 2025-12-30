@@ -11,10 +11,5 @@
       "database_name": "carejoa-production",
       "database_id": "6bb51315-d991-4e62-a981-4cc19a5b23ed"
     }
-  ],
-  
-  // Cron Triggers: 대표시설 자동 업데이트
-  "triggers": {
-    "crons": ["0 0 * * *"]  // 매일 0시 (UTC) 실행
-  }
+  ]
 }
