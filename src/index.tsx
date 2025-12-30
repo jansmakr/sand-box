@@ -1790,6 +1790,9 @@ app.get('/', (c) => {
               />
               <h1 class="text-xl sm:text-2xl font-bold text-teal-600">케어조아</h1>
             </div><nav class="hidden md:flex space-x-2 lg:space-x-3 text-sm">
+              <a href="/call-consultation" class="bg-purple-600 text-white hover:bg-purple-700 px-3 py-2 rounded-lg whitespace-nowrap">
+                <i class="fas fa-phone-alt mr-1"></i>전화상담
+              </a>
               <a href="#partner-section" class="bg-red-600 text-white hover:bg-red-700 px-3 py-2 rounded-lg whitespace-nowrap">
                 <i class="fas fa-hospital mr-1"></i>일반병원담당자
               </a>
@@ -1811,6 +1814,9 @@ app.get('/', (c) => {
           </div>
         </div><div id="mobile-menu" class="hidden md:hidden bg-white border-t">
           <nav class="px-4 py-3 space-y-2">
+            <a href="/call-consultation" class="block bg-purple-600 text-white hover:bg-purple-700 px-4 py-3 rounded-lg text-center">
+              <i class="fas fa-phone-alt mr-2"></i>전화상담
+            </a>
             <a href="#partner-section" class="block bg-red-600 text-white hover:bg-red-700 px-4 py-3 rounded-lg text-center">
               <i class="fas fa-hospital mr-2"></i>일반병원담당자
             </a>
@@ -12539,7 +12545,7 @@ app.post('/api/admin/update-representative-facilities', async (c) => {
   return c.json(result)
 })
 
-// 현재 대표시설 목록 조회 API
+// 현재 대표시설 목록 조회 API (지역별 필터링 지원)
 app.get('/api/representative-facilities', async (c) => {
   const db = c.env.DB
   
@@ -12547,8 +12553,11 @@ app.get('/api/representative-facilities', async (c) => {
     return c.json({ success: false, message: '데이터베이스 연결 실패' }, 500)
   }
   
+  const sido = c.req.query('sido')
+  const sigungu = c.req.query('sigungu')
+  
   try {
-    const facilities = await db.prepare(`
+    let query = `
       SELECT 
         id,
         facility_name,
@@ -12562,16 +12571,425 @@ app.get('/api/representative-facilities', async (c) => {
         updated_at
       FROM partners
       WHERE is_regional_center = 1
-      ORDER BY facility_sido, facility_sigungu, facility_type
-    `).all()
+    `
+    const params: string[] = []
+    
+    // 지역 필터링
+    if (sido) {
+      query += ` AND facility_sido = ?`
+      params.push(sido)
+    }
+    
+    if (sigungu) {
+      query += ` AND facility_sigungu = ?`
+      params.push(sigungu)
+    }
+    
+    query += ` ORDER BY facility_type`
+    
+    const stmt = db.prepare(query)
+    const facilities = params.length > 0 
+      ? await stmt.bind(...params).all()
+      : await stmt.all()
     
     return c.json({
       success: true,
       count: facilities.results?.length || 0,
-      facilities: facilities.results || []
+      facilities: facilities.results || [],
+      filters: {
+        sido: sido || null,
+        sigungu: sigungu || null
+      }
     })
   } catch (error) {
     console.error('[대표시설 조회] 오류:', error)
+    return c.json({ success: false, message: '조회 실패' }, 500)
+  }
+})
+
+// ========== 전화상담 페이지 (지역별 대표시설) ==========
+
+app.get('/call-consultation', async (c) => {
+  const db = c.env.DB
+  
+  return c.html(`
+    <!DOCTYPE html>
+    <html lang="ko">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>지역별 전화상담 - 케어조아</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+        <style>
+          * {
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+          }
+        </style>
+    </head>
+    <body class="bg-gray-50 min-h-screen">
+      <!-- 헤더 -->
+      <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+          <button onclick="history.back()" class="text-gray-600 hover:text-teal-600" aria-label="뒤로 가기">
+            <i class="fas fa-arrow-left text-xl"></i>
+          </button>
+          <h1 class="text-lg font-bold text-gray-800">
+            <i class="fas fa-phone-alt text-teal-600 mr-2"></i>
+            지역별 전화상담
+          </h1>
+          <button onclick="showSelectionInfo()" class="text-gray-600 hover:text-teal-600" aria-label="선정 기준 안내">
+            <i class="fas fa-info-circle text-xl"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- 메인 컨텐츠 -->
+      <main class="max-w-4xl mx-auto px-4 py-6">
+        <!-- 지역 선택 -->
+        <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+          <h2 class="text-lg font-bold text-gray-800 mb-4">
+            <i class="fas fa-map-marker-alt text-teal-600 mr-2"></i>
+            지역 선택
+          </h2>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="sido" class="block text-sm font-medium text-gray-700 mb-2">시/도</label>
+              <select id="sido" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-teal-600 text-base"
+                      onchange="loadSigunguOptions()" aria-label="시/도 선택">
+                <option value="">선택해주세요</option>
+              </select>
+            </div>
+            
+            <div>
+              <label for="sigungu" class="block text-sm font-medium text-gray-700 mb-2">시/군/구</label>
+              <select id="sigungu" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-teal-600 text-base" 
+                      disabled onchange="loadRepresentativeFacilities()" aria-label="시/군/구 선택">
+                <option value="">먼저 시/도를 선택해주세요</option>
+              </select>
+            </div>
+          </div>
+          
+          <button onclick="loadRepresentativeFacilities()" 
+                  class="mt-4 w-full py-3 bg-teal-600 text-white rounded-lg font-bold hover:bg-teal-700 transition-colors touch-manipulation">
+            <i class="fas fa-search mr-2"></i>
+            대표시설 찾기
+          </button>
+        </div>
+
+        <!-- 대표시설 목록 -->
+        <div id="facilityList" class="space-y-4">
+          <!-- 초기 안내 메시지 -->
+          <div class="bg-white rounded-lg shadow-sm p-8 text-center">
+            <i class="fas fa-search text-gray-300 text-5xl mb-4"></i>
+            <p class="text-gray-500">지역을 선택하고 '대표시설 찾기' 버튼을 눌러주세요</p>
+          </div>
+        </div>
+      </main>
+
+      <!-- 선정 기준 안내 모달 -->
+      <div id="infoModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div class="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between">
+            <h3 class="text-lg font-bold text-gray-800">
+              <i class="fas fa-star text-yellow-500 mr-2"></i>
+              대표시설 선정 기준
+            </h3>
+            <button onclick="hideSelectionInfo()" class="text-gray-500 hover:text-gray-700" aria-label="닫기">
+              <i class="fas fa-times text-xl"></i>
+            </button>
+          </div>
+          
+          <div class="p-6 space-y-6">
+            <!-- 현재 선정 방식 -->
+            <div class="bg-blue-50 rounded-lg p-4">
+              <h4 class="font-bold text-blue-800 mb-2 flex items-center">
+                <i class="fas fa-info-circle mr-2"></i>
+                현재 선정 방식 (2025년 1월)
+              </h4>
+              <ul class="text-sm text-blue-900 space-y-1 ml-6">
+                <li>• 전국 각 지역(시/군/구)별 시설 유형당 1개씩 선정</li>
+                <li>• 전화번호가 있는 시설 우선 선정</li>
+                <li>• 지역 균등 분배 원칙</li>
+                <li>• 총 847개 대표시설 운영 중</li>
+              </ul>
+            </div>
+
+            <!-- 향후 선정 방식 -->
+            <div class="bg-green-50 rounded-lg p-4">
+              <h4 class="font-bold text-green-800 mb-2 flex items-center">
+                <i class="fas fa-chart-line mr-2"></i>
+                향후 선정 방식 (자동화)
+              </h4>
+              <div class="text-sm text-green-900 space-y-3">
+                <div>
+                  <p class="font-semibold mb-1">📊 점수 계산 공식</p>
+                  <div class="bg-white rounded p-2 font-mono text-xs">
+                    점수 = (평균평점 ÷ 5.0) × 70% + (리뷰수 정규화) × 30%
+                  </div>
+                </div>
+                
+                <div>
+                  <p class="font-semibold mb-1">✅ 최소 기준</p>
+                  <ul class="ml-6 space-y-1">
+                    <li>• 리뷰 3개 이상</li>
+                    <li>• 평균 평점 3.0 이상</li>
+                    <li>• 전화번호 필수</li>
+                  </ul>
+                </div>
+                
+                <div>
+                  <p class="font-semibold mb-1">🔄 업데이트 주기</p>
+                  <p class="ml-6">• 매일 자동 업데이트</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- 투명성 보장 -->
+            <div class="bg-purple-50 rounded-lg p-4">
+              <h4 class="font-bold text-purple-800 mb-2 flex items-center">
+                <i class="fas fa-shield-alt mr-2"></i>
+                투명성 보장
+              </h4>
+              <ul class="text-sm text-purple-900 space-y-1 ml-6">
+                <li>• 모든 선정 기준은 공개됩니다</li>
+                <li>• 시설 평가는 고객 리뷰 기반입니다</li>
+                <li>• 금전적 대가로 인한 선정은 절대 없습니다</li>
+                <li>• 점수 계산 방식은 모든 시설에 동일하게 적용됩니다</li>
+              </ul>
+            </div>
+
+            <!-- 문의 -->
+            <div class="border-t pt-4 text-center text-sm text-gray-600">
+              <p>대표시설 선정에 대한 문의사항이 있으시면</p>
+              <p class="font-semibold text-teal-600 mt-1">고객센터 1544-0000</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
+      <script>
+        // 시/도 목록
+        const SIDO_LIST = [
+          '서울특별시', '부산광역시', '대구광역시', '인천광역시', '광주광역시', 
+          '대전광역시', '울산광역시', '세종특별자치시', '경기도', '강원특별자치도',
+          '충청북도', '충청남도', '전북특별자치도', '전라남도', '경상북도', 
+          '경상남도', '제주특별자치도'
+        ];
+
+        // 시/군/구 매핑 (API로 가져오는 것으로 대체 가능)
+        let sigunguMap = {};
+
+        // 페이지 로드 시 시/도 목록 로드
+        window.addEventListener('DOMContentLoaded', () => {
+          const sidoSelect = document.getElementById('sido');
+          
+          SIDO_LIST.forEach(sido => {
+            const option = document.createElement('option');
+            option.value = sido;
+            option.textContent = sido;
+            sidoSelect.appendChild(option);
+          });
+          
+          // 시/군/구 데이터 로드
+          loadSigunguData();
+        });
+
+        // 시/군/구 데이터 로드
+        async function loadSigunguData() {
+          try {
+            const response = await axios.get('/api/regions');
+            
+            if (response.data.success) {
+              sigunguMap = response.data.regions;
+            }
+          } catch (error) {
+            console.error('시/군/구 데이터 로드 실패:', error);
+          }
+        }
+
+        // 시/도 선택 시 시/군/구 목록 로드
+        function loadSigunguOptions() {
+          const sidoSelect = document.getElementById('sido');
+          const sigunguSelect = document.getElementById('sigungu');
+          const selectedSido = sidoSelect.value;
+          
+          // 초기화
+          sigunguSelect.innerHTML = '<option value="">선택해주세요</option>';
+          sigunguSelect.disabled = !selectedSido;
+          
+          if (selectedSido && sigunguMap[selectedSido]) {
+            sigunguMap[selectedSido].forEach(sigungu => {
+              const option = document.createElement('option');
+              option.value = sigungu;
+              option.textContent = sigungu;
+              sigunguSelect.appendChild(option);
+            });
+          }
+          
+          // 시설 목록 초기화
+          document.getElementById('facilityList').innerHTML = \`
+            <div class="bg-white rounded-lg shadow-sm p-8 text-center">
+              <i class="fas fa-search text-gray-300 text-5xl mb-4"></i>
+              <p class="text-gray-500">시/군/구를 선택하고 '대표시설 찾기' 버튼을 눌러주세요</p>
+            </div>
+          \`;
+        }
+
+        // 대표시설 목록 로드
+        async function loadRepresentativeFacilities() {
+          const sido = document.getElementById('sido').value;
+          const sigungu = document.getElementById('sigungu').value;
+          
+          if (!sido || !sigungu) {
+            alert('지역을 선택해주세요');
+            return;
+          }
+          
+          const facilityList = document.getElementById('facilityList');
+          facilityList.innerHTML = '<div class="text-center py-8"><i class="fas fa-spinner fa-spin text-3xl text-teal-600"></i><p class="mt-2 text-gray-600">로딩 중...</p></div>';
+          
+          try {
+            const response = await axios.get(\`/api/representative-facilities?sido=\${encodeURIComponent(sido)}&sigungu=\${encodeURIComponent(sigungu)}\`);
+            
+            if (response.data.success && response.data.facilities.length > 0) {
+              renderFacilities(response.data.facilities);
+            } else {
+              facilityList.innerHTML = \`
+                <div class="bg-white rounded-lg shadow-sm p-8 text-center">
+                  <i class="fas fa-exclamation-circle text-yellow-500 text-5xl mb-4"></i>
+                  <p class="text-gray-700 font-semibold mb-2">\${sido} \${sigungu}의 대표시설이 없습니다</p>
+                  <p class="text-sm text-gray-500">다른 지역을 선택해주세요</p>
+                </div>
+              \`;
+            }
+          } catch (error) {
+            console.error('대표시설 로드 실패:', error);
+            facilityList.innerHTML = \`
+              <div class="bg-white rounded-lg shadow-sm p-8 text-center">
+                <i class="fas fa-times-circle text-red-500 text-5xl mb-4"></i>
+                <p class="text-gray-700 font-semibold mb-2">로드 실패</p>
+                <p class="text-sm text-gray-500">잠시 후 다시 시도해주세요</p>
+              </div>
+            \`;
+          }
+        }
+
+        // 시설 카드 렌더링
+        function renderFacilities(facilities) {
+          const facilityList = document.getElementById('facilityList');
+          
+          // 시설 유형별 아이콘 및 색상
+          const typeConfig = {
+            '요양병원': { icon: 'fa-hospital', color: 'blue', name: '요양병원' },
+            '요양원': { icon: 'fa-home', color: 'green', name: '요양원' },
+            '주야간보호': { icon: 'fa-clock', color: 'purple', name: '주야간보호센터' },
+            '재가복지센터': { icon: 'fa-hands-helping', color: 'orange', name: '재가복지센터' }
+          };
+          
+          facilityList.innerHTML = facilities.map(facility => {
+            const config = typeConfig[facility.facility_type] || { icon: 'fa-building', color: 'gray', name: facility.facility_type };
+            
+            return \`
+              <div class="bg-white rounded-lg shadow-sm p-5 hover:shadow-md transition-shadow">
+                <!-- 시설 유형 배지 -->
+                <div class="flex items-center justify-between mb-3">
+                  <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-\${config.color}-100 text-\${config.color}-800">
+                    <i class="fas \${config.icon} mr-1"></i>
+                    \${config.name}
+                  </span>
+                  <span class="text-xs text-gray-500">
+                    <i class="fas fa-star text-yellow-400"></i>
+                    대표시설
+                  </span>
+                </div>
+                
+                <!-- 시설 정보 -->
+                <h3 class="text-lg font-bold text-gray-800 mb-2">\${facility.facility_name}</h3>
+                
+                <div class="space-y-2 text-sm text-gray-600 mb-4">
+                  <div class="flex items-start">
+                    <i class="fas fa-map-marker-alt text-gray-400 mr-2 mt-0.5"></i>
+                    <span class="flex-1">\${facility.facility_address}</span>
+                  </div>
+                  
+                  <div class="flex items-center">
+                    <i class="fas fa-phone text-gray-400 mr-2"></i>
+                    <span>\${facility.manager_phone}</span>
+                  </div>
+                </div>
+                
+                <!-- 전화 버튼 -->
+                <a href="tel:\${facility.manager_phone}" 
+                   class="block w-full py-3 bg-teal-600 text-white text-center rounded-lg font-bold hover:bg-teal-700 active:bg-teal-800 transition-colors touch-manipulation">
+                  <i class="fas fa-phone-alt mr-2"></i>
+                  전화 상담하기
+                </a>
+              </div>
+            \`;
+          }).join('');
+        }
+
+        // 선정 기준 안내 모달 표시
+        function showSelectionInfo() {
+          document.getElementById('infoModal').classList.remove('hidden');
+          document.body.style.overflow = 'hidden';
+        }
+
+        // 선정 기준 안내 모달 숨기기
+        function hideSelectionInfo() {
+          document.getElementById('infoModal').classList.add('hidden');
+          document.body.style.overflow = 'auto';
+        }
+        
+        // 모달 배경 클릭 시 닫기
+        document.getElementById('infoModal').addEventListener('click', (e) => {
+          if (e.target.id === 'infoModal') {
+            hideSelectionInfo();
+          }
+        });
+      </script>
+    </body>
+    </html>
+  `)
+})
+
+// 지역(시/군/구) 목록 API
+app.get('/api/regions', async (c) => {
+  const db = c.env.DB
+  
+  if (!db) {
+    return c.json({ success: false, message: '데이터베이스 연결 실패' }, 500)
+  }
+  
+  try {
+    const result = await db.prepare(`
+      SELECT DISTINCT sido, sigungu
+      FROM facilities
+      ORDER BY sido, sigungu
+    `).all()
+    
+    // 시/도별로 시/군/구 그룹화
+    const regions: Record<string, string[]> = {}
+    
+    result.results?.forEach((row: any) => {
+      if (!regions[row.sido]) {
+        regions[row.sido] = []
+      }
+      if (!regions[row.sido].includes(row.sigungu)) {
+        regions[row.sido].push(row.sigungu)
+      }
+    })
+    
+    return c.json({
+      success: true,
+      regions
+    })
+  } catch (error) {
+    console.error('[지역 목록 조회] 오류:', error)
     return c.json({ success: false, message: '조회 실패' }, 500)
   }
 })
