@@ -12918,16 +12918,32 @@ app.get('/call-consultation', async (c) => {
                   
                   <div class="flex items-center">
                     <i class="fas fa-phone text-gray-400 mr-2"></i>
-                    <span>\${facility.manager_phone}</span>
+                    <span>\${
+                      !facility.manager_phone || facility.manager_phone === '' || facility.manager_phone === '1544-0000'
+                        ? '<span class="text-orange-600 font-semibold">준비중</span>'
+                        : facility.manager_phone
+                    }</span>
                   </div>
                 </div>
                 
                 <!-- 전화 버튼 -->
-                <a href="tel:\${facility.manager_phone}" 
-                   class="block w-full py-3 bg-teal-600 text-white text-center rounded-lg font-bold hover:bg-teal-700 active:bg-teal-800 transition-colors touch-manipulation">
-                  <i class="fas fa-phone-alt mr-2"></i>
-                  전화 상담하기
-                </a>
+                \${
+                  !facility.manager_phone || facility.manager_phone === '' || facility.manager_phone === '1544-0000'
+                    ? \`
+                      <button disabled
+                         class="block w-full py-3 bg-gray-400 text-white text-center rounded-lg font-bold cursor-not-allowed opacity-60">
+                        <i class="fas fa-phone-slash mr-2"></i>
+                        전화번호 준비중
+                      </button>
+                    \`
+                    : \`
+                      <a href="tel:\${facility.manager_phone}" 
+                         class="block w-full py-3 bg-teal-600 text-white text-center rounded-lg font-bold hover:bg-teal-700 active:bg-teal-800 transition-colors touch-manipulation">
+                        <i class="fas fa-phone-alt mr-2"></i>
+                        전화 상담하기
+                      </a>
+                    \`
+                }
               </div>
             \`;
           }).join('');
