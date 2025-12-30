@@ -12413,4 +12413,184 @@ app.get('/emergency-transfer', (c) => {
   `)
 })
 
-export default app
+// ========== 대표시설 자동 업데이트 로직 ==========
+
+/**
+ * 평점순/리뷰순으로 대표시설 자동 업데이트
+ * - 각 지역(sido + sigungu) + 시설 유형별로 TOP 1 시설을 대표로 설정
+ * - 점수 계산: 평균평점(70%) + 리뷰수(30%)
+ * - 최소 기준: 리뷰 3개 이상, 평점 3.0 이상
+ */
+async function updateRepresentativeFacilities(db: D1Database) {
+  console.log('[대표시설 자동 업데이트] 시작')
+  
+  try {
+    // Step 1: 각 시설의 평점 및 리뷰수 기반 점수 계산
+    const topFacilities = await db.prepare(`
+      WITH facility_stats AS (
+        SELECT 
+          f.id,
+          f.name,
+          f.facility_type,
+          f.sido,
+          f.sigungu,
+          f.address,
+          f.phone,
+          COUNT(r.id) as review_count,
+          COALESCE(AVG(r.rating), 0) as avg_rating,
+          -- 점수 = 평균평점(70%) + 리뷰수 정규화(30%)
+          COALESCE(
+            (AVG(r.rating) / 5.0) * 0.7 + 
+            (COUNT(r.id) * 1.0 / NULLIF(MAX(COUNT(r.id)) OVER (PARTITION BY f.sido, f.sigungu, f.facility_type), 0)) * 0.3,
+            0
+          ) as representative_score
+        FROM facilities f
+        LEFT JOIN reviews r ON f.id = r.facility_id 
+          AND r.status = 'approved'
+        WHERE 1=1
+        GROUP BY f.id, f.name, f.facility_type, f.sido, f.sigungu, f.address, f.phone
+        HAVING COUNT(r.id) >= 3  -- 최소 3개 리뷰
+          AND COALESCE(AVG(r.rating), 0) >= 3.0  -- 최소 평점 3.0
+      ),
+      
+      -- Step 2: 각 지역 + 시설 유형별 TOP 1 선정
+      top_facilities AS (
+        SELECT *,
+          ROW_NUMBER() OVER (
+            PARTITION BY sido, sigungu, facility_type 
+            ORDER BY representative_score DESC, review_count DESC
+          ) as rank
+        FROM facility_stats
+      )
+      
+      SELECT 
+        id as facility_id,
+        name as facility_name,
+        facility_type,
+        sido,
+        sigungu,
+        address,
+        phone,
+        review_count,
+        ROUND(avg_rating, 2) as avg_rating,
+        ROUND(representative_score, 4) as score
+      FROM top_facilities
+      WHERE rank = 1
+      ORDER BY sido, sigungu, facility_type
+    `).all()
+    
+    let updated = 0
+    
+    if (topFacilities.results && topFacilities.results.length > 0) {
+      // Step 3: 기존 대표시설 플래그 제거
+      await db.prepare(`UPDATE partners SET is_regional_center = 0`).run()
+      
+      // Step 4: 새로운 대표시설 등록 또는 업데이트
+      for (const facility of topFacilities.results as any[]) {
+        const regionKey = `${facility.sido}_${facility.sigungu}_${facility.facility_type}`
+        const partnerId = `AUTO_${facility.facility_id}`
+        
+        await db.prepare(`
+          INSERT INTO partners (
+            id, facility_name, facility_type, 
+            facility_sido, facility_sigungu, facility_address,
+            manager_name, manager_phone, region_key, is_regional_center
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
+          ON CONFLICT(id) DO UPDATE SET 
+            is_regional_center = 1,
+            updated_at = CURRENT_TIMESTAMP
+        `).bind(
+          partnerId,
+          facility.facility_name,
+          facility.facility_type,
+          facility.sido,
+          facility.sigungu,
+          facility.address,
+          '자동선정 대표시설',
+          facility.phone || '1544-0000',
+          regionKey
+        ).run()
+        
+        updated++
+      }
+      
+      console.log(`[대표시설 자동 업데이트] 완료: ${updated}개 시설 업데이트`)
+    } else {
+      console.log('[대표시설 자동 업데이트] 조건을 만족하는 시설이 없습니다 (리뷰 데이터 부족)')
+    }
+    
+    return { success: true, updated }
+  } catch (error) {
+    console.error('[대표시설 자동 업데이트] 오류:', error)
+    return { success: false, error: String(error) }
+  }
+}
+
+// 대표시설 업데이트 API (관리자 전용)
+app.post('/api/admin/update-representative-facilities', async (c) => {
+  const db = c.env.DB
+  
+  if (!db) {
+    return c.json({ success: false, message: '데이터베이스 연결 실패' }, 500)
+  }
+  
+  const result = await updateRepresentativeFacilities(db)
+  
+  return c.json(result)
+})
+
+// 현재 대표시설 목록 조회 API
+app.get('/api/representative-facilities', async (c) => {
+  const db = c.env.DB
+  
+  if (!db) {
+    return c.json({ success: false, message: '데이터베이스 연결 실패' }, 500)
+  }
+  
+  try {
+    const facilities = await db.prepare(`
+      SELECT 
+        id,
+        facility_name,
+        facility_type,
+        facility_sido,
+        facility_sigungu,
+        facility_address,
+        manager_phone,
+        region_key,
+        created_at,
+        updated_at
+      FROM partners
+      WHERE is_regional_center = 1
+      ORDER BY facility_sido, facility_sigungu, facility_type
+    `).all()
+    
+    return c.json({
+      success: true,
+      count: facilities.results?.length || 0,
+      facilities: facilities.results || []
+    })
+  } catch (error) {
+    console.error('[대표시설 조회] 오류:', error)
+    return c.json({ success: false, message: '조회 실패' }, 500)
+  }
+})
+
+// ========== Cloudflare Workers 설정 ==========
+
+export default {
+  fetch: app.fetch,
+  
+  // Cron Trigger: 매일 0시에 대표시설 자동 업데이트
+  async scheduled(event: ScheduledEvent, env: { DB: D1Database }, ctx: ExecutionContext) {
+    console.log('[Cron] 대표시설 자동 업데이트 시작')
+    
+    try {
+      const result = await updateRepresentativeFacilities(env.DB)
+      console.log('[Cron] 대표시설 자동 업데이트 결과:', result)
+    } catch (error) {
+      console.error('[Cron] 대표시설 자동 업데이트 실패:', error)
+    }
+  }
+}
+
