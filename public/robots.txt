@@ -1,14 +1,8 @@
-# robots.txt for CareJOA (케어조아)
-# 요양원/요양병원 실시간 비교 견적 플랫폼
-
+# robots.txt for CareJOA
 User-agent: *
 Allow: /
 Disallow: /admin/
 Disallow: /api/
 Disallow: /dashboard/
 
-# Sitemap
 Sitemap: https://carejoa.kr/sitemap.xml
-
-# Crawl-delay
-Crawl-delay: 1

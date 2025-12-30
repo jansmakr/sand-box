@@ -1444,8 +1444,11 @@ app.get('/chat', async (c) => {
       <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
       <meta name="theme-color" content="#0d9488">
       <title>상담 채팅 - 케어조아</title>
+      <link rel="preconnect" href="https://cdn.tailwindcss.com">
+      <link rel="preconnect" href="https://cdn.jsdelivr.net">
       <script src="https://cdn.tailwindcss.com"></script>
-      <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+      <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet" media="print" onload="this.media='all'">
+      <noscript><link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet"></noscript>
       <style>
         * {
           -webkit-tap-highlight-color: transparent;
@@ -1802,8 +1805,8 @@ app.get('/', (c) => {
               <a href="/login" class="bg-teal-600 text-white hover:bg-teal-700 px-3 py-2 rounded-lg whitespace-nowrap">
                 <i class="fas fa-sign-in-alt mr-1"></i>로그인
               </a>
-            </nav><button id="mobile-menu-btn" class="md:hidden p-2 text-gray-600 hover:text-teal-600 focus:outline-none">
-              <i class="fas fa-bars text-2xl"></i>
+            </nav><button id="mobile-menu-btn" class="md:hidden p-2 text-gray-600 hover:text-teal-600 focus:outline-none" aria-label="메뉴 열기" aria-expanded="false">
+              <i class="fas fa-bars text-2xl" aria-hidden="true"></i>
             </button>
           </div>
         </div><div id="mobile-menu" class="hidden md:hidden bg-white border-t">
@@ -2032,10 +2035,10 @@ app.get('/', (c) => {
                     placeholder="시설/서비스명" />
                 </div>
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                  <label for="facilityType" class="block text-sm font-medium text-gray-700 mb-2">
                     <i class="fas fa-tag mr-1 text-purple-500"></i>시설 유형*
                   </label>
-                  <select id="facilityType" required class="w-full p-3 border rounded-lg">
+                  <select id="facilityType" name="facilityType" required class="w-full p-3 border rounded-lg" aria-label="시설 유형 선택">
                     <option value="">선택하세요</option>
                     <option value="상급종합병원">상급종합병원</option>
                     <option value="주민센터사회복지">주민센터사회복지</option>
@@ -2049,12 +2052,12 @@ app.get('/', (c) => {
                   </select>
                 </div>
               </div><div class="space-y-4">
-                <label class="block text-sm font-medium text-gray-700">
+                <label for="facilitySido" class="block text-sm font-medium text-gray-700">
                   <i class="fas fa-map-marker-alt mr-1 text-red-500"></i>시설 주소*
                 </label>
                 <div class="grid md:grid-cols-2 gap-4">
                   <div>
-                    <select id="facilityS ido" required class="w-full p-3 border rounded-lg">
+                    <select id="facilitySido" name="facilitySido" required class="w-full p-3 border rounded-lg" aria-label="시/도 선택">
                       <option value="">시/도 선택</option>
                       <option value="서울특별시">서울특별시</option>
                       <option value="부산광역시">부산광역시</option>
@@ -2076,7 +2079,8 @@ app.get('/', (c) => {
                     </select>
                   </div>
                   <div>
-                    <select id="facilitySigungu" required class="w-full p-3 border rounded-lg">
+                    <label for="facilitySigungu" class="sr-only">시/군/구 선택</label>
+                    <select id="facilitySigungu" name="facilitySigungu" required class="w-full p-3 border rounded-lg" aria-label="시/군/구 선택">
                       <option value="">시/군/구 선택</option>
                     </select>
                   </div>
