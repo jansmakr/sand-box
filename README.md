@@ -34,7 +34,7 @@ cd webapp && npm install && npm run build
 ---
 
 ## 🌐 배포 URL
-- **최신 배포**: https://20599e01.carejoa-kr-auto.pages.dev
+- **최신 배포**: https://8ec3e4d7.carejoa-kr-auto.pages.dev
 - **프로덕션**: https://carejoa.kr
 - **프로젝트명**: carejoa-kr-auto
 - **로컬 개발**: http://localhost:3000
@@ -43,8 +43,33 @@ cd webapp && npm install && npm run build
 - **SEO 파일**:
   - robots.txt: https://carejoa.kr/robots.txt
   - sitemap.xml: https://carejoa.kr/sitemap.xml
+  - sitemap-main.xml: https://carejoa.kr/sitemap-main.xml
+  - sitemap-facilities-1.xml: https://carejoa.kr/sitemap-facilities-1.xml
+  - sitemap-facilities-2.xml: https://carejoa.kr/sitemap-facilities-2.xml
 
 ## ✅ 완료된 기능
+
+### 0. SEO 최적화 (NEW! 2025-12-31) 🚀
+- ✅ **20,432개 시설 개별 페이지 생성**
+  - 각 시설마다 고유 URL: `/facility/{시설ID}`
+  - SEO 메타태그 (title, description, keywords)
+  - Open Graph 태그 (페이스북, 카카오톡)
+  - Twitter Card
+  - 구조화된 데이터 (Schema.org - Hospital/HealthAndBeautyBusiness)
+- ✅ **내부 링크 최적화**
+  - AI 매칭 페이지: 시설 카드에 "상세보기" 버튼 추가
+  - 전국 시설 찾기 페이지: 시설 이름 클릭 → 상세 페이지
+  - 지도 팝업: "상세보기" 링크 추가
+  - 3열 버튼 레이아웃: [상세보기] [지도] [상담]
+- ✅ **Sitemap.xml 구현**
+  - Sitemap Index: `/sitemap.xml`
+  - 메인 페이지 Sitemap: `/sitemap-main.xml`
+  - 시설 Sitemap (동적): `/sitemap-facilities-1.xml`, `/sitemap-facilities-2.xml`
+  - 총 20,432개 시설 URL 포함
+- ✅ **robots.txt 설정**
+  - 크롤러 허용 설정
+  - Sitemap 위치 명시
+- 📝 **Google Search Console 등록 가이드**: [GOOGLE_SEARCH_CONSOLE_GUIDE.md](GOOGLE_SEARCH_CONSOLE_GUIDE.md)
 
 ### 1. 메인 랜딩 페이지
 - ✅ 케어조아 로고 및 브랜딩
