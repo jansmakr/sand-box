@@ -2140,34 +2140,56 @@ app.get('/', (c) => {
           </p>
         </div>
 
-        <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto"><div class="bg-white rounded-2xl shadow-xl p-8 hover:-translate-y-1 transition-all duration-300 border-2 border-blue-500 relative overflow-hidden group">
+        <div class="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+          <div class="bg-white rounded-2xl shadow-xl p-6 hover:-translate-y-1 transition-all duration-300 border-2 border-blue-500 relative overflow-hidden group">
             <div class="absolute top-0 right-0 bg-blue-500 text-white text-xs px-3 py-1 rounded-bl-lg font-bold">
               인기
             </div>
             <div class="text-center relative z-10">
-              <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-blue-100 transition-colors">
-                <i class="fas fa-bolt text-4xl text-blue-600"></i>
+              <div class="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-100 transition-colors">
+                <i class="fas fa-bolt text-3xl text-blue-600"></i>
               </div>
-              <h3 class="text-2xl font-bold text-gray-900 mb-2">간편 견적 요청</h3>
-              <p class="text-gray-600 mb-8">
+              <h3 class="text-xl font-bold text-gray-900 mb-2">간편 견적 요청</h3>
+              <p class="text-sm text-gray-600 mb-6">
                 복잡한 정보 없이 1분 만에!<br/>
                 빠르게 여러 시설의 가격을 알아보세요.
               </p>
-              <a href="/quote-request" class="block w-full bg-blue-600 text-white py-4 px-6 rounded-xl font-bold text-lg hover:bg-blue-700 shadow-lg hover:shadow-blue-500/30 transition-all">
+              <a href="/quote-request" class="block w-full bg-blue-600 text-white py-3 px-4 rounded-xl font-bold hover:bg-blue-700 shadow-lg hover:shadow-blue-500/30 transition-all">
                 1분 만에 견적 받기 <i class="fas fa-arrow-right ml-2"></i>
               </a>
             </div>
-          </div><div class="bg-white rounded-2xl shadow-lg p-8 hover:-translate-y-1 transition-all duration-300 border border-gray-100 hover:border-green-200 group">
-            <div class="text-center">
-              <div class="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-green-100 transition-colors">
-                <i class="fas fa-notes-medical text-4xl text-green-600"></i>
+          </div>
+
+          <div class="bg-white rounded-2xl shadow-xl p-6 hover:-translate-y-1 transition-all duration-300 border-2 border-purple-500 relative overflow-hidden group">
+            <div class="absolute top-0 right-0 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs px-3 py-1 rounded-bl-lg font-bold">
+              NEW
+            </div>
+            <div class="text-center relative z-10">
+              <div class="w-16 h-16 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-purple-100 transition-colors">
+                <i class="fas fa-robot text-3xl text-purple-600"></i>
               </div>
-              <h3 class="text-2xl font-bold text-gray-900 mb-2">상세 맞춤 상담</h3>
-              <p class="text-gray-600 mb-8">
+              <h3 class="text-xl font-bold text-gray-900 mb-2">AI 맞춤 시설 찾기</h3>
+              <p class="text-sm text-gray-600 mb-6">
+                AI가 거리·등급·예산 맞춤<br/>
+                최적의 시설을 즉시 추천해드려요.
+              </p>
+              <a href="/ai-matching" class="block w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3 px-4 rounded-xl font-bold hover:from-purple-700 hover:to-indigo-700 shadow-lg hover:shadow-purple-500/30 transition-all">
+                AI로 최적 시설 찾기 <i class="fas fa-search ml-2"></i>
+              </a>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl shadow-lg p-6 hover:-translate-y-1 transition-all duration-300 border border-gray-100 hover:border-green-200 group">
+            <div class="text-center">
+              <div class="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-green-100 transition-colors">
+                <i class="fas fa-notes-medical text-3xl text-green-600"></i>
+              </div>
+              <h3 class="text-xl font-bold text-gray-900 mb-2">상세 맞춤 상담</h3>
+              <p class="text-sm text-gray-600 mb-6">
                 환자분의 상태와 등급에 맞춰<br/>
                 딱 맞는 전문 시설을 추천받으세요.
               </p>
-              <a href="/quote-simple" class="block w-full bg-white text-green-700 border-2 border-green-600 py-4 px-6 rounded-xl font-bold text-lg hover:bg-green-50 transition-all">
+              <a href="/quote-simple" class="block w-full bg-white text-green-700 border-2 border-green-600 py-3 px-4 rounded-xl font-bold hover:bg-green-50 transition-all">
                 상세 조건 입력하기
               </a>
             </div>
