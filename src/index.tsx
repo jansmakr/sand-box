@@ -13288,7 +13288,7 @@ app.get('/call-consultation', async (c) => {
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>지역별 전화상담 - 케어조아</title>
+        <title>지역별 대표 요양시설 및 요양병원 전화상담 - 케어조아</title>
         <script src="https://cdn.tailwindcss.com"></script>
         <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
         <style>
@@ -13305,18 +13305,44 @@ app.get('/call-consultation', async (c) => {
           <button onclick="history.back()" class="text-gray-600 hover:text-teal-600" aria-label="뒤로 가기">
             <i class="fas fa-arrow-left text-xl"></i>
           </button>
-          <h1 class="text-lg font-bold text-gray-800">
+          <h1 class="text-base sm:text-lg font-bold text-gray-800 text-center flex-1 mx-4">
             <i class="fas fa-phone-alt text-teal-600 mr-2"></i>
-            지역별 전화상담
+            지역별 대표 요양시설 및 요양병원 전화상담
           </h1>
-          <button onclick="showSelectionInfo()" class="text-gray-600 hover:text-teal-600" aria-label="선정 기준 안내">
-            <i class="fas fa-info-circle text-xl"></i>
-          </button>
+          <div class="w-10"></div> {/* 균형을 위한 공간 */}
         </div>
       </header>
 
       <!-- 메인 컨텐츠 -->
       <main class="max-w-4xl mx-auto px-4 py-6">
+        <!-- 안내 카드 -->
+        <div class="bg-gradient-to-r from-teal-50 to-blue-50 rounded-lg p-4 mb-6 border-l-4 border-teal-600">
+          <div class="flex items-start gap-3">
+            <i class="fas fa-info-circle text-teal-600 text-xl mt-0.5"></i>
+            <div class="flex-1">
+              <h3 class="font-bold text-gray-800 mb-2">대표 시설 선정 기준</h3>
+              <p class="text-sm text-gray-700 leading-relaxed mb-2">
+                현재는 <span class="font-semibold text-teal-700">임의로 설정</span>된 시설입니다. 
+                향후 다음 기준으로 선정될 예정입니다:
+              </p>
+              <ul class="text-sm text-gray-600 space-y-1 ml-4">
+                <li class="flex items-start gap-2">
+                  <i class="fas fa-check text-teal-600 mt-0.5 text-xs"></i>
+                  <span>시설 평가 등급 및 서비스 품질</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <i class="fas fa-check text-teal-600 mt-0.5 text-xs"></i>
+                  <span>이용자 만족도 및 리뷰</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <i class="fas fa-check text-teal-600 mt-0.5 text-xs"></i>
+                  <span>케어조아 파트너십 및 신뢰도</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
         <!-- 지역 선택 -->
         <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
           <h2 class="text-lg font-bold text-gray-800 mb-4">
@@ -13360,86 +13386,6 @@ app.get('/call-consultation', async (c) => {
       </main>
 
       <!-- 선정 기준 안내 모달 -->
-      <div id="infoModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-          <div class="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between">
-            <h3 class="text-lg font-bold text-gray-800">
-              <i class="fas fa-star text-yellow-500 mr-2"></i>
-              대표시설 선정 기준
-            </h3>
-            <button onclick="hideSelectionInfo()" class="text-gray-500 hover:text-gray-700" aria-label="닫기">
-              <i class="fas fa-times text-xl"></i>
-            </button>
-          </div>
-          
-          <div class="p-6 space-y-6">
-            <!-- 현재 선정 방식 -->
-            <div class="bg-blue-50 rounded-lg p-4">
-              <h4 class="font-bold text-blue-800 mb-2 flex items-center">
-                <i class="fas fa-info-circle mr-2"></i>
-                현재 선정 방식 (2025년 1월)
-              </h4>
-              <ul class="text-sm text-blue-900 space-y-1 ml-6">
-                <li>• 전국 각 지역(시/군/구)별 시설 유형당 1개씩 선정</li>
-                <li>• 전화번호가 있는 시설 우선 선정</li>
-                <li>• 지역 균등 분배 원칙</li>
-                <li>• 총 847개 대표시설 운영 중</li>
-              </ul>
-            </div>
-
-            <!-- 향후 선정 방식 -->
-            <div class="bg-green-50 rounded-lg p-4">
-              <h4 class="font-bold text-green-800 mb-2 flex items-center">
-                <i class="fas fa-chart-line mr-2"></i>
-                향후 선정 방식 (자동화)
-              </h4>
-              <div class="text-sm text-green-900 space-y-3">
-                <div>
-                  <p class="font-semibold mb-1">📊 점수 계산 공식</p>
-                  <div class="bg-white rounded p-2 font-mono text-xs">
-                    점수 = (평균평점 ÷ 5.0) × 70% + (리뷰수 정규화) × 30%
-                  </div>
-                </div>
-                
-                <div>
-                  <p class="font-semibold mb-1">✅ 최소 기준</p>
-                  <ul class="ml-6 space-y-1">
-                    <li>• 리뷰 3개 이상</li>
-                    <li>• 평균 평점 3.0 이상</li>
-                    <li>• 전화번호 필수</li>
-                  </ul>
-                </div>
-                
-                <div>
-                  <p class="font-semibold mb-1">🔄 업데이트 주기</p>
-                  <p class="ml-6">• 매일 자동 업데이트</p>
-                </div>
-              </div>
-            </div>
-
-            <!-- 투명성 보장 -->
-            <div class="bg-purple-50 rounded-lg p-4">
-              <h4 class="font-bold text-purple-800 mb-2 flex items-center">
-                <i class="fas fa-shield-alt mr-2"></i>
-                투명성 보장
-              </h4>
-              <ul class="text-sm text-purple-900 space-y-1 ml-6">
-                <li>• 모든 선정 기준은 공개됩니다</li>
-                <li>• 시설 평가는 고객 리뷰 기반입니다</li>
-                <li>• 금전적 대가로 인한 선정은 절대 없습니다</li>
-                <li>• 점수 계산 방식은 모든 시설에 동일하게 적용됩니다</li>
-              </ul>
-            </div>
-
-            <!-- 문의 -->
-            <div class="border-t pt-4 text-center text-sm text-gray-600">
-              <p>대표시설 선정에 대한 문의사항이 있으시면</p>
-              <p class="font-semibold text-teal-600 mt-1">고객센터 1544-0000</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
       <script>
         // 시/도 목록
@@ -13618,25 +13564,6 @@ app.get('/call-consultation', async (c) => {
             \`;
           }).join('');
         }
-
-        // 선정 기준 안내 모달 표시
-        function showSelectionInfo() {
-          document.getElementById('infoModal').classList.remove('hidden');
-          document.body.style.overflow = 'hidden';
-        }
-
-        // 선정 기준 안내 모달 숨기기
-        function hideSelectionInfo() {
-          document.getElementById('infoModal').classList.add('hidden');
-          document.body.style.overflow = 'auto';
-        }
-        
-        // 모달 배경 클릭 시 닫기
-        document.getElementById('infoModal').addEventListener('click', (e) => {
-          if (e.target.id === 'infoModal') {
-            hideSelectionInfo();
-          }
-        });
       </script>
     </body>
     </html>
