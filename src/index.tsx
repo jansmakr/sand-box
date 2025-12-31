@@ -1885,7 +1885,7 @@ app.get('/', (c) => {
                     <i class="fas fa-clipboard text-3xl text-orange-600"></i>
                   </div>
                   <span class="font-bold text-center">실시간 견적<br/>상담 신청</span>
-                </a><a href="/regional-consultation"
+                </a><a href="/call-consultation"
                    class="flex flex-col items-center justify-center bg-gradient-to-br from-green-500 to-emerald-600 text-white py-6 px-4 rounded-2xl shadow-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 min-h-[120px]">
                   <div class="bg-white bg-opacity-20 rounded-xl p-3 mb-3">
                     <i class="fas fa-phone-alt text-3xl"></i>
@@ -4600,6 +4600,7 @@ app.post('/api/admin/logout', (c) => {
 })
 
 // 지역별 상담센터 조회 API
+// Redirect old API to new API
 app.get('/api/regional-centers', async (c) => {
   const sido = c.req.query('sido')
   const sigungu = c.req.query('sigungu')
@@ -4608,55 +4609,8 @@ app.get('/api/regional-centers', async (c) => {
     return c.json({ error: 'Missing parameters' }, 400)
   }
   
-  try {
-    // 시설 데이터 로드 (메모리 캐시 사용)
-    await loadFacilities()
-    
-    // 해당 지역의 대표시설만 필터링
-    const representativeFacilities = dataStore.facilities
-      .filter(f => 
-        f.isRepresentative === true &&
-        f.sido === sido && 
-        f.sigungu === sigungu &&
-        f.phone && f.phone !== ''  // 전화번호가 있는 시설만
-      )
-      .slice(0, 4) // 최대 4개
-    
-    // 대표시설이 있으면 그것을 반환
-    if (representativeFacilities.length > 0) {
-      const centers = representativeFacilities.map(f => ({
-        facilityName: f.name,
-        facilityType: f.type,
-        facilitySido: f.sido,
-        facilitySigungu: f.sigungu,
-        managerName: '상담 담당자',
-        managerPhone: f.phone,
-        isRepresentative: true
-      }))
-      
-      return c.json({ 
-        centers: centers,
-        count: centers.length
-      })
-    }
-    
-    // 대표시설이 없으면 기존 로직 (partners에서 가져오기)
-    const regionalCenters = dataStore.partners
-      .filter(partner => 
-        partner.approvalStatus === 'approved' && 
-        partner.facilitySido === sido && 
-        partner.facilitySigungu === sigungu
-      )
-      .slice(0, 4)
-    
-    return c.json({ 
-      centers: regionalCenters,
-      count: regionalCenters.length
-    })
-  } catch (error) {
-    console.error('대표시설 조회 오류:', error)
-    return c.json({ centers: [], count: 0 })
-  }
+  // Redirect to new API
+  return c.redirect(`/api/representative-facilities?sido=${encodeURIComponent(sido)}&sigungu=${encodeURIComponent(sigungu)}`)
 })
 
 app.get('/api/admin/data', (c) => {
@@ -8845,7 +8799,7 @@ app.get('/dashboard/customer', async (c) => {
               <i class="fas fa-search text-2xl mb-2"></i>
               <p class="font-semibold">시설 찾기</p>
             </a>
-            <a href="/regional-consultation" class="bg-green-600 text-white p-4 rounded-lg hover:bg-green-700 transition-colors text-center">
+            <a href="/call-consultation" class="bg-green-600 text-white p-4 rounded-lg hover:bg-green-700 transition-colors text-center">
               <i class="fas fa-phone text-2xl mb-2"></i>
               <p class="font-semibold">전화 상담</p>
             </a>
