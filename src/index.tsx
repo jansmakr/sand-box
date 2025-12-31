@@ -1885,6 +1885,12 @@ app.get('/', (c) => {
                     <i class="fas fa-clipboard text-3xl text-orange-600"></i>
                   </div>
                   <span class="font-bold text-center">실시간 견적<br/>상담 신청</span>
+                </a><a href="/ai-matching"
+                   class="flex flex-col items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-600 text-white py-6 px-4 rounded-2xl shadow-lg hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 min-h-[120px]">
+                  <div class="bg-white bg-opacity-20 rounded-xl p-3 mb-3">
+                    <i class="fas fa-robot text-3xl"></i>
+                  </div>
+                  <span class="font-bold text-center">AI 맞춤<br/>시설 찾기</span>
                 </a><a href="/call-consultation"
                    class="flex flex-col items-center justify-center bg-gradient-to-br from-green-500 to-emerald-600 text-white py-6 px-4 rounded-2xl shadow-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 min-h-[120px]">
                   <div class="bg-white bg-opacity-20 rounded-xl p-3 mb-3">
@@ -12499,6 +12505,412 @@ app.post('/api/matching/facilities', async (c) => {
     console.error('[스마트 매칭] 오류:', error)
     return c.json({ success: false, message: '매칭 실패' }, 500)
   }
+})
+
+// ========== AI 맞춤 시설 찾기 페이지 ==========
+
+app.get('/ai-matching', async (c) => {
+  return c.html(`
+    <!DOCTYPE html>
+    <html lang="ko">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>AI 맞춤 시설 찾기 - 케어조아</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+        <style>
+          * {
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+          }
+        </style>
+    </head>
+    <body class="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 min-h-screen">
+      <!-- 헤더 -->
+      <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+          <button onclick="history.back()" class="text-gray-600 hover:text-purple-600" aria-label="뒤로 가기">
+            <i class="fas fa-arrow-left text-xl"></i>
+          </button>
+          <h1 class="text-lg font-bold text-gray-800">
+            <i class="fas fa-robot text-purple-600 mr-2"></i>
+            AI 맞춤 시설 찾기
+          </h1>
+          <div class="w-8"></div>
+        </div>
+      </header>
+
+      <!-- 메인 컨텐츠 -->
+      <main class="max-w-4xl mx-auto px-4 py-6">
+        <!-- 안내 -->
+        <div class="bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-2xl p-6 mb-6 shadow-lg">
+          <div class="flex items-start gap-4">
+            <div class="bg-white bg-opacity-20 rounded-xl p-3">
+              <i class="fas fa-robot text-3xl"></i>
+            </div>
+            <div class="flex-1">
+              <h2 class="text-xl font-bold mb-2">AI가 최적의 시설을 찾아드립니다</h2>
+              <p class="text-sm opacity-90">지역, 예산, 요양등급을 입력하시면 AI가 거리와 조건에 맞는 최적의 시설을 즉시 추천해드립니다.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 입력 폼 -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+          <h3 class="text-lg font-bold text-gray-800 mb-4">
+            <i class="fas fa-edit text-purple-600 mr-2"></i>
+            정보 입력
+          </h3>
+          
+          <div class="space-y-4">
+            <!-- 지역 선택 -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label for="sido" class="block text-sm font-medium text-gray-700 mb-2">
+                  <i class="fas fa-map-marker-alt text-red-500 mr-1"></i>
+                  시/도 *
+                </label>
+                <select id="sido" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-purple-600 text-base">
+                  <option value="">선택해주세요</option>
+                </select>
+              </div>
+              
+              <div>
+                <label for="sigungu" class="block text-sm font-medium text-gray-700 mb-2">
+                  <i class="fas fa-map-pin text-blue-500 mr-1"></i>
+                  시/군/구 *
+                </label>
+                <select id="sigungu" disabled class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-purple-600 text-base">
+                  <option value="">먼저 시/도를 선택해주세요</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- 시설 유형 -->
+            <div>
+              <label for="facilityType" class="block text-sm font-medium text-gray-700 mb-2">
+                <i class="fas fa-hospital text-teal-500 mr-1"></i>
+                시설 유형 *
+              </label>
+              <select id="facilityType" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-purple-600 text-base">
+                <option value="">선택해주세요</option>
+                <option value="요양병원">요양병원</option>
+                <option value="요양원">요양원</option>
+                <option value="주야간보호">주야간보호센터</option>
+                <option value="재가복지센터">재가복지센터</option>
+              </select>
+            </div>
+
+            <!-- 장기요양등급 -->
+            <div>
+              <label for="careGrade" class="block text-sm font-medium text-gray-700 mb-2">
+                <i class="fas fa-certificate text-yellow-500 mr-1"></i>
+                장기요양등급 (선택)
+              </label>
+              <select id="careGrade" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-purple-600 text-base">
+                <option value="">선택해주세요</option>
+                <option value="1등급">1등급 (월 한도액: 1,713,000원)</option>
+                <option value="2등급">2등급 (월 한도액: 1,512,100원)</option>
+                <option value="3등급">3등급 (월 한도액: 1,398,000원)</option>
+                <option value="4등급">4등급 (월 한도액: 1,295,700원)</option>
+                <option value="5등급">5등급 (월 한도액: 1,143,700원)</option>
+                <option value="인지지원등급">인지지원등급 (월 한도액: 610,500원)</option>
+              </select>
+            </div>
+
+            <!-- 예산 (선택) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label for="budgetMin" class="block text-sm font-medium text-gray-700 mb-2">
+                  <i class="fas fa-won-sign text-green-500 mr-1"></i>
+                  최소 예산 (선택)
+                </label>
+                <input type="number" id="budgetMin" placeholder="예: 1000000" 
+                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-purple-600 text-base">
+              </div>
+              
+              <div>
+                <label for="budgetMax" class="block text-sm font-medium text-gray-700 mb-2">
+                  <i class="fas fa-won-sign text-green-500 mr-1"></i>
+                  최대 예산 (선택)
+                </label>
+                <input type="number" id="budgetMax" placeholder="예: 2000000"
+                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-purple-600 text-base">
+              </div>
+            </div>
+
+            <!-- 최대 거리 -->
+            <div>
+              <label for="maxDistance" class="block text-sm font-medium text-gray-700 mb-2">
+                <i class="fas fa-route text-orange-500 mr-1"></i>
+                최대 거리 (km)
+              </label>
+              <input type="number" id="maxDistance" value="20" min="5" max="50"
+                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-purple-600 text-base">
+              <p class="text-xs text-gray-500 mt-1">기본 20km 반경 내 시설을 검색합니다</p>
+            </div>
+          </div>
+
+          <!-- 제출 버튼 -->
+          <button onclick="searchFacilities()" 
+                  class="mt-6 w-full py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg font-bold hover:from-purple-700 hover:to-indigo-700 transition-colors shadow-lg">
+            <i class="fas fa-search mr-2"></i>
+            AI로 최적 시설 찾기
+          </button>
+        </div>
+
+        <!-- 결과 표시 영역 -->
+        <div id="results" class="hidden">
+          <!-- 매칭 정보 -->
+          <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-bold text-gray-800">
+                <i class="fas fa-chart-line text-purple-600 mr-2"></i>
+                매칭 결과
+              </h3>
+              <span id="resultCount" class="text-sm font-semibold text-purple-600"></span>
+            </div>
+            <div id="matchingInfo" class="text-sm text-gray-600"></div>
+          </div>
+
+          <!-- 시설 목록 -->
+          <div id="facilityList" class="space-y-4"></div>
+        </div>
+
+        <!-- 로딩 -->
+        <div id="loading" class="hidden bg-white rounded-2xl shadow-lg p-12 text-center">
+          <div class="flex flex-col items-center justify-center space-y-4">
+            <div class="animate-spin rounded-full h-16 w-16 border-4 border-purple-500 border-t-transparent"></div>
+            <p class="text-xl font-semibold text-gray-700">
+              <i class="fas fa-robot mr-2 text-purple-500"></i>
+              AI가 최적의 시설을 찾고 있습니다...
+            </p>
+            <p class="text-sm text-gray-500">잠시만 기다려주세요</p>
+          </div>
+        </div>
+      </main>
+
+      <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
+      <script>
+        // 시/도 목록
+        const SIDO_LIST = [
+          '서울특별시', '부산광역시', '대구광역시', '인천광역시', '광주광역시', 
+          '대전광역시', '울산광역시', '세종특별자치시', '경기도', '강원특별자치도',
+          '충청북도', '충청남도', '전북특별자치도', '전라남도', '경상북도', 
+          '경상남도', '제주특별자치도'
+        ];
+
+        let sigunguMap = {};
+
+        // 페이지 로드 시
+        window.addEventListener('DOMContentLoaded', () => {
+          const sidoSelect = document.getElementById('sido');
+          
+          SIDO_LIST.forEach(sido => {
+            const option = document.createElement('option');
+            option.value = sido;
+            option.textContent = sido;
+            sidoSelect.appendChild(option);
+          });
+          
+          loadSigunguData();
+        });
+
+        // 시/군/구 데이터 로드
+        async function loadSigunguData() {
+          try {
+            const response = await axios.get('/api/regions');
+            if (response.data.success) {
+              sigunguMap = response.data.regions;
+            }
+          } catch (error) {
+            console.error('시/군/구 데이터 로드 실패:', error);
+          }
+        }
+
+        // 시/도 변경 시
+        document.getElementById('sido').addEventListener('change', function() {
+          const sigunguSelect = document.getElementById('sigungu');
+          const selectedSido = this.value;
+          
+          sigunguSelect.innerHTML = '<option value="">선택해주세요</option>';
+          sigunguSelect.disabled = !selectedSido;
+          
+          if (selectedSido && sigunguMap[selectedSido]) {
+            sigunguMap[selectedSido].forEach(sigungu => {
+              const option = document.createElement('option');
+              option.value = sigungu;
+              option.textContent = sigungu;
+              sigunguSelect.appendChild(option);
+            });
+          }
+        });
+
+        // 시설 검색
+        async function searchFacilities() {
+          const sido = document.getElementById('sido').value;
+          const sigungu = document.getElementById('sigungu').value;
+          const facilityType = document.getElementById('facilityType').value;
+          const careGrade = document.getElementById('careGrade').value;
+          const budgetMin = document.getElementById('budgetMin').value;
+          const budgetMax = document.getElementById('budgetMax').value;
+          const maxDistance = document.getElementById('maxDistance').value;
+
+          if (!sido || !sigungu || !facilityType) {
+            alert('필수 항목을 모두 입력해주세요 (시/도, 시/군/구, 시설 유형)');
+            return;
+          }
+
+          // 로딩 표시
+          document.getElementById('loading').classList.remove('hidden');
+          document.getElementById('results').classList.add('hidden');
+
+          try {
+            const response = await axios.post('/api/matching/facilities', {
+              sido,
+              sigungu,
+              facilityType,
+              careGrade: careGrade || null,
+              budgetMin: budgetMin ? parseInt(budgetMin) : null,
+              budgetMax: budgetMax ? parseInt(budgetMax) : null,
+              maxDistance: parseInt(maxDistance) || 20
+            });
+
+            // 로딩 숨기기
+            document.getElementById('loading').classList.add('hidden');
+
+            if (response.data.success) {
+              displayResults(response.data);
+            } else {
+              alert('시설 검색에 실패했습니다: ' + response.data.message);
+            }
+          } catch (error) {
+            console.error('검색 오류:', error);
+            document.getElementById('loading').classList.add('hidden');
+            alert('시설 검색 중 오류가 발생했습니다');
+          }
+        }
+
+        // 결과 표시
+        function displayResults(data) {
+          const { facilities, count, matchingInfo, filters } = data;
+
+          // 결과 카운트
+          document.getElementById('resultCount').textContent = \`총 \${count}개 시설\`;
+
+          // 매칭 정보
+          const infoHtml = \`
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div class="text-center p-3 bg-purple-50 rounded-lg">
+                <div class="text-2xl font-bold text-purple-600">\${matchingInfo.totalScanned}</div>
+                <div class="text-xs text-gray-600">검색된 시설</div>
+              </div>
+              <div class="text-center p-3 bg-indigo-50 rounded-lg">
+                <div class="text-2xl font-bold text-indigo-600">\${count}</div>
+                <div class="text-xs text-gray-600">추천 시설</div>
+              </div>
+              <div class="text-center p-3 bg-green-50 rounded-lg">
+                <div class="text-2xl font-bold text-green-600">\${filters.maxDistance}km</div>
+                <div class="text-xs text-gray-600">검색 반경</div>
+              </div>
+              <div class="text-center p-3 bg-yellow-50 rounded-lg">
+                <div class="text-2xl font-bold text-yellow-600">\${matchingInfo.careGradeLimit ? (matchingInfo.careGradeLimit / 10000).toFixed(0) + '만원' : '-'}</div>
+                <div class="text-xs text-gray-600">월 한도액</div>
+              </div>
+            </div>
+          \`;
+          document.getElementById('matchingInfo').innerHTML = infoHtml;
+
+          // 시설 목록
+          const facilityList = document.getElementById('facilityList');
+          
+          if (count === 0) {
+            facilityList.innerHTML = \`
+              <div class="bg-white rounded-2xl shadow-lg p-8 text-center">
+                <i class="fas fa-search text-gray-300 text-5xl mb-4"></i>
+                <p class="text-gray-700 font-semibold mb-2">조건에 맞는 시설이 없습니다</p>
+                <p class="text-sm text-gray-500">검색 조건을 변경해주세요</p>
+              </div>
+            \`;
+          } else {
+            facilityList.innerHTML = facilities.map((facility, index) => {
+              const typeConfig = {
+                '요양병원': { icon: 'fa-hospital', color: 'blue' },
+                '요양원': { icon: 'fa-home', color: 'green' },
+                '주야간보호': { icon: 'fa-clock', color: 'purple' },
+                '재가복지센터': { icon: 'fa-hands-helping', color: 'orange' }
+              };
+              const config = typeConfig[facility.facility_type] || { icon: 'fa-building', color: 'gray' };
+              
+              return \`
+                <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow border-2 border-transparent hover:border-purple-200">
+                  <!-- 순위 & 점수 -->
+                  <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-3">
+                      <div class="bg-gradient-to-br from-purple-500 to-indigo-600 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold text-lg">
+                        \${index + 1}
+                      </div>
+                      <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-\${config.color}-100 text-\${config.color}-800">
+                        <i class="fas \${config.icon} mr-1"></i>
+                        \${facility.facility_type}
+                      </span>
+                    </div>
+                    <div class="text-right">
+                      <div class="text-2xl font-bold text-purple-600">\${facility.matchScore}</div>
+                      <div class="text-xs text-gray-500">매칭 점수</div>
+                    </div>
+                  </div>
+
+                  <!-- 시설 정보 -->
+                  <h3 class="text-xl font-bold text-gray-800 mb-3">\${facility.name}</h3>
+                  
+                  <div class="space-y-2 text-sm text-gray-600 mb-4">
+                    <div class="flex items-start">
+                      <i class="fas fa-map-marker-alt text-red-500 mr-2 mt-0.5"></i>
+                      <span class="flex-1">\${facility.address}</span>
+                    </div>
+                    
+                    \${facility.distance ? \`
+                      <div class="flex items-center">
+                        <i class="fas fa-route text-orange-500 mr-2"></i>
+                        <span><strong>\${facility.distance}km</strong> 거리</span>
+                      </div>
+                    \` : ''}
+                    
+                    <div class="flex items-center">
+                      <i class="fas fa-phone text-green-500 mr-2"></i>
+                      <span>\${facility.phone || '전화번호 정보 없음'}</span>
+                    </div>
+                  </div>
+
+                  <!-- 액션 버튼 -->
+                  \${facility.phone ? \`
+                    <a href="tel:\${facility.phone}" 
+                       class="block w-full py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-center rounded-lg font-bold hover:from-purple-700 hover:to-indigo-700 transition-colors">
+                      <i class="fas fa-phone-alt mr-2"></i>
+                      전화 상담하기
+                    </a>
+                  \` : \`
+                    <button disabled
+                       class="block w-full py-3 bg-gray-400 text-white text-center rounded-lg font-bold cursor-not-allowed opacity-60">
+                      <i class="fas fa-phone-slash mr-2"></i>
+                      전화번호 준비중
+                    </button>
+                  \`}
+                </div>
+              \`;
+            }).join('');
+          }
+
+          // 결과 영역 표시
+          document.getElementById('results').classList.remove('hidden');
+          document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      </script>
+    </body>
+    </html>
+  `)
 })
 
 // ========== 전화상담 페이지 (지역별 대표시설) ==========
