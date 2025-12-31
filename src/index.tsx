@@ -12456,7 +12456,14 @@ app.post('/api/matching/facilities', async (c) => {
           facilityType,
           careGrade,
           budgetMin,
-          budgetMax
+          budgetMax,
+          maxDistance
+        },
+        matchingInfo: {
+          totalScanned: 0,
+          afterDistanceFilter: 0,
+          returned: 0,
+          careGradeLimit: careGrade ? CARE_GRADE_LIMITS[careGrade] : null
         }
       })
     }
