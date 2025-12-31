@@ -13309,7 +13309,7 @@ app.get('/call-consultation', async (c) => {
             <i class="fas fa-phone-alt text-teal-600 mr-2"></i>
             지역별 대표 요양시설 및 요양병원 전화상담
           </h1>
-          <div class="w-10"></div> {/* 균형을 위한 공간 */}
+          <div class="w-10"></div>
         </div>
       </header>
 
