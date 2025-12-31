@@ -34,15 +34,15 @@ cd webapp && npm install && npm run build
 ---
 
 ## 🌐 배포 URL
-- **최신 배포**: https://c3a1b6ec.carejoa-kr-auto.pages.dev
-- **프로덕션**: https://carejoa-kr.pages.dev
+- **최신 배포**: https://20599e01.carejoa-kr-auto.pages.dev
+- **프로덕션**: https://carejoa.kr
 - **프로젝트명**: carejoa-kr-auto
 - **로컬 개발**: http://localhost:3000
 - **Android 앱**: https://play.google.com/store/apps/details?id=app.netlify.std_care_joa.twa
 - **공식 웹사이트**: https://www.carejoa.com
 - **SEO 파일**:
-  - robots.txt: https://carejoa-kr.pages.dev/robots.txt
-  - sitemap.xml: https://carejoa-kr.pages.dev/sitemap.xml
+  - robots.txt: https://carejoa.kr/robots.txt
+  - sitemap.xml: https://carejoa.kr/sitemap.xml
 
 ## ✅ 완료된 기능
 
@@ -51,8 +51,10 @@ cd webapp && npm install && npm run build
 - ✅ 앱 스크린샷 디스플레이
 - ✅ 통계 정보 (월 10만+ 이용자, 3,000+ 등록 시설, 평균 4.5점)
 - ✅ Android 앱 다운로드 링크
-- ✅ 실시간 견적 & 상담 신청 CTA
-- ✅ **지역별 전화상담하기** 버튼 (NEW!)
+- ✅ **3개 서비스 버튼 (3-column 레이아웃)**
+  - 간편 견적 요청 (파란색, "인기" 배지)
+  - **AI 맞춤 시설 찾기** (보라색, "NEW" 배지) ⭐ NEW!
+  - 상세 맞춤 상담 (초록색)
 
 ### 2. 서비스 특징 섹션
 - ✅ 실시간 견적 - 간단한 정보로 즉시 확인
@@ -82,14 +84,44 @@ cd webapp && npm install && npm run build
 - ✅ 상세 요청사항
 - ✅ 실시간 데이터 저장
 
-### 6. 지역별 전화상담 시스템 (NEW!)
+### 6. 지역별 전화상담 시스템
 - ✅ 전국 시/도 및 시/군/구 선택 시스템
 - ✅ 지역별 대표 상담센터 표시 (최대 4개)
 - ✅ 상담센터 정보 (시설명, 유형, 담당자, 전화번호)
 - ✅ 원클릭 전화 연결 기능
 - ✅ 등록된 센터가 없을 경우 대표번호 안내
+- ✅ URL: https://carejoa.kr/call-consultation
 
-### 7. 전국 요양시설 찾기 (NEW! 2025-10-16)
+### 6-1. AI 맞춤 시설 찾기 (Phase 1 MVP) ⭐ NEW! 2025-12-31
+- ✅ **스마트 매칭 알고리즘**
+  - 지리적 인접성 필터링 (Haversine 거리 계산)
+  - 시설 유형 매칭 (요양병원/요양원/주야간보호/재가복지센터)
+  - 장기요양등급 매칭 (2025년 월 한도액 기준)
+  - 예산 범위 필터링
+- ✅ **시설 유형별 필터 분리**
+  - 요양병원: 건강보험 유형 선택 (건강보험/의료급여/보훈)
+  - 요양원/주야간보호/재가복지센터: 장기요양등급 선택 (1~5등급, 인지지원등급)
+- ✅ **사용자 입력 폼**
+  - 시/도 및 시/군/구 선택
+  - 시설 유형 선택
+  - 장기요양등급 또는 건강보험 유형 (동적 표시)
+  - 예산 범위 (최소/최대)
+  - 최대 거리 설정 (기본 20km)
+- ✅ **매칭 결과 표시**
+  - 상위 10개 추천 시설
+  - 거리 정보 (km)
+  - 매칭 점수 (100~200점)
+  - 시설 정보 (이름, 유형, 주소, 전화)
+  - 원클릭 전화 연결
+- ✅ **디자인**
+  - 보라색 테마 (메인 컬러: #7C3AED)
+  - 반응형 레이아웃
+  - 로봇 아이콘
+  - 그라데이션 버튼
+- ✅ URL: https://carejoa.kr/ai-matching
+- ✅ API: POST /api/matching/facilities
+
+### 7. 전국 요양시설 찾기
 - ✅ **20,432개** 전국 요양시설 데이터베이스 (Cloudflare D1)
 - ✅ **다중 필터 검색**
   - 시/도 선택 (18개 지역)
