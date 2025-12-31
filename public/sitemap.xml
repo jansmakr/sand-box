@@ -6,13 +6,9 @@
     <lastmod>2025-12-31</lastmod>
   </sitemap>
   
-  <!-- 시설 Sitemap (페이지 1-21) -->
+  <!-- 시설 Sitemap -->
   <sitemap>
-    <loc>https://carejoa.kr/sitemap-facilities-1.xml</loc>
-    <lastmod>2025-12-31</lastmod>
-  </sitemap>
-  <sitemap>
-    <loc>https://carejoa.kr/sitemap-facilities-2.xml</loc>
+    <loc>https://carejoa.kr/sitemap-facilities.xml</loc>
     <lastmod>2025-12-31</lastmod>
   </sitemap>
 </sitemapindex>
