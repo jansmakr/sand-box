@@ -13674,7 +13674,8 @@ app.get('/api/regions', async (c) => {
 })
 
 // ========== SEO: Sitemap.xml (동적 생성, 페이지네이션) ==========
-app.get('/sitemap.xml', async (c) => {
+// 동적 Sitemap: 시설별 페이지 (sitemap-facilities-1.xml, sitemap-facilities-2.xml 등)
+app.get('/sitemap-facilities-:page.xml', async (c) => {
   const db = c.env.DB
   
   if (!db) {
@@ -13682,15 +13683,9 @@ app.get('/sitemap.xml', async (c) => {
   }
   
   try {
-    // 페이지 파라미터 (예: /sitemap.xml?page=1)
-    const page = parseInt(c.req.query('page') || '1')
-    const limit = 1000 // 한 페이지당 1000개 URL
+    const page = parseInt(c.req.param('page') || '1')
+    const limit = 10000 // 한 페이지당 10000개 URL (Google 권장: 최대 50000)
     const offset = (page - 1) * limit
-    
-    // 전체 시설 수 조회
-    const countResult = await db.prepare('SELECT COUNT(*) as total FROM facilities').first()
-    const totalFacilities = countResult?.total || 0
-    const totalPages = Math.ceil(totalFacilities / limit)
     
     // 시설 목록 조회 (페이지네이션)
     const facilities = await db
@@ -13702,32 +13697,6 @@ app.get('/sitemap.xml', async (c) => {
     let xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
     xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
     
-    // 메인 페이지
-    if (page === 1) {
-      xml += '  <url>\n'
-      xml += '    <loc>https://carejoa.kr/</loc>\n'
-      xml += '    <changefreq>daily</changefreq>\n'
-      xml += '    <priority>1.0</priority>\n'
-      xml += '  </url>\n'
-      
-      // 주요 페이지들
-      const mainPages = [
-        '/facilities',
-        '/ai-matching',
-        '/call-consultation',
-        '/quote-request',
-        '/quote-simple'
-      ]
-      
-      mainPages.forEach(page => {
-        xml += '  <url>\n'
-        xml += `    <loc>https://carejoa.kr${page}</loc>\n`
-        xml += '    <changefreq>weekly</changefreq>\n'
-        xml += '    <priority>0.8</priority>\n'
-        xml += '  </url>\n'
-      })
-    }
-    
     // 시설 상세 페이지들
     facilities.results?.forEach((facility: any) => {
       xml += '  <url>\n'
@@ -13736,16 +13705,14 @@ app.get('/sitemap.xml', async (c) => {
         xml += `    <lastmod>${facility.updated_at}</lastmod>\n`
       }
       xml += '    <changefreq>monthly</changefreq>\n'
-      xml += '    <priority>0.6</priority>\n'
+      xml += '    <priority>0.7</priority>\n'
       xml += '  </url>\n'
     })
     
     xml += '</urlset>'
     
     // XML 응답 헤더
-    c.header('Content-Type', 'application/xml')
-    c.header('X-Total-Pages', totalPages.toString())
-    c.header('X-Current-Page', page.toString())
+    c.header('Content-Type', 'application/xml; charset=utf-8')
     
     return c.body(xml)
   } catch (error) {
