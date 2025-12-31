@@ -1885,12 +1885,6 @@ app.get('/', (c) => {
                     <i class="fas fa-clipboard text-3xl text-orange-600"></i>
                   </div>
                   <span class="font-bold text-center">실시간 견적<br/>상담 신청</span>
-                </a><a href="/ai-matching"
-                   class="flex flex-col items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-600 text-white py-6 px-4 rounded-2xl shadow-lg hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 min-h-[120px]">
-                  <div class="bg-white bg-opacity-20 rounded-xl p-3 mb-3">
-                    <i class="fas fa-robot text-3xl"></i>
-                  </div>
-                  <span class="font-bold text-center">AI 맞춤<br/>시설 찾기</span>
                 </a><a href="/call-consultation"
                    class="flex flex-col items-center justify-center bg-gradient-to-br from-green-500 to-emerald-600 text-white py-6 px-4 rounded-2xl shadow-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 min-h-[120px]">
                   <div class="bg-white bg-opacity-20 rounded-xl p-3 mb-3">
