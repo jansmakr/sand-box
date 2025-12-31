@@ -13400,18 +13400,19 @@ app.get('/call-consultation', async (c) => {
         let sigunguMap = {};
 
         // 페이지 로드 시 시/도 목록 로드
-        window.addEventListener('DOMContentLoaded', () => {
+        window.addEventListener('DOMContentLoaded', async () => {
           const sidoSelect = document.getElementById('sido');
           
+          // 시/군/구 데이터를 먼저 로드
+          await loadSigunguData();
+          
+          // 데이터 로드 완료 후 시/도 목록 추가
           SIDO_LIST.forEach(sido => {
             const option = document.createElement('option');
             option.value = sido;
             option.textContent = sido;
             sidoSelect.appendChild(option);
           });
-          
-          // 시/군/구 데이터 로드
-          loadSigunguData();
         });
 
         // 시/군/구 데이터 로드
@@ -13421,9 +13422,10 @@ app.get('/call-consultation', async (c) => {
             
             if (response.data.success) {
               sigunguMap = response.data.regions;
+              console.log('✅ 시/군/구 데이터 로드 완료:', Object.keys(sigunguMap).length, '개 시/도');
             }
           } catch (error) {
-            console.error('시/군/구 데이터 로드 실패:', error);
+            console.error('❌ 시/군/구 데이터 로드 실패:', error);
           }
         }
 
@@ -13433,17 +13435,24 @@ app.get('/call-consultation', async (c) => {
           const sigunguSelect = document.getElementById('sigungu');
           const selectedSido = sidoSelect.value;
           
+          console.log('📍 선택된 시/도:', selectedSido);
+          console.log('📍 sigunguMap 키 개수:', Object.keys(sigunguMap).length);
+          
           // 초기화
           sigunguSelect.innerHTML = '<option value="">선택해주세요</option>';
           sigunguSelect.disabled = !selectedSido;
           
           if (selectedSido && sigunguMap[selectedSido]) {
+            console.log('📍 시/군/구 옵션 추가:', sigunguMap[selectedSido].length, '개');
             sigunguMap[selectedSido].forEach(sigungu => {
               const option = document.createElement('option');
               option.value = sigungu;
               option.textContent = sigungu;
               sigunguSelect.appendChild(option);
             });
+            console.log('✅ 시/군/구 옵션 추가 완료');
+          } else {
+            console.log('❌ 시/군/구 데이터 없음:', selectedSido);
           }
           
           // 시설 목록 초기화
