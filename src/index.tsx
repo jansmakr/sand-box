@@ -12862,6 +12862,7 @@ app.get('/ai-matching', async (c) => {
           const sigungu = document.getElementById('sigungu').value;
           const facilityType = document.getElementById('facilityType').value;
           const careGrade = document.getElementById('careGrade').value;
+          const insuranceType = document.getElementById('insuranceType').value;
           const budgetMin = document.getElementById('budgetMin').value;
           const budgetMax = document.getElementById('budgetMax').value;
           const maxDistance = document.getElementById('maxDistance').value;
@@ -12880,7 +12881,7 @@ app.get('/ai-matching', async (c) => {
               sido,
               sigungu,
               facilityType,
-              careGrade: careGrade || null,
+              careGrade: careGrade || insuranceType || null,
               budgetMin: budgetMin ? parseInt(budgetMin) : null,
               budgetMax: budgetMax ? parseInt(budgetMax) : null,
               maxDistance: parseInt(maxDistance) || 20
@@ -12903,7 +12904,7 @@ app.get('/ai-matching', async (c) => {
 
         // 결과 표시
         function displayResults(data) {
-          const { facilities, count, matchingInfo, filters } = data;
+          const { facilities, count, matchingInfo = {}, filters = {} } = data;
 
           // 결과 카운트
           document.getElementById('resultCount').textContent = \`총 \${count}개 시설\`;
@@ -12912,7 +12913,7 @@ app.get('/ai-matching', async (c) => {
           const infoHtml = \`
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
               <div class="text-center p-3 bg-purple-50 rounded-lg">
-                <div class="text-2xl font-bold text-purple-600">\${matchingInfo.totalScanned}</div>
+                <div class="text-2xl font-bold text-purple-600">\${matchingInfo.totalScanned || 0}</div>
                 <div class="text-xs text-gray-600">검색된 시설</div>
               </div>
               <div class="text-center p-3 bg-indigo-50 rounded-lg">
@@ -12920,7 +12921,7 @@ app.get('/ai-matching', async (c) => {
                 <div class="text-xs text-gray-600">추천 시설</div>
               </div>
               <div class="text-center p-3 bg-green-50 rounded-lg">
-                <div class="text-2xl font-bold text-green-600">\${filters.maxDistance}km</div>
+                <div class="text-2xl font-bold text-green-600">\${filters.maxDistance || 20}km</div>
                 <div class="text-xs text-gray-600">검색 반경</div>
               </div>
               <div class="text-center p-3 bg-yellow-50 rounded-lg">
