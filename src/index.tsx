@@ -12329,6 +12329,178 @@ app.get('/api/representative-facilities', async (c) => {
   }
 })
 
+// ========== Phase 1: 스마트 매칭 API ==========
+
+// 거리 계산 함수 (Haversine formula)
+function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371 // 지구 반지름 (km)
+  const dLat = (lat2 - lat1) * Math.PI / 180
+  const dLon = (lon2 - lon1) * Math.PI / 180
+  const a = 
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon/2) * Math.sin(dLon/2)
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
+  return R * c // 거리 (km)
+}
+
+// 장기요양등급별 월 한도액 (2025년 기준)
+const CARE_GRADE_LIMITS: Record<string, number> = {
+  '1등급': 1713000,
+  '2등급': 1512100,
+  '3등급': 1398000,
+  '4등급': 1295700,
+  '5등급': 1143700,
+  '인지지원등급': 610500
+}
+
+// 스마트 매칭 API
+app.post('/api/matching/facilities', async (c) => {
+  const db = c.env.DB
+  
+  if (!db) {
+    return c.json({ success: false, message: '데이터베이스 연결 실패' }, 500)
+  }
+  
+  try {
+    const body = await c.req.json()
+    const {
+      sido,
+      sigungu,
+      facilityType,
+      careGrade,
+      budgetMin,
+      budgetMax,
+      userLatitude,
+      userLongitude,
+      maxDistance = 20 // 기본 20km 반경
+    } = body
+    
+    // 필수 파라미터 검증
+    if (!sido || !sigungu || !facilityType) {
+      return c.json({ 
+        success: false, 
+        message: '필수 파라미터가 누락되었습니다 (sido, sigungu, facilityType)' 
+      }, 400)
+    }
+    
+    // Phase 1: 기본 필터링
+    let query = `
+      SELECT 
+        f.*,
+        CASE 
+          WHEN f.latitude IS NOT NULL AND f.longitude IS NOT NULL 
+          THEN 1 
+          ELSE 0 
+        END as has_location
+      FROM facilities f
+      WHERE 1=1
+    `
+    const params: any[] = []
+    
+    // 1. 지역 필터링
+    query += ` AND f.sido = ?`
+    params.push(sido)
+    
+    query += ` AND f.sigungu = ?`
+    params.push(sigungu)
+    
+    // 2. 시설 유형 필터링
+    query += ` AND f.facility_type = ?`
+    params.push(facilityType)
+    
+    // 전화번호 있는 시설 우선
+    query += ` AND f.phone IS NOT NULL AND f.phone != ''`
+    
+    query += ` ORDER BY has_location DESC, f.id ASC`
+    query += ` LIMIT 50`
+    
+    const facilities = await db.prepare(query).bind(...params).all()
+    
+    if (!facilities.results || facilities.results.length === 0) {
+      return c.json({
+        success: true,
+        count: 0,
+        facilities: [],
+        filters: {
+          sido,
+          sigungu,
+          facilityType,
+          careGrade,
+          budgetMin,
+          budgetMax
+        }
+      })
+    }
+    
+    // Phase 1: 거리 계산 및 정렬
+    let scoredFacilities = facilities.results.map((facility: any) => {
+      let score = 100 // 기본 점수
+      let distance = null
+      
+      // 거리 계산 (좌표가 있는 경우)
+      if (userLatitude && userLongitude && facility.latitude && facility.longitude) {
+        distance = calculateDistance(
+          parseFloat(userLatitude),
+          parseFloat(userLongitude),
+          parseFloat(facility.latitude),
+          parseFloat(facility.longitude)
+        )
+        
+        // 거리 점수 (가까울수록 높은 점수)
+        if (distance <= 5) {
+          score += 50 // 5km 이내: +50점
+        } else if (distance <= 10) {
+          score += 30 // 10km 이내: +30점
+        } else if (distance <= 20) {
+          score += 10 // 20km 이내: +10점
+        }
+        
+        // 최대 거리 필터링
+        if (distance > maxDistance) {
+          return null // 너무 멀면 제외
+        }
+      }
+      
+      return {
+        ...facility,
+        distance: distance ? Math.round(distance * 10) / 10 : null, // 소수점 1자리
+        matchScore: score
+      }
+    }).filter((f: any) => f !== null) // null 제거
+    
+    // 점수순으로 정렬
+    scoredFacilities.sort((a: any, b: any) => b.matchScore - a.matchScore)
+    
+    // 상위 10개만 반환
+    const topFacilities = scoredFacilities.slice(0, 10)
+    
+    return c.json({
+      success: true,
+      count: topFacilities.length,
+      facilities: topFacilities,
+      filters: {
+        sido,
+        sigungu,
+        facilityType,
+        careGrade,
+        budgetMin,
+        budgetMax,
+        maxDistance
+      },
+      matchingInfo: {
+        totalScanned: facilities.results.length,
+        afterDistanceFilter: scoredFacilities.length,
+        returned: topFacilities.length,
+        careGradeLimit: careGrade ? CARE_GRADE_LIMITS[careGrade] : null
+      }
+    })
+  } catch (error) {
+    console.error('[스마트 매칭] 오류:', error)
+    return c.json({ success: false, message: '매칭 실패' }, 500)
+  }
+})
+
 // ========== 전화상담 페이지 (지역별 대표시설) ==========
 
 app.get('/call-consultation', async (c) => {
