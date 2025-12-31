@@ -12602,8 +12602,8 @@ app.get('/ai-matching', async (c) => {
               </select>
             </div>
 
-            <!-- 장기요양등급 -->
-            <div>
+            <!-- 장기요양등급 (요양원/주야간보호/재가복지센터 전용) -->
+            <div id="careGradeSection" style="display: none;">
               <label for="careGrade" class="block text-sm font-medium text-gray-700 mb-2">
                 <i class="fas fa-certificate text-yellow-500 mr-1"></i>
                 장기요양등급 (선택)
@@ -12617,6 +12617,28 @@ app.get('/ai-matching', async (c) => {
                 <option value="5등급">5등급 (월 한도액: 1,143,700원)</option>
                 <option value="인지지원등급">인지지원등급 (월 한도액: 610,500원)</option>
               </select>
+              <p class="text-xs text-gray-500 mt-1">
+                <i class="fas fa-info-circle mr-1"></i>
+                장기요양보험 적용 시설입니다
+              </p>
+            </div>
+
+            <!-- 건강보험 유형 (요양병원 전용) -->
+            <div id="insuranceTypeSection" style="display: none;">
+              <label for="insuranceType" class="block text-sm font-medium text-gray-700 mb-2">
+                <i class="fas fa-id-card text-blue-500 mr-1"></i>
+                건강보험 유형 (선택)
+              </label>
+              <select id="insuranceType" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-purple-600 text-base">
+                <option value="">선택해주세요</option>
+                <option value="건강보험">건강보험</option>
+                <option value="의료급여">의료급여 (기초생활수급자)</option>
+                <option value="보훈">보훈 대상자</option>
+              </select>
+              <p class="text-xs text-gray-500 mt-1">
+                <i class="fas fa-info-circle mr-1"></i>
+                요양병원은 건강보험 적용 시설입니다
+              </p>
             </div>
 
             <!-- 예산 (선택) -->
@@ -12744,6 +12766,27 @@ app.get('/ai-matching', async (c) => {
               option.textContent = sigungu;
               sigunguSelect.appendChild(option);
             });
+          }
+        });
+
+        // 시설 유형 변경 시 (장기요양등급 vs 건강보험 유형)
+        document.getElementById('facilityType').addEventListener('change', function() {
+          const facilityType = this.value;
+          const careGradeSection = document.getElementById('careGradeSection');
+          const insuranceTypeSection = document.getElementById('insuranceTypeSection');
+          
+          if (facilityType === '요양병원') {
+            // 요양병원: 건강보험 유형 표시
+            careGradeSection.style.display = 'none';
+            insuranceTypeSection.style.display = 'block';
+          } else if (facilityType) {
+            // 요양원/주야간보호/재가복지센터: 장기요양등급 표시
+            careGradeSection.style.display = 'block';
+            insuranceTypeSection.style.display = 'none';
+          } else {
+            // 선택 안 함: 둘 다 숨김
+            careGradeSection.style.display = 'none';
+            insuranceTypeSection.style.display = 'none';
           }
         });
 
