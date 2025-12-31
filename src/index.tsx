@@ -12645,19 +12645,40 @@ app.get('/ai-matching', async (c) => {
               </p>
             </div>
 
-            <!-- 건강보험 유형 (요양병원 전용) -->
+            <!-- 보험 유형 및 등급 (요양병원 전용) -->
             <div id="insuranceTypeSection" style="display: none;">
               <label for="insuranceType" class="block text-sm font-medium text-gray-700 mb-2">
                 <i class="fas fa-id-card text-blue-500 mr-1"></i>
-                건강보험 유형 (선택)
+                보험 유형 및 등급을 선택해 주세요
               </label>
-              <select id="insuranceType" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-purple-600 text-base">
-                <option value="">선택해주세요</option>
-                <option value="건강보험">건강보험</option>
-                <option value="의료급여">의료급여 (기초생활수급자)</option>
-                <option value="보훈">보훈 대상자</option>
-              </select>
-              <p class="text-xs text-gray-500 mt-1">
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <button type="button" class="insurance-btn px-4 py-3 border-2 border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all text-sm font-medium" data-value="건강보험">
+                  건강보험
+                </button>
+                <button type="button" class="insurance-btn px-4 py-3 border-2 border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all text-sm font-medium" data-value="보훈 1종">
+                  보훈 1종
+                </button>
+                <button type="button" class="insurance-btn px-4 py-3 border-2 border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all text-sm font-medium" data-value="보훈 2종">
+                  보훈 2종
+                </button>
+                <button type="button" class="insurance-btn px-4 py-3 border-2 border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all text-sm font-medium" data-value="자상위 1종">
+                  자상위 1종
+                </button>
+                <button type="button" class="insurance-btn px-4 py-3 border-2 border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all text-sm font-medium" data-value="자상위 2종">
+                  자상위 2종
+                </button>
+                <button type="button" class="insurance-btn px-4 py-3 border-2 border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all text-sm font-medium" data-value="의료급여 1종">
+                  의료급여 1종
+                </button>
+                <button type="button" class="insurance-btn px-4 py-3 border-2 border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all text-sm font-medium" data-value="의료급여 2종">
+                  의료급여 2종
+                </button>
+                <button type="button" class="insurance-btn px-4 py-3 border-2 border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all text-sm font-medium" data-value="기타">
+                  기타
+                </button>
+              </div>
+              <input type="hidden" id="insuranceType" value="">
+              <p class="text-xs text-gray-500 mt-2">
                 <i class="fas fa-info-circle mr-1"></i>
                 요양병원은 건강보험 적용 시설입니다
               </p>
@@ -12810,6 +12831,29 @@ app.get('/ai-matching', async (c) => {
             careGradeSection.style.display = 'none';
             insuranceTypeSection.style.display = 'none';
           }
+        });
+
+        // 보험 유형 버튼 클릭 이벤트
+        document.addEventListener('DOMContentLoaded', function() {
+          const insuranceBtns = document.querySelectorAll('.insurance-btn');
+          const insuranceTypeInput = document.getElementById('insuranceType');
+          
+          insuranceBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+              // 모든 버튼 비활성화
+              insuranceBtns.forEach(b => {
+                b.classList.remove('border-blue-500', 'bg-blue-50', 'text-blue-700');
+                b.classList.add('border-gray-300');
+              });
+              
+              // 선택된 버튼 활성화
+              this.classList.remove('border-gray-300');
+              this.classList.add('border-blue-500', 'bg-blue-50', 'text-blue-700');
+              
+              // hidden input 값 설정
+              insuranceTypeInput.value = this.getAttribute('data-value');
+            });
+          });
         });
 
         // 시설 검색
