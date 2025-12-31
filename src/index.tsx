@@ -2987,11 +2987,17 @@ app.get('/facilities', (c) => {
                     🗺️ \${facility.sido} \${facility.sigungu}
                   </div>
                 </div>
+                <a 
+                  href="/facility/\${facility.id}"
+                  style="display: block; width: 100%; background-color: #9333ea; color: white; padding: 8px; border-radius: 6px; text-align: center; text-decoration: none; font-weight: 600; margin-bottom: 4px;"
+                >
+                  상세보기
+                </a>
                 <button 
                   onclick="focusOnFacility(\${index})"
                   style="width: 100%; background-color: #3b82f6; color: white; padding: 8px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600;"
                 >
-                  상세보기
+                  목록에서 보기
                 </button>
               </div>
             \`;
@@ -3068,7 +3074,12 @@ app.get('/facilities', (c) => {
               <div class="flex justify-between items-start">
                 <div class="flex-1">
                   <div class="flex items-center gap-3 mb-3">
-                    <h3 class="text-xl font-bold text-gray-900">\${facility.name}</h3>
+                    <a href="/facility/\${facility.id}" class="group">
+                      <h3 class="text-xl font-bold text-gray-900 group-hover:text-purple-600 transition-colors">
+                        \${facility.name}
+                        <i class="fas fa-arrow-right ml-2 text-sm opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                      </h3>
+                    </a>
                     <span class="inline-block px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-semibold">
                       \${facility.type}
                     </span>
@@ -3091,18 +3102,24 @@ app.get('/facilities', (c) => {
                 </div>
               </div>
               
-              <div class="mt-4 pt-4 border-t flex gap-2">
+              <div class="mt-4 pt-4 border-t grid grid-cols-3 gap-2">
+                <a 
+                  href="/facility/\${facility.id}"
+                  class="bg-purple-500 text-white py-2 px-4 rounded-lg hover:bg-purple-600 transition-colors text-sm font-medium text-center"
+                >
+                  <i class="fas fa-info-circle mr-1"></i>상세보기
+                </a>
                 <button 
                   onclick="showOnMap(\${facility.lat}, \${facility.lng}, '\${facility.name.replace(/'/g, "\\\\'")}')"
-                  class="flex-1 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium"
+                  class="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium"
                 >
-                  <i class="fas fa-map-marked-alt mr-2"></i>지도에서 보기
+                  <i class="fas fa-map-marked-alt mr-1"></i>지도
                 </button>
                 <a 
                   href="tel:0507-1310-5873"
-                  class="flex-1 bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition-colors text-sm font-medium text-center"
+                  class="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition-colors text-sm font-medium text-center"
                 >
-                  <i class="fas fa-phone mr-2"></i>상담하기
+                  <i class="fas fa-phone mr-1"></i>상담
                 </a>
               </div>
             </div>
@@ -13191,7 +13208,12 @@ app.get('/ai-matching', async (c) => {
                   </div>
 
                   <!-- 시설 정보 -->
-                  <h3 class="text-xl font-bold text-gray-800 mb-3">\${facility.name}</h3>
+                  <a href="/facility/\${facility.id}" class="block group">
+                    <h3 class="text-xl font-bold text-gray-800 mb-3 group-hover:text-purple-600 transition-colors">
+                      \${facility.name}
+                      <i class="fas fa-arrow-right ml-2 text-sm opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                    </h3>
+                  </a>
                   
                   <div class="space-y-2 text-sm text-gray-600 mb-4">
                     <div class="flex items-start">
@@ -13213,19 +13235,26 @@ app.get('/ai-matching', async (c) => {
                   </div>
 
                   <!-- 액션 버튼 -->
-                  \${facility.phone ? \`
-                    <a href="tel:\${facility.phone}" 
-                       class="block w-full py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-center rounded-lg font-bold hover:from-purple-700 hover:to-indigo-700 transition-colors">
-                      <i class="fas fa-phone-alt mr-2"></i>
-                      전화 상담하기
+                  <div class="grid grid-cols-2 gap-2">
+                    <a href="/facility/\${facility.id}" 
+                       class="block py-3 bg-white border-2 border-purple-600 text-purple-600 text-center rounded-lg font-bold hover:bg-purple-50 transition-colors">
+                      <i class="fas fa-info-circle mr-1"></i>
+                      상세보기
                     </a>
-                  \` : \`
-                    <button disabled
-                       class="block w-full py-3 bg-gray-400 text-white text-center rounded-lg font-bold cursor-not-allowed opacity-60">
-                      <i class="fas fa-phone-slash mr-2"></i>
-                      전화번호 준비중
-                    </button>
-                  \`}
+                    \${facility.phone ? \`
+                      <a href="tel:\${facility.phone}" 
+                         class="block py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-center rounded-lg font-bold hover:from-purple-700 hover:to-indigo-700 transition-colors">
+                        <i class="fas fa-phone-alt mr-1"></i>
+                        전화상담
+                      </a>
+                    \` : \`
+                      <button disabled
+                         class="block py-3 bg-gray-400 text-white text-center rounded-lg font-bold cursor-not-allowed opacity-60">
+                        <i class="fas fa-phone-slash mr-1"></i>
+                        준비중
+                      </button>
+                    \`}
+                  </div>
                 </div>
               \`;
             }).join('');
