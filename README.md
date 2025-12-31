@@ -47,6 +47,23 @@ cd webapp && npm install && npm run build
   - sitemap-facilities-1.xml: https://carejoa.kr/sitemap-facilities-1.xml
   - sitemap-facilities-2.xml: https://carejoa.kr/sitemap-facilities-2.xml
 
+## 🔍 검색 엔진 등록 가이드
+
+### Google Search Console
+- 📄 [Google Search Console 등록 가이드](GOOGLE_SEARCH_CONSOLE_GUIDE.md)
+- 🔗 등록 URL: https://search.google.com/search-console
+
+### 네이버 서치어드바이저
+- 📄 [네이버 상세 가이드](NAVER_SEARCHADVISOR_GUIDE.md) - 10단계 완벽 가이드
+- 🚀 [네이버 빠른 시작](NAVER_QUICK_START.md) - 5분 빠른 등록
+- 🔗 등록 URL: https://searchadvisor.naver.com/
+- 📋 제출 사이트맵: https://carejoa.kr/sitemap.xml
+
+**빠른 등록 3단계:**
+1. 서치어드바이저 가입 및 사이트 등록
+2. 소유 확인 (HTML 파일 또는 DNS)
+3. 사이트맵 제출
+
 ## ✅ 완료된 기능
 
 ### 0. SEO 최적화 (NEW! 2025-12-31) 🚀
@@ -64,12 +81,15 @@ cd webapp && npm install && npm run build
 - ✅ **Sitemap.xml 구현**
   - Sitemap Index: `/sitemap.xml`
   - 메인 페이지 Sitemap: `/sitemap-main.xml`
-  - 시설 Sitemap (동적): `/sitemap-facilities-1.xml`, `/sitemap-facilities-2.xml`
+  - 시설 Sitemap (동적): `/sitemap-facilities-1.xml`, `/sitemap-facilities-2.xml`, `/sitemap-facilities-3.xml`
   - 총 20,432개 시설 URL 포함
 - ✅ **robots.txt 설정**
   - 크롤러 허용 설정
   - Sitemap 위치 명시
-- 📝 **Google Search Console 등록 가이드**: [GOOGLE_SEARCH_CONSOLE_GUIDE.md](GOOGLE_SEARCH_CONSOLE_GUIDE.md)
+- 📝 **검색 엔진 등록 가이드**
+  - Google Search Console: [GOOGLE_SEARCH_CONSOLE_GUIDE.md](GOOGLE_SEARCH_CONSOLE_GUIDE.md)
+  - 네이버 서치어드바이저: [NAVER_SEARCHADVISOR_GUIDE.md](NAVER_SEARCHADVISOR_GUIDE.md)
+  - 네이버 빠른 시작: [NAVER_QUICK_START.md](NAVER_QUICK_START.md)
 
 ### 1. 메인 랜딩 페이지
 - ✅ 케어조아 로고 및 브랜딩
