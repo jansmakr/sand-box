@@ -2520,6 +2520,223 @@ app.get('/family-care-register', (c) => {
   )
 })
 
+// 시설 상세 페이지 (SEO 최적화)
+app.get('/facility/:id', async (c) => {
+  const db = c.env.DB
+  const facilityId = c.req.param('id')
+  
+  if (!db) {
+    return c.text('데이터베이스 연결 실패', 500)
+  }
+  
+  try {
+    // 시설 정보 조회
+    const facility = await db
+      .prepare('SELECT * FROM facilities WHERE id = ?')
+      .bind(facilityId)
+      .first()
+    
+    if (!facility) {
+      return c.redirect('/facilities')
+    }
+    
+    // SEO 메타 정보 생성
+    const pageTitle = `${facility.name} - ${facility.sido} ${facility.sigungu} ${facility.facility_type} | 케어조아`
+    const pageDescription = `${facility.name}의 상세 정보를 확인하세요. 주소: ${facility.address || facility.sido + ' ' + facility.sigungu}, 전화: ${facility.phone || '문의 필요'}. 케어조아에서 전국 요양시설 정보를 한눈에!`
+    const pageUrl = `https://carejoa.kr/facility/${facilityId}`
+    
+    // 구조화된 데이터 (Schema.org)
+    const structuredData = {
+      "@context": "https://schema.org",
+      "@type": facility.facility_type === "요양병원" ? "Hospital" : "HealthAndBeautyBusiness",
+      "name": facility.name,
+      "address": {
+        "@type": "PostalAddress",
+        "addressRegion": facility.sido,
+        "addressLocality": facility.sigungu,
+        "streetAddress": facility.address || "",
+        "postalCode": facility.postal_code || ""
+      },
+      "telephone": facility.phone || "",
+      "geo": facility.latitude && facility.longitude ? {
+        "@type": "GeoCoordinates",
+        "latitude": facility.latitude,
+        "longitude": facility.longitude
+      } : undefined
+    }
+    
+    return c.html(`
+      <!DOCTYPE html>
+      <html lang="ko">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        <!-- SEO 메타태그 -->
+        <title>${pageTitle}</title>
+        <meta name="description" content="${pageDescription}">
+        <meta name="keywords" content="${facility.name}, ${facility.facility_type}, ${facility.sido}, ${facility.sigungu}, 요양시설, 케어조아">
+        
+        <!-- Open Graph (페이스북, 카카오톡) -->
+        <meta property="og:title" content="${pageTitle}">
+        <meta property="og:description" content="${pageDescription}">
+        <meta property="og:url" content="${pageUrl}">
+        <meta property="og:type" content="website">
+        <meta property="og:site_name" content="케어조아">
+        
+        <!-- Twitter Card -->
+        <meta name="twitter:card" content="summary">
+        <meta name="twitter:title" content="${pageTitle}">
+        <meta name="twitter:description" content="${pageDescription}">
+        
+        <!-- 구조화된 데이터 -->
+        <script type="application/ld+json">
+          ${JSON.stringify(structuredData, null, 2)}
+        </script>
+        
+        <!-- 스타일 -->
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+        ${facility.latitude && facility.longitude ? '<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />' : ''}
+      </head>
+      <body class="bg-gray-50">
+        <!-- 헤더 -->
+        <header class="bg-white shadow-sm border-b">
+          <div class="max-w-7xl mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+              <a href="/" class="flex items-center">
+                <img src="https://page.gensparksite.com/v1/base64_upload/b39dca8586af1dacd6d8417554313896" alt="케어조아" class="h-8 mr-3">
+                <h1 class="text-2xl font-bold text-teal-600">케어조아</h1>
+              </a>
+              <div class="flex gap-4">
+                <a href="/facilities" class="text-gray-600 hover:text-gray-900">
+                  <i class="fas fa-search mr-1"></i>시설 찾기
+                </a>
+                <a href="/" class="text-gray-600 hover:text-gray-900">
+                  <i class="fas fa-home mr-1"></i>홈으로
+                </a>
+              </div>
+            </div>
+          </div>
+        </header>
+        
+        <!-- 메인 콘텐츠 -->
+        <main class="max-w-4xl mx-auto px-4 py-8">
+          <!-- 시설 정보 카드 -->
+          <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-6">
+            <div class="mb-6">
+              <div class="flex items-center gap-2 mb-4">
+                <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold">
+                  ${facility.facility_type}
+                </span>
+                <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
+                  ${facility.sido} ${facility.sigungu}
+                </span>
+              </div>
+              <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+                ${facility.name}
+              </h1>
+            </div>
+            
+            <div class="space-y-4">
+              <div class="flex items-start">
+                <i class="fas fa-map-marker-alt text-red-500 text-xl mt-1 mr-3"></i>
+                <div>
+                  <p class="text-gray-700 font-medium">주소</p>
+                  <p class="text-gray-600">${facility.address || facility.sido + ' ' + facility.sigungu}</p>
+                  ${facility.postal_code ? `<p class="text-sm text-gray-500">우편번호: ${facility.postal_code}</p>` : ''}
+                </div>
+              </div>
+              
+              <div class="flex items-start">
+                <i class="fas fa-phone text-green-500 text-xl mt-1 mr-3"></i>
+                <div>
+                  <p class="text-gray-700 font-medium">전화번호</p>
+                  ${facility.phone ? 
+                    `<a href="tel:${facility.phone}" class="text-blue-600 hover:text-blue-700 font-semibold">${facility.phone}</a>` 
+                    : '<p class="text-gray-500">전화번호 정보가 없습니다</p>'}
+                </div>
+              </div>
+              
+              <div class="flex items-start">
+                <i class="fas fa-hospital text-blue-500 text-xl mt-1 mr-3"></i>
+                <div>
+                  <p class="text-gray-700 font-medium">시설 유형</p>
+                  <p class="text-gray-600">${facility.facility_type}</p>
+                </div>
+              </div>
+            </div>
+            
+            ${facility.phone ? `
+            <div class="mt-8 pt-6 border-t border-gray-200">
+              <a href="tel:${facility.phone}" 
+                 class="block w-full bg-gradient-to-r from-teal-500 to-teal-600 text-white text-center py-4 rounded-xl font-bold text-lg hover:from-teal-600 hover:to-teal-700 transition-all shadow-lg">
+                <i class="fas fa-phone-alt mr-2"></i>
+                전화 상담하기
+              </a>
+            </div>
+            ` : ''}
+          </div>
+          
+          <!-- 지도 (좌표가 있는 경우) -->
+          ${facility.latitude && facility.longitude ? `
+          <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+              <i class="fas fa-map text-purple-600 mr-3"></i>
+              위치
+            </h2>
+            <div id="map" class="w-full h-80 rounded-xl"></div>
+          </div>
+          
+          <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+          <script>
+            const map = L.map('map').setView([${facility.latitude}, ${facility.longitude}], 15);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+              attribution: '© OpenStreetMap'
+            }).addTo(map);
+            
+            const marker = L.marker([${facility.latitude}, ${facility.longitude}]).addTo(map);
+            marker.bindPopup('<b>${facility.name}</b><br>${facility.facility_type}').openPopup();
+          </script>
+          ` : ''}
+          
+          <!-- CTA 섹션 -->
+          <div class="bg-gradient-to-r from-blue-50 to-teal-50 rounded-2xl p-6 md:p-8 text-center">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">
+              더 많은 시설 정보가 필요하신가요?
+            </h2>
+            <p class="text-gray-600 mb-6">
+              전국 20,000개 이상의 요양시설 정보를 확인하고<br>
+              AI 맞춤 추천으로 최적의 시설을 찾아보세요
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+              <a href="/facilities" class="bg-white text-teal-700 border-2 border-teal-600 py-3 px-6 rounded-xl font-bold hover:bg-teal-50 transition-all">
+                <i class="fas fa-search mr-2"></i>
+                전국 시설 검색
+              </a>
+              <a href="/ai-matching" class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3 px-6 rounded-xl font-bold hover:from-purple-700 hover:to-indigo-700 transition-all">
+                <i class="fas fa-robot mr-2"></i>
+                AI 맞춤 찾기
+              </a>
+            </div>
+          </div>
+        </main>
+        
+        <!-- 푸터 -->
+        <footer class="bg-gray-900 text-white py-8 mt-12">
+          <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-gray-400 text-sm">© 2025 케어조아. All rights reserved.</p>
+          </div>
+        </footer>
+      </body>
+      </html>
+    `)
+  } catch (error) {
+    console.error('시설 상세 조회 오류:', error)
+    return c.redirect('/facilities')
+  }
+})
+
 // 전국 시설 찾기 페이지
 app.get('/facilities', (c) => {
   return c.render(
@@ -13425,6 +13642,110 @@ app.get('/api/regions', async (c) => {
     console.error('[지역 목록 조회] 오류:', error)
     return c.json({ success: false, message: '조회 실패' }, 500)
   }
+})
+
+// ========== SEO: Sitemap.xml (동적 생성, 페이지네이션) ==========
+app.get('/sitemap.xml', async (c) => {
+  const db = c.env.DB
+  
+  if (!db) {
+    return c.text('데이터베이스 연결 실패', 500)
+  }
+  
+  try {
+    // 페이지 파라미터 (예: /sitemap.xml?page=1)
+    const page = parseInt(c.req.query('page') || '1')
+    const limit = 1000 // 한 페이지당 1000개 URL
+    const offset = (page - 1) * limit
+    
+    // 전체 시설 수 조회
+    const countResult = await db.prepare('SELECT COUNT(*) as total FROM facilities').first()
+    const totalFacilities = countResult?.total || 0
+    const totalPages = Math.ceil(totalFacilities / limit)
+    
+    // 시설 목록 조회 (페이지네이션)
+    const facilities = await db
+      .prepare('SELECT id, updated_at FROM facilities ORDER BY id LIMIT ? OFFSET ?')
+      .bind(limit, offset)
+      .all()
+    
+    // XML 생성
+    let xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
+    xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+    
+    // 메인 페이지
+    if (page === 1) {
+      xml += '  <url>\n'
+      xml += '    <loc>https://carejoa.kr/</loc>\n'
+      xml += '    <changefreq>daily</changefreq>\n'
+      xml += '    <priority>1.0</priority>\n'
+      xml += '  </url>\n'
+      
+      // 주요 페이지들
+      const mainPages = [
+        '/facilities',
+        '/ai-matching',
+        '/call-consultation',
+        '/quote-request',
+        '/quote-simple'
+      ]
+      
+      mainPages.forEach(page => {
+        xml += '  <url>\n'
+        xml += `    <loc>https://carejoa.kr${page}</loc>\n`
+        xml += '    <changefreq>weekly</changefreq>\n'
+        xml += '    <priority>0.8</priority>\n'
+        xml += '  </url>\n'
+      })
+    }
+    
+    // 시설 상세 페이지들
+    facilities.results?.forEach((facility: any) => {
+      xml += '  <url>\n'
+      xml += `    <loc>https://carejoa.kr/facility/${facility.id}</loc>\n`
+      if (facility.updated_at) {
+        xml += `    <lastmod>${facility.updated_at}</lastmod>\n`
+      }
+      xml += '    <changefreq>monthly</changefreq>\n'
+      xml += '    <priority>0.6</priority>\n'
+      xml += '  </url>\n'
+    })
+    
+    xml += '</urlset>'
+    
+    // XML 응답 헤더
+    c.header('Content-Type', 'application/xml')
+    c.header('X-Total-Pages', totalPages.toString())
+    c.header('X-Current-Page', page.toString())
+    
+    return c.body(xml)
+  } catch (error) {
+    console.error('[Sitemap 생성] 오류:', error)
+    return c.text('Sitemap 생성 실패', 500)
+  }
+})
+
+// ========== SEO: robots.txt ==========
+app.get('/robots.txt', (c) => {
+  const robotsTxt = `User-agent: *
+Allow: /
+Allow: /facility/*
+Allow: /facilities
+Allow: /ai-matching
+Allow: /call-consultation
+
+Disallow: /admin
+Disallow: /api/*
+Disallow: /login
+
+Sitemap: https://carejoa.kr/sitemap.xml
+
+# 검색 엔진별 크롤링 속도 제한
+Crawl-delay: 1
+`
+  
+  c.header('Content-Type', 'text/plain')
+  return c.text(robotsTxt)
 })
 
 // ========== Cloudflare Workers 설정 ==========
