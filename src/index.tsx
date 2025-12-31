@@ -2178,7 +2178,7 @@ app.get('/', (c) => {
               <div class="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-green-100 transition-colors">
                 <i class="fas fa-notes-medical text-3xl text-green-600"></i>
               </div>
-              <h3 class="text-xl font-bold text-gray-900 mb-2">상세 맞춤 상담</h3>
+              <h3 class="text-xl font-bold text-gray-900 mb-2">상세 견적 신청</h3>
               <p class="text-sm text-gray-600 mb-6">
                 환자분의 상태와 등급에 맞춰<br/>
                 딱 맞는 전문 시설을 추천받으세요.
@@ -2838,16 +2838,9 @@ app.get('/facilities', (c) => {
                 <i class="fas fa-redo mr-2"></i>필터 초기화
               </button>
             </div>
-          </div><div class="grid grid-cols-1 lg:grid-cols-2 gap-6"><div class="bg-white rounded-xl shadow-lg p-4">
-              <div class="mb-3">
-                <h3 class="text-lg font-bold text-gray-800 flex items-center">
-                  <i class="fas fa-map text-blue-600 mr-2"></i>
-                  지도로 보기
-                  <span id="mapMarkerCount" class="ml-2 text-sm text-gray-500">(0개 표시)</span>
-                </h3>
-              </div>
-              <div id="map" style="height: 600px; width: 100%; border-radius: 0.75rem; overflow: hidden;"></div>
-            </div><div>
+          </div><div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* 모바일: 리스트 먼저, 데스크톱: 왼쪽에 리스트 */}
+            <div class="order-1">
               <div class="mb-4">
                 <h3 class="text-lg font-bold text-gray-800 flex items-center">
                   <i class="fas fa-list text-purple-600 mr-2"></i>
@@ -2863,6 +2856,18 @@ app.get('/facilities', (c) => {
                 <h3 class="text-2xl font-bold text-gray-700 mb-2">검색 결과가 없습니다</h3>
                 <p class="text-gray-500">다른 조건으로 검색해 주세요</p>
               </div>
+            </div>
+
+            {/* 모바일: 지도 나중, 데스크톱: 오른쪽에 지도 */}
+            <div class="bg-white rounded-xl shadow-lg p-4 order-2">
+              <div class="mb-3">
+                <h3 class="text-lg font-bold text-gray-800 flex items-center">
+                  <i class="fas fa-map text-blue-600 mr-2"></i>
+                  지도로 보기
+                  <span id="mapMarkerCount" class="ml-2 text-sm text-gray-500">(0개 표시)</span>
+                </h3>
+              </div>
+              <div id="map" style="height: 600px; width: 100%; border-radius: 0.75rem; overflow: hidden;"></div>
             </div>
           </div>
         </div>
@@ -7985,7 +7990,8 @@ app.get('/api/facility/representative-status', async (c) => {
 
 // ========== 메시지 교환 API ==========
 
-// 메시지 전송 (고객 → 시설)
+// 메시지 전송 (고객 → 시설) - DEPRECATED: 하단에 통합된 버전 사용
+/* DEPRECATED - 중복 라우트
 app.post('/api/messages/send', async (c) => {
   const user = await getUser(c)
   
@@ -8038,6 +8044,7 @@ app.post('/api/messages/send', async (c) => {
     return c.json({ success: false, message: '메시지 전송 실패' }, 500)
   }
 })
+*/
 
 // 메시지 목록 조회 (견적서별)
 app.get('/api/messages/:responseId', async (c) => {
