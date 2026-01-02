@@ -1862,7 +1862,7 @@ app.get('/', (c) => {
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 md:py-16 lg:py-20 relative z-10">
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8 items-center">
             <div class="space-y-4 text-center lg:text-left">
-              <h1 class="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white leading-tight">
+              <h1 class="text-xl sm:text-2xl md:text-3xl lg:text-3xl xl:text-4xl font-bold text-white leading-tight">
                 {/* 모바일 & 데스크톱 모두 3줄 */}
                 어르신을 위한<br />
                 최적의 요양시설 찾기,<br />
