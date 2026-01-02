@@ -1858,43 +1858,22 @@ app.get('/', (c) => {
             }
           });
         `
-      }} /><section class="relative bg-gradient-to-br from-teal-400 via-blue-400 to-cyan-400 overflow-hidden min-h-[70vh] flex items-center">
-        <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48Y2lyY2xlIGN4PSIzMCIgY3k9IjMwIiByPSIyIi8+PC9nPjwvZz48L3N2Zz4=')] opacity-30"></div>
-        <div class="max-w-7xl mx-auto px-4 py-16 md:py-20 relative z-10 w-full">
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-            <div class="space-y-8">
-              <div>
-                <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight drop-shadow-lg">
-                  이젠 찾지 말고<br />
-                  고르세요<br />
-                  케어조아
-                </h1>
-                <p class="text-xl md:text-2xl text-white/95 mb-8 leading-relaxed drop-shadow">
-                  희망하는 지역의, 희망하는 시설만!<br />
-                  입력하면 그 지역 <strong>모든 시설의 정보를</strong><br />
-                  실시간으로 받아볼 수 있어요
-                </p>
-              </div>
-              <div class="bg-white/20 backdrop-blur-md border-2 border-white/40 rounded-2xl p-6 shadow-2xl">
-                <div class="flex items-center justify-center text-center">
-                  <div>
-                    <div class="flex items-center justify-center mb-2">
-                      <div class="bg-white rounded-full p-2 mr-2 shadow-lg">
-                        <i class="fas fa-certificate text-teal-600 text-xl"></i>
-                      </div>
-                      <span class="text-lg font-bold text-white drop-shadow">특허기반 실시간 요양견적 및 상담 플랫폼</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+      }} /><section class="relative bg-gradient-to-r from-teal-500 to-cyan-400 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 py-12 md:py-16 relative z-10">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+            <div class="space-y-6">
+              <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight">
+                어르신을 위한 최적의 케어,<br />
+                <span class="text-white">케어조아와 함께하세요</span>
+              </h1>
             </div>
 
             <div class="relative flex justify-center lg:justify-end">
-              <div class="relative animate-bounce-slow">
-                <div class="bg-white/30 backdrop-blur-sm rounded-full p-8 shadow-2xl">
-                  <span class="text-9xl">🐑</span>
-                </div>
-              </div>
+              <img 
+                src="https://www.genspark.ai/api/files/s/X6qQ8MPA" 
+                alt="케어조아 캐릭터"
+                class="w-64 md:w-80 lg:w-96 h-auto"
+              />
             </div>
           </div>
         </div>
