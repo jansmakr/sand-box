@@ -1859,20 +1859,20 @@ app.get('/', (c) => {
           });
         `
       }} /><section class="relative bg-gradient-to-r from-teal-500 to-cyan-400 overflow-hidden">
-        <div class="max-w-7xl mx-auto px-4 py-16 md:py-20 relative z-10">
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-            <div class="space-y-6 text-center lg:text-left">
-              <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
+        <div class="max-w-7xl mx-auto px-4 py-12 md:py-16 relative z-10">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-center">
+            <div class="space-y-4">
+              <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight">
                 어르신을 위한 최적의 케어,<br />
                 <span class="text-white">케어조아와 함께하세요</span>
               </h1>
             </div>
 
-            <div class="hidden lg:flex relative justify-center lg:justify-end">
+            <div class="relative flex justify-center lg:justify-end">
               <img 
-                src="https://www.genspark.ai/api/files/s/X6qQ8MPA" 
+                src="https://www.genspark.ai/api/files/s/hGIVnNNU" 
                 alt="케어조아 캐릭터"
-                class="w-80 lg:w-96 h-auto"
+                class="w-48 sm:w-56 md:w-64 lg:w-80 xl:w-96 h-auto"
               />
             </div>
           </div>
