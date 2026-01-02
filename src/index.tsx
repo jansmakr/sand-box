@@ -1859,83 +1859,83 @@ app.get('/', (c) => {
           });
         `
       }} /><section class="relative bg-gradient-to-r from-teal-500 to-cyan-400 overflow-hidden">
-        <div class="max-w-7xl mx-auto px-4 py-12 md:py-16 relative z-10">
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-center">
-            <div class="space-y-4">
-              <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight">
-                어르신을 위한 최적의 케어,<br />
-                <span class="text-white">케어조아와 함께하세요</span>
+        <div class="max-w-7xl mx-auto px-3 sm:px-4 py-8 sm:py-10 md:py-14 lg:py-16 relative z-10">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 items-center">
+            <div class="space-y-2 sm:space-y-3 text-center lg:text-left">
+              <h1 class="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white leading-snug sm:leading-tight">
+                어르신을 위한<br class="sm:hidden" /> 최적의 케어,<br />
+                <span class="text-white">케어조아와<br class="sm:hidden" /> 함께하세요</span>
               </h1>
             </div>
 
-            <div class="relative flex justify-center lg:justify-end">
+            <div class="relative flex justify-center lg:justify-end mt-4 lg:mt-0">
               <img 
                 src="https://www.genspark.ai/api/files/s/Y24CYnye" 
                 alt="케어조아 캐릭터"
-                class="w-48 sm:w-56 md:w-64 lg:w-80 xl:w-96 h-auto"
+                class="w-40 sm:w-48 md:w-56 lg:w-72 xl:w-80 h-auto"
               />
             </div>
           </div>
         </div>
       </section>
 
-      <section class="py-12 md:py-16 bg-gradient-to-b from-white to-gray-50">
-        <div class="max-w-6xl mx-auto px-4">
-          <div class="grid grid-cols-2 gap-4 md:gap-6 mb-8" id="main-action-buttons">
+      <section class="py-8 sm:py-10 md:py-14 lg:py-16 bg-gradient-to-b from-white to-gray-50">
+        <div class="max-w-6xl mx-auto px-3 sm:px-4">
+          <div class="grid grid-cols-2 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8" id="main-action-buttons">
                 <a href="https://play.google.com/store/apps/details?id=app.netlify.std_care_joa.twa" 
                    target="_blank" rel="noopener noreferrer"
-                   class="group flex flex-col items-center justify-center bg-white py-8 px-4 rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[160px]">
-                  <div class="mb-4 transform group-hover:scale-110 transition-transform duration-300">
-                    <i class="fas fa-mobile-alt text-6xl md:text-7xl text-blue-500"></i>
+                   class="group flex flex-col items-center justify-center bg-white py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[140px] sm:min-h-[160px]">
+                  <div class="mb-2 sm:mb-4 transform group-hover:scale-110 transition-transform duration-300">
+                    <i class="fas fa-mobile-alt text-5xl sm:text-6xl md:text-7xl text-blue-500"></i>
                   </div>
-                  <span class="font-semibold text-gray-800 text-base md:text-lg text-center">Android 앱 다운로드</span>
+                  <span class="font-semibold text-gray-800 text-sm sm:text-base md:text-lg text-center leading-tight">Android<br class="sm:hidden" /> 앱<br class="sm:hidden" /> 다운로드</span>
                 </a>
 
                 <a href="https://carejoa.com"
                    target="_blank"
                    rel="noopener noreferrer"
-                   class="group flex flex-col items-center justify-center bg-white py-8 px-4 rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[160px]">
-                  <div class="mb-4 transform group-hover:scale-110 transition-transform duration-300">
-                    <i class="fas fa-clipboard-list text-6xl md:text-7xl text-orange-500"></i>
+                   class="group flex flex-col items-center justify-center bg-white py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[140px] sm:min-h-[160px]">
+                  <div class="mb-2 sm:mb-4 transform group-hover:scale-110 transition-transform duration-300">
+                    <i class="fas fa-clipboard-list text-5xl sm:text-6xl md:text-7xl text-orange-500"></i>
                   </div>
-                  <span class="font-semibold text-gray-800 text-base md:text-lg text-center">실시간 견적<br/>상담 신청</span>
+                  <span class="font-semibold text-gray-800 text-sm sm:text-base md:text-lg text-center leading-tight">실시간<br class="sm:hidden" /> 견적<br/>상담 신청</span>
                 </a>
 
                 <a href="/call-consultation"
-                   class="group flex flex-col items-center justify-center bg-white py-8 px-4 rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[160px]">
-                  <div class="mb-4 transform group-hover:scale-110 transition-transform duration-300">
-                    <i class="fas fa-phone-alt text-6xl md:text-7xl text-green-500"></i>
+                   class="group flex flex-col items-center justify-center bg-white py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[140px] sm:min-h-[160px]">
+                  <div class="mb-2 sm:mb-4 transform group-hover:scale-110 transition-transform duration-300">
+                    <i class="fas fa-phone-alt text-5xl sm:text-6xl md:text-7xl text-green-500"></i>
                   </div>
-                  <span class="font-semibold text-gray-800 text-base md:text-lg text-center">지역별 전화상담</span>
+                  <span class="font-semibold text-gray-800 text-sm sm:text-base md:text-lg text-center leading-tight">지역별<br class="sm:hidden" /> 전화상담</span>
                 </a>
 
                 <a href="/facilities"
-                   class="group flex flex-col items-center justify-center bg-white py-8 px-4 rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[160px]">
-                  <div class="mb-4 transform group-hover:scale-110 transition-transform duration-300">
-                    <i class="fas fa-search-location text-6xl md:text-7xl text-purple-500"></i>
+                   class="group flex flex-col items-center justify-center bg-white py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[140px] sm:min-h-[160px]">
+                  <div class="mb-2 sm:mb-4 transform group-hover:scale-110 transition-transform duration-300">
+                    <i class="fas fa-search-location text-5xl sm:text-6xl md:text-7xl text-purple-500"></i>
                   </div>
-                  <span class="font-semibold text-gray-800 text-base md:text-lg text-center">전국 시설 찾기</span>
+                  <span class="font-semibold text-gray-800 text-sm sm:text-base md:text-lg text-center leading-tight">전국<br class="sm:hidden" /> 시설 찾기</span>
                 </a>
               </div>
 
-              <div class="flex flex-col sm:flex-row items-center justify-center gap-4 text-sm md:text-base mt-8">
-                <div class="flex items-center bg-white px-4 py-2 rounded-full shadow-md hover:shadow-lg transition-shadow">
-                  <div class="bg-blue-500 rounded-full p-1.5 mr-2 shadow">
-                    <i class="fas fa-users text-white text-sm"></i>
+              <div class="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 text-xs sm:text-sm md:text-base mt-6 sm:mt-8">
+                <div class="flex items-center bg-white px-3 sm:px-4 py-2 rounded-full shadow-md hover:shadow-lg transition-shadow">
+                  <div class="bg-blue-500 rounded-full p-1 sm:p-1.5 mr-1.5 sm:mr-2 shadow">
+                    <i class="fas fa-users text-white text-xs sm:text-sm"></i>
                   </div>
-                  <span class="font-semibold text-gray-700">월 10만+ 이용자</span>
+                  <span class="font-semibold text-gray-700 whitespace-nowrap">월 10만+ 이용자</span>
                 </div>
-                <div class="flex items-center bg-white px-4 py-2 rounded-full shadow-md hover:shadow-lg transition-shadow">
-                  <div class="bg-teal-500 rounded-full p-1.5 mr-2 shadow">
-                    <i class="fas fa-building text-white text-sm"></i>
+                <div class="flex items-center bg-white px-3 sm:px-4 py-2 rounded-full shadow-md hover:shadow-lg transition-shadow">
+                  <div class="bg-teal-500 rounded-full p-1 sm:p-1.5 mr-1.5 sm:mr-2 shadow">
+                    <i class="fas fa-building text-white text-xs sm:text-sm"></i>
                   </div>
-                  <span class="font-semibold text-gray-700">3,000+ 등록 시설</span>
+                  <span class="font-semibold text-gray-700 whitespace-nowrap">3,000+ 등록 시설</span>
                 </div>
-                <div class="flex items-center bg-white px-4 py-2 rounded-full shadow-md hover:shadow-lg transition-shadow">
-                  <div class="bg-yellow-500 rounded-full p-1.5 mr-2 shadow">
-                    <i class="fas fa-star text-white text-sm"></i>
+                <div class="flex items-center bg-white px-3 sm:px-4 py-2 rounded-full shadow-md hover:shadow-lg transition-shadow">
+                  <div class="bg-yellow-500 rounded-full p-1 sm:p-1.5 mr-1.5 sm:mr-2 shadow">
+                    <i class="fas fa-star text-white text-xs sm:text-sm"></i>
                   </div>
-                  <span class="font-semibold text-gray-700">평균 4.5점 우수</span>
+                  <span class="font-semibold text-gray-700 whitespace-nowrap">평균 4.5점 우수</span>
                 </div>
               </div>
             </div>
