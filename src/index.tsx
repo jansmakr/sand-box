@@ -1805,12 +1805,6 @@ app.get('/', (c) => {
               <a href="/call-consultation" class="bg-purple-600 text-white hover:bg-purple-700 px-3 py-2 rounded-lg whitespace-nowrap">
                 <i class="fas fa-phone-alt mr-1"></i>전화상담
               </a>
-              <a href="#partner-section" class="bg-red-600 text-white hover:bg-red-700 px-3 py-2 rounded-lg whitespace-nowrap">
-                <i class="fas fa-hospital mr-1"></i>일반병원담당자
-              </a>
-              <a href="#partner-section" class="bg-blue-600 text-white hover:bg-blue-700 px-3 py-2 rounded-lg whitespace-nowrap">
-                <i class="fas fa-building mr-1"></i>행정복지담당자
-              </a>
               <a href="/family-care-register" class="bg-green-600 text-white hover:bg-green-700 px-3 py-2 rounded-lg whitespace-nowrap">
                 <i class="fas fa-heart mr-1"></i>가족간병등록
               </a>
@@ -1828,12 +1822,6 @@ app.get('/', (c) => {
           <nav class="px-4 py-3 space-y-2">
             <a href="/call-consultation" class="block bg-purple-600 text-white hover:bg-purple-700 px-4 py-3 rounded-lg text-center">
               <i class="fas fa-phone-alt mr-2"></i>전화상담
-            </a>
-            <a href="#partner-section" class="block bg-red-600 text-white hover:bg-red-700 px-4 py-3 rounded-lg text-center">
-              <i class="fas fa-hospital mr-2"></i>일반병원담당자
-            </a>
-            <a href="#partner-section" class="block bg-blue-600 text-white hover:bg-blue-700 px-4 py-3 rounded-lg text-center">
-              <i class="fas fa-building mr-2"></i>행정복지담당자
             </a>
             <a href="/family-care-register" class="block bg-green-600 text-white hover:bg-green-700 px-4 py-3 rounded-lg text-center">
               <i class="fas fa-heart mr-2"></i>가족간병등록
@@ -1960,15 +1948,15 @@ app.get('/', (c) => {
 
       <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-1 py-2 z-50 md:hidden">
         <div class="flex justify-around items-center">
-          <a href="#partner-section" class="flex flex-col items-center py-2 bg-red-600 text-white rounded-lg px-1.5 shadow-md">
-            <i class="fas fa-hospital text-base mb-1"></i>
-            <span class="text-[10px] font-medium">상급병원</span>
+          <a href="/facilities" class="flex flex-col items-center py-2 bg-purple-600 text-white rounded-lg px-1.5 shadow-md">
+            <i class="fas fa-search-location text-base mb-1"></i>
+            <span class="text-[10px] font-medium">전국시설</span>
           </a>
-          <a href="#partner-section" class="flex flex-col items-center py-2 bg-blue-600 text-white rounded-lg px-1.5 shadow-md">
-            <i class="fas fa-building text-base mb-1"></i>
-            <span class="text-[10px] font-medium">정부복지</span>
+          <a href="/call-consultation" class="flex flex-col items-center py-2 bg-green-600 text-white rounded-lg px-1.5 shadow-md">
+            <i class="fas fa-phone-alt text-base mb-1"></i>
+            <span class="text-[10px] font-medium">전화상담</span>
           </a>
-          <a href="/family-care-register" class="flex flex-col items-center py-2 bg-green-600 text-white rounded-lg px-1.5 shadow-md">
+          <a href="/family-care-register" class="flex flex-col items-center py-2 bg-teal-600 text-white rounded-lg px-1.5 shadow-md">
             <i class="fas fa-heart text-base mb-1"></i>
             <span class="text-[10px] font-medium">가족간병</span>
           </a>
