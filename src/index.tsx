@@ -1875,7 +1875,7 @@ app.get('/', (c) => {
               <img 
                 src="/static/carejoa-character.png" 
                 alt="케어조아 캐릭터"
-                class="w-24 sm:w-32 md:w-36 lg:w-40 xl:w-44 h-auto object-contain"
+                class="w-24 sm:w-28 md:w-32 lg:w-32 xl:w-36 h-auto object-contain"
                 style="image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;"
               />
             </div>
