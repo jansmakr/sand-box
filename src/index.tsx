@@ -1879,6 +1879,19 @@ app.get('/', (c) => {
         </div>
       </section>
 
+      {/* 프로모션 배너 - 히어로 아래 */}
+      <section class="py-6 sm:py-8 md:py-10 bg-white">
+        <div class="max-w-4xl mx-auto px-3 sm:px-4">
+          <div class="relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-shadow duration-300">
+            <img 
+              src="/static/hero-promo-banner.jpg" 
+              alt="전국 어디서든 원하는 요양시설 찾기"
+              class="w-full h-auto"
+            />
+          </div>
+        </div>
+      </section>
+
       <section class="py-8 sm:py-10 md:py-14 lg:py-16 bg-gradient-to-b from-white to-gray-50">
         <div class="max-w-6xl mx-auto px-3 sm:px-4">
           <div class="grid grid-cols-2 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8" id="main-action-buttons">
