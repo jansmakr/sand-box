@@ -1858,21 +1858,22 @@ app.get('/', (c) => {
             }
           });
         `
-      }} /><section class="relative bg-gradient-to-r from-teal-500 to-cyan-400 overflow-hidden">
-        <div class="max-w-7xl mx-auto px-3 sm:px-4 py-8 sm:py-10 md:py-14 lg:py-16 relative z-10">
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 items-center">
-            <div class="space-y-2 sm:space-y-3 text-center lg:text-left">
-              <h1 class="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white leading-snug sm:leading-tight">
-                어르신을 위한<br class="sm:hidden" /> 최적의 케어,<br />
-                <span class="text-white">케어조아와<br class="sm:hidden" /> 함께하세요</span>
+      }} /><section class="relative bg-gradient-to-r from-teal-500 via-teal-400 to-blue-400 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 md:py-16 lg:py-20 relative z-10">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8 items-center">
+            <div class="space-y-4 text-center lg:text-left">
+              <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight">
+                어르신을 위한<br />
+                최적의 케어,<br />
+                <span class="text-white">케어조아와 함께하세요</span>
               </h1>
             </div>
 
-            <div class="relative flex justify-center lg:justify-end mt-4 lg:mt-0">
+            <div class="flex justify-center lg:justify-end items-center">
               <img 
                 src="/static/carejoa-character.png" 
                 alt="케어조아 캐릭터"
-                class="w-48 sm:w-56 md:w-64 lg:w-96 xl:w-[480px] h-auto"
+                class="w-48 sm:w-56 md:w-64 lg:w-80 xl:w-96 h-auto object-contain"
               />
             </div>
           </div>
