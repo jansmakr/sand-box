@@ -1863,8 +1863,7 @@ app.get('/', (c) => {
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8 items-center">
             <div class="space-y-4 text-center lg:text-left">
               <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight">
-                어르신을 위한<br />
-                최적의 요양시설 찾기,<br />
+                어르신을 위한 최적의 요양시설 찾기,<br />
                 케어조아와 함께하세요
               </h1>
             </div>
@@ -1873,7 +1872,7 @@ app.get('/', (c) => {
               <img 
                 src="/static/carejoa-character.png" 
                 alt="케어조아 캐릭터"
-                class="w-40 sm:w-48 md:w-56 lg:w-64 xl:w-72 h-auto object-contain"
+                class="w-32 sm:w-40 md:w-48 lg:w-48 xl:w-56 h-auto object-contain"
               />
             </div>
           </div>
