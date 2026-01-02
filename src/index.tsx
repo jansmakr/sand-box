@@ -1863,10 +1863,9 @@ app.get('/', (c) => {
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8 items-center">
             <div class="space-y-4 text-center lg:text-left">
               <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight">
-                {/* 모바일: 3줄, 데스크톱: 2줄 */}
+                {/* 모바일 & 데스크톱 모두 3줄 */}
                 어르신을 위한<br />
-                최적의 요양시설 찾기,<br class="lg:hidden" />
-                <span class="hidden lg:inline"> </span>
+                최적의 요양시설 찾기,<br />
                 케어조아와 함께하세요
               </h1>
             </div>
