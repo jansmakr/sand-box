@@ -1870,7 +1870,7 @@ app.get('/', (c) => {
 
             <div class="relative flex justify-center lg:justify-end mt-4 lg:mt-0">
               <img 
-                src="/carejoa-character.png" 
+                src="/static/carejoa-character.png" 
                 alt="케어조아 캐릭터"
                 class="w-40 sm:w-48 md:w-56 lg:w-72 xl:w-80 h-auto"
               />
