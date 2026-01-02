@@ -3,12 +3,12 @@
   <!-- 메인 Sitemap -->
   <sitemap>
     <loc>https://carejoa.kr/sitemap-main.xml</loc>
-    <lastmod>2025-12-31</lastmod>
+    <lastmod>2026-01-02</lastmod>
   </sitemap>
   
   <!-- 시설 Sitemap -->
   <sitemap>
     <loc>https://carejoa.kr/sitemap-facilities.xml</loc>
-    <lastmod>2025-12-31</lastmod>
+    <lastmod>2026-01-02</lastmod>
   </sitemap>
 </sitemapindex>

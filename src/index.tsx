@@ -1846,82 +1846,107 @@ app.get('/', (c) => {
             }
           });
         `
-      }} /><section class="relative bg-white">
-        <div class="max-w-6xl mx-auto px-4 py-8 md:py-16">
+      }} /><section class="relative bg-gradient-to-br from-teal-50 via-blue-50 to-mint-50 overflow-hidden">
+        <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiMwZDk0ODgiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDM0djItMnoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-40"></div>
+        <div class="max-w-6xl mx-auto px-4 py-8 md:py-16 relative z-10">
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
             <div class="space-y-6 md:space-y-8">
               <div>
                 <h1 class="text-3xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 md:mb-6 leading-tight">
                   이젠 찾지 말고<br />
                   <span class="text-red-600">고르세요</span><br />
-                  <span class="text-blue-600">케어조아</span>
+                  <span class="text-teal-600">케어조아</span>
                 </h1>
-                <p class="text-lg md:text-xl text-gray-600 mb-6 md:mb-8">
+                <p class="text-lg md:text-xl text-gray-700 mb-6 md:mb-8">
                   희망하는 지역의, 희망하는 시설만! 입력하면<br />
-                  그 지역 <strong class="text-blue-600">모든 시설의 정보를</strong> 실시간으로 받아볼 수 있어요
+                  그 지역 <strong class="text-teal-600">모든 시설의 정보를</strong> 실시간으로 받아볼 수 있어요
                 </p>
-              </div><div class="bg-gradient-to-r from-blue-50 to-teal-50 border-2 border-blue-200 rounded-2xl p-6 mb-6 shadow-lg">
+              </div><div class="bg-gradient-to-r from-teal-100 to-blue-100 border-2 border-teal-300 rounded-2xl p-6 mb-6 shadow-xl backdrop-blur-sm bg-opacity-90">
                 <div class="flex items-center justify-center text-center">
                   <div>
                     <div class="flex items-center justify-center mb-2">
-                      <i class="fas fa-certificate text-blue-600 text-2xl mr-2"></i>
-                      <span class="text-lg font-bold text-blue-800">특허기반 실시간 요양견적 및 상담 플랫폼</span>
+                      <div class="bg-teal-500 rounded-full p-2 mr-2 shadow-lg">
+                        <i class="fas fa-certificate text-white text-xl"></i>
+                      </div>
+                      <span class="text-lg font-bold text-teal-800">특허기반 실시간 요양견적 및 상담 플랫폼</span>
                     </div>
-                    <p class="text-sm text-gray-600">희망하는 지역의 모든 시설 정보를 실시간으로 받아볼 수 있어요</p>
+                    <p class="text-sm text-gray-700">희망하는 지역의 모든 시설 정보를 실시간으로 받아볼 수 있어요</p>
                   </div>
                 </div>
-              </div><div class="grid grid-cols-2 gap-3 md:gap-4 mb-8"><a href="https://play.google.com/store/apps/details?id=app.netlify.std_care_joa.twa" 
+              </div><div class="grid grid-cols-2 gap-3 md:gap-4 mb-8" id="main-action-buttons"><a href="https://play.google.com/store/apps/details?id=app.netlify.std_care_joa.twa" 
                    target="_blank" rel="noopener noreferrer"
-                   class="flex flex-col items-center justify-center bg-gradient-to-br from-blue-500 to-blue-600 text-white py-6 px-4 rounded-2xl shadow-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 min-h-[120px]">
-                  <div class="bg-white bg-opacity-20 rounded-xl p-3 mb-3">
-                    <i class="fas fa-mobile-alt text-3xl"></i>
+                   class="group flex flex-col items-center justify-center bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 text-white py-6 px-4 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-110 hover:-translate-y-1 min-h-[120px] relative overflow-hidden">
+                  <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+                  <div class="bg-white bg-opacity-25 rounded-xl p-3 mb-3 shadow-lg group-hover:shadow-xl group-hover:bg-opacity-30 transition-all duration-300">
+                    <i class="fas fa-mobile-alt text-3xl drop-shadow-lg"></i>
                   </div>
-                  <span class="font-bold text-center">Android<br/>앱 다운로드</span>
+                  <span class="font-bold text-center relative z-10 drop-shadow">Android<br/>앱 다운로드</span>
                 </a><a href="https://carejoa.com"
                    target="_blank"
                    rel="noopener noreferrer"
-                   class="flex flex-col items-center justify-center bg-gradient-to-br from-amber-100 to-orange-100 text-gray-800 border-2 border-orange-200 py-6 px-4 rounded-2xl shadow-lg hover:from-amber-200 hover:to-orange-200 transition-all duration-300 transform hover:scale-105 min-h-[120px]">
-                  <div class="bg-orange-200 rounded-xl p-3 mb-3">
-                    <i class="fas fa-clipboard text-3xl text-orange-600"></i>
+                   class="group flex flex-col items-center justify-center bg-gradient-to-br from-amber-200 via-orange-200 to-orange-300 text-gray-800 border-2 border-orange-300 py-6 px-4 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-110 hover:-translate-y-1 min-h-[120px] relative overflow-hidden">
+                  <div class="absolute inset-0 bg-gradient-to-br from-orange-300 to-yellow-200 opacity-0 group-hover:opacity-30 transition-opacity duration-300"></div>
+                  <div class="bg-orange-300 rounded-xl p-3 mb-3 shadow-lg group-hover:shadow-xl group-hover:bg-orange-400 transition-all duration-300">
+                    <i class="fas fa-clipboard text-3xl text-orange-700 drop-shadow"></i>
                   </div>
-                  <span class="font-bold text-center">실시간 견적<br/>상담 신청</span>
+                  <span class="font-bold text-center relative z-10 drop-shadow">실시간 견적<br/>상담 신청</span>
                 </a><a href="/call-consultation"
-                   class="flex flex-col items-center justify-center bg-gradient-to-br from-green-500 to-emerald-600 text-white py-6 px-4 rounded-2xl shadow-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 min-h-[120px]">
-                  <div class="bg-white bg-opacity-20 rounded-xl p-3 mb-3">
-                    <i class="fas fa-phone-alt text-3xl"></i>
+                   class="group flex flex-col items-center justify-center bg-gradient-to-br from-green-500 via-emerald-600 to-teal-600 text-white py-6 px-4 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-110 hover:-translate-y-1 min-h-[120px] relative overflow-hidden">
+                  <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+                  <div class="bg-white bg-opacity-25 rounded-xl p-3 mb-3 shadow-lg group-hover:shadow-xl group-hover:bg-opacity-30 transition-all duration-300">
+                    <i class="fas fa-phone-alt text-3xl drop-shadow-lg"></i>
                   </div>
-                  <span class="font-bold text-center">지역별<br/>전화상담</span>
+                  <span class="font-bold text-center relative z-10 drop-shadow">지역별<br/>전화상담</span>
                 </a><a href="/facilities"
-                   class="flex flex-col items-center justify-center bg-gradient-to-br from-purple-500 to-pink-600 text-white py-6 px-4 rounded-2xl shadow-lg hover:from-purple-600 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 min-h-[120px]">
-                  <div class="bg-white bg-opacity-20 rounded-xl p-3 mb-3">
-                    <i class="fas fa-search text-3xl"></i>
+                   class="group flex flex-col items-center justify-center bg-gradient-to-br from-purple-500 via-pink-600 to-fuchsia-600 text-white py-6 px-4 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-110 hover:-translate-y-1 min-h-[120px] relative overflow-hidden">
+                  <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+                  <div class="bg-white bg-opacity-25 rounded-xl p-3 mb-3 shadow-lg group-hover:shadow-xl group-hover:bg-opacity-30 transition-all duration-300">
+                    <i class="fas fa-search text-3xl drop-shadow-lg"></i>
                   </div>
-                  <span class="font-bold text-center">전국<br/>시설 찾기</span>
+                  <span class="font-bold text-center relative z-10 drop-shadow">전국<br/>시설 찾기</span>
                 </a>
               </div>
 
-              <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 text-sm md:text-base text-gray-600">
-                <div class="flex items-center">
-                  <i class="fas fa-users text-blue-500 mr-2"></i>
-                  <span class="font-medium">월 10만+ 이용자</span>
+              <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 text-sm md:text-base">
+                <div class="flex items-center bg-white px-4 py-2 rounded-full shadow-md hover:shadow-lg transition-shadow">
+                  <div class="bg-blue-500 rounded-full p-1.5 mr-2 shadow">
+                    <i class="fas fa-users text-white text-sm"></i>
+                  </div>
+                  <span class="font-semibold text-gray-700">월 10만+ 이용자</span>
                 </div>
-                <div class="flex items-center">
-                  <i class="fas fa-building text-blue-500 mr-2"></i>
-                  <span class="font-medium">3,000+ 등록 시설</span>
+                <div class="flex items-center bg-white px-4 py-2 rounded-full shadow-md hover:shadow-lg transition-shadow">
+                  <div class="bg-teal-500 rounded-full p-1.5 mr-2 shadow">
+                    <i class="fas fa-building text-white text-sm"></i>
+                  </div>
+                  <span class="font-semibold text-gray-700">3,000+ 등록 시설</span>
                 </div>
-                <div class="flex items-center">
-                  <i class="fas fa-star text-yellow-500 mr-2"></i>
-                  <span class="font-medium">평균 4.5점 우수</span>
+                <div class="flex items-center bg-white px-4 py-2 rounded-full shadow-md hover:shadow-lg transition-shadow">
+                  <div class="bg-yellow-500 rounded-full p-1.5 mr-2 shadow">
+                    <i class="fas fa-star text-white text-sm"></i>
+                  </div>
+                  <span class="font-semibold text-gray-700">평균 4.5점 우수</span>
                 </div>
               </div>
             </div>
 
             <div class="relative flex justify-center">
-              <img 
-                src="https://page.gensparksite.com/v1/base64_upload/ede67a258a8e3e3dd08f322c99dbeda8" 
-                alt="케어조아 앱"
-                class="w-64 md:w-80 rounded-3xl shadow-2xl"
-              />
+              <div class="relative">
+                <div class="absolute -top-8 -left-8 z-10 animate-bounce">
+                  <div class="bg-white rounded-full p-3 shadow-2xl border-4 border-teal-200">
+                    <span class="text-4xl">🐑</span>
+                  </div>
+                </div>
+                <img 
+                  src="https://page.gensparksite.com/v1/base64_upload/ede67a258a8e3e3dd08f322c99dbeda8" 
+                  alt="케어조아 앱"
+                  class="w-64 md:w-80 rounded-3xl shadow-2xl relative z-0"
+                />
+                <div class="absolute -bottom-6 -right-6 z-10">
+                  <div class="bg-gradient-to-br from-teal-100 to-mint-100 rounded-2xl p-4 shadow-xl border-2 border-teal-300">
+                    <p class="text-sm font-bold text-teal-700 whitespace-nowrap">💚 케어조아와 함께!</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -1944,79 +1969,85 @@ app.get('/', (c) => {
             <span class="text-[10px] font-medium">입점신청</span>
           </a>
         </div>
-      </div><section class="py-20">
+      </div><section class="py-20 bg-white">
         <div class="max-w-7xl mx-auto px-4">
           <div class="text-center mb-16">
             <h3 class="text-3xl font-bold text-gray-900 mb-4">
-              <i class="fas fa-certificate text-blue-600 mr-3"></i>케어조아만의 특별함
+              <div class="inline-block bg-teal-500 rounded-full p-3 mr-3 shadow-lg">
+                <i class="fas fa-certificate text-white text-2xl"></i>
+              </div>
+              케어조아만의 특별함
             </h3>
           </div>
           
           <div class="grid md:grid-cols-4 gap-6">
-            <div class="text-center p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl">
-              <div class="w-16 h-16 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i class="fas fa-calculator text-2xl text-white"></i>
+            <div class="group text-center p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 hover:scale-105">
+              <div class="w-20 h-20 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl group-hover:shadow-2xl group-hover:rotate-6 transition-all duration-300">
+                <i class="fas fa-calculator text-3xl text-white drop-shadow-lg"></i>
               </div>
-              <h4 class="text-xl font-bold mb-2">실시간 견적</h4>
-              <p class="text-gray-600 text-sm">간단한 정보 입력으로 맞춤형 견적을 즉시 확인</p>
+              <h4 class="text-xl font-bold mb-2 text-gray-800">실시간 견적</h4>
+              <p class="text-gray-600 text-sm leading-relaxed">간단한 정보 입력으로 맞춤형 견적을 즉시 확인</p>
             </div>
             
-            <div class="text-center p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-xl">
-              <div class="w-16 h-16 bg-gradient-to-r from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i class="fas fa-hospital text-2xl text-white"></i>
+            <div class="group text-center p-6 bg-gradient-to-br from-teal-50 to-emerald-100 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 hover:scale-105">
+              <div class="w-20 h-20 bg-gradient-to-br from-teal-500 via-emerald-600 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl group-hover:shadow-2xl group-hover:rotate-6 transition-all duration-300">
+                <i class="fas fa-hospital text-3xl text-white drop-shadow-lg"></i>
               </div>
-              <h4 class="text-xl font-bold mb-2">검증된 시설</h4>
-              <p class="text-gray-600 text-sm">정부 인증 및 전문가 방문을 통해 검증</p>
+              <h4 class="text-xl font-bold mb-2 text-gray-800">검증된 시설</h4>
+              <p class="text-gray-600 text-sm leading-relaxed">정부 인증 및 전문가 방문을 통해 검증</p>
             </div>
             
-            <div class="text-center p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl">
-              <div class="w-16 h-16 bg-gradient-to-r from-purple-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i class="fas fa-user-md text-2xl text-white"></i>
+            <div class="group text-center p-6 bg-gradient-to-br from-purple-50 to-fuchsia-100 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 hover:scale-105">
+              <div class="w-20 h-20 bg-gradient-to-br from-purple-500 via-fuchsia-600 to-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl group-hover:shadow-2xl group-hover:rotate-6 transition-all duration-300">
+                <i class="fas fa-user-md text-3xl text-white drop-shadow-lg"></i>
               </div>
-              <h4 class="text-xl font-bold mb-2">전문 상담</h4>
-              <p class="text-gray-600 text-sm">자격을 보유한 전문 상담사가 24시간 상담</p>
+              <h4 class="text-xl font-bold mb-2 text-gray-800">전문 상담</h4>
+              <p class="text-gray-600 text-sm leading-relaxed">자격을 보유한 전문 상담사가 24시간 상담</p>
             </div>
             
-            <div class="text-center p-6 bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl">
-              <div class="w-16 h-16 bg-gradient-to-r from-orange-500 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i class="fas fa-heart text-2xl text-white"></i>
+            <div class="group text-center p-6 bg-gradient-to-br from-pink-50 to-rose-100 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 hover:scale-105">
+              <div class="w-20 h-20 bg-gradient-to-br from-pink-500 via-rose-600 to-red-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl group-hover:shadow-2xl group-hover:rotate-6 transition-all duration-300">
+                <i class="fas fa-heart text-3xl text-white drop-shadow-lg"></i>
               </div>
-              <h4 class="text-xl font-bold mb-2">가족 같은 마음</h4>
-              <p class="text-gray-600 text-sm">믿을 수 있는 곳을 찾기까지 끝까지 함께</p>
+              <h4 class="text-xl font-bold mb-2 text-gray-800">가족 같은 마음</h4>
+              <p class="text-gray-600 text-sm leading-relaxed">믿을 수 있는 곳을 찾기까지 끝까지 함께</p>
             </div>
           </div>
         </div>
-      </section><section class="py-20 bg-gray-50">
+      </section><section class="py-20 bg-gradient-to-br from-gray-50 to-teal-50">
         <div class="max-w-7xl mx-auto px-4">
           <div class="text-center mb-16">
             <h3 class="text-3xl font-bold text-gray-900 mb-4">
-              간단한 3단계로 <span class="text-teal-600">완료!</span>
+              간단한 3단계로 <span class="text-teal-600">완료! 🎉</span>
             </h3>
           </div>
           
-          <div class="grid md:grid-cols-3 gap-8">
-            <div class="text-center relative">
-              <div class="w-20 h-20 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                <span class="text-2xl font-bold text-white">1</span>
+          <div class="grid md:grid-cols-3 gap-8 relative">
+            <div class="hidden md:block absolute top-12 left-1/3 w-1/3 h-1 bg-gradient-to-r from-blue-300 to-teal-300 z-0"></div>
+            <div class="hidden md:block absolute top-12 right-0 w-1/3 h-1 bg-gradient-to-r from-teal-300 to-purple-300 z-0"></div>
+            
+            <div class="text-center relative z-10 group">
+              <div class="w-24 h-24 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl group-hover:shadow-2xl group-hover:scale-110 transition-all duration-300 group-hover:rotate-6">
+                <span class="text-3xl font-bold text-white drop-shadow-lg">1</span>
               </div>
-              <h4 class="text-xl font-bold mb-4">정보 입력</h4>
-              <p class="text-gray-600">어르신의 기본 정보와 필요한 서비스를 입력</p>
+              <h4 class="text-xl font-bold mb-4 text-gray-800">정보 입력</h4>
+              <p class="text-gray-600 leading-relaxed">어르신의 기본 정보와 필요한 서비스를 입력</p>
             </div>
             
-            <div class="text-center relative">
-              <div class="w-20 h-20 bg-gradient-to-r from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                <span class="text-2xl font-bold text-white">2</span>
+            <div class="text-center relative z-10 group">
+              <div class="w-24 h-24 bg-gradient-to-br from-teal-500 via-emerald-600 to-green-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl group-hover:shadow-2xl group-hover:scale-110 transition-all duration-300 group-hover:rotate-6">
+                <span class="text-3xl font-bold text-white drop-shadow-lg">2</span>
               </div>
-              <h4 class="text-xl font-bold mb-4">견적 비교</h4>
-              <p class="text-gray-600">실시간으로 매칭된 시설들을 비교</p>
+              <h4 class="text-xl font-bold mb-4 text-gray-800">견적 비교</h4>
+              <p class="text-gray-600 leading-relaxed">실시간으로 매칭된 시설들을 비교</p>
             </div>
             
-            <div class="text-center">
-              <div class="w-20 h-20 bg-gradient-to-r from-purple-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                <span class="text-2xl font-bold text-white">3</span>
+            <div class="text-center relative z-10 group">
+              <div class="w-24 h-24 bg-gradient-to-br from-purple-500 via-fuchsia-600 to-pink-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl group-hover:shadow-2xl group-hover:scale-110 transition-all duration-300 group-hover:rotate-6">
+                <span class="text-3xl font-bold text-white drop-shadow-lg">3</span>
               </div>
-              <h4 class="text-xl font-bold mb-4">전문 상담</h4>
-              <p class="text-gray-600">전문 상담사와 1:1 맞춤 상담</p>
+              <h4 class="text-xl font-bold mb-4 text-gray-800">전문 상담</h4>
+              <p class="text-gray-600 leading-relaxed">전문 상담사와 1:1 맞춤 상담</p>
             </div>
           </div>
         </div>
