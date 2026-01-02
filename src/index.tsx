@@ -1865,7 +1865,7 @@ app.get('/', (c) => {
               <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight">
                 어르신을 위한<br />
                 최적의 요양시설 찾기,<br />
-                <span class="text-white">케어조아와 함께하세요</span>
+                케어조아와 함께하세요
               </h1>
             </div>
 
@@ -1873,7 +1873,7 @@ app.get('/', (c) => {
               <img 
                 src="/static/carejoa-character.png" 
                 alt="케어조아 캐릭터"
-                class="w-48 sm:w-56 md:w-64 lg:w-80 xl:w-96 h-auto object-contain"
+                class="w-40 sm:w-48 md:w-56 lg:w-64 xl:w-72 h-auto object-contain"
               />
             </div>
           </div>
