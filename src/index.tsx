@@ -1902,7 +1902,7 @@ app.get('/', (c) => {
                   <div class="mb-2 sm:mb-4 transform group-hover:scale-110 transition-transform duration-300">
                     <i class="fas fa-clipboard-list text-5xl sm:text-6xl md:text-7xl text-orange-500"></i>
                   </div>
-                  <span class="font-semibold text-gray-800 text-sm sm:text-base md:text-lg text-center leading-tight">실시간<br class="sm:hidden" /> 견적<br/>상담 신청</span>
+                  <span class="font-semibold text-gray-800 text-sm sm:text-base md:text-lg text-center leading-tight">실시간 견적<br/>상담 신청</span>
                 </a>
 
                 <a href="/call-consultation"
@@ -1910,7 +1910,7 @@ app.get('/', (c) => {
                   <div class="mb-2 sm:mb-4 transform group-hover:scale-110 transition-transform duration-300">
                     <i class="fas fa-phone-alt text-5xl sm:text-6xl md:text-7xl text-green-500"></i>
                   </div>
-                  <span class="font-semibold text-gray-800 text-sm sm:text-base md:text-lg text-center leading-tight">지역별<br class="sm:hidden" /> 전화상담</span>
+                  <span class="font-semibold text-gray-800 text-sm sm:text-base md:text-lg text-center leading-tight">지역별<br/>전화상담</span>
                 </a>
 
                 <a href="/facilities"
@@ -1918,7 +1918,7 @@ app.get('/', (c) => {
                   <div class="mb-2 sm:mb-4 transform group-hover:scale-110 transition-transform duration-300">
                     <i class="fas fa-search-location text-5xl sm:text-6xl md:text-7xl text-purple-500"></i>
                   </div>
-                  <span class="font-semibold text-gray-800 text-sm sm:text-base md:text-lg text-center leading-tight">전국<br class="sm:hidden" /> 시설 찾기</span>
+                  <span class="font-semibold text-gray-800 text-sm sm:text-base md:text-lg text-center leading-tight">전국 시설<br/>찾기</span>
                 </a>
               </div>
 
