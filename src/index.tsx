@@ -2320,6 +2320,7 @@ app.get('/', (c) => {
                     type="password" 
                     id="admin-password" 
                     placeholder="비밀번호 입력"
+                    autocomplete="current-password"
                     class="w-full px-3 py-2 text-sm bg-gray-800 border border-gray-700 text-gray-300 rounded focus:outline-none focus:border-gray-600 placeholder-gray-600"
                   />
                   <button type="submit" class="w-full px-3 py-2 text-sm bg-gray-800 text-gray-400 rounded hover:bg-gray-700 hover:text-gray-300 transition-colors">
