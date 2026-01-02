@@ -1779,7 +1779,19 @@ app.get('/chat', async (c) => {
 // 메인 페이지 (전체 디자인)
 app.get('/', (c) => {
   return c.render(
-    <div><header class="bg-white shadow-sm border-b">
+    <div>
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          @keyframes bounce-slow {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+          }
+          .animate-bounce-slow {
+            animation: bounce-slow 3s ease-in-out infinite;
+          }
+        `
+      }} />
+      <header class="bg-white shadow-sm border-b">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="flex justify-between items-center h-16">
             <div class="flex items-center">
@@ -1846,36 +1858,51 @@ app.get('/', (c) => {
             }
           });
         `
-      }} /><section class="relative bg-gradient-to-br from-teal-50 via-blue-50 to-mint-50 overflow-hidden">
-        <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiMwZDk0ODgiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDM0djItMnoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-40"></div>
-        <div class="max-w-6xl mx-auto px-4 py-8 md:py-16 relative z-10">
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
-            <div class="space-y-6 md:space-y-8">
+      }} /><section class="relative bg-gradient-to-br from-teal-400 via-blue-400 to-cyan-400 overflow-hidden min-h-[70vh] flex items-center">
+        <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48Y2lyY2xlIGN4PSIzMCIgY3k9IjMwIiByPSIyIi8+PC9nPjwvZz48L3N2Zz4=')] opacity-30"></div>
+        <div class="max-w-7xl mx-auto px-4 py-16 md:py-20 relative z-10 w-full">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+            <div class="space-y-8">
               <div>
-                <h1 class="text-3xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 md:mb-6 leading-tight">
+                <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight drop-shadow-lg">
                   이젠 찾지 말고<br />
-                  <span class="text-red-600">고르세요</span><br />
-                  <span class="text-teal-600">케어조아</span>
+                  고르세요<br />
+                  케어조아
                 </h1>
-                <p class="text-lg md:text-xl text-gray-700 mb-6 md:mb-8">
-                  희망하는 지역의, 희망하는 시설만! 입력하면<br />
-                  그 지역 <strong class="text-teal-600">모든 시설의 정보를</strong> 실시간으로 받아볼 수 있어요
+                <p class="text-xl md:text-2xl text-white/95 mb-8 leading-relaxed drop-shadow">
+                  희망하는 지역의, 희망하는 시설만!<br />
+                  입력하면 그 지역 <strong>모든 시설의 정보를</strong><br />
+                  실시간으로 받아볼 수 있어요
                 </p>
-              </div><div class="bg-gradient-to-r from-teal-100 to-blue-100 border-2 border-teal-300 rounded-2xl p-6 mb-6 shadow-xl backdrop-blur-sm bg-opacity-90">
+              </div>
+              <div class="bg-white/20 backdrop-blur-md border-2 border-white/40 rounded-2xl p-6 shadow-2xl">
                 <div class="flex items-center justify-center text-center">
                   <div>
                     <div class="flex items-center justify-center mb-2">
-                      <div class="bg-teal-500 rounded-full p-2 mr-2 shadow-lg">
-                        <i class="fas fa-certificate text-white text-xl"></i>
+                      <div class="bg-white rounded-full p-2 mr-2 shadow-lg">
+                        <i class="fas fa-certificate text-teal-600 text-xl"></i>
                       </div>
-                      <span class="text-lg font-bold text-teal-800">특허기반 실시간 요양견적 및 상담 플랫폼</span>
+                      <span class="text-lg font-bold text-white drop-shadow">특허기반 실시간 요양견적 및 상담 플랫폼</span>
                     </div>
-                    <p class="text-sm text-gray-700">희망하는 지역의 모든 시설 정보를 실시간으로 받아볼 수 있어요</p>
                   </div>
                 </div>
               </div>
-              
-              <div class="grid grid-cols-2 gap-4 md:gap-6 mb-8" id="main-action-buttons">
+            </div>
+
+            <div class="relative flex justify-center lg:justify-end">
+              <div class="relative animate-bounce-slow">
+                <div class="bg-white/30 backdrop-blur-sm rounded-full p-8 shadow-2xl">
+                  <span class="text-9xl">🐑</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="py-12 md:py-16 bg-gradient-to-b from-white to-gray-50">
+        <div class="max-w-6xl mx-auto px-4">
+          <div class="grid grid-cols-2 gap-4 md:gap-6 mb-8" id="main-action-buttons">
                 <a href="https://play.google.com/store/apps/details?id=app.netlify.std_care_joa.twa" 
                    target="_blank" rel="noopener noreferrer"
                    class="group flex flex-col items-center justify-center bg-white py-8 px-4 rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[160px]">
@@ -1912,7 +1939,7 @@ app.get('/', (c) => {
                 </a>
               </div>
 
-              <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 text-sm md:text-base">
+              <div class="flex flex-col sm:flex-row items-center justify-center gap-4 text-sm md:text-base mt-8">
                 <div class="flex items-center bg-white px-4 py-2 rounded-full shadow-md hover:shadow-lg transition-shadow">
                   <div class="bg-blue-500 rounded-full p-1.5 mr-2 shadow">
                     <i class="fas fa-users text-white text-sm"></i>
@@ -1933,29 +1960,9 @@ app.get('/', (c) => {
                 </div>
               </div>
             </div>
+          </section>
 
-            <div class="relative flex justify-center">
-              <div class="relative">
-                <div class="absolute -top-8 -left-8 z-10 animate-bounce">
-                  <div class="bg-white rounded-full p-3 shadow-2xl border-4 border-teal-200">
-                    <span class="text-4xl">🐑</span>
-                  </div>
-                </div>
-                <img 
-                  src="https://page.gensparksite.com/v1/base64_upload/ede67a258a8e3e3dd08f322c99dbeda8" 
-                  alt="케어조아 앱"
-                  class="w-64 md:w-80 rounded-3xl shadow-2xl relative z-0"
-                />
-                <div class="absolute -bottom-6 -right-6 z-10">
-                  <div class="bg-gradient-to-br from-teal-100 to-mint-100 rounded-2xl p-4 shadow-xl border-2 border-teal-300">
-                    <p class="text-sm font-bold text-teal-700 whitespace-nowrap">💚 케어조아와 함께!</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section><div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-1 py-2 z-50 md:hidden">
+      <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-1 py-2 z-50 md:hidden">
         <div class="flex justify-around items-center">
           <a href="#partner-section" class="flex flex-col items-center py-2 bg-red-600 text-white rounded-lg px-1.5 shadow-md">
             <i class="fas fa-hospital text-base mb-1"></i>
