@@ -1873,37 +1873,42 @@ app.get('/', (c) => {
                     <p class="text-sm text-gray-700">희망하는 지역의 모든 시설 정보를 실시간으로 받아볼 수 있어요</p>
                   </div>
                 </div>
-              </div><div class="grid grid-cols-2 gap-3 md:gap-4 mb-8" id="main-action-buttons"><a href="https://play.google.com/store/apps/details?id=app.netlify.std_care_joa.twa" 
+              </div>
+              
+              <div class="grid grid-cols-2 gap-4 md:gap-6 mb-8" id="main-action-buttons">
+                <a href="https://play.google.com/store/apps/details?id=app.netlify.std_care_joa.twa" 
                    target="_blank" rel="noopener noreferrer"
-                   class="group flex flex-col items-center justify-center bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 text-white py-6 px-4 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-110 hover:-translate-y-1 min-h-[120px] relative overflow-hidden">
-                  <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
-                  <div class="bg-white bg-opacity-25 rounded-xl p-3 mb-3 shadow-lg group-hover:shadow-xl group-hover:bg-opacity-30 transition-all duration-300">
-                    <i class="fas fa-mobile-alt text-3xl drop-shadow-lg"></i>
+                   class="group flex flex-col items-center justify-center bg-white py-8 px-4 rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[160px]">
+                  <div class="mb-4 transform group-hover:scale-110 transition-transform duration-300">
+                    <i class="fas fa-mobile-alt text-6xl md:text-7xl text-blue-500"></i>
                   </div>
-                  <span class="font-bold text-center relative z-10 drop-shadow">Android<br/>앱 다운로드</span>
-                </a><a href="https://carejoa.com"
+                  <span class="font-semibold text-gray-800 text-base md:text-lg text-center">Android 앱 다운로드</span>
+                </a>
+
+                <a href="https://carejoa.com"
                    target="_blank"
                    rel="noopener noreferrer"
-                   class="group flex flex-col items-center justify-center bg-gradient-to-br from-amber-200 via-orange-200 to-orange-300 text-gray-800 border-2 border-orange-300 py-6 px-4 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-110 hover:-translate-y-1 min-h-[120px] relative overflow-hidden">
-                  <div class="absolute inset-0 bg-gradient-to-br from-orange-300 to-yellow-200 opacity-0 group-hover:opacity-30 transition-opacity duration-300"></div>
-                  <div class="bg-orange-300 rounded-xl p-3 mb-3 shadow-lg group-hover:shadow-xl group-hover:bg-orange-400 transition-all duration-300">
-                    <i class="fas fa-clipboard text-3xl text-orange-700 drop-shadow"></i>
+                   class="group flex flex-col items-center justify-center bg-white py-8 px-4 rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[160px]">
+                  <div class="mb-4 transform group-hover:scale-110 transition-transform duration-300">
+                    <i class="fas fa-clipboard-list text-6xl md:text-7xl text-orange-500"></i>
                   </div>
-                  <span class="font-bold text-center relative z-10 drop-shadow">실시간 견적<br/>상담 신청</span>
-                </a><a href="/call-consultation"
-                   class="group flex flex-col items-center justify-center bg-gradient-to-br from-green-500 via-emerald-600 to-teal-600 text-white py-6 px-4 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-110 hover:-translate-y-1 min-h-[120px] relative overflow-hidden">
-                  <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
-                  <div class="bg-white bg-opacity-25 rounded-xl p-3 mb-3 shadow-lg group-hover:shadow-xl group-hover:bg-opacity-30 transition-all duration-300">
-                    <i class="fas fa-phone-alt text-3xl drop-shadow-lg"></i>
+                  <span class="font-semibold text-gray-800 text-base md:text-lg text-center">실시간 견적<br/>상담 신청</span>
+                </a>
+
+                <a href="/call-consultation"
+                   class="group flex flex-col items-center justify-center bg-white py-8 px-4 rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[160px]">
+                  <div class="mb-4 transform group-hover:scale-110 transition-transform duration-300">
+                    <i class="fas fa-phone-alt text-6xl md:text-7xl text-green-500"></i>
                   </div>
-                  <span class="font-bold text-center relative z-10 drop-shadow">지역별<br/>전화상담</span>
-                </a><a href="/facilities"
-                   class="group flex flex-col items-center justify-center bg-gradient-to-br from-purple-500 via-pink-600 to-fuchsia-600 text-white py-6 px-4 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-110 hover:-translate-y-1 min-h-[120px] relative overflow-hidden">
-                  <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
-                  <div class="bg-white bg-opacity-25 rounded-xl p-3 mb-3 shadow-lg group-hover:shadow-xl group-hover:bg-opacity-30 transition-all duration-300">
-                    <i class="fas fa-search text-3xl drop-shadow-lg"></i>
+                  <span class="font-semibold text-gray-800 text-base md:text-lg text-center">지역별 전화상담</span>
+                </a>
+
+                <a href="/facilities"
+                   class="group flex flex-col items-center justify-center bg-white py-8 px-4 rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[160px]">
+                  <div class="mb-4 transform group-hover:scale-110 transition-transform duration-300">
+                    <i class="fas fa-search-location text-6xl md:text-7xl text-purple-500"></i>
                   </div>
-                  <span class="font-bold text-center relative z-10 drop-shadow">전국<br/>시설 찾기</span>
+                  <span class="font-semibold text-gray-800 text-base md:text-lg text-center">전국 시설 찾기</span>
                 </a>
               </div>
 
