@@ -1982,7 +1982,7 @@ app.get('/', (c) => {
                 <i class="fas fa-calculator text-3xl text-white drop-shadow-lg"></i>
               </div>
               <h4 class="text-xl font-bold mb-2 text-gray-800">실시간 견적</h4>
-              <p class="text-gray-600 text-sm leading-relaxed">간단한 정보 입력으로 맞춤형 견적을 즉시 확인</p>
+              <p class="text-gray-600 text-sm leading-relaxed">간단한 정보 입력으로<br class="sm:hidden" /> 맞춤형 견적을 즉시 확인</p>
             </div>
             
             <div class="group text-center p-6 bg-gradient-to-br from-teal-50 to-emerald-100 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 hover:scale-105">
@@ -1990,7 +1990,7 @@ app.get('/', (c) => {
                 <i class="fas fa-hospital text-3xl text-white drop-shadow-lg"></i>
               </div>
               <h4 class="text-xl font-bold mb-2 text-gray-800">검증된 시설</h4>
-              <p class="text-gray-600 text-sm leading-relaxed">정부 인증 및 전문가 방문을 통해 검증</p>
+              <p class="text-gray-600 text-sm leading-relaxed">정부 인증 및<br class="sm:hidden" /> 전문가 방문을 통해 검증</p>
             </div>
             
             <div class="group text-center p-6 bg-gradient-to-br from-purple-50 to-fuchsia-100 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 hover:scale-105">
@@ -1998,7 +1998,7 @@ app.get('/', (c) => {
                 <i class="fas fa-user-md text-3xl text-white drop-shadow-lg"></i>
               </div>
               <h4 class="text-xl font-bold mb-2 text-gray-800">전문 상담</h4>
-              <p class="text-gray-600 text-sm leading-relaxed">자격을 보유한 전문 상담사가 24시간 상담</p>
+              <p class="text-gray-600 text-sm leading-relaxed">자격을 보유한<br class="sm:hidden" /> 전문 상담사가 24시간 상담</p>
             </div>
             
             <div class="group text-center p-6 bg-gradient-to-br from-pink-50 to-rose-100 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 hover:scale-105">
@@ -2006,7 +2006,7 @@ app.get('/', (c) => {
                 <i class="fas fa-heart text-3xl text-white drop-shadow-lg"></i>
               </div>
               <h4 class="text-xl font-bold mb-2 text-gray-800">가족 같은 마음</h4>
-              <p class="text-gray-600 text-sm leading-relaxed">믿을 수 있는 곳을 찾기까지 끝까지 함께</p>
+              <p class="text-gray-600 text-sm leading-relaxed">믿을 수 있는 곳을<br class="sm:hidden" /> 찾기까지 끝까지 함께</p>
             </div>
           </div>
         </div>
@@ -2027,7 +2027,7 @@ app.get('/', (c) => {
                 <span class="text-3xl font-bold text-white drop-shadow-lg">1</span>
               </div>
               <h4 class="text-xl font-bold mb-4 text-gray-800">정보 입력</h4>
-              <p class="text-gray-600 leading-relaxed">어르신의 기본 정보와 필요한 서비스를 입력</p>
+              <p class="text-gray-600 leading-relaxed">어르신의 기본 정보와<br class="sm:hidden" /> 필요한 서비스를 입력</p>
             </div>
             
             <div class="text-center relative z-10 group">
@@ -2035,7 +2035,7 @@ app.get('/', (c) => {
                 <span class="text-3xl font-bold text-white drop-shadow-lg">2</span>
               </div>
               <h4 class="text-xl font-bold mb-4 text-gray-800">견적 비교</h4>
-              <p class="text-gray-600 leading-relaxed">실시간으로 매칭된 시설들을 비교</p>
+              <p class="text-gray-600 leading-relaxed">실시간으로<br class="sm:hidden" /> 매칭된 시설들을 비교</p>
             </div>
             
             <div class="text-center relative z-10 group">
@@ -2043,7 +2043,7 @@ app.get('/', (c) => {
                 <span class="text-3xl font-bold text-white drop-shadow-lg">3</span>
               </div>
               <h4 class="text-xl font-bold mb-4 text-gray-800">전문 상담</h4>
-              <p class="text-gray-600 leading-relaxed">전문 상담사와 1:1 맞춤 상담</p>
+              <p class="text-gray-600 leading-relaxed">전문 상담사와<br class="sm:hidden" /> 1:1 맞춤 상담</p>
             </div>
           </div>
         </div>
@@ -2051,9 +2051,9 @@ app.get('/', (c) => {
         <div class="max-w-7xl mx-auto px-4">
           <div class="text-center mb-12">
             <h3 class="text-3xl font-bold text-gray-900 mb-4">
-              <i class="fas fa-handshake text-teal-600 mr-3"></i>파트너 입점 및 등록 신청
+              <i class="fas fa-handshake text-teal-600 mr-3"></i>파트너 입점 및<br class="sm:hidden" /> 등록 신청
             </h3>
-            <p class="text-lg text-gray-600">케어조아와 함께 더 많은 고객을 만나보세요</p>
+            <p class="text-lg text-gray-600">케어조아와 함께<br class="sm:hidden" /> 더 많은 고객을 만나보세요</p>
           </div>
           
           <div class="bg-white p-8 rounded-2xl shadow-lg max-w-4xl mx-auto">
