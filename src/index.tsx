@@ -1890,7 +1890,7 @@ app.get('/', (c) => {
                   <div class="mb-2 sm:mb-4 transform group-hover:scale-110 transition-transform duration-300">
                     <i class="fas fa-clipboard-list text-5xl sm:text-6xl md:text-7xl text-orange-500"></i>
                   </div>
-                  <span class="font-semibold text-gray-800 text-sm sm:text-base md:text-lg text-center leading-tight">실시간 견적<br/>상담 신청</span>
+                  <span class="font-semibold text-gray-800 text-sm sm:text-base md:text-lg text-center leading-tight">실시간<br class="sm:hidden" /> 견적<br/>상담 신청</span>
                 </a>
 
                 <a href="/call-consultation"
