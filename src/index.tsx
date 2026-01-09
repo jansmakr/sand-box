@@ -3588,13 +3588,32 @@ app.get('/admin/facilities', (c) => {
         
         async function loadFacilities() {
           try {
+            // 1. 기본 시설 데이터 로드
             const response = await fetch('/static/facilities.json');
             allFacilitiesData = await response.json();
+            
+            // 2. D1에서 대표시설 정보 로드 (관리자 전용 API)
+            try {
+              const repResponse = await fetch('/api/admin/facilities/representative-info');
+              if (repResponse.ok) {
+                const repData = await repResponse.json();
+                console.log('✅ 대표시설 정보 로드:', repData.length, '개');
+                
+                // 대표시설 정보 병합
+                allFacilitiesData.forEach(facility => {
+                  const repInfo = repData.find(r => r.facility_id == facility.id);
+                  facility.isRepresentative = repInfo ? true : false;
+                });
+              }
+            } catch (repError) {
+              console.log('⚠️ 대표시설 정보 로드 실패 (메모리 폴백):', repError);
+            }
+            
             window.allFacilitiesData = allFacilitiesData; // 전역 window 객체에도 저장
             filteredFacilitiesData = [...allFacilitiesData];
             
             console.log('✅ 시설 데이터 로드 완료:', allFacilitiesData.length, '개');
-            console.log('📋 샘플 시설:', allFacilitiesData.slice(0, 3).map(f => ({ id: f.id, name: f.name })));
+            console.log('📋 샘플 시설:', allFacilitiesData.slice(0, 3).map(f => ({ id: f.id, name: f.name, isRep: f.isRepresentative })));
             
             document.getElementById('totalFacilities').textContent = allFacilitiesData.length.toLocaleString();
             document.getElementById('loadingFacilities').style.display = 'none';
@@ -5355,6 +5374,31 @@ async function loadFacilities() {
   }
 }
 
+// D1에서 대표시설 정보를 로드하여 facilities에 병합
+async function loadRepresentativeSettings(db: any) {
+  if (!db) return
+  
+  try {
+    const { results } = await db.prepare(`
+      SELECT facility_id, is_representative, sido, sigungu
+      FROM facility_settings
+      WHERE is_representative = 1
+    `).all()
+    
+    if (results && results.length > 0) {
+      console.log(`Loaded ${results.length} representative facilities from D1`)
+      
+      // facilities 데이터에 대표시설 정보 병합
+      dataStore.facilities.forEach((facility: any) => {
+        const setting = results.find((s: any) => s.facility_id == facility.id)
+        facility.isRepresentative = setting ? true : false
+      })
+    }
+  } catch (error) {
+    console.error('Failed to load representative settings:', error)
+  }
+}
+
 // 시설 정보 업데이트 API
 app.post('/api/admin/facility/update', async (c) => {
   if (!isAdmin(c)) {
@@ -5394,11 +5438,58 @@ app.post('/api/admin/facility/update', async (c) => {
   }
 })
 
+// 관리자: 대표시설 정보만 조회 (가벼운 API)
+app.get('/api/admin/facilities/representative-info', async (c) => {
+  if (!isAdmin(c)) {
+    return c.json({ error: 'Unauthorized' }, 401)
+  }
+  
+  try {
+    const db = c.env.DB
+    if (!db) {
+      return c.json([]) // D1 없으면 빈 배열
+    }
+    
+    const { results } = await db.prepare(`
+      SELECT facility_id, is_representative, sido, sigungu
+      FROM facility_settings
+      WHERE is_representative = 1
+    `).all()
+    
+    return c.json(results || [])
+  } catch (error) {
+    console.error('대표시설 정보 조회 오류:', error)
+    return c.json([])
+  }
+})
+
+// 관리자: 대표시설 정보 포함한 시설 목록 조회 API
+app.get('/api/admin/facilities/with-representative', async (c) => {
+  if (!isAdmin(c)) {
+    return c.json({ error: 'Unauthorized' }, 401)
+  }
+  
+  try {
+    // 시설 데이터 로드
+    await loadFacilities()
+    
+    const db = c.env.DB
+    if (db) {
+      // D1에서 대표시설 정보 로드
+      await loadRepresentativeSettings(db)
+    }
+    
+    return c.json(dataStore.facilities)
+  } catch (error) {
+    console.error('시설 목록 조회 오류:', error)
+    return c.json({ error: '시설 목록 조회 실패' }, 500)
+  }
+})
+
 // 시설 대표시설 지정 API
 app.post('/api/admin/facility/set-representative', async (c) => {
   console.log('🔵 API 호출됨:', '/api/admin/facility/set-representative')
   
-  // 임시: 관리자 체크 비활성화 (디버깅용)
   const isAdminCheck = isAdmin(c)
   console.log('🔐 관리자 체크 결과:', isAdminCheck)
   
@@ -5422,27 +5513,80 @@ app.post('/api/admin/facility/set-representative', async (c) => {
       return c.json({ success: false, message: '시설을 찾을 수 없습니다.' }, 404)
     }
     
-    // 대표시설 지정 시, 같은 지역의 다른 대표시설 해제
-    if (isRepresentative) {
-      dataStore.facilities.forEach((f: any) => {
-        if (f.id !== id && 
-            f.sido === targetFacility.sido && 
-            f.sigungu === targetFacility.sigungu && 
-            f.isRepresentative) {
-          f.isRepresentative = false
+    const db = c.env.DB
+    
+    if (db) {
+      // D1 데이터베이스에 저장
+      console.log('💾 D1 데이터베이스에 저장 시작')
+      
+      try {
+        // 대표시설 지정 시, 같은 지역의 다른 대표시설 해제
+        if (isRepresentative) {
+          await db.prepare(`
+            UPDATE facility_settings 
+            SET is_representative = 0, updated_at = datetime('now')
+            WHERE sido = ? AND sigungu = ? AND is_representative = 1 AND facility_id != ?
+          `).bind(targetFacility.sido, targetFacility.sigungu, id).run()
+          
+          console.log('✅ 기존 대표시설 해제:', targetFacility.sido, targetFacility.sigungu)
         }
+        
+        // UPSERT: 시설 설정 업데이트 또는 삽입
+        await db.prepare(`
+          INSERT INTO facility_settings (facility_id, is_representative, sido, sigungu, updated_at)
+          VALUES (?, ?, ?, ?, datetime('now'))
+          ON CONFLICT(facility_id) DO UPDATE SET
+            is_representative = excluded.is_representative,
+            updated_at = datetime('now')
+        `).bind(id, isRepresentative ? 1 : 0, targetFacility.sido, targetFacility.sigungu).run()
+        
+        console.log('✅ D1 데이터베이스 저장 완료')
+        
+        // 메모리 데이터도 업데이트
+        targetFacility.isRepresentative = isRepresentative
+        if (isRepresentative) {
+          dataStore.facilities.forEach((f: any) => {
+            if (f.id !== id && 
+                f.sido === targetFacility.sido && 
+                f.sigungu === targetFacility.sigungu) {
+              f.isRepresentative = false
+            }
+          })
+        }
+        
+        return c.json({ 
+          success: true, 
+          message: isRepresentative ? '대표시설로 지정되었습니다. (D1 저장 완료)' : '대표시설 지정이 해제되었습니다. (D1 저장 완료)',
+          storage: 'D1 Database'
+        })
+      } catch (dbError) {
+        console.error('❌ D1 저장 실패:', dbError)
+        throw dbError
+      }
+    } else {
+      // D1이 없으면 메모리에만 저장 (폴백)
+      console.log('⚠️ D1 없음, 메모리 저장')
+      
+      if (isRepresentative) {
+        dataStore.facilities.forEach((f: any) => {
+          if (f.id !== id && 
+              f.sido === targetFacility.sido && 
+              f.sigungu === targetFacility.sigungu && 
+              f.isRepresentative) {
+            f.isRepresentative = false
+          }
+        })
+      }
+      
+      targetFacility.isRepresentative = isRepresentative
+      
+      return c.json({ 
+        success: true, 
+        message: isRepresentative ? '대표시설로 지정되었습니다. (메모리 저장)' : '대표시설 지정이 해제되었습니다. (메모리 저장)',
+        storage: 'Memory',
+        note: '서버 재시작 시 초기화됩니다. D1 데이터베이스 연동 필요.'
       })
     }
-    
-    // 대상 시설의 대표시설 상태 변경
-    targetFacility.isRepresentative = isRepresentative
-    
-    console.log('✅ 대표시설 설정 완료')
-    return c.json({ 
-      success: true, 
-      message: isRepresentative ? '대표시설로 지정되었습니다. (메모리 업데이트)' : '대표시설 지정이 해제되었습니다. (메모리 업데이트)',
-      note: '서버 재시작 시 초기화됩니다.'
-    })
   } catch (error) {
     console.error('대표시설 설정 오류:', error)
     return c.json({ success: false, message: '대표시설 설정 실패', error: String(error) }, 500)
