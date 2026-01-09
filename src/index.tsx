@@ -3677,10 +3677,10 @@ app.get('/admin/facilities', (c) => {
               </td>
               <td class="px-4 py-3">
                 <div class="flex gap-2">
-                  <button onclick="openEditModal('\${f.id}')" class="px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600 transition-colors">
+                  <button onclick="console.log('수정 버튼 클릭:', '\${f.id}'); openEditModal('\${f.id}')" class="px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600 transition-colors">
                     <i class="fas fa-edit"></i> 수정
                   </button>
-                  <button onclick="deleteFacility('\${f.id}')" class="px-3 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600 transition-colors">
+                  <button onclick="console.log('삭제 버튼 클릭:', '\${f.id}'); deleteFacility('\${f.id}')" class="px-3 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600 transition-colors">
                     <i class="fas fa-trash"></i> 삭제
                   </button>
                 </div>
