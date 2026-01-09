@@ -1887,7 +1887,8 @@ app.get('/', (c) => {
         <div class="max-w-6xl mx-auto px-3 sm:px-4">
           <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8" id="main-action-buttons">
                 <a href="/quote-request" 
-                   class="group flex flex-col items-center justify-center bg-white py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[140px] sm:min-h-[160px] border-2 border-blue-500">
+                   class="group relative flex flex-col items-center justify-center bg-white py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[140px] sm:min-h-[160px]">
+                  <span class="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">인기</span>
                   <div class="mb-2 sm:mb-4 transform group-hover:scale-110 transition-transform duration-300">
                     <i class="fas fa-calculator text-5xl sm:text-6xl md:text-7xl text-blue-500"></i>
                   </div>
@@ -1903,7 +1904,8 @@ app.get('/', (c) => {
                 </a>
 
                 <a href="/call-consultation"
-                   class="group flex flex-col items-center justify-center bg-white py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[140px] sm:min-h-[160px] border-2 border-green-500">
+                   class="group relative flex flex-col items-center justify-center bg-white py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[140px] sm:min-h-[160px]">
+                  <span class="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">인기</span>
                   <div class="mb-2 sm:mb-4 transform group-hover:scale-110 transition-transform duration-300">
                     <i class="fas fa-phone-alt text-5xl sm:text-6xl md:text-7xl text-green-500"></i>
                   </div>
@@ -3645,7 +3647,7 @@ app.get('/admin/facilities', (c) => {
               <td class="px-4 py-3 text-sm text-gray-600 max-w-xs truncate" title="\${f.address}">\${f.address}</td>
               <td class="px-4 py-3 text-center">
                 <input type="checkbox" \${isRepresentative ? 'checked' : ''} 
-                  onchange="toggleRepresentative('\${f.id}', this.checked)"
+                  onchange="toggleRepresentative('\${f.id}', this.checked, event)"
                   class="w-5 h-5 text-purple-600 border-gray-300 rounded focus:ring-purple-500 cursor-pointer"
                   title="지역별 전화상담에 노출"
                 />
@@ -3772,7 +3774,7 @@ app.get('/admin/facilities', (c) => {
         }
         
         // 대표시설 토글
-        async function toggleRepresentative(id, isChecked) {
+        async function toggleRepresentative(id, isChecked, event) {
           const facility = allFacilitiesData.find(f => f.id === id);
           if (!facility) return;
           
@@ -3788,7 +3790,7 @@ app.get('/admin/facilities', (c) => {
             if (existingRep) {
               if (!confirm(\`\${facility.sido} \${facility.sigungu} 지역에 이미 대표시설 "\${existingRep.name}"이(가) 지정되어 있습니다.\\n\\n기존 대표시설을 해제하고 "\${facility.name}"을(를) 새로운 대표시설로 지정하시겠습니까?\`)) {
                 // 체크박스 원복
-                event.target.checked = false;
+                if (event && event.target) event.target.checked = false;
                 return;
               }
               // 기존 대표시설 해제
@@ -3809,7 +3811,7 @@ app.get('/admin/facilities', (c) => {
             console.error('대표시설 설정 실패:', error);
             alert('대표시설 설정 중 오류가 발생했습니다.');
             // 체크박스 원복
-            event.target.checked = !isChecked;
+            if (event && event.target) event.target.checked = !isChecked;
           }
         }
         
