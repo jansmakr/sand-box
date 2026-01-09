@@ -3355,6 +3355,9 @@ app.get('/admin/facilities', (c) => {
               <a href="/admin/facilities" class="text-teal-600 bg-teal-50 px-4 py-2 rounded-lg font-semibold">
                 <i class="fas fa-building mr-1"></i>시설 관리
               </a>
+              <a href="/admin/customers" class="text-gray-600 hover:text-gray-900 px-4 py-2 rounded-lg hover:bg-gray-100">
+                <i class="fas fa-users mr-1"></i>일반고객
+              </a>
               <button id="logoutBtn" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
                 <i class="fas fa-sign-out-alt mr-2"></i>로그아웃
               </button>
@@ -3966,6 +3969,9 @@ app.get('/admin/dashboard', (c) => {
               </a>
               <a href="/admin/facilities" class="text-gray-600 hover:text-gray-900 px-4 py-2 rounded-lg hover:bg-gray-100">
                 <i class="fas fa-building mr-1"></i>시설 관리
+              </a>
+              <a href="/admin/customers" class="text-gray-600 hover:text-gray-900 px-4 py-2 rounded-lg hover:bg-gray-100">
+                <i class="fas fa-users mr-1"></i>일반고객
               </a>
               <button id="logoutBtn" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
                 <i class="fas fa-sign-out-alt mr-2"></i>로그아웃
@@ -4595,6 +4601,136 @@ app.get('/admin/dashboard', (c) => {
   )
 })
 
+// 관리자 일반고객 관리 페이지
+app.get('/admin/customers', (c) => {
+  if (!isAdmin(c)) {
+    return c.redirect('/admin')
+  }
+  
+  return c.render(
+    <div class="min-h-screen bg-gray-100">
+      <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex justify-between items-center h-16">
+            <div class="flex items-center">
+              <i class="fas fa-shield-alt text-2xl text-gray-900 mr-3"></i>
+              <h1 class="text-2xl font-bold text-gray-900">케어조아 관리자</h1>
+            </div>
+            <div class="flex items-center gap-3">
+              <a href="/admin/dashboard" class="text-gray-600 hover:text-gray-900 px-4 py-2 rounded-lg hover:bg-gray-100">
+                <i class="fas fa-home mr-1"></i>대시보드
+              </a>
+              <a href="/admin/facilities" class="text-gray-600 hover:text-gray-900 px-4 py-2 rounded-lg hover:bg-gray-100">
+                <i class="fas fa-building mr-1"></i>시설 관리
+              </a>
+              <a href="/admin/customers" class="text-teal-600 bg-teal-50 px-4 py-2 rounded-lg font-semibold">
+                <i class="fas fa-users mr-1"></i>일반고객
+              </a>
+              <button id="logoutBtn" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
+                <i class="fas fa-sign-out-alt mr-2"></i>로그아웃
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="max-w-7xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-xl shadow-lg">
+          <div class="border-b px-6 py-4">
+            <h3 class="text-xl font-bold flex items-center">
+              <i class="fas fa-users text-purple-600 mr-2"></i>
+              일반고객 목록
+              <span class="ml-3 text-sm text-gray-500">(<span id="customerCount">0</span>명)</span>
+            </h3>
+          </div>
+          
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">순번</th>
+                  <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">이메일</th>
+                  <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">이름</th>
+                  <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">전화번호</th>
+                  <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">가입일</th>
+                  <th class="px-4 py-3 text-center text-sm font-semibold text-gray-600">관리</th>
+                </tr>
+              </thead>
+              <tbody id="customersList">
+                <tr>
+                  <td colspan="6" class="px-4 py-8 text-center text-gray-500">
+                    로딩 중...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <script dangerouslySetInnerHTML={{
+        __html: `
+        document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+          const response = await fetch('/api/auth/logout', { method: 'POST' });
+          if (response.ok) {
+            window.location.href = '/admin';
+          }
+        });
+        
+        // 일반고객 목록 로드
+        async function loadCustomers() {
+          try {
+            const response = await fetch('/api/admin/customers');
+            if (!response.ok) throw new Error('Failed to load customers');
+            
+            const customers = await response.json();
+            const listEl = document.getElementById('customersList');
+            const countEl = document.getElementById('customerCount');
+            
+            countEl.textContent = customers.length;
+            
+            if (customers.length === 0) {
+              listEl.innerHTML = '<tr><td colspan="6" class="px-4 py-8 text-center text-gray-500">등록된 일반고객이 없습니다</td></tr>';
+              return;
+            }
+            
+            listEl.innerHTML = customers.map((customer, index) => {
+              const date = new Date(customer.created_at);
+              const dateStr = date.toLocaleDateString('ko-KR');
+              
+              return \`
+                <tr class="border-t hover:bg-gray-50">
+                  <td class="px-4 py-3 text-sm text-gray-600">\${index + 1}</td>
+                  <td class="px-4 py-3 text-sm">\${customer.email || '-'}</td>
+                  <td class="px-4 py-3 font-medium text-gray-900">\${customer.name || '-'}</td>
+                  <td class="px-4 py-3 text-sm text-gray-600">\${customer.phone || '-'}</td>
+                  <td class="px-4 py-3 text-sm text-gray-600">\${dateStr}</td>
+                  <td class="px-4 py-3 text-center">
+                    <button onclick="viewCustomer('\${customer.id}')" class="px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600 transition-colors">
+                      <i class="fas fa-eye"></i> 상세
+                    </button>
+                  </td>
+                </tr>
+              \`;
+            }).join('');
+          } catch (error) {
+            console.error('일반고객 로드 실패:', error);
+            document.getElementById('customersList').innerHTML = '<tr><td colspan="6" class="px-4 py-8 text-center text-red-500">데이터 로드 실패</td></tr>';
+          }
+        }
+        
+        function viewCustomer(id) {
+          alert('고객 ID: ' + id + '\\n\\n상세 보기 기능은 추후 구현 예정입니다.');
+        }
+        
+        // 페이지 로드 시 실행
+        loadCustomers();
+        `
+      }} />
+    </div>
+  )
+})
+
 // API 라우트 - 파트너(시설) 등록
 app.post('/api/partner', async (c) => {
   try {
@@ -5017,6 +5153,36 @@ app.post('/api/admin/partner/set-representative', async (c) => {
     })
   } catch (error) {
     return c.json({ success: false, message: '대표샵 설정 실패' }, 500)
+  }
+})
+
+// 관리자: 일반고객 목록 조회
+app.get('/api/admin/customers', async (c) => {
+  // 관리자 권한 확인
+  const session = c.get('session')
+  if (!session || !session.isAdmin) {
+    return c.json({ error: '권한이 없습니다.' }, 403)
+  }
+  
+  try {
+    const db = c.env.DB
+    if (!db) {
+      return c.json([])
+    }
+    
+    // users 테이블에서 일반고객(user_type = 'customer') 조회
+    const { results } = await db.prepare(`
+      SELECT 
+        id, email, name, phone, created_at
+      FROM users
+      WHERE user_type = 'customer'
+      ORDER BY created_at DESC
+    `).all()
+    
+    return c.json(results || [])
+  } catch (error) {
+    console.error('일반고객 목록 조회 오류:', error)
+    return c.json({ error: '데이터 조회 실패' }, 500)
   }
 })
 
