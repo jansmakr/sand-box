@@ -3588,25 +3588,16 @@ app.get('/admin/facilities', (c) => {
         
         async function loadFacilities() {
           try {
-            // 1. 기본 시설 데이터 로드
-            const response = await fetch('/static/facilities.json');
-            allFacilitiesData = await response.json();
-            
-            // 2. D1에서 대표시설 정보 로드 (관리자 전용 API)
-            try {
-              const repResponse = await fetch('/api/admin/facilities/representative-info');
-              if (repResponse.ok) {
-                const repData = await repResponse.json();
-                console.log('✅ 대표시설 정보 로드:', repData.length, '개');
-                
-                // 대표시설 정보 병합
-                allFacilitiesData.forEach(facility => {
-                  const repInfo = repData.find(r => r.facility_id == facility.id);
-                  facility.isRepresentative = repInfo ? true : false;
-                });
-              }
-            } catch (repError) {
-              console.log('⚠️ 대표시설 정보 로드 실패 (메모리 폴백):', repError);
+            // D1 대표시설 정보가 포함된 시설 목록 로드
+            const response = await fetch('/api/facilities/with-representative');
+            if (response.ok) {
+              allFacilitiesData = await response.json();
+              console.log('✅ D1 대표시설 정보 포함 시설 데이터 로드 완료');
+            } else {
+              // API 실패 시 정적 JSON 폴백
+              console.log('⚠️ API 실패, 정적 JSON 로드');
+              const fallbackResponse = await fetch('/static/facilities.json');
+              allFacilitiesData = await fallbackResponse.json();
             }
             
             window.allFacilitiesData = allFacilitiesData; // 전역 window 객체에도 저장
@@ -5487,6 +5478,46 @@ app.get('/api/admin/facilities/with-representative', async (c) => {
 })
 
 // 시설 대표시설 지정 API
+// 대표시설 정보 포함된 시설 목록 조회
+app.get('/api/facilities/with-representative', async (c) => {
+  try {
+    // 기본 시설 데이터 로드
+    await loadFacilities()
+    const facilities = [...dataStore.facilities]
+    
+    // D1에서 대표시설 정보 가져오기
+    const db = c.env.DB
+    if (db) {
+      try {
+        const { results } = await db.prepare(`
+          SELECT facility_id, is_representative 
+          FROM facility_settings 
+          WHERE is_representative = 1
+        `).all()
+        
+        // 대표시설 정보 병합
+        const representativeMap = new Map(
+          results.map((r: any) => [String(r.facility_id), true])
+        )
+        
+        facilities.forEach(f => {
+          f.isRepresentative = representativeMap.has(String(f.id)) || false
+        })
+        
+        console.log(`✅ 대표시설 ${results.length}개 로드됨`)
+      } catch (dbError) {
+        console.error('❌ D1 조회 실패:', dbError)
+        // D1 실패 시 메모리 데이터 사용
+      }
+    }
+    
+    return c.json(facilities)
+  } catch (error) {
+    console.error('시설 목록 조회 실패:', error)
+    return c.json({ error: 'Internal server error' }, 500)
+  }
+})
+
 app.post('/api/admin/facility/set-representative', async (c) => {
   console.log('🔵 API 호출됨:', '/api/admin/facility/set-representative')
   
