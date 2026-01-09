@@ -1873,7 +1873,7 @@ app.get('/', (c) => {
       {/* 메인 액션 버튼 - 히어로 바로 아래 */}
       <section class="py-8 sm:py-10 md:py-14 lg:py-16 bg-gradient-to-b from-white to-gray-50">
         <div class="max-w-6xl mx-auto px-3 sm:px-4">
-          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8" id="main-action-buttons">
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8" id="main-action-buttons">
                 <a href="https://play.google.com/store/apps/details?id=app.netlify.std_care_joa.twa" 
                    target="_blank" rel="noopener noreferrer"
                    class="group flex flex-col items-center justify-center bg-white py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[140px] sm:min-h-[160px]">
@@ -1909,10 +1909,19 @@ app.get('/', (c) => {
                   <span class="font-semibold text-gray-800 text-sm sm:text-base md:text-lg text-center leading-tight">전국 시설<br/>찾기</span>
                 </a>
 
+                <a href="/ai-matching"
+                   class="group relative flex flex-col items-center justify-center bg-white py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[140px] sm:min-h-[160px]">
+                  <span class="absolute top-2 right-2 bg-red-500 text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full shadow-lg">NEW</span>
+                  <div class="mb-2 sm:mb-4 transform group-hover:scale-110 transition-transform duration-300">
+                    <i class="fas fa-robot text-5xl sm:text-6xl md:text-7xl text-indigo-500"></i>
+                  </div>
+                  <span class="font-semibold text-gray-800 text-sm sm:text-base md:text-lg text-center leading-tight">AI 맞춤<br/>시설 찾기</span>
+                </a>
+
                 <a href="https://carejoa.shop"
                    target="_blank"
                    rel="noopener noreferrer"
-                   class="group relative flex flex-col items-center justify-center bg-white py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[140px] sm:min-h-[160px] col-span-2 sm:col-span-3 lg:col-span-1">
+                   class="group relative flex flex-col items-center justify-center bg-white py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[140px] sm:min-h-[160px]">
                   <span class="absolute top-2 right-2 bg-red-500 text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full shadow-lg">NEW</span>
                   <div class="mb-2 sm:mb-4 transform group-hover:scale-110 transition-transform duration-300">
                     <i class="fas fa-calculator text-5xl sm:text-6xl md:text-7xl text-teal-500"></i>
