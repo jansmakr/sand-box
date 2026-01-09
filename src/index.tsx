@@ -1918,7 +1918,7 @@ app.get('/', (c) => {
                   <span class="font-semibold text-gray-800 text-sm sm:text-base md:text-lg text-center leading-tight">AI 맞춤<br/>시설 찾기</span>
                 </a>
 
-                <a href="https://carejoa.shop"
+                <a href="http://케어조아.shop"
                    target="_blank"
                    rel="noopener noreferrer"
                    class="group relative flex flex-col items-center justify-center bg-white py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[140px] sm:min-h-[160px]">
