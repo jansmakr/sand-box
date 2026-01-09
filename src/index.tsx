@@ -1810,7 +1810,10 @@ app.get('/', (c) => {
               <img 
                 src="https://page.gensparksite.com/v1/base64_upload/b39dca8586af1dacd6d8417554313896" 
                 alt="케어조아 로고"
+                width="32"
+                height="32"
                 class="h-8 w-auto mr-2 sm:mr-3"
+                loading="eager"
               />
               <h1 class="text-xl sm:text-2xl font-bold text-teal-600">케어조아</h1>
             </div><nav class="hidden md:flex space-x-2 lg:space-x-3 text-sm">
@@ -1874,8 +1877,11 @@ app.get('/', (c) => {
               <img 
                 src="/static/carejoa-character.png" 
                 alt="케어조아 캐릭터"
+                width="144"
+                height="144"
                 class="w-24 sm:w-28 md:w-32 lg:w-32 xl:w-36 h-auto object-contain"
                 style="image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;"
+                loading="eager"
               />
             </div>
           </div>
