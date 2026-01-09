@@ -208,11 +208,11 @@ app.get('/login', (c) => {
                 </button>
                 <button type="button" id="btnHospital" onclick="selectUserType('hospital_manager')"
                   class="px-3 py-2.5 sm:px-4 sm:py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-teal-600 hover:text-teal-600 transition-colors font-medium text-sm sm:text-base">
-                  <i class="fas fa-search-location mr-1 sm:mr-2"></i><span class="hidden xs:inline">전국</span><br class="xs:hidden" />시설
+                  <i class="fas fa-hospital-alt mr-1 sm:mr-2"></i><span class="hidden xs:inline">병의원</span><br class="xs:hidden" />
                 </button>
                 <button type="button" id="btnWelfare" onclick="selectUserType('welfare_manager')"
                   class="px-3 py-2.5 sm:px-4 sm:py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-teal-600 hover:text-teal-600 transition-colors font-medium text-sm sm:text-base">
-                  <i class="fas fa-phone-alt mr-1 sm:mr-2"></i><span class="hidden xs:inline">전화</span><br class="xs:hidden" />상담
+                  <i class="fas fa-building mr-1 sm:mr-2"></i><span class="hidden xs:inline">행정</span><br class="xs:hidden" />복지
                 </button>
               </div>
             </div>
@@ -531,11 +531,11 @@ app.get('/register', (c) => {
                 </button>
                 <button type="button" id="btnHospital" onclick="selectUserType('hospital_manager')"
                   class="px-3 py-2.5 sm:px-4 sm:py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-teal-600 hover:text-teal-600 transition-colors font-medium text-sm sm:text-base">
-                  <i class="fas fa-search-location mr-1 sm:mr-2"></i><span class="hidden xs:inline">전국</span><br class="xs:hidden" />시설
+                  <i class="fas fa-hospital-alt mr-1 sm:mr-2"></i><span class="hidden xs:inline">병의원</span><br class="xs:hidden" />
                 </button>
                 <button type="button" id="btnWelfare" onclick="selectUserType('welfare_manager')"
                   class="px-3 py-2.5 sm:px-4 sm:py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-teal-600 hover:text-teal-600 transition-colors font-medium text-sm sm:text-base">
-                  <i class="fas fa-phone-alt mr-1 sm:mr-2"></i><span class="hidden xs:inline">전화</span><br class="xs:hidden" />상담
+                  <i class="fas fa-building mr-1 sm:mr-2"></i><span class="hidden xs:inline">행정</span><br class="xs:hidden" />복지
                 </button>
               </div>
             </div>
