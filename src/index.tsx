@@ -5396,18 +5396,28 @@ app.post('/api/admin/facility/update', async (c) => {
 
 // 시설 대표시설 지정 API
 app.post('/api/admin/facility/set-representative', async (c) => {
-  if (!isAdmin(c)) {
-    return c.json({ error: 'Unauthorized' }, 401)
+  console.log('🔵 API 호출됨:', '/api/admin/facility/set-representative')
+  
+  // 임시: 관리자 체크 비활성화 (디버깅용)
+  const isAdminCheck = isAdmin(c)
+  console.log('🔐 관리자 체크 결과:', isAdminCheck)
+  
+  if (!isAdminCheck) {
+    console.log('❌ 관리자 권한 없음')
+    return c.json({ error: 'Unauthorized', debug: '관리자 권한이 필요합니다' }, 401)
   }
   
   try {
     const { id, isRepresentative } = await c.req.json()
+    console.log('📥 요청 데이터:', { id, isRepresentative })
     
     // 시설 데이터 로드
     await loadFacilities()
     
     // 대상 시설 찾기
-    const targetFacility = dataStore.facilities.find((f: any) => f.id === id)
+    const targetFacility = dataStore.facilities.find((f: any) => f.id == id || String(f.id) === String(id))
+    console.log('🔍 시설 찾기 결과:', targetFacility?.name || '없음')
+    
     if (!targetFacility) {
       return c.json({ success: false, message: '시설을 찾을 수 없습니다.' }, 404)
     }
@@ -5427,6 +5437,7 @@ app.post('/api/admin/facility/set-representative', async (c) => {
     // 대상 시설의 대표시설 상태 변경
     targetFacility.isRepresentative = isRepresentative
     
+    console.log('✅ 대표시설 설정 완료')
     return c.json({ 
       success: true, 
       message: isRepresentative ? '대표시설로 지정되었습니다. (메모리 업데이트)' : '대표시설 지정이 해제되었습니다. (메모리 업데이트)',
@@ -5434,7 +5445,7 @@ app.post('/api/admin/facility/set-representative', async (c) => {
     })
   } catch (error) {
     console.error('대표시설 설정 오류:', error)
-    return c.json({ success: false, message: '대표시설 설정 실패' }, 500)
+    return c.json({ success: false, message: '대표시설 설정 실패', error: String(error) }, 500)
   }
 })
 
