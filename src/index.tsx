@@ -199,20 +199,20 @@ app.get('/login', (c) => {
               <label class="block text-sm font-medium text-gray-700 mb-3">로그인 유형</label>
               <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <button type="button" id="btnCustomer" onclick="selectUserType('customer')"
-                  class="px-4 py-3 border-2 border-teal-600 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-medium">
-                  <i class="fas fa-user mr-2"></i>고객
+                  class="px-3 py-2.5 sm:px-4 sm:py-3 border-2 border-teal-600 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-medium text-sm sm:text-base">
+                  <i class="fas fa-user mr-1 sm:mr-2"></i>고객
                 </button>
                 <button type="button" id="btnFacility" onclick="selectUserType('facility')"
-                  class="px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-teal-600 hover:text-teal-600 transition-colors font-medium">
-                  <i class="fas fa-building mr-2"></i>시설
+                  class="px-3 py-2.5 sm:px-4 sm:py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-teal-600 hover:text-teal-600 transition-colors font-medium text-sm sm:text-base">
+                  <i class="fas fa-building mr-1 sm:mr-2"></i>시설
                 </button>
                 <button type="button" id="btnHospital" onclick="selectUserType('hospital_manager')"
-                  class="px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-teal-600 hover:text-teal-600 transition-colors font-medium">
-                  <i class="fas fa-hospital mr-2"></i>상급병원
+                  class="px-3 py-2.5 sm:px-4 sm:py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-teal-600 hover:text-teal-600 transition-colors font-medium text-sm sm:text-base">
+                  <i class="fas fa-search-location mr-1 sm:mr-2"></i><span class="hidden xs:inline">전국</span><br class="xs:hidden" />시설
                 </button>
                 <button type="button" id="btnWelfare" onclick="selectUserType('welfare_manager')"
-                  class="px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-teal-600 hover:text-teal-600 transition-colors font-medium">
-                  <i class="fas fa-landmark mr-2"></i>정부복지
+                  class="px-3 py-2.5 sm:px-4 sm:py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-teal-600 hover:text-teal-600 transition-colors font-medium text-sm sm:text-base">
+                  <i class="fas fa-phone-alt mr-1 sm:mr-2"></i><span class="hidden xs:inline">전화</span><br class="xs:hidden" />상담
                 </button>
               </div>
             </div>
@@ -522,20 +522,20 @@ app.get('/register', (c) => {
               <label class="block text-sm font-medium text-gray-700 mb-3">가입 유형</label>
               <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <button type="button" id="btnCustomer" onclick="selectUserType('customer')"
-                  class="px-4 py-3 border-2 border-teal-600 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-medium">
-                  <i class="fas fa-user mr-2"></i>고객
+                  class="px-3 py-2.5 sm:px-4 sm:py-3 border-2 border-teal-600 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-medium text-sm sm:text-base">
+                  <i class="fas fa-user mr-1 sm:mr-2"></i>고객
                 </button>
                 <button type="button" id="btnFacility" onclick="selectUserType('facility')"
-                  class="px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-teal-600 hover:text-teal-600 transition-colors font-medium">
-                  <i class="fas fa-building mr-2"></i>시설
+                  class="px-3 py-2.5 sm:px-4 sm:py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-teal-600 hover:text-teal-600 transition-colors font-medium text-sm sm:text-base">
+                  <i class="fas fa-building mr-1 sm:mr-2"></i>시설
                 </button>
                 <button type="button" id="btnHospital" onclick="selectUserType('hospital_manager')"
-                  class="px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-teal-600 hover:text-teal-600 transition-colors font-medium">
-                  <i class="fas fa-hospital mr-2"></i>상급병원
+                  class="px-3 py-2.5 sm:px-4 sm:py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-teal-600 hover:text-teal-600 transition-colors font-medium text-sm sm:text-base">
+                  <i class="fas fa-search-location mr-1 sm:mr-2"></i><span class="hidden xs:inline">전국</span><br class="xs:hidden" />시설
                 </button>
                 <button type="button" id="btnWelfare" onclick="selectUserType('welfare_manager')"
-                  class="px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-teal-600 hover:text-teal-600 transition-colors font-medium">
-                  <i class="fas fa-landmark mr-2"></i>정부복지
+                  class="px-3 py-2.5 sm:px-4 sm:py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-teal-600 hover:text-teal-600 transition-colors font-medium text-sm sm:text-base">
+                  <i class="fas fa-phone-alt mr-1 sm:mr-2"></i><span class="hidden xs:inline">전화</span><br class="xs:hidden" />상담
                 </button>
               </div>
             </div>
