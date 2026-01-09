@@ -1887,7 +1887,7 @@ app.get('/', (c) => {
         <div class="max-w-6xl mx-auto px-3 sm:px-4">
           <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8" id="main-action-buttons">
                 <a href="/quote-request" 
-                   class="group flex flex-col items-center justify-center bg-white py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[140px] sm:min-h-[160px]">
+                   class="group flex flex-col items-center justify-center bg-white py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[140px] sm:min-h-[160px] border-2 border-blue-500">
                   <div class="mb-2 sm:mb-4 transform group-hover:scale-110 transition-transform duration-300">
                     <i class="fas fa-calculator text-5xl sm:text-6xl md:text-7xl text-blue-500"></i>
                   </div>
@@ -1903,7 +1903,7 @@ app.get('/', (c) => {
                 </a>
 
                 <a href="/call-consultation"
-                   class="group flex flex-col items-center justify-center bg-white py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[140px] sm:min-h-[160px]">
+                   class="group flex flex-col items-center justify-center bg-white py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[140px] sm:min-h-[160px] border-2 border-green-500">
                   <div class="mb-2 sm:mb-4 transform group-hover:scale-110 transition-transform duration-300">
                     <i class="fas fa-phone-alt text-5xl sm:text-6xl md:text-7xl text-green-500"></i>
                   </div>
@@ -1931,7 +1931,7 @@ app.get('/', (c) => {
                    target="_blank"
                    rel="noopener noreferrer"
                    class="group relative flex flex-col items-center justify-center bg-white py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[140px] sm:min-h-[160px]">
-                  <span class="absolute top-2 right-2 bg-red-500 text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full shadow-lg">NEW</span>
+                  <span class="absolute top-2 right-2 bg-blue-500 text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full shadow-lg">인기</span>
                   <div class="mb-2 sm:mb-4 transform group-hover:scale-110 transition-transform duration-300">
                     <i class="fas fa-calculator text-5xl sm:text-6xl md:text-7xl text-teal-500"></i>
                   </div>
