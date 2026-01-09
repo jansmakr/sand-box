@@ -3775,8 +3775,17 @@ app.get('/admin/facilities', (c) => {
         
         // 대표시설 토글
         async function toggleRepresentative(id, isChecked, event) {
+          console.log('🔄 대표시설 토글 시작:', { id, isChecked });
+          
           const facility = allFacilitiesData.find(f => f.id === id);
-          if (!facility) return;
+          if (!facility) {
+            console.error('❌ 시설을 찾을 수 없습니다:', id);
+            alert('시설 정보를 찾을 수 없습니다.');
+            if (event && event.target) event.target.checked = !isChecked;
+            return;
+          }
+          
+          console.log('✅ 시설 찾음:', facility.name);
           
           if (isChecked) {
             // 같은 지역의 다른 대표시설이 있는지 확인
@@ -3788,28 +3797,35 @@ app.get('/admin/facilities', (c) => {
             );
             
             if (existingRep) {
+              console.log('⚠️ 기존 대표시설 발견:', existingRep.name);
               if (!confirm(\`\${facility.sido} \${facility.sigungu} 지역에 이미 대표시설 "\${existingRep.name}"이(가) 지정되어 있습니다.\\n\\n기존 대표시설을 해제하고 "\${facility.name}"을(를) 새로운 대표시설로 지정하시겠습니까?\`)) {
+                console.log('❌ 사용자가 취소함');
                 // 체크박스 원복
                 if (event && event.target) event.target.checked = false;
                 return;
               }
+              console.log('✅ 사용자가 확인함, 기존 대표시설 해제');
               // 기존 대표시설 해제
               existingRep.isRepresentative = false;
             }
           }
           
           try {
-            await axios.post('/api/admin/facility/set-representative', {
+            console.log('📡 API 호출 시작:', '/api/admin/facility/set-representative');
+            const response = await axios.post('/api/admin/facility/set-representative', {
               id: id,
               isRepresentative: isChecked
             });
             
+            console.log('✅ API 응답:', response.data);
+            
             facility.isRepresentative = isChecked;
-            alert(isChecked ? '대표시설로 지정되었습니다.' : '대표시설 지정이 해제되었습니다.');
+            alert(\`✅ \${isChecked ? '대표시설로 지정되었습니다!' : '대표시설 지정이 해제되었습니다!'}\n\n시설명: \${facility.name}\n지역: \${facility.sido} \${facility.sigungu}\`);
             displayFacilities();
           } catch (error) {
-            console.error('대표시설 설정 실패:', error);
-            alert('대표시설 설정 중 오류가 발생했습니다.');
+            console.error('❌ 대표시설 설정 실패:', error);
+            console.error('Error details:', error.response?.data || error.message);
+            alert(\`❌ 대표시설 설정 중 오류가 발생했습니다.\n\n오류 내용: \${error.response?.data?.message || error.message}\`);
             // 체크박스 원복
             if (event && event.target) event.target.checked = !isChecked;
           }
