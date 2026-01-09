@@ -3584,7 +3584,11 @@ app.get('/admin/facilities', (c) => {
           try {
             const response = await fetch('/static/facilities.json');
             allFacilitiesData = await response.json();
+            window.allFacilitiesData = allFacilitiesData; // 전역 window 객체에도 저장
             filteredFacilitiesData = [...allFacilitiesData];
+            
+            console.log('✅ 시설 데이터 로드 완료:', allFacilitiesData.length, '개');
+            console.log('📋 샘플 시설:', allFacilitiesData.slice(0, 3).map(f => ({ id: f.id, name: f.name })));
             
             document.getElementById('totalFacilities').textContent = allFacilitiesData.length.toLocaleString();
             document.getElementById('loadingFacilities').style.display = 'none';
@@ -3780,13 +3784,23 @@ app.get('/admin/facilities', (c) => {
         async function toggleRepresentative(id, isChecked, event) {
           console.log('🔄 대표시설 토글 시작:', { id, isChecked, idType: typeof id });
           console.log('📊 전체 시설 수:', allFacilitiesData?.length || 0);
+          console.log('📊 allFacilitiesData 존재 여부:', !!allFacilitiesData);
+          console.log('📊 window에서 접근:', window.allFacilitiesData?.length);
+          
+          // 전역 변수에 접근
+          const facilities = allFacilitiesData || window.allFacilitiesData || [];
+          console.log('📊 사용할 배열 길이:', facilities.length);
           
           // ID 타입을 문자열과 숫자 모두 비교 (유연한 검색)
-          const facility = allFacilitiesData.find(f => f.id == id || String(f.id) === String(id));
+          const facility = facilities.find(f => {
+            const match = f.id == id || String(f.id) === String(id) || Number(f.id) === Number(id);
+            if (match) console.log('🎯 매칭된 시설:', f);
+            return match;
+          });
           
           if (!facility) {
             console.error('❌ 시설을 찾을 수 없습니다:', id);
-            console.error('📋 샘플 시설 ID들:', allFacilitiesData?.slice(0, 5).map(f => ({ id: f.id, type: typeof f.id, name: f.name })));
+            console.error('📋 샘플 시설 ID들:', facilities.slice(0, 5).map(f => ({ id: f.id, type: typeof f.id, name: f.name })));
             alert('시설 정보를 찾을 수 없습니다.');
             if (event && event.target) event.target.checked = !isChecked;
             return;
