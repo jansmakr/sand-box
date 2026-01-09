@@ -3749,8 +3749,15 @@ app.get('/admin/facilities', (c) => {
         
         // 수정 모달 열기
         function openEditModal(id) {
-          const facility = allFacilitiesData.find(f => f.id === id);
-          if (!facility) return;
+          console.log('🔧 시설 수정 모달 열기:', { id, idType: typeof id });
+          // ID 타입을 문자열과 숫자 모두 비교 (유연한 검색)
+          const facility = allFacilitiesData.find(f => f.id == id || String(f.id) === String(id));
+          if (!facility) {
+            console.error('❌ 시설을 찾을 수 없습니다:', id);
+            alert('시설 정보를 찾을 수 없습니다.');
+            return;
+          }
+          console.log('✅ 수정할 시설 찾음:', facility.name);
           
           // 모달 제목 변경
           document.querySelector('#editModal h3').innerHTML = '<i class="fas fa-edit text-blue-600 mr-2"></i>시설 정보 수정';
@@ -3870,8 +3877,15 @@ app.get('/admin/facilities', (c) => {
         
         // 시설 삭제
         async function deleteFacility(id) {
-          const facility = allFacilitiesData.find(f => f.id === id);
-          if (!facility) return;
+          console.log('🗑️ 시설 삭제 시작:', { id, idType: typeof id });
+          // ID 타입을 문자열과 숫자 모두 비교 (유연한 검색)
+          const facility = allFacilitiesData.find(f => f.id == id || String(f.id) === String(id));
+          if (!facility) {
+            console.error('❌ 시설을 찾을 수 없습니다:', id);
+            alert('시설 정보를 찾을 수 없습니다.');
+            return;
+          }
+          console.log('✅ 삭제할 시설 찾음:', facility.name);
           
           if (!confirm(\`"\${facility.name}" 시설을 삭제하시겠습니까?\\n\\n삭제된 데이터는 복구할 수 없습니다.\`)) {
             return;
@@ -3880,11 +3894,11 @@ app.get('/admin/facilities', (c) => {
           try {
             await axios.post('/api/admin/facility/delete', { id: id });
             
-            // 로컬 데이터에서 제거
-            const index = allFacilitiesData.findIndex(f => f.id === id);
+            // 로컬 데이터에서 제거 (ID 타입 유연하게 비교)
+            const index = allFacilitiesData.findIndex(f => f.id == id || String(f.id) === String(id));
             if (index !== -1) {
               allFacilitiesData.splice(index, 1);
-              filteredFacilitiesData = filteredFacilitiesData.filter(f => f.id !== id);
+              filteredFacilitiesData = filteredFacilitiesData.filter(f => !(f.id == id || String(f.id) === String(id)));
             }
             
             alert('시설이 삭제되었습니다.');
