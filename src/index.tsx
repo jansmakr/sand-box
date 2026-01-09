@@ -3775,11 +3775,15 @@ app.get('/admin/facilities', (c) => {
         
         // 대표시설 토글
         async function toggleRepresentative(id, isChecked, event) {
-          console.log('🔄 대표시설 토글 시작:', { id, isChecked });
+          console.log('🔄 대표시설 토글 시작:', { id, isChecked, idType: typeof id });
+          console.log('📊 전체 시설 수:', allFacilitiesData?.length || 0);
           
-          const facility = allFacilitiesData.find(f => f.id === id);
+          // ID 타입을 문자열과 숫자 모두 비교 (유연한 검색)
+          const facility = allFacilitiesData.find(f => f.id == id || String(f.id) === String(id));
+          
           if (!facility) {
             console.error('❌ 시설을 찾을 수 없습니다:', id);
+            console.error('📋 샘플 시설 ID들:', allFacilitiesData?.slice(0, 5).map(f => ({ id: f.id, type: typeof f.id, name: f.name })));
             alert('시설 정보를 찾을 수 없습니다.');
             if (event && event.target) event.target.checked = !isChecked;
             return;
