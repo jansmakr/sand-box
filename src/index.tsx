@@ -1886,23 +1886,20 @@ app.get('/', (c) => {
       <section class="py-8 sm:py-10 md:py-14 lg:py-16 bg-gradient-to-b from-white to-gray-50">
         <div class="max-w-6xl mx-auto px-3 sm:px-4">
           <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8" id="main-action-buttons">
-                <a href="https://play.google.com/store/apps/details?id=app.netlify.std_care_joa.twa" 
-                   target="_blank" rel="noopener noreferrer"
+                <a href="/quote-request" 
                    class="group flex flex-col items-center justify-center bg-white py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[140px] sm:min-h-[160px]">
                   <div class="mb-2 sm:mb-4 transform group-hover:scale-110 transition-transform duration-300">
-                    <i class="fas fa-mobile-alt text-5xl sm:text-6xl md:text-7xl text-blue-500"></i>
+                    <i class="fas fa-calculator text-5xl sm:text-6xl md:text-7xl text-blue-500"></i>
                   </div>
-                  <span class="font-semibold text-gray-800 text-sm sm:text-base md:text-lg text-center leading-tight">Android<br class="sm:hidden" /> 앱<br class="sm:hidden" /> 다운로드</span>
+                  <span class="font-semibold text-gray-800 text-sm sm:text-base md:text-lg text-center leading-tight">간편견적</span>
                 </a>
 
-                <a href="https://carejoa.com"
-                   target="_blank"
-                   rel="noopener noreferrer"
+                <a href="/quote-simple"
                    class="group flex flex-col items-center justify-center bg-white py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[140px] sm:min-h-[160px]">
                   <div class="mb-2 sm:mb-4 transform group-hover:scale-110 transition-transform duration-300">
-                    <i class="fas fa-clipboard-list text-5xl sm:text-6xl md:text-7xl text-orange-500"></i>
+                    <i class="fas fa-notes-medical text-5xl sm:text-6xl md:text-7xl text-green-500"></i>
                   </div>
-                  <span class="font-semibold text-gray-800 text-sm sm:text-base md:text-lg text-center leading-tight">실시간<br class="sm:hidden" /> 견적<br/>상담 신청</span>
+                  <span class="font-semibold text-gray-800 text-sm sm:text-base md:text-lg text-center leading-tight">상세견적신청</span>
                 </a>
 
                 <a href="/call-consultation"
@@ -2200,31 +2197,31 @@ app.get('/', (c) => {
             </div>
             <div class="text-center relative z-10">
               <div class="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-100 transition-colors">
-                <i class="fas fa-bolt text-3xl text-blue-600"></i>
+                <i class="fas fa-mobile-alt text-3xl text-blue-600"></i>
               </div>
-              <h3 class="text-xl font-bold text-gray-900 mb-2">간편 견적 요청</h3>
+              <h3 class="text-xl font-bold text-gray-900 mb-2">Android 앱 다운로드</h3>
               <p class="text-sm text-gray-600 mb-6">
-                복잡한 정보 없이 1분 만에!<br/>
-                빠르게 여러 시설의 가격을 알아보세요.
+                스마트폰에서 더 편리하게!<br/>
+                케어조아 앱을 지금 바로 다운로드하세요.
               </p>
-              <a href="/quote-request" class="block w-full bg-blue-600 text-white py-3 px-4 rounded-xl font-bold hover:bg-blue-700 shadow-lg hover:shadow-blue-500/30 transition-all">
-                1분 만에 견적 받기 <i class="fas fa-arrow-right ml-2"></i>
+              <a href="https://play.google.com/store/apps/details?id=app.netlify.std_care_joa.twa" target="_blank" rel="noopener noreferrer" class="block w-full bg-blue-600 text-white py-3 px-4 rounded-xl font-bold hover:bg-blue-700 shadow-lg hover:shadow-blue-500/30 transition-all">
+                앱 다운로드하기 <i class="fas fa-download ml-2"></i>
               </a>
             </div>
           </div>
 
-          <div class="bg-white rounded-2xl shadow-lg p-6 hover:-translate-y-1 transition-all duration-300 border border-gray-100 hover:border-green-200 group">
+          <div class="bg-white rounded-2xl shadow-lg p-6 hover:-translate-y-1 transition-all duration-300 border border-gray-100 hover:border-orange-200 group">
             <div class="text-center">
-              <div class="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-green-100 transition-colors">
-                <i class="fas fa-notes-medical text-3xl text-green-600"></i>
+              <div class="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-orange-100 transition-colors">
+                <i class="fas fa-clipboard-list text-3xl text-orange-600"></i>
               </div>
-              <h3 class="text-xl font-bold text-gray-900 mb-2">상세 견적 신청</h3>
+              <h3 class="text-xl font-bold text-gray-900 mb-2">실시간 견적 상담 신청</h3>
               <p class="text-sm text-gray-600 mb-6">
-                환자분의 상태와 등급에 맞춰<br/>
-                딱 맞는 전문 시설을 추천받으세요.
+                전문 상담사가 실시간으로!<br/>
+                맞춤형 견적을 빠르게 받아보세요.
               </p>
-              <a href="/quote-simple" class="block w-full bg-white text-green-700 border-2 border-green-600 py-3 px-4 rounded-xl font-bold hover:bg-green-50 transition-all">
-                상세 조건 입력하기
+              <a href="https://carejoa.com" target="_blank" rel="noopener noreferrer" class="block w-full bg-white text-orange-700 border-2 border-orange-600 py-3 px-4 rounded-xl font-bold hover:bg-orange-50 transition-all">
+                실시간 상담 신청하기
               </a>
             </div>
           </div>
