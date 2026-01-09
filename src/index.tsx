@@ -2193,7 +2193,7 @@ app.get('/', (c) => {
           </p>
         </div>
 
-        <div class="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+        <div class="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
           <div class="bg-white rounded-2xl shadow-xl p-6 hover:-translate-y-1 transition-all duration-300 border-2 border-blue-500 relative overflow-hidden group">
             <div class="absolute top-0 right-0 bg-blue-500 text-white text-xs px-3 py-1 rounded-bl-lg font-bold">
               인기
@@ -2209,25 +2209,6 @@ app.get('/', (c) => {
               </p>
               <a href="/quote-request" class="block w-full bg-blue-600 text-white py-3 px-4 rounded-xl font-bold hover:bg-blue-700 shadow-lg hover:shadow-blue-500/30 transition-all">
                 1분 만에 견적 받기 <i class="fas fa-arrow-right ml-2"></i>
-              </a>
-            </div>
-          </div>
-
-          <div class="bg-white rounded-2xl shadow-xl p-6 hover:-translate-y-1 transition-all duration-300 border-2 border-purple-500 relative overflow-hidden group">
-            <div class="absolute top-0 right-0 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs px-3 py-1 rounded-bl-lg font-bold">
-              NEW
-            </div>
-            <div class="text-center relative z-10">
-              <div class="w-16 h-16 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-purple-100 transition-colors">
-                <i class="fas fa-robot text-3xl text-purple-600"></i>
-              </div>
-              <h3 class="text-xl font-bold text-gray-900 mb-2">AI 맞춤 시설 찾기</h3>
-              <p class="text-sm text-gray-600 mb-6">
-                AI가 거리·등급·예산 맞춤<br/>
-                최적의 시설을 즉시 추천해드려요.
-              </p>
-              <a href="/ai-matching" class="block w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3 px-4 rounded-xl font-bold hover:from-purple-700 hover:to-indigo-700 shadow-lg hover:shadow-purple-500/30 transition-all">
-                AI로 최적 시설 찾기 <i class="fas fa-search ml-2"></i>
               </a>
             </div>
           </div>
