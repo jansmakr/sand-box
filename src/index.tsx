@@ -5114,11 +5114,40 @@ app.get('/api/regional-centers', async (c) => {
   return c.redirect(`/api/representative-facilities?sido=${encodeURIComponent(sido)}&sigungu=${encodeURIComponent(sigungu)}`)
 })
 
-app.get('/api/admin/data', (c) => {
+app.get('/api/admin/data', async (c) => {
   if (!isAdmin(c)) {
     return c.json({ error: 'Unauthorized' }, 401)
   }
-  return c.json(dataStore)
+  
+  const db = c.env.DB
+  const result = {
+    partners: dataStore.partners || [],
+    familyCare: dataStore.familyCare || [],
+    quoteRequests: []
+  }
+  
+  // D1에서 견적 요청 데이터 가져오기
+  if (db) {
+    try {
+      // quote_requests 테이블 사용 (새 스키마)
+      const { results: quoteRequests } = await db.prepare(`
+        SELECT 
+          qr.*,
+          COUNT(qres.id) as response_count
+        FROM quote_requests qr
+        LEFT JOIN quote_responses qres ON qr.quote_id = qres.quote_id
+        GROUP BY qr.id
+        ORDER BY qr.created_at DESC
+      `).all()
+      
+      result.quoteRequests = quoteRequests
+      console.log('✅ 견적 요청 데이터 로드:', quoteRequests.length, '개')
+    } catch (error) {
+      console.error('❌ 견적 요청 데이터 로드 실패:', error)
+    }
+  }
+  
+  return c.json(result)
 })
 
 // 파트너 승인 API
@@ -5203,14 +5232,14 @@ app.post('/api/admin/partner/set-representative', async (c) => {
 // 관리자: 일반고객 목록 조회
 app.get('/api/admin/customers', async (c) => {
   // 관리자 권한 확인
-  const session = c.get('session')
-  if (!session || !session.isAdmin) {
+  if (!isAdmin(c)) {
     return c.json({ error: '권한이 없습니다.' }, 403)
   }
   
   try {
     const db = c.env.DB
     if (!db) {
+      console.log('⚠️ D1 데이터베이스가 없습니다.')
       return c.json([])
     }
     
@@ -5223,10 +5252,11 @@ app.get('/api/admin/customers', async (c) => {
       ORDER BY created_at DESC
     `).all()
     
+    console.log('✅ 일반고객 조회 성공:', results?.length || 0, '명')
     return c.json(results || [])
   } catch (error) {
-    console.error('일반고객 목록 조회 오류:', error)
-    return c.json({ error: '데이터 조회 실패' }, 500)
+    console.error('❌ 일반고객 목록 조회 오류:', error)
+    return c.json({ error: '데이터 조회 실패', details: error.message }, 500)
   }
 })
 
