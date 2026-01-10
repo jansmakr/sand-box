@@ -3600,10 +3600,17 @@ app.get('/admin/facilities', (c) => {
               allFacilitiesData = await fallbackResponse.json();
             }
             
+            // 시설 ID를 기준으로 내림차순 정렬 (최신 등록 시설이 상단에 표시)
+            allFacilitiesData.sort((a, b) => {
+              const idA = parseInt(a.id) || 0;
+              const idB = parseInt(b.id) || 0;
+              return idB - idA; // 내림차순 (큰 ID가 먼저)
+            });
+            
             window.allFacilitiesData = allFacilitiesData; // 전역 window 객체에도 저장
             filteredFacilitiesData = [...allFacilitiesData];
             
-            console.log('✅ 시설 데이터 로드 완료:', allFacilitiesData.length, '개');
+            console.log('✅ 시설 데이터 로드 완료:', allFacilitiesData.length, '개 (최신순 정렬)');
             console.log('📋 샘플 시설:', allFacilitiesData.slice(0, 3).map(f => ({ id: f.id, name: f.name, isRep: f.isRepresentative })));
             
             document.getElementById('totalFacilities').textContent = allFacilitiesData.length.toLocaleString();
@@ -4278,7 +4285,7 @@ app.get('/admin/dashboard', (c) => {
             
             document.getElementById('partnerCount').textContent = partners.length;
             document.getElementById('familyCareCount').textContent = familyCare.length;
-            document.getElementById('quoteRequestCount').textContent = quoteRequests ? quoteRequests.length : 0;
+            document.getElementById('quoteRequestsCount').textContent = quoteRequests ? quoteRequests.length : 0;
             
             // 대표시설 신청 목록 로드
             await loadRepresentativeApplications();
