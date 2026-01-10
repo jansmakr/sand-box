@@ -4528,12 +4528,21 @@ app.get('/admin/dashboard', (c) => {
         
         async function loadQuoteMonitoring() {
           try {
+            console.log('📡 견적 모니터링 데이터 로드 시작...');
             const response = await axios.get('/api/admin/quote-monitoring');
+            console.log('📥 API 응답:', response.data);
+            
             if (!response.data.success) {
               throw new Error(response.data.message || '데이터 로드 실패');
             }
             
             allQuotes = response.data.data || [];
+            console.log('✅ 견적 데이터:', allQuotes.length, '개');
+            console.log('📋 샘플 데이터:', allQuotes.slice(0, 3).map(q => ({
+              quote_id: q.quote_id,
+              applicant_name: q.applicant_name,
+              response_count: q.response_count
+            })));
             
             // 통계 업데이트
             document.getElementById('quoteRequestsCount').textContent = allQuotes.length;
@@ -4543,12 +4552,13 @@ app.get('/admin/dashboard', (c) => {
               ? Math.round((allQuotes.filter(q => q.response_count > 0).length / allQuotes.length) * 100)
               : 0;
             document.getElementById('quoteResponseRate').textContent = \`\${responseRate}%\`;
+            console.log('📊 응답률:', responseRate, '%', '(총 응답:', totalResponses, '개)');
             
             renderQuotes(allQuotes);
           } catch (error) {
-            console.error('견적서 모니터링 로드 실패:', error);
+            console.error('❌ 견적서 모니터링 로드 실패:', error);
             document.getElementById('quoteMonitoringList').innerHTML = 
-              '<tr><td colspan="9" class="px-4 py-8 text-center text-red-500">데이터 로드 실패</td></tr>';
+              '<tr><td colspan="9" class="px-4 py-8 text-center text-red-500">데이터 로드 실패: ' + error.message + '</td></tr>';
           }
         }
         
@@ -5363,6 +5373,12 @@ app.get('/api/admin/quote-monitoring', async (c) => {
   
   try {
     const db = c.env.DB
+    if (!db) {
+      console.error('❌ D1 데이터베이스가 없습니다.')
+      return c.json({ success: false, message: 'D1 데이터베이스 없음' }, 500)
+    }
+    
+    console.log('📊 견적 모니터링 데이터 조회 시작...')
     
     // 견적 요청과 응답을 JOIN하여 조회
     const quotes = await db.prepare(`
@@ -5385,13 +5401,24 @@ app.get('/api/admin/quote-monitoring', async (c) => {
       LIMIT 100
     `).all()
     
+    console.log('✅ 견적 모니터링 조회 성공:', quotes.results?.length || 0, '개')
+    console.log('📋 샘플 데이터:', quotes.results?.slice(0, 3).map(q => ({
+      quote_id: q.quote_id,
+      applicant: q.applicant_name,
+      responses: q.response_count
+    })))
+    
     return c.json({
       success: true,
       data: quotes.results || []
     })
   } catch (error) {
-    console.error('견적서 모니터링 조회 오류:', error)
-    return c.json({ success: false, message: '조회 실패' }, 500)
+    console.error('❌ 견적서 모니터링 조회 오류:', error)
+    return c.json({ 
+      success: false, 
+      message: '조회 실패',
+      error: error.message 
+    }, 500)
   }
 })
 
