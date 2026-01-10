@@ -4723,6 +4723,26 @@ app.get('/admin/customers', (c) => {
         </div>
       </div>
 
+      {/* 고객 상세 정보 모달 */}
+      <div id="customerModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+          <div class="sticky top-0 bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-4 flex justify-between items-center">
+            <h3 class="text-xl font-bold flex items-center">
+              <i class="fas fa-user-circle mr-2"></i>
+              일반고객 상세 정보
+            </h3>
+            <button onclick="closeCustomerModal()" class="text-white hover:text-gray-200">
+              <i class="fas fa-times text-2xl"></i>
+            </button>
+          </div>
+          
+          <div id="customerDetailContent" class="p-6">
+            {/* 여기에 상세 정보가 들어갑니다 */}
+          </div>
+        </div>
+      </div>
+
+      <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
       <script dangerouslySetInnerHTML={{
         __html: `
         document.getElementById('logoutBtn')?.addEventListener('click', async () => {
@@ -4732,24 +4752,28 @@ app.get('/admin/customers', (c) => {
           }
         });
         
+        let allCustomers = [];
+        
         // 일반고객 목록 로드
         async function loadCustomers() {
           try {
-            const response = await fetch('/api/admin/customers');
-            if (!response.ok) throw new Error('Failed to load customers');
+            console.log('📡 일반고객 목록 로드 시작...');
+            const response = await axios.get('/api/admin/customers');
+            allCustomers = response.data;
             
-            const customers = await response.json();
+            console.log('✅ 일반고객 로드 완료:', allCustomers.length, '명');
+            
             const listEl = document.getElementById('customersList');
             const countEl = document.getElementById('customerCount');
             
-            countEl.textContent = customers.length;
+            countEl.textContent = allCustomers.length;
             
-            if (customers.length === 0) {
+            if (allCustomers.length === 0) {
               listEl.innerHTML = '<tr><td colspan="6" class="px-4 py-8 text-center text-gray-500">등록된 일반고객이 없습니다</td></tr>';
               return;
             }
             
-            listEl.innerHTML = customers.map((customer, index) => {
+            listEl.innerHTML = allCustomers.map((customer, index) => {
               const date = new Date(customer.created_at);
               const dateStr = date.toLocaleDateString('ko-KR');
               
@@ -4769,14 +4793,191 @@ app.get('/admin/customers', (c) => {
               \`;
             }).join('');
           } catch (error) {
-            console.error('일반고객 로드 실패:', error);
+            console.error('❌ 일반고객 로드 실패:', error);
             document.getElementById('customersList').innerHTML = '<tr><td colspan="6" class="px-4 py-8 text-center text-red-500">데이터 로드 실패</td></tr>';
           }
         }
         
-        function viewCustomer(id) {
-          alert('고객 ID: ' + id + '\\n\\n상세 보기 기능은 추후 구현 예정입니다.');
+        // 고객 상세 정보 보기
+        async function viewCustomer(customerId) {
+          try {
+            console.log('🔍 고객 상세 정보 조회:', customerId);
+            
+            // API로 상세 정보 가져오기
+            const response = await axios.get(\`/api/admin/customers/\${customerId}\`);
+            const customer = response.data;
+            
+            console.log('✅ 고객 정보:', customer);
+            
+            // 모달에 정보 표시
+            const contentEl = document.getElementById('customerDetailContent');
+            const createdDate = new Date(customer.created_at).toLocaleString('ko-KR', {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit'
+            });
+            
+            contentEl.innerHTML = \`
+              <div class="space-y-6">
+                {/* 기본 정보 */}
+                <div class="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg p-6">
+                  <h4 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-id-card text-purple-600 mr-2"></i>
+                    기본 정보
+                  </h4>
+                  <div class="grid md:grid-cols-2 gap-4">
+                    <div class="bg-white rounded-lg p-4 shadow-sm">
+                      <div class="text-sm text-gray-500 mb-1">고객 ID</div>
+                      <div class="font-semibold text-gray-900">\${customer.id}</div>
+                    </div>
+                    <div class="bg-white rounded-lg p-4 shadow-sm">
+                      <div class="text-sm text-gray-500 mb-1">이름</div>
+                      <div class="font-semibold text-gray-900">\${customer.name || '-'}</div>
+                    </div>
+                    <div class="bg-white rounded-lg p-4 shadow-sm">
+                      <div class="text-sm text-gray-500 mb-1">이메일</div>
+                      <div class="font-semibold text-gray-900">\${customer.email || '-'}</div>
+                    </div>
+                    <div class="bg-white rounded-lg p-4 shadow-sm">
+                      <div class="text-sm text-gray-500 mb-1">전화번호</div>
+                      <div class="font-semibold text-gray-900">\${customer.phone || '-'}</div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* 활동 정보 */}
+                <div class="bg-gradient-to-r from-green-50 to-teal-50 rounded-lg p-6">
+                  <h4 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-chart-line text-green-600 mr-2"></i>
+                    활동 정보
+                  </h4>
+                  <div class="grid md:grid-cols-3 gap-4">
+                    <div class="bg-white rounded-lg p-4 shadow-sm text-center">
+                      <div class="text-3xl font-bold text-purple-600">\${customer.quote_count || 0}</div>
+                      <div class="text-sm text-gray-600 mt-1">견적 요청 수</div>
+                    </div>
+                    <div class="bg-white rounded-lg p-4 shadow-sm text-center">
+                      <div class="text-3xl font-bold text-green-600">\${customer.response_count || 0}</div>
+                      <div class="text-sm text-gray-600 mt-1">받은 견적 수</div>
+                    </div>
+                    <div class="bg-white rounded-lg p-4 shadow-sm text-center">
+                      <div class="text-3xl font-bold text-blue-600">\${customer.days_since_join || 0}</div>
+                      <div class="text-sm text-gray-600 mt-1">가입 일수</div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* 가입 정보 */}
+                <div class="bg-gradient-to-r from-orange-50 to-yellow-50 rounded-lg p-6">
+                  <h4 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-clock text-orange-600 mr-2"></i>
+                    가입 정보
+                  </h4>
+                  <div class="bg-white rounded-lg p-4 shadow-sm">
+                    <div class="flex items-center justify-between">
+                      <div>
+                        <div class="text-sm text-gray-500">가입일시</div>
+                        <div class="font-semibold text-gray-900 mt-1">\${createdDate}</div>
+                      </div>
+                      <div class="text-right">
+                        <div class="text-sm text-gray-500">계정 상태</div>
+                        <div class="mt-1">
+                          <span class="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+                            <i class="fas fa-check-circle mr-1"></i>활성
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* 최근 견적 요청 */}
+                <div class="bg-gray-50 rounded-lg p-6">
+                  <h4 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-file-invoice text-blue-600 mr-2"></i>
+                    최근 견적 요청
+                  </h4>
+                  <div id="recentQuotes">
+                    <div class="text-center py-8 text-gray-500">로딩 중...</div>
+                  </div>
+                </div>
+              </div>
+            \`;
+            
+            // 모달 표시
+            document.getElementById('customerModal').classList.remove('hidden');
+            
+            // 최근 견적 요청 로드
+            loadCustomerQuotes(customerId);
+            
+          } catch (error) {
+            console.error('❌ 고객 상세 정보 로드 실패:', error);
+            alert('고객 정보를 불러오는데 실패했습니다.');
+          }
         }
+        
+        // 고객의 견적 요청 목록 로드
+        async function loadCustomerQuotes(customerId) {
+          try {
+            const response = await axios.get(\`/api/admin/customers/\${customerId}/quotes\`);
+            const quotes = response.data;
+            
+            const quotesEl = document.getElementById('recentQuotes');
+            
+            if (quotes.length === 0) {
+              quotesEl.innerHTML = '<div class="text-center py-8 text-gray-500">견적 요청 내역이 없습니다</div>';
+              return;
+            }
+            
+            quotesEl.innerHTML = quotes.map(quote => {
+              const date = new Date(quote.created_at).toLocaleDateString('ko-KR');
+              const statusColor = quote.status === 'completed' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700';
+              const statusText = quote.status === 'completed' ? '완료' : '대기중';
+              
+              return \`
+                <div class="bg-white rounded-lg p-4 shadow-sm mb-3 hover:shadow-md transition-shadow">
+                  <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                      <div class="font-semibold text-gray-900">\${quote.facility_type || '-'}</div>
+                      <div class="text-sm text-gray-600 mt-1">\${quote.sido || '-'} \${quote.sigungu || '-'}</div>
+                      <div class="text-xs text-gray-500 mt-1">견적 ID: \${quote.quote_id}</div>
+                    </div>
+                    <div class="text-right">
+                      <span class="inline-flex px-2 py-1 rounded-full text-xs font-semibold \${statusColor}">
+                        \${statusText}
+                      </span>
+                      <div class="text-xs text-gray-500 mt-2">\${date}</div>
+                    </div>
+                  </div>
+                  <div class="mt-3 pt-3 border-t flex items-center justify-between">
+                    <div class="text-sm text-gray-600">
+                      <i class="fas fa-reply text-blue-500 mr-1"></i>
+                      받은 견적: <span class="font-semibold">\${quote.response_count || 0}개</span>
+                    </div>
+                  </div>
+                </div>
+              \`;
+            }).join('');
+            
+          } catch (error) {
+            console.error('견적 요청 로드 실패:', error);
+            document.getElementById('recentQuotes').innerHTML = '<div class="text-center py-8 text-red-500">견적 요청 로드 실패</div>';
+          }
+        }
+        
+        // 모달 닫기
+        function closeCustomerModal() {
+          document.getElementById('customerModal').classList.add('hidden');
+        }
+        
+        // ESC 키로 모달 닫기
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            closeCustomerModal();
+          }
+        });
         
         // 페이지 로드 시 실행
         loadCustomers();
@@ -5268,6 +5469,113 @@ app.get('/api/admin/customers', async (c) => {
   } catch (error) {
     console.error('❌ 일반고객 목록 조회 오류:', error)
     return c.json({ error: '데이터 조회 실패', details: error.message }, 500)
+  }
+})
+
+// 관리자: 일반고객 상세 정보 조회
+app.get('/api/admin/customers/:id', async (c) => {
+  if (!isAdmin(c)) {
+    return c.json({ error: '권한이 없습니다.' }, 403)
+  }
+  
+  try {
+    const customerId = c.req.param('id')
+    const db = c.env.DB
+    
+    if (!db) {
+      return c.json({ error: 'D1 데이터베이스 없음' }, 500)
+    }
+    
+    // 고객 기본 정보 조회
+    const { results: customers } = await db.prepare(`
+      SELECT 
+        id, email, name, phone, created_at
+      FROM users
+      WHERE id = ? AND user_type = 'customer'
+    `).bind(customerId).all()
+    
+    if (!customers || customers.length === 0) {
+      return c.json({ error: '고객을 찾을 수 없습니다.' }, 404)
+    }
+    
+    const customer = customers[0]
+    
+    // 견적 요청 수 조회
+    const { results: quoteStats } = await db.prepare(`
+      SELECT COUNT(*) as quote_count
+      FROM quote_requests
+      WHERE customer_id = ?
+    `).bind(customerId).all()
+    
+    // 받은 견적 응답 수 조회
+    const { results: responseStats } = await db.prepare(`
+      SELECT COUNT(DISTINCT qres.id) as response_count
+      FROM quote_requests qr
+      LEFT JOIN quote_responses qres ON qr.quote_id = qres.quote_id
+      WHERE qr.customer_id = ?
+    `).bind(customerId).all()
+    
+    // 가입 일수 계산
+    const joinDate = new Date(customer.created_at)
+    const today = new Date()
+    const daysSinceJoin = Math.floor((today - joinDate) / (1000 * 60 * 60 * 24))
+    
+    // 정보 병합
+    const customerDetail = {
+      ...customer,
+      quote_count: quoteStats[0]?.quote_count || 0,
+      response_count: responseStats[0]?.response_count || 0,
+      days_since_join: daysSinceJoin
+    }
+    
+    console.log('✅ 고객 상세 정보 조회 성공:', customerId)
+    return c.json(customerDetail)
+    
+  } catch (error) {
+    console.error('❌ 고객 상세 정보 조회 오류:', error)
+    return c.json({ error: '데이터 조회 실패', details: error.message }, 500)
+  }
+})
+
+// 관리자: 고객의 견적 요청 목록 조회
+app.get('/api/admin/customers/:id/quotes', async (c) => {
+  if (!isAdmin(c)) {
+    return c.json({ error: '권한이 없습니다.' }, 403)
+  }
+  
+  try {
+    const customerId = c.req.param('id')
+    const db = c.env.DB
+    
+    if (!db) {
+      return c.json([])
+    }
+    
+    // 고객의 견적 요청 목록 조회
+    const { results: quotes } = await db.prepare(`
+      SELECT 
+        qr.id,
+        qr.quote_id,
+        qr.facility_type,
+        qr.sido,
+        qr.sigungu,
+        qr.status,
+        qr.created_at,
+        COUNT(qres.id) as response_count
+      FROM quote_requests qr
+      LEFT JOIN quote_responses qres ON qr.quote_id = qres.quote_id
+      WHERE qr.customer_id = ?
+      GROUP BY qr.id
+      ORDER BY qr.created_at DESC
+      LIMIT 10
+    `).bind(customerId).all()
+    
+    console.log('✅ 고객 견적 요청 조회 성공:', quotes?.length || 0, '개')
+    return c.json(quotes || [])
+    
+  } catch (error) {
+    console.error('❌ 고객 견적 요청 조회 오류:', error)
+    return c.json({ error: '데이터 조회 실패' }, 500)
   }
 })
 
