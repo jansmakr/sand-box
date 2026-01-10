@@ -5507,20 +5507,20 @@ app.get('/api/admin/customers/:id', async (c) => {
     
     const customer = customers[0]
     
-    // 견적 요청 수 조회
+    // 견적 요청 수 조회 (applicant_email로 조회)
     const { results: quoteStats } = await db.prepare(`
       SELECT COUNT(*) as quote_count
       FROM quote_requests
-      WHERE customer_id = ?
-    `).bind(customerId).all()
+      WHERE applicant_email = ?
+    `).bind(customer.email).all()
     
-    // 받은 견적 응답 수 조회
+    // 받은 견적 응답 수 조회 (applicant_email로 조회)
     const { results: responseStats } = await db.prepare(`
       SELECT COUNT(DISTINCT qres.id) as response_count
       FROM quote_requests qr
       LEFT JOIN quote_responses qres ON qr.quote_id = qres.quote_id
-      WHERE qr.customer_id = ?
-    `).bind(customerId).all()
+      WHERE qr.applicant_email = ?
+    `).bind(customer.email).all()
     
     // 가입 일수 계산
     const joinDate = new Date(customer.created_at)
@@ -5558,7 +5558,18 @@ app.get('/api/admin/customers/:id/quotes', async (c) => {
       return c.json([])
     }
     
-    // 고객의 견적 요청 목록 조회
+    // 먼저 고객 정보 조회
+    const { results: customers } = await db.prepare(`
+      SELECT email FROM users WHERE id = ? AND user_type = 'customer'
+    `).bind(customerId).all()
+    
+    if (!customers || customers.length === 0) {
+      return c.json([])
+    }
+    
+    const customerEmail = customers[0].email
+    
+    // 고객의 견적 요청 목록 조회 (applicant_email로 조회)
     const { results: quotes } = await db.prepare(`
       SELECT 
         qr.id,
@@ -5571,11 +5582,11 @@ app.get('/api/admin/customers/:id/quotes', async (c) => {
         COUNT(qres.id) as response_count
       FROM quote_requests qr
       LEFT JOIN quote_responses qres ON qr.quote_id = qres.quote_id
-      WHERE qr.customer_id = ?
+      WHERE qr.applicant_email = ?
       GROUP BY qr.id
       ORDER BY qr.created_at DESC
       LIMIT 10
-    `).bind(customerId).all()
+    `).bind(customerEmail).all()
     
     console.log('✅ 고객 견적 요청 조회 성공:', quotes?.length || 0, '개')
     return c.json(quotes || [])
