@@ -4268,6 +4268,7 @@ app.get('/admin/dashboard', (c) => {
         </div>
       </div>
 
+      <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
       <script dangerouslySetInnerHTML={{
         __html: `
         async function loadData() {
