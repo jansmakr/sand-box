@@ -5779,21 +5779,33 @@ async function loadRepresentativeSettings(db: any) {
 
 // 시설 정보 업데이트 API
 app.post('/api/admin/facility/update', async (c) => {
+  console.log('🔧 시설 업데이트 API 호출됨')
+  
   if (!isAdmin(c)) {
+    console.log('❌ 권한 없음')
     return c.json({ error: 'Unauthorized' }, 401)
   }
   
   try {
     const data = await c.req.json()
+    console.log('📝 업데이트 요청 데이터:', { id: data.id, name: data.name, type: data.type })
     
     // 시설 데이터 로드
     await loadFacilities()
+    console.log('✅ 시설 데이터 로드 완료:', dataStore.facilities.length, '개')
     
-    // 시설 찾기
-    const facility = dataStore.facilities.find((f: any) => f.id === data.id)
+    // 시설 찾기 (ID 타입 유연하게 비교)
+    const facility = dataStore.facilities.find((f: any) => 
+      f.id == data.id || String(f.id) === String(data.id)
+    )
+    
     if (!facility) {
+      console.log('❌ 시설을 찾을 수 없음:', data.id)
+      console.log('📋 샘플 ID들:', dataStore.facilities.slice(0, 5).map((f: any) => f.id))
       return c.json({ success: false, message: '시설을 찾을 수 없습니다.' }, 404)
     }
+    
+    console.log('✅ 시설 찾음:', facility.name)
     
     // 시설 정보 업데이트 (기존 lat, lng, isRepresentative는 유지)
     facility.name = data.name
