@@ -6168,8 +6168,10 @@ app.post('/api/admin/facility/delete', async (c) => {
       return c.json({ success: false, message: '시설 데이터 로드 실패' }, 500)
     }
     
-    // 시설 찾기
-    const index = facilities.findIndex((f: any) => f.id === id)
+    // 시설 찾기 (ID 타입 유연하게 비교)
+    const index = facilities.findIndex((f: any) => 
+      f.id == id || String(f.id) === String(id)
+    )
     if (index === -1) {
       return c.json({ success: false, message: '시설을 찾을 수 없습니다.' }, 404)
     }
