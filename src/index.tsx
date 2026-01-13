@@ -5749,12 +5749,24 @@ app.get('/api/admin/quote-monitoring', async (c) => {
   }
 })
 
-// 시설 데이터 로드 함수
-async function loadFacilities() {
+// 시설 데이터 로드 함수 (서버사이드용)
+// 참고: Cloudflare Workers에서는 fetch 시 절대 URL이 필요하므로
+// 환경 변수나 요청 URL을 기반으로 도메인을 구성해야 합니다
+async function loadFacilities(baseUrl?: string) {
   if (!dataStore.facilitiesLoaded) {
     try {
-      // 상대 경로 사용 (현재 도메인 기준)
-      const response = await fetch('/static/facilities.json')
+      // baseUrl이 제공되면 사용, 아니면 프로덕션 URL 사용
+      const url = baseUrl 
+        ? `${baseUrl}/static/facilities.json`
+        : 'https://carejoa.kr/static/facilities.json'
+      
+      console.log(`📡 Fetching facilities from: ${url}`)
+      const response = await fetch(url)
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+      }
+      
       const data = await response.json()
       
       // 배열인지 확인
@@ -5813,8 +5825,12 @@ app.post('/api/admin/facility/update', async (c) => {
     const data = await c.req.json()
     console.log('📝 업데이트 요청 데이터:', { id: data.id, name: data.name, type: data.type })
     
+    // 현재 요청 URL에서 baseUrl 추출
+    const url = new URL(c.req.url)
+    const baseUrl = `${url.protocol}//${url.host}`
+    
     // 시설 데이터 로드
-    const facilities = await loadFacilities()
+    const facilities = await loadFacilities(baseUrl)
     console.log('✅ 시설 데이터 로드 완료:', facilities.length, '개, 타입:', Array.isArray(facilities))
     
     // 배열 검증
@@ -5909,8 +5925,12 @@ app.get('/api/admin/facilities/with-representative', async (c) => {
 // 대표시설 정보 포함된 시설 목록 조회
 app.get('/api/facilities/with-representative', async (c) => {
   try {
+    // 현재 요청 URL에서 baseUrl 추출
+    const url = new URL(c.req.url)
+    const baseUrl = `${url.protocol}//${url.host}`
+    
     // 기본 시설 데이터 로드
-    const facilities = await loadFacilities()
+    const facilities = await loadFacilities(baseUrl)
     console.log('📊 로드된 시설 수:', facilities.length)
     
     // 배열 검증
@@ -5970,8 +5990,12 @@ app.post('/api/admin/facility/set-representative', async (c) => {
     const { id, isRepresentative } = await c.req.json()
     console.log('📥 요청 데이터:', { id, isRepresentative })
     
+    // 현재 요청 URL에서 baseUrl 추출
+    const url = new URL(c.req.url)
+    const baseUrl = `${url.protocol}//${url.host}`
+    
     // 시설 데이터 로드
-    const facilities = await loadFacilities()
+    const facilities = await loadFacilities(baseUrl)
     console.log('📊 로드된 시설 수:', facilities.length, '타입:', Array.isArray(facilities))
     
     // 배열 검증
@@ -6077,8 +6101,12 @@ app.post('/api/admin/facility/create', async (c) => {
   try {
     const data = await c.req.json()
     
+    // 현재 요청 URL에서 baseUrl 추출
+    const url = new URL(c.req.url)
+    const baseUrl = `${url.protocol}//${url.host}`
+    
     // 시설 데이터 로드
-    const facilities = await loadFacilities()
+    const facilities = await loadFacilities(baseUrl)
     
     // 배열 검증
     if (!Array.isArray(facilities)) {
@@ -6128,8 +6156,12 @@ app.post('/api/admin/facility/delete', async (c) => {
   try {
     const { id } = await c.req.json()
     
+    // 현재 요청 URL에서 baseUrl 추출
+    const url = new URL(c.req.url)
+    const baseUrl = `${url.protocol}//${url.host}`
+    
     // 시설 데이터 로드
-    const facilities = await loadFacilities()
+    const facilities = await loadFacilities(baseUrl)
     
     // 배열 검증
     if (!Array.isArray(facilities)) {
