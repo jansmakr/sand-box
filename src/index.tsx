@@ -5753,14 +5753,26 @@ app.get('/api/admin/quote-monitoring', async (c) => {
 async function loadFacilities() {
   if (!dataStore.facilitiesLoaded) {
     try {
-      const response = await fetch('https://3000-i9rvbxi0ydi8a2ltypzm7-cbeee0f9.sandbox.novita.ai/static/facilities.json')
-      dataStore.facilities = await response.json()
-      dataStore.facilitiesLoaded = true
-      console.log(`Loaded ${dataStore.facilities.length} facilities`)
+      // 상대 경로 사용 (현재 도메인 기준)
+      const response = await fetch('/static/facilities.json')
+      const data = await response.json()
+      
+      // 배열인지 확인
+      if (Array.isArray(data)) {
+        dataStore.facilities = data
+        dataStore.facilitiesLoaded = true
+        console.log(`✅ Loaded ${dataStore.facilities.length} facilities`)
+      } else {
+        console.error('❌ Facilities data is not an array:', typeof data)
+        dataStore.facilities = []
+      }
     } catch (error) {
-      console.error('Failed to load facilities:', error)
+      console.error('❌ Failed to load facilities:', error)
+      dataStore.facilities = []
     }
   }
+  
+  return dataStore.facilities
 }
 
 // D1에서 대표시설 정보를 로드하여 facilities에 병합
@@ -5802,17 +5814,23 @@ app.post('/api/admin/facility/update', async (c) => {
     console.log('📝 업데이트 요청 데이터:', { id: data.id, name: data.name, type: data.type })
     
     // 시설 데이터 로드
-    await loadFacilities()
-    console.log('✅ 시설 데이터 로드 완료:', dataStore.facilities.length, '개')
+    const facilities = await loadFacilities()
+    console.log('✅ 시설 데이터 로드 완료:', facilities.length, '개, 타입:', Array.isArray(facilities))
+    
+    // 배열 검증
+    if (!Array.isArray(facilities) || facilities.length === 0) {
+      console.error('❌ 시설 데이터가 배열이 아니거나 비어있음')
+      return c.json({ success: false, message: '시설 데이터 로드 실패' }, 500)
+    }
     
     // 시설 찾기 (ID 타입 유연하게 비교)
-    const facility = dataStore.facilities.find((f: any) => 
+    const facility = facilities.find((f: any) => 
       f.id == data.id || String(f.id) === String(data.id)
     )
     
     if (!facility) {
       console.log('❌ 시설을 찾을 수 없음:', data.id)
-      console.log('📋 샘플 ID들:', dataStore.facilities.slice(0, 5).map((f: any) => f.id))
+      console.log('📋 샘플 ID들:', facilities.slice(0, 5).map((f: any) => f.id))
       return c.json({ success: false, message: '시설을 찾을 수 없습니다.' }, 404)
     }
     
@@ -5835,7 +5853,7 @@ app.post('/api/admin/facility/update', async (c) => {
     })
   } catch (error) {
     console.error('시설 업데이트 오류:', error)
-    return c.json({ success: false, message: '시설 정보 업데이트 실패' }, 500)
+    return c.json({ success: false, message: '시설 정보 업데이트 실패', error: String(error) }, 500)
   }
 })
 
@@ -5892,8 +5910,17 @@ app.get('/api/admin/facilities/with-representative', async (c) => {
 app.get('/api/facilities/with-representative', async (c) => {
   try {
     // 기본 시설 데이터 로드
-    await loadFacilities()
-    const facilities = [...dataStore.facilities]
+    const facilities = await loadFacilities()
+    console.log('📊 로드된 시설 수:', facilities.length)
+    
+    // 배열 검증
+    if (!Array.isArray(facilities)) {
+      console.error('❌ 시설 데이터가 배열이 아님:', typeof facilities)
+      return c.json([], 200)
+    }
+    
+    // 복사본 생성
+    const facilitiesData = [...facilities]
     
     // D1에서 대표시설 정보 가져오기
     const db = c.env.DB
@@ -5910,7 +5937,7 @@ app.get('/api/facilities/with-representative', async (c) => {
           results.map((r: any) => [String(r.facility_id), true])
         )
         
-        facilities.forEach(f => {
+        facilitiesData.forEach(f => {
           f.isRepresentative = representativeMap.has(String(f.id)) || false
         })
         
@@ -5921,10 +5948,10 @@ app.get('/api/facilities/with-representative', async (c) => {
       }
     }
     
-    return c.json(facilities)
+    return c.json(facilitiesData)
   } catch (error) {
     console.error('시설 목록 조회 실패:', error)
-    return c.json({ error: 'Internal server error' }, 500)
+    return c.json({ error: 'Internal server error', details: String(error) }, 500)
   }
 })
 
@@ -5944,10 +5971,17 @@ app.post('/api/admin/facility/set-representative', async (c) => {
     console.log('📥 요청 데이터:', { id, isRepresentative })
     
     // 시설 데이터 로드
-    await loadFacilities()
+    const facilities = await loadFacilities()
+    console.log('📊 로드된 시설 수:', facilities.length, '타입:', Array.isArray(facilities))
+    
+    // 배열 검증
+    if (!Array.isArray(facilities) || facilities.length === 0) {
+      console.error('❌ 시설 데이터가 배열이 아니거나 비어있음')
+      return c.json({ success: false, message: '시설 데이터 로드 실패' }, 500)
+    }
     
     // 대상 시설 찾기
-    const targetFacility = dataStore.facilities.find((f: any) => f.id == id || String(f.id) === String(id))
+    const targetFacility = facilities.find((f: any) => f.id == id || String(f.id) === String(id))
     console.log('🔍 시설 찾기 결과:', targetFacility?.name || '없음')
     
     if (!targetFacility) {
@@ -5985,8 +6019,8 @@ app.post('/api/admin/facility/set-representative', async (c) => {
         
         // 메모리 데이터도 업데이트
         targetFacility.isRepresentative = isRepresentative
-        if (isRepresentative) {
-          dataStore.facilities.forEach((f: any) => {
+        if (isRepresentative && Array.isArray(facilities)) {
+          facilities.forEach((f: any) => {
             if (f.id !== id && 
                 f.sido === targetFacility.sido && 
                 f.sigungu === targetFacility.sigungu) {
@@ -6008,8 +6042,8 @@ app.post('/api/admin/facility/set-representative', async (c) => {
       // D1이 없으면 메모리에만 저장 (폴백)
       console.log('⚠️ D1 없음, 메모리 저장')
       
-      if (isRepresentative) {
-        dataStore.facilities.forEach((f: any) => {
+      if (isRepresentative && Array.isArray(facilities)) {
+        facilities.forEach((f: any) => {
           if (f.id !== id && 
               f.sido === targetFacility.sido && 
               f.sigungu === targetFacility.sigungu && 
@@ -6044,10 +6078,15 @@ app.post('/api/admin/facility/create', async (c) => {
     const data = await c.req.json()
     
     // 시설 데이터 로드
-    await loadFacilities()
+    const facilities = await loadFacilities()
+    
+    // 배열 검증
+    if (!Array.isArray(facilities)) {
+      return c.json({ success: false, message: '시설 데이터 로드 실패' }, 500)
+    }
     
     // 새로운 ID 생성
-    const maxId = Math.max(...dataStore.facilities.map((f: any) => parseInt(f.id) || 0))
+    const maxId = Math.max(...facilities.map((f: any) => parseInt(f.id) || 0))
     const newId = String(maxId + 1)
     
     // 새 시설 객체 생성
@@ -6066,7 +6105,7 @@ app.post('/api/admin/facility/create', async (c) => {
     }
     
     // 배열에 추가
-    dataStore.facilities.push(newFacility)
+    facilities.push(newFacility)
     
     return c.json({ 
       success: true, 
@@ -6090,16 +6129,21 @@ app.post('/api/admin/facility/delete', async (c) => {
     const { id } = await c.req.json()
     
     // 시설 데이터 로드
-    await loadFacilities()
+    const facilities = await loadFacilities()
+    
+    // 배열 검증
+    if (!Array.isArray(facilities)) {
+      return c.json({ success: false, message: '시설 데이터 로드 실패' }, 500)
+    }
     
     // 시설 찾기
-    const index = dataStore.facilities.findIndex((f: any) => f.id === id)
+    const index = facilities.findIndex((f: any) => f.id === id)
     if (index === -1) {
       return c.json({ success: false, message: '시설을 찾을 수 없습니다.' }, 404)
     }
     
     // 시설 제거
-    const deletedFacility = dataStore.facilities.splice(index, 1)[0]
+    const deletedFacility = facilities.splice(index, 1)[0]
     
     return c.json({ 
       success: true, 
