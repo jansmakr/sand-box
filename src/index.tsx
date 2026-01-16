@@ -16081,6 +16081,108 @@ app.put('/api/admin/facilities/:id/details', async (c) => {
   }
 })
 
+// ========== 대량 데이터 삽입 API ==========
+app.post('/api/admin/bulk-insert-details', async (c) => {
+  const { env } = c
+  
+  if (!isAdmin(c)) {
+    return c.json({ error: 'Unauthorized' }, 401)
+  }
+  
+  if (!env?.DB) {
+    return c.json({ success: false, message: '데이터베이스 연결 실패' }, 500)
+  }
+  
+  try {
+    const data = await c.req.json()
+    const details = Array.isArray(data) ? data : data.details || []
+    
+    console.log(`🚀 대량 삽입 시작: ${details.length}개 시설`)
+    
+    let successCount = 0
+    let failCount = 0
+    const errors: any[] = []
+    
+    // 배치 처리 (50개씩)
+    const BATCH_SIZE = 50
+    for (let i = 0; i < details.length; i += BATCH_SIZE) {
+      const batch = details.slice(i, i + BATCH_SIZE)
+      
+      console.log(`📦 배치 ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(details.length / BATCH_SIZE)} (${i + 1}~${Math.min(i + BATCH_SIZE, details.length)})`)
+      
+      for (const item of batch) {
+        try {
+          const toJSON = (val: any) => {
+            if (val === null || val === undefined) return '[]'
+            if (typeof val === 'string') return val
+            if (Array.isArray(val)) return JSON.stringify(val)
+            return JSON.stringify(val)
+          }
+          
+          await env.DB.prepare(`
+            INSERT INTO facility_details (
+              facility_id,
+              specialties,
+              admission_types,
+              monthly_cost,
+              deposit,
+              notes,
+              updated_by,
+              updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'))
+            ON CONFLICT(facility_id) DO UPDATE SET
+              specialties = excluded.specialties,
+              admission_types = excluded.admission_types,
+              monthly_cost = excluded.monthly_cost,
+              deposit = excluded.deposit,
+              notes = excluded.notes,
+              updated_by = excluded.updated_by,
+              updated_at = datetime('now')
+          `).bind(
+            item.facility_id,
+            toJSON(item.specialties),
+            toJSON(item.admissionTypes),
+            item.monthly_cost || 0,
+            item.deposit || 0,
+            '자동 생성 데이터',
+            'auto_generator'
+          ).run()
+          
+          successCount++
+        } catch (error) {
+          failCount++
+          errors.push({
+            facility_id: item.facility_id,
+            error: String(error)
+          })
+          console.error(`❌ 시설 ${item.facility_id} 삽입 실패:`, error)
+        }
+      }
+      
+      // 진행률 표시
+      console.log(`📈 진행률: ${Math.round((i + batch.length) / details.length * 100)}% (${successCount}/${details.length})`)
+    }
+    
+    console.log(`✅ 대량 삽입 완료: 성공 ${successCount}개, 실패 ${failCount}개`)
+    
+    return c.json({
+      success: true,
+      total: details.length,
+      successCount,
+      failCount,
+      successRate: (successCount / details.length * 100).toFixed(1) + '%',
+      errors: errors.slice(0, 10) // 처음 10개 에러만 반환
+    })
+  } catch (error) {
+    console.error('❌ 대량 삽입 실패:', error)
+    return c.json({
+      success: false,
+      message: '대량 삽입 중 오류가 발생했습니다.',
+      error: String(error)
+    }, 500)
+  }
+})
+
 // ========== SEO: robots.txt ==========
 app.get('/robots.txt', (c) => {
   const robotsTxt = `User-agent: *
