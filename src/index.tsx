@@ -14421,127 +14421,205 @@ app.post('/api/matching/facilities', async (c) => {
       }, 400)
     }
     
-    // Phase 1: 기본 필터링
-    let query = `
-      SELECT 
-        f.*,
-        CASE 
-          WHEN f.latitude IS NOT NULL AND f.longitude IS NOT NULL 
-          THEN 1 
-          ELSE 0 
-        END as has_location
-      FROM facilities f
-      WHERE 1=1
-    `
-    const params: any[] = []
+    // AI 매칭 API로 리디렉트 (고급 알고리즘 사용)
+    const aiCriteria = {
+      sido,
+      sigungu,
+      facilityType,
+      careGrade,
+      budget: budgetMax || budgetMin || null,
+      userLocation: userLatitude && userLongitude ? {
+        lat: parseFloat(userLatitude),
+        lng: parseFloat(userLongitude)
+      } : null,
+      maxDistance
+    }
     
-    // 1. 지역 필터링
-    query += ` AND f.sido = ?`
-    params.push(sido)
+    console.log('📞 /api/matching/facilities → AI 매칭으로 리디렉트:', aiCriteria)
     
-    query += ` AND f.sigungu = ?`
-    params.push(sigungu)
+    // baseUrl 추출
+    const baseUrl = new URL(c.req.url).origin
     
-    // 2. 시설 유형 필터링
-    query += ` AND f.facility_type = ?`
-    params.push(facilityType)
+    // 시설 데이터 로드
+    const allFacilities = await loadFacilities(baseUrl)
+    if (!allFacilities || allFacilities.length === 0) {
+      return c.json({ success: false, message: '시설 데이터를 불러올 수 없습니다.' }, 500)
+    }
     
-    // 전화번호 있는 시설 우선
-    query += ` AND f.phone IS NOT NULL AND f.phone != ''`
+    // 1단계: 기본 필터링 (지역 + 시설 타입)
+    let filtered = allFacilities.filter((f: any) => {
+      return f.sido === sido && 
+             f.sigungu === sigungu && 
+             f.type === facilityType
+    })
     
-    query += ` ORDER BY has_location DESC, f.id ASC`
-    query += ` LIMIT 50`
-    
-    const facilities = await db.prepare(query).bind(...params).all()
-    
-    if (!facilities.results || facilities.results.length === 0) {
+    if (filtered.length === 0) {
       return c.json({
         success: true,
         count: 0,
         facilities: [],
-        filters: {
-          sido,
-          sigungu,
-          facilityType,
-          careGrade,
-          budgetMin,
-          budgetMax,
-          maxDistance
-        },
+        filters: aiCriteria,
         matchingInfo: {
-          totalScanned: 0,
+          totalScanned: allFacilities.length,
           afterDistanceFilter: 0,
-          returned: 0,
-          careGradeLimit: careGrade ? CARE_GRADE_LIMITS[careGrade] : null
+          returned: 0
         }
       })
     }
     
-    // Phase 1: 거리 계산 및 정렬
-    let scoredFacilities = facilities.results.map((facility: any) => {
-      let score = 100 // 기본 점수
-      let distance = null
-      
-      // 거리 계산 (좌표가 있는 경우)
-      if (userLatitude && userLongitude && facility.latitude && facility.longitude) {
-        distance = calculateDistance(
-          parseFloat(userLatitude),
-          parseFloat(userLongitude),
-          parseFloat(facility.latitude),
-          parseFloat(facility.longitude)
-        )
-        
-        // 거리 점수 (가까울수록 높은 점수)
-        if (distance <= 5) {
-          score += 50 // 5km 이내: +50점
-        } else if (distance <= 10) {
-          score += 30 // 10km 이내: +30점
-        } else if (distance <= 20) {
-          score += 10 // 20km 이내: +10점
+    // 2단계: 거리 계산
+    if (userLatitude && userLongitude) {
+      filtered = filtered.map((f: any) => {
+        if (f.lat && f.lng) {
+          const distance = calculateDistance(
+            parseFloat(userLatitude),
+            parseFloat(userLongitude),
+            parseFloat(f.lat),
+            parseFloat(f.lng)
+          )
+          return { ...f, distance: Math.round(distance * 10) / 10 }
         }
+        return { ...f, distance: 999 }
+      }).filter((f: any) => f.distance <= maxDistance)
+    }
+    
+    // 3단계: 평점/리뷰 데이터 로드
+    const facilityStats: Record<string, any> = {}
+    if (filtered.length > 0 && db) {
+      try {
+        const facilityIds = filtered.slice(0, 100).map((f: any) => f.id)
+        const statsQuery = await db.prepare(`
+          SELECT 
+            facility_id,
+            AVG(overall_rating) as avg_rating,
+            COUNT(*) as review_count,
+            AVG(cleanliness_rating) as avg_cleanliness,
+            AVG(staff_rating) as avg_staff,
+            AVG(food_rating) as avg_food,
+            AVG(facilities_rating) as avg_facilities
+          FROM facility_reviews
+          WHERE facility_id IN (${facilityIds.map(() => '?').join(',')})
+          GROUP BY facility_id
+        `).bind(...facilityIds).all()
         
-        // 최대 거리 필터링
-        if (distance > maxDistance) {
-          return null // 너무 멀면 제외
+        if (statsQuery.results) {
+          statsQuery.results.forEach((row: any) => {
+            facilityStats[row.facility_id] = {
+              avgRating: Math.round((row.avg_rating || 0) * 10) / 10,
+              reviewCount: row.review_count || 0,
+              avgCleanliness: Math.round((row.avg_cleanliness || 0) * 10) / 10,
+              avgStaff: Math.round((row.avg_staff || 0) * 10) / 10,
+              avgFood: Math.round((row.avg_food || 0) * 10) / 10,
+              avgFacilities: Math.round((row.avg_facilities || 0) * 10) / 10
+            }
+          })
         }
+      } catch (error) {
+        console.error('⚠️ 평점 데이터 로드 실패:', error)
       }
+    }
+    
+    // 4단계: 협업 필터링 점수
+    const collaborativeScores: Record<string, number> = {}
+    if (careGrade && db) {
+      try {
+        const collabQuery = await db.prepare(`
+          SELECT facility_id, COUNT(*) as selection_count, AVG(user_rating) as avg_user_rating
+          FROM user_selections
+          WHERE care_grade = ?
+          GROUP BY facility_id
+          HAVING selection_count >= 2
+          ORDER BY selection_count DESC, avg_user_rating DESC
+          LIMIT 50
+        `).bind(careGrade).all()
+        
+        if (collabQuery.results) {
+          collabQuery.results.forEach((row: any, index: number) => {
+            const score = Math.min(15, (50 - index) * 0.3)
+            collaborativeScores[row.facility_id] = score
+          })
+        }
+      } catch (error) {
+        console.error('⚠️ 협업 필터링 실패:', error)
+      }
+    }
+    
+    // 5단계: 상세 정보 로드
+    const detailsMap: Record<string, any> = {}
+    if (filtered.length > 0 && db) {
+      try {
+        const facilityIds = filtered.slice(0, 100).map((f: any) => f.id)
+        const detailsQuery = await db.prepare(`
+          SELECT facility_id, specialties, admission_types
+          FROM facility_details
+          WHERE facility_id IN (${facilityIds.map(() => '?').join(',')})
+        `).bind(...facilityIds).all()
+        
+        if (detailsQuery.results) {
+          detailsQuery.results.forEach((row: any) => {
+            try {
+              detailsMap[row.facility_id] = {
+                specialties: row.specialties ? JSON.parse(row.specialties) : [],
+                admissionTypes: row.admission_types ? JSON.parse(row.admission_types) : []
+              }
+            } catch (e) {
+              detailsMap[row.facility_id] = { specialties: [], admissionTypes: [] }
+            }
+          })
+        }
+      } catch (error) {
+        console.error('⚠️ 상세정보 로드 실패:', error)
+      }
+    }
+    
+    // 6단계: 고급 매칭 스코어 계산
+    const scored = filtered.map((facility: any) => {
+      const stats = facilityStats[facility.id] || {}
+      const collaborativeScore = collaborativeScores[facility.id] || 0
+      const details = detailsMap[facility.id] || {}
+      
+      const matchScore = calculateEnhancedMatchScore(facility, aiCriteria, stats, collaborativeScore)
+      const matchReasons = generateEnhancedMatchReasons(facility, aiCriteria, matchScore, stats, details)
       
       return {
-        ...facility,
-        distance: distance ? Math.round(distance * 10) / 10 : null, // 소수점 1자리
-        matchScore: score
+        id: facility.id,
+        name: facility.name,
+        facility_type: facility.type,
+        address: facility.address,
+        sido: facility.sido,
+        sigungu: facility.sigungu,
+        phone: facility.phone,
+        latitude: facility.lat,
+        longitude: facility.lng,
+        distance: facility.distance || null,
+        matchScore,
+        matchReasons,
+        isRepresentative: facility.isRepresentative || false,
+        stats,
+        details
       }
-    }).filter((f: any) => f !== null) // null 제거
+    })
     
-    // 점수순으로 정렬
-    scoredFacilities.sort((a: any, b: any) => b.matchScore - a.matchScore)
+    // 7단계: 점수순 정렬 및 상위 10개
+    scored.sort((a: any, b: any) => b.matchScore - a.matchScore)
+    const topRecommendations = scored.slice(0, 10)
     
-    // 상위 10개만 반환
-    const topFacilities = scoredFacilities.slice(0, 10)
+    console.log(`✅ 추천 완료: ${topRecommendations.length}개 시설 (최고점수: ${topRecommendations[0]?.matchScore || 0}점)`)
     
     return c.json({
       success: true,
-      count: topFacilities.length,
-      facilities: topFacilities,
-      filters: {
-        sido,
-        sigungu,
-        facilityType,
-        careGrade,
-        budgetMin,
-        budgetMax,
-        maxDistance
-      },
+      count: topRecommendations.length,
+      facilities: topRecommendations,
+      filters: aiCriteria,
       matchingInfo: {
-        totalScanned: facilities.results.length,
-        afterDistanceFilter: scoredFacilities.length,
-        returned: topFacilities.length,
-        careGradeLimit: careGrade ? CARE_GRADE_LIMITS[careGrade] : null
+        totalScanned: allFacilities.length,
+        afterDistanceFilter: filtered.length,
+        returned: topRecommendations.length
       }
     })
   } catch (error) {
-    console.error('[스마트 매칭] 오류:', error)
-    return c.json({ success: false, message: '매칭 실패' }, 500)
+    console.error('[AI 매칭 API] 오류:', error)
+    return c.json({ success: false, message: '매칭 실패: ' + (error as Error).message }, 500)
   }
 })
 
@@ -14969,12 +15047,75 @@ app.get('/ai-matching', async (c) => {
               };
               const config = typeConfig[facility.facility_type] || { icon: 'fa-building', color: 'gray' };
               
+              // 평점 표시
+              const renderStars = (rating) => {
+                if (!rating || rating === 0) return '<span class="text-gray-400 text-xs">평점 없음</span>';
+                const fullStars = Math.floor(rating);
+                const hasHalfStar = rating % 1 >= 0.5;
+                let stars = '';
+                for (let i = 0; i < fullStars; i++) {
+                  stars += '<i class="fas fa-star text-yellow-500"></i>';
+                }
+                if (hasHalfStar) {
+                  stars += '<i class="fas fa-star-half-alt text-yellow-500"></i>';
+                }
+                const emptyStars = 5 - Math.ceil(rating);
+                for (let i = 0; i < emptyStars; i++) {
+                  stars += '<i class="far fa-star text-yellow-500"></i>';
+                }
+                return \`<span class="inline-flex items-center gap-1">\${stars} <span class="text-sm font-semibold text-gray-700 ml-1">\${rating.toFixed(1)}</span></span>\`;
+              };
+              
+              // 매칭 이유 표시
+              const renderMatchReasons = (reasons) => {
+                if (!reasons || reasons.length === 0) return '';
+                return \`
+                  <div class="mt-4 p-3 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg border border-purple-200">
+                    <div class="flex items-center gap-2 mb-2">
+                      <i class="fas fa-check-circle text-purple-600"></i>
+                      <span class="text-sm font-semibold text-gray-800">추천 이유</span>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                      \${reasons.slice(0, 4).map(reason => \`
+                        <span class="inline-flex items-center px-2 py-1 bg-white rounded-full text-xs text-gray-700 border border-purple-200">
+                          \${reason}
+                        </span>
+                      \`).join('')}
+                    </div>
+                  </div>
+                \`;
+              };
+              
+              // 상세정보 표시
+              const renderDetails = (details) => {
+                if (!details) return '';
+                const { specialties, admissionTypes } = details;
+                if ((!specialties || specialties.length === 0) && (!admissionTypes || admissionTypes.length === 0)) return '';
+                
+                return \`
+                  <div class="mt-3 flex flex-wrap gap-2">
+                    \${specialties && specialties.length > 0 ? \`
+                      <div class="flex items-center gap-1 px-2 py-1 bg-blue-50 rounded-full text-xs text-blue-700 border border-blue-200">
+                        <i class="fas fa-stethoscope"></i>
+                        <span>\${specialties.slice(0, 2).join(', ')}\${specialties.length > 2 ? ' 외 ' + (specialties.length - 2) + '개' : ''}</span>
+                      </div>
+                    \` : ''}
+                    \${admissionTypes && admissionTypes.length > 0 ? \`
+                      <div class="flex items-center gap-1 px-2 py-1 bg-green-50 rounded-full text-xs text-green-700 border border-green-200">
+                        <i class="fas fa-calendar-check"></i>
+                        <span>\${admissionTypes.slice(0, 2).join(', ')}\${admissionTypes.length > 2 ? ' 외 ' + (admissionTypes.length - 2) + '개' : ''}</span>
+                      </div>
+                    \` : ''}
+                  </div>
+                \`;
+              };
+              
               return \`
                 <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow border-2 border-transparent hover:border-purple-200">
-                  <!-- 순위 & 점수 -->
+                  <!-- 순위 & 점수 & 평점 -->
                   <div class="flex items-center justify-between mb-4">
                     <div class="flex items-center gap-3">
-                      <div class="bg-gradient-to-br from-purple-500 to-indigo-600 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold text-lg">
+                      <div class="bg-gradient-to-br from-purple-500 to-indigo-600 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold text-lg shadow-lg">
                         \${index + 1}
                       </div>
                       <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-\${config.color}-100 text-\${config.color}-800">
@@ -14990,11 +15131,23 @@ app.get('/ai-matching', async (c) => {
 
                   <!-- 시설 정보 -->
                   <a href="/facility/\${facility.id}" class="block group">
-                    <h3 class="text-xl font-bold text-gray-800 mb-3 group-hover:text-purple-600 transition-colors">
+                    <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-purple-600 transition-colors">
                       \${facility.name}
+                      \${facility.isRepresentative ? '<span class="inline-flex items-center px-2 py-0.5 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded-full ml-2"><i class="fas fa-crown mr-1"></i>대표시설</span>' : ''}
                       <i class="fas fa-arrow-right ml-2 text-sm opacity-0 group-hover:opacity-100 transition-opacity"></i>
                     </h3>
                   </a>
+                  
+                  <!-- 평점 & 리뷰 -->
+                  <div class="flex items-center gap-4 mb-3">
+                    \${renderStars(facility.stats?.avgRating || 0)}
+                    \${facility.stats?.reviewCount > 0 ? \`
+                      <span class="text-xs text-gray-500">
+                        <i class="fas fa-comment-dots mr-1"></i>
+                        리뷰 \${facility.stats.reviewCount}개
+                      </span>
+                    \` : ''}
+                  </div>
                   
                   <div class="space-y-2 text-sm text-gray-600 mb-4">
                     <div class="flex items-start">
@@ -15014,9 +15167,15 @@ app.get('/ai-matching', async (c) => {
                       <span>\${facility.phone || '전화번호 정보 없음'}</span>
                     </div>
                   </div>
+                  
+                  <!-- 상세정보 태그 -->
+                  \${renderDetails(facility.details)}
+                  
+                  <!-- 매칭 이유 -->
+                  \${renderMatchReasons(facility.matchReasons)}
 
                   <!-- 액션 버튼 -->
-                  <div class="grid grid-cols-2 gap-2">
+                  <div class="grid grid-cols-2 gap-2 mt-4">
                     <a href="/facility/\${facility.id}" 
                        class="block py-3 bg-white border-2 border-purple-600 text-purple-600 text-center rounded-lg font-bold hover:bg-purple-50 transition-colors">
                       <i class="fas fa-info-circle mr-1"></i>
