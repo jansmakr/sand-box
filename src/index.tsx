@@ -3546,6 +3546,111 @@ app.get('/admin/facilities', (c) => {
                 <input type="text" id="editZipcode" placeholder="03001" class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-blue-500"/>
               </div>
               
+              <div class="border-t pt-4 mt-4">
+                <button type="button" onclick="toggleDetails()" class="text-blue-600 hover:text-blue-800 font-medium">
+                  <i id="detailsIcon" class="fas fa-chevron-down mr-2"></i>
+                  <span id="detailsText">상세 정보 입력 (전문분야, 입소유형, 비용)</span>
+                </button>
+              </div>
+              
+              <div id="detailsSection" class="hidden space-y-4 border-t pt-4 mt-4 bg-gray-50 p-4 rounded-lg">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-stethoscope text-blue-600 mr-1"></i>
+                    전문 진료 분야
+                  </label>
+                  <div class="grid grid-cols-2 gap-2">
+                    <label class="flex items-center space-x-2 p-2 border rounded hover:bg-blue-50 cursor-pointer">
+                      <input type="checkbox" name="specialty" value="재활" class="w-4 h-4"/>
+                      <span class="text-sm">재활</span>
+                    </label>
+                    <label class="flex items-center space-x-2 p-2 border rounded hover:bg-blue-50 cursor-pointer">
+                      <input type="checkbox" name="specialty" value="치매" class="w-4 h-4"/>
+                      <span class="text-sm">치매</span>
+                    </label>
+                    <label class="flex items-center space-x-2 p-2 border rounded hover:bg-blue-50 cursor-pointer">
+                      <input type="checkbox" name="specialty" value="중풍" class="w-4 h-4"/>
+                      <span class="text-sm">중풍</span>
+                    </label>
+                    <label class="flex items-center space-x-2 p-2 border rounded hover:bg-blue-50 cursor-pointer">
+                      <input type="checkbox" name="specialty" value="암" class="w-4 h-4"/>
+                      <span class="text-sm">암/호스피스</span>
+                    </label>
+                    <label class="flex items-center space-x-2 p-2 border rounded hover:bg-blue-50 cursor-pointer">
+                      <input type="checkbox" name="specialty" value="신장투석" class="w-4 h-4"/>
+                      <span class="text-sm">신장투석</span>
+                    </label>
+                    <label class="flex items-center space-x-2 p-2 border rounded hover:bg-blue-50 cursor-pointer">
+                      <input type="checkbox" name="specialty" value="감염관리" class="w-4 h-4"/>
+                      <span class="text-sm">감염관리</span>
+                    </label>
+                    <label class="flex items-center space-x-2 p-2 border rounded hover:bg-blue-50 cursor-pointer">
+                      <input type="checkbox" name="specialty" value="당뇨" class="w-4 h-4"/>
+                      <span class="text-sm">당뇨</span>
+                    </label>
+                    <label class="flex items-center space-x-2 p-2 border rounded hover:bg-blue-50 cursor-pointer">
+                      <input type="checkbox" name="specialty" value="호흡기" class="w-4 h-4"/>
+                      <span class="text-sm">호흡기질환</span>
+                    </label>
+                  </div>
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-bed text-blue-600 mr-1"></i>
+                    입소 유형
+                  </label>
+                  <div class="grid grid-cols-2 gap-2">
+                    <label class="flex items-center space-x-2 p-2 border rounded hover:bg-blue-50 cursor-pointer">
+                      <input type="checkbox" name="admission" value="정규입소" class="w-4 h-4"/>
+                      <span class="text-sm">정규입소 (장기)</span>
+                    </label>
+                    <label class="flex items-center space-x-2 p-2 border rounded hover:bg-blue-50 cursor-pointer">
+                      <input type="checkbox" name="admission" value="단기입소" class="w-4 h-4"/>
+                      <span class="text-sm">단기입소 (1주~1개월)</span>
+                    </label>
+                    <label class="flex items-center space-x-2 p-2 border rounded hover:bg-blue-50 cursor-pointer">
+                      <input type="checkbox" name="admission" value="야간입소" class="w-4 h-4"/>
+                      <span class="text-sm">야간입소</span>
+                    </label>
+                    <label class="flex items-center space-x-2 p-2 border rounded hover:bg-blue-50 cursor-pointer">
+                      <input type="checkbox" name="admission" value="주말입소" class="w-4 h-4"/>
+                      <span class="text-sm">주말입소</span>
+                    </label>
+                    <label class="flex items-center space-x-2 p-2 border rounded hover:bg-blue-50 cursor-pointer">
+                      <input type="checkbox" name="admission" value="응급입소" class="w-4 h-4"/>
+                      <span class="text-sm">응급입소</span>
+                    </label>
+                  </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                      <i class="fas fa-won-sign text-blue-600 mr-1"></i>
+                      월 평균 비용 (원)
+                    </label>
+                    <input type="number" id="editMonthlyCost" placeholder="2500000" class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-blue-500"/>
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                      <i class="fas fa-credit-card text-blue-600 mr-1"></i>
+                      보증금 (원)
+                    </label>
+                    <input type="number" id="editDeposit" placeholder="1000000" class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-blue-500"/>
+                  </div>
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-sticky-note text-blue-600 mr-1"></i>
+                    특이사항/메모
+                  </label>
+                  <textarea id="editNotes" rows="3" placeholder="시설의 특징, 주의사항 등을 입력하세요" class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-blue-500"></textarea>
+                </div>
+              </div>
+              
               <div class="flex gap-3 pt-4">
                 <button type="submit" class="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold">
                   <i class="fas fa-save mr-2"></i>저장
@@ -3755,7 +3860,7 @@ app.get('/admin/facilities', (c) => {
         }
         
         // 수정 모달 열기
-        function openEditModal(id) {
+        async function openEditModal(id) {
           console.log('🔧 시설 수정 모달 열기:', { id, idType: typeof id });
           // ID 타입을 문자열과 숫자 모두 비교 (유연한 검색)
           const facility = allFacilitiesData.find(f => f.id == id || String(f.id) === String(id));
@@ -3782,14 +3887,67 @@ app.get('/admin/facilities', (c) => {
           updateEditSigunguOptions();
           document.getElementById('editSigungu').value = facility.sigungu;
           
+          // 상세 정보 로드
+          try {
+            const response = await axios.get(\`/api/admin/facilities/\${facility.id}/details\`);
+            if (response.data.success && response.data.details) {
+              const details = response.data.details;
+              
+              // 전문 분야 체크
+              document.querySelectorAll('input[name="specialty"]').forEach(cb => {
+                cb.checked = details.specialties && details.specialties.includes(cb.value);
+              });
+              
+              // 입소 유형 체크
+              document.querySelectorAll('input[name="admission"]').forEach(cb => {
+                cb.checked = details.admission_types && details.admission_types.includes(cb.value);
+              });
+              
+              // 비용 정보
+              document.getElementById('editMonthlyCost').value = details.monthly_cost || '';
+              document.getElementById('editDeposit').value = details.deposit || '';
+              document.getElementById('editNotes').value = details.notes || '';
+              
+              console.log('✅ 상세 정보 로드 완료');
+            }
+          } catch (error) {
+            console.log('⚠️ 상세 정보 없음 (신규 입력 가능)');
+          }
+          
           // 모달 표시
           document.getElementById('editModal').classList.remove('hidden');
+        }
+        
+        // 상세 정보 섹션 토글
+        function toggleDetails() {
+          const section = document.getElementById('detailsSection');
+          const icon = document.getElementById('detailsIcon');
+          const text = document.getElementById('detailsText');
+          
+          if (section.classList.contains('hidden')) {
+            section.classList.remove('hidden');
+            icon.classList.remove('fa-chevron-down');
+            icon.classList.add('fa-chevron-up');
+            text.textContent = '상세 정보 숨기기';
+          } else {
+            section.classList.add('hidden');
+            icon.classList.remove('fa-chevron-up');
+            icon.classList.add('fa-chevron-down');
+            text.textContent = '상세 정보 입력 (전문분야, 입소유형, 비용)';
+          }
         }
         
         // 모달 닫기
         function closeEditModal() {
           document.getElementById('editModal').classList.add('hidden');
           document.getElementById('editForm').reset();
+          // 체크박스 초기화
+          document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+          // 상세 정보 섹션 숨기기
+          document.getElementById('detailsSection').classList.add('hidden');
+          document.getElementById('detailsIcon').classList.remove('fa-chevron-up');
+          document.getElementById('detailsIcon').classList.add('fa-chevron-down');
+          document.getElementById('detailsText').textContent = '상세 정보 입력 (전문분야, 입소유형, 비용)';
         }
         
         // 편집 시도 변경 시 시군구 업데이트
@@ -3934,6 +4092,21 @@ app.get('/admin/facilities', (c) => {
             zipcode: document.getElementById('editZipcode').value
           };
           
+          // 상세 정보 수집
+          const specialties = Array.from(document.querySelectorAll('input[name="specialty"]:checked')).map(cb => cb.value);
+          const admissionTypes = Array.from(document.querySelectorAll('input[name="admission"]:checked')).map(cb => cb.value);
+          const monthlyCost = parseInt(document.getElementById('editMonthlyCost').value) || 0;
+          const deposit = parseInt(document.getElementById('editDeposit').value) || 0;
+          const notes = document.getElementById('editNotes').value;
+          
+          const detailsData = {
+            specialties,
+            admission_types: admissionTypes,
+            monthly_cost: monthlyCost,
+            deposit,
+            notes
+          };
+          
           try {
             if (isNew) {
               // 신규 등록
@@ -3949,6 +4122,11 @@ app.get('/admin/facilities', (c) => {
               allFacilitiesData.push(updatedData);
               filteredFacilitiesData.push(updatedData);
               
+              // 상세 정보 저장
+              if (specialties.length > 0 || admissionTypes.length > 0 || monthlyCost > 0) {
+                await axios.put(\`/api/admin/facilities/\${newId}/details\`, detailsData);
+              }
+              
               alert('새로운 시설이 등록되었습니다.');
             } else {
               // 기존 시설 수정
@@ -3958,6 +4136,12 @@ app.get('/admin/facilities', (c) => {
               const facility = allFacilitiesData.find(f => f.id === id);
               if (facility) {
                 Object.assign(facility, updatedData);
+              }
+              
+              // 상세 정보 저장
+              if (specialties.length > 0 || admissionTypes.length > 0 || monthlyCost > 0 || notes) {
+                await axios.put(\`/api/admin/facilities/\${id}/details\`, detailsData);
+                console.log('✅ 시설 상세 정보 저장 완료');
               }
               
               alert('시설 정보가 업데이트되었습니다.');
