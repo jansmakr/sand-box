@@ -6835,6 +6835,45 @@ app.post('/api/ai-matching', async (c) => {
       }
     }
     
+    // 3.5단계: 🆕 시설 상세 정보 로드 (specialties, admission_types)
+    if (env?.DB) {
+      try {
+        const facilityIds = filtered.map(f => f.id).slice(0, 100)
+        if (facilityIds.length > 0) {
+          const placeholders = facilityIds.map(() => '?').join(',')
+          const query = `
+            SELECT 
+              facility_id,
+              specialties,
+              specialized_care,
+              admission_types,
+              monthly_cost,
+              deposit
+            FROM facility_details
+            WHERE facility_id IN (${placeholders})
+          `
+          
+          const result = await env.DB.prepare(query).bind(...facilityIds).all()
+          
+          // 시설 객체에 상세 정보 병합
+          result.results?.forEach((row: any) => {
+            const facility = filtered.find(f => f.id === row.facility_id)
+            if (facility) {
+              facility.specialties = row.specialties
+              facility.specialized_care = row.specialized_care
+              facility.admission_types = row.admission_types
+              facility.monthly_cost = row.monthly_cost
+              facility.deposit = row.deposit
+            }
+          })
+          
+          console.log(`🩺 상세 정보 로드: ${result.results?.length || 0}개 시설`)
+        }
+      } catch (error) {
+        console.error('⚠️ 상세 정보 로드 실패:', error)
+      }
+    }
+    
     // 4단계: 협업 필터링 - 유사 사용자들이 선택한 시설
     let collaborativeScores = new Map<number, number>()
     if (env?.DB && criteria.careGrade) {
@@ -7063,10 +7102,22 @@ function calculateEnhancedMatchScore(
     score += weights.coordinates
   }
   
-  // 10. 환자 상태 키워드 매칭
+  // 10. 환자 상태 키워드 매칭 (기존 방식)
   if (criteria.patientCondition) {
     const keywordScore = analyzePatientKeywords(criteria.patientCondition, facility)
     score += keywordScore  // 최대 5점
+  }
+  
+  // 11. 🆕 전문 분야 매칭 (안전장치 포함)
+  if (criteria.requiredSpecialties && criteria.requiredSpecialties.length > 0) {
+    const specialtyScore = matchSpecialtiesWithSafety(facility, criteria)
+    score += specialtyScore  // 최대 10점
+  }
+  
+  // 12. 🆕 입소 유형 매칭 (안전장치 포함)
+  if (criteria.admissionType) {
+    const admissionScore = matchAdmissionTypeWithSafety(facility, criteria)
+    score += admissionScore  // 최대 8점
   }
   
   return Math.min(100, score)
@@ -7125,6 +7176,9 @@ function analyzePatientKeywords(condition: string, facility: any): number {
   let score = 0
   const keywords = condition.toLowerCase()
   
+  // 🆕 안전장치 1: facility_details에 specialties가 있으면 우선 사용
+  const hasDetailedInfo = facility.specialties && Array.isArray(facility.specialties) && facility.specialties.length > 0
+  
   // 치매 관련 키워드
   if (keywords.includes('치매') || keywords.includes('인지저하') || keywords.includes('알츠하이머')) {
     // 요양병원/요양원이 치매에 더 적합
@@ -7158,6 +7212,99 @@ function analyzePatientKeywords(condition: string, facility: any): number {
   }
   
   return Math.min(5, score)
+}
+
+// ============================================
+// 🆕 전문 분야 매칭 (안전장치 포함)
+// ============================================
+function matchSpecialtiesWithSafety(facility: any, criteria: any): number {
+  const requiredSpecialties = criteria.requiredSpecialties || []
+  if (requiredSpecialties.length === 0) return 0
+  
+  // 안전장치 1: facility_details가 없으면 시설 타입으로 추정
+  let facilitySpecialties = []
+  
+  try {
+    if (facility.specialties) {
+      facilitySpecialties = typeof facility.specialties === 'string' 
+        ? JSON.parse(facility.specialties) 
+        : facility.specialties
+    }
+  } catch (e) {
+    facilitySpecialties = []
+  }
+  
+  // 안전장치 2: 상세정보가 없으면 시설 타입으로 기본 점수
+  if (!facilitySpecialties || facilitySpecialties.length === 0) {
+    return estimateSpecialtyByType(facility, requiredSpecialties)
+  }
+  
+  // 상세정보가 있으면 정확한 매칭
+  const matchCount = requiredSpecialties.filter((req: string) => 
+    facilitySpecialties.includes(req)
+  ).length
+  
+  const matchRate = matchCount / requiredSpecialties.length
+  return Math.round(10 * matchRate)  // 최대 10점
+}
+
+// 시설 타입 기반 전문 분야 추정 (안전장치)
+function estimateSpecialtyByType(facility: any, requiredSpecialties: string[]): number {
+  let score = 0
+  
+  for (const specialty of requiredSpecialties) {
+    if (specialty === '재활' || specialty === '중풍') {
+      if (facility.type === '요양병원') score += 2
+      else if (facility.type === '요양원') score += 1
+    } else if (specialty === '치매') {
+      if (facility.type === '요양병원' || facility.type === '요양원') score += 2
+    } else if (specialty === '암' || specialty === '신장투석') {
+      if (facility.type === '요양병원') score += 3  // 전문 의료 필요
+    } else if (specialty === '당뇨' || specialty === '호흡기') {
+      if (facility.type === '요양병원') score += 1
+    }
+  }
+  
+  return Math.min(5, score)  // 상세정보 없으면 최대 5점 (절반)
+}
+
+// ============================================
+// 🆕 입소 유형 매칭 (안전장치 포함)
+// ============================================
+function matchAdmissionTypeWithSafety(facility: any, criteria: any): number {
+  const requestedType = criteria.admissionType
+  if (!requestedType) return 0
+  
+  // 안전장치: admission_types가 없으면 시설 타입으로 추정
+  let admissionTypes = []
+  
+  try {
+    if (facility.admission_types) {
+      admissionTypes = typeof facility.admission_types === 'string'
+        ? JSON.parse(facility.admission_types)
+        : facility.admission_types
+    }
+  } catch (e) {
+    admissionTypes = []
+  }
+  
+  // 상세정보가 있으면 정확한 매칭
+  if (admissionTypes && admissionTypes.length > 0) {
+    return admissionTypes.includes(requestedType) ? 8 : 0
+  }
+  
+  // 안전장치: 상세정보 없으면 시설 타입 기반 기본 점수
+  if (requestedType === '정규입소') {
+    return 4  // 모든 시설이 가능하다고 가정
+  } else if (requestedType === '단기입소') {
+    return facility.type === '요양병원' || facility.type === '요양원' ? 3 : 0
+  } else if (requestedType === '야간입소' || requestedType === '주말입소') {
+    return facility.type === '주야간보호' ? 3 : 0
+  } else if (requestedType === '응급입소') {
+    return facility.type === '요양병원' ? 3 : 0
+  }
+  
+  return 0
 }
 
 // ============================================
@@ -7236,12 +7383,44 @@ function generateEnhancedMatchReasons(
     }
   }
   
-  // 8. 대표시설
+  // 8. 🆕 전문 분야 일치
+  if (criteria.requiredSpecialties && criteria.requiredSpecialties.length > 0) {
+    let facilitySpecialties = []
+    try {
+      facilitySpecialties = typeof facility.specialties === 'string' 
+        ? JSON.parse(facility.specialties) 
+        : (facility.specialties || [])
+    } catch (e) {}
+    
+    const matchedSpecialties = criteria.requiredSpecialties.filter((s: string) => 
+      facilitySpecialties.includes(s)
+    )
+    
+    if (matchedSpecialties.length > 0) {
+      reasons.push(`🩺 ${matchedSpecialties.join(', ')} 전문`)
+    }
+  }
+  
+  // 9. 🆕 입소 유형 일치
+  if (criteria.admissionType) {
+    let admissionTypes = []
+    try {
+      admissionTypes = typeof facility.admission_types === 'string'
+        ? JSON.parse(facility.admission_types)
+        : (facility.admission_types || [])
+    } catch (e) {}
+    
+    if (admissionTypes.includes(criteria.admissionType)) {
+      reasons.push(`🛏️ ${criteria.admissionType} 가능`)
+    }
+  }
+  
+  // 10. 대표시설
   if (facility.isRepresentative) {
     reasons.push('⭐ 지역 대표 시설')
   }
   
-  // 9. 연락 가능
+  // 11. 연락 가능
   if (facility.phone && facility.phone !== '미등록') {
     reasons.push('📞 전화 상담 가능')
   }
