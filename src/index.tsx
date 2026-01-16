@@ -15340,6 +15340,225 @@ app.get('/api/admin/feedback/stats', async (c) => {
   }
 })
 
+// ============================================
+// 📋 시설 상세 정보 관리 API
+// ============================================
+
+// 시설 상세 정보 조회 (관리자용)
+app.get('/api/admin/facilities/:id/details', async (c) => {
+  const { env } = c
+  const facilityId = c.req.param('id')
+  
+  if (!isAdmin(c)) {
+    return c.json({ error: 'Unauthorized' }, 401)
+  }
+  
+  if (!env?.DB) {
+    return c.json({ success: false, message: '데이터베이스 연결 실패' }, 500)
+  }
+  
+  try {
+    const result = await env.DB.prepare(`
+      SELECT 
+        facility_id,
+        specialties,
+        specialized_care,
+        admission_types,
+        operating_hours,
+        min_stay_period,
+        short_term_available,
+        monthly_cost,
+        deposit,
+        daily_cost,
+        additional_costs,
+        total_beds,
+        available_beds,
+        notes,
+        updated_by,
+        updated_at,
+        average_cost_min,
+        average_cost_max,
+        services,
+        description
+      FROM facility_details
+      WHERE facility_id = ?
+    `).bind(facilityId).first()
+    
+    if (!result) {
+      // 상세 정보가 없으면 빈 구조 반환
+      return c.json({
+        success: true,
+        details: {
+          facility_id: parseInt(facilityId),
+          specialties: [],
+          specialized_care: [],
+          admission_types: [],
+          operating_hours: {},
+          min_stay_period: '',
+          short_term_available: 0,
+          monthly_cost: 0,
+          deposit: 0,
+          daily_cost: 0,
+          additional_costs: {},
+          total_beds: 0,
+          available_beds: 0,
+          notes: '',
+          updated_by: '',
+          updated_at: null
+        }
+      })
+    }
+    
+    // JSON 파싱
+    const parseJSON = (str: string | null, defaultVal: any) => {
+      if (!str) return defaultVal
+      try {
+        return JSON.parse(str)
+      } catch {
+        return defaultVal
+      }
+    }
+    
+    return c.json({
+      success: true,
+      details: {
+        facility_id: result.facility_id,
+        specialties: parseJSON(result.specialties, []),
+        specialized_care: parseJSON(result.specialized_care, []),
+        admission_types: parseJSON(result.admission_types, []),
+        operating_hours: parseJSON(result.operating_hours, {}),
+        min_stay_period: result.min_stay_period || '',
+        short_term_available: result.short_term_available || 0,
+        monthly_cost: result.monthly_cost || 0,
+        deposit: result.deposit || 0,
+        daily_cost: result.daily_cost || 0,
+        additional_costs: parseJSON(result.additional_costs, {}),
+        total_beds: result.total_beds || 0,
+        available_beds: result.available_beds || 0,
+        notes: result.notes || '',
+        updated_by: result.updated_by || '',
+        updated_at: result.updated_at,
+        // 기존 필드들
+        average_cost_min: result.average_cost_min,
+        average_cost_max: result.average_cost_max,
+        services: result.services,
+        description: result.description
+      }
+    })
+  } catch (error) {
+    console.error('❌ 시설 상세 정보 조회 실패:', error)
+    return c.json({ 
+      success: false, 
+      message: '조회 중 오류가 발생했습니다.',
+      error: String(error)
+    }, 500)
+  }
+})
+
+// 시설 상세 정보 저장/업데이트 (관리자용)
+app.put('/api/admin/facilities/:id/details', async (c) => {
+  const { env } = c
+  const facilityId = c.req.param('id')
+  
+  if (!isAdmin(c)) {
+    return c.json({ error: 'Unauthorized' }, 401)
+  }
+  
+  if (!env?.DB) {
+    return c.json({ success: false, message: '데이터베이스 연결 실패' }, 500)
+  }
+  
+  try {
+    const data = await c.req.json()
+    
+    // 관리자 정보 추출
+    const user = getUserFromCookie(c)
+    const updatedBy = user?.email || 'admin'
+    
+    // JSON 문자열로 변환
+    const toJSON = (val: any) => {
+      if (val === null || val === undefined) return '[]'
+      if (typeof val === 'string') return val
+      return JSON.stringify(val)
+    }
+    
+    console.log('📝 시설 상세 정보 저장:', {
+      facilityId,
+      updatedBy,
+      data
+    })
+    
+    // UPSERT (INSERT or UPDATE)
+    await env.DB.prepare(`
+      INSERT INTO facility_details (
+        facility_id,
+        specialties,
+        specialized_care,
+        admission_types,
+        operating_hours,
+        min_stay_period,
+        short_term_available,
+        monthly_cost,
+        deposit,
+        daily_cost,
+        additional_costs,
+        total_beds,
+        available_beds,
+        notes,
+        updated_by,
+        updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+      ON CONFLICT(facility_id) DO UPDATE SET
+        specialties = excluded.specialties,
+        specialized_care = excluded.specialized_care,
+        admission_types = excluded.admission_types,
+        operating_hours = excluded.operating_hours,
+        min_stay_period = excluded.min_stay_period,
+        short_term_available = excluded.short_term_available,
+        monthly_cost = excluded.monthly_cost,
+        deposit = excluded.deposit,
+        daily_cost = excluded.daily_cost,
+        additional_costs = excluded.additional_costs,
+        total_beds = excluded.total_beds,
+        available_beds = excluded.available_beds,
+        notes = excluded.notes,
+        updated_by = excluded.updated_by,
+        updated_at = datetime('now')
+    `).bind(
+      facilityId,
+      toJSON(data.specialties),
+      toJSON(data.specialized_care),
+      toJSON(data.admission_types),
+      toJSON(data.operating_hours),
+      data.min_stay_period || '',
+      data.short_term_available ? 1 : 0,
+      data.monthly_cost || 0,
+      data.deposit || 0,
+      data.daily_cost || 0,
+      toJSON(data.additional_costs),
+      data.total_beds || 0,
+      data.available_beds || 0,
+      data.notes || '',
+      updatedBy
+    ).run()
+    
+    console.log('✅ 시설 상세 정보 저장 완료')
+    
+    return c.json({
+      success: true,
+      message: '시설 정보가 저장되었습니다.',
+      updated_by: updatedBy
+    })
+  } catch (error) {
+    console.error('❌ 시설 상세 정보 저장 실패:', error)
+    return c.json({ 
+      success: false, 
+      message: '저장 중 오류가 발생했습니다.',
+      error: String(error)
+    }, 500)
+  }
+})
+
 // ========== SEO: robots.txt ==========
 app.get('/robots.txt', (c) => {
   const robotsTxt = `User-agent: *
