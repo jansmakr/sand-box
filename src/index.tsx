@@ -6531,48 +6531,224 @@ app.post('/api/calculate-cost', async (c) => {
   }
 })
 
-// AI 매칭 API
+// AI 매칭 API - 다중 조건 가중치 기반 스코어링
 app.post('/api/ai-matching', async (c) => {
   try {
-    const data = await c.req.json()
+    const criteria = await c.req.json()
+    console.log('🤖 AI 매칭 요청:', criteria)
     
-    // TODO: 실제 AI 매칭 로직 구현
-    // 임시로 더미 데이터 반환
-    const dummyFacilities = [
-      {
-        id: 1,
-        name: '서울 요양병원',
-        address: '서울특별시 강남구',
-        type: '요양병원',
-        score: 95,
-        estimated_cost: 2500000
-      },
-      {
-        id: 2,
-        name: '행복 요양원',
-        address: '서울특별시 서초구',
-        type: '요양원',
-        score: 92,
-        estimated_cost: 2200000
-      },
-      {
-        id: 3,
-        name: '사랑 재가복지센터',
-        address: '서울특별시 송파구',
-        type: '재가복지센터',
-        score: 88,
-        estimated_cost: 1800000
+    // 현재 요청 URL에서 baseUrl 추출
+    const url = new URL(c.req.url)
+    const baseUrl = `${url.protocol}//${url.host}`
+    
+    // 시설 데이터 로드
+    const facilities = await loadFacilities(baseUrl)
+    
+    if (!Array.isArray(facilities) || facilities.length === 0) {
+      return c.json({ 
+        success: false, 
+        message: '시설 데이터를 불러올 수 없습니다.' 
+      }, 500)
+    }
+    
+    // 1단계: 기본 필터링 (필수 조건)
+    let filtered = facilities.filter(f => {
+      // 지역 필터
+      if (criteria.sido && f.sido !== criteria.sido) return false
+      if (criteria.sigungu && f.sigungu !== criteria.sigungu) return false
+      
+      // 시설 타입 필터
+      if (criteria.facilityType && f.type !== criteria.facilityType) return false
+      
+      return true
+    })
+    
+    console.log(`📊 필터링 결과: ${filtered.length}개 시설`)
+    
+    if (filtered.length === 0) {
+      return c.json({
+        success: true,
+        total: 0,
+        recommendations: [],
+        message: '조건에 맞는 시설이 없습니다. 검색 조건을 변경해보세요.'
+      })
+    }
+    
+    // 2단계: 거리 계산 (사용자 위치가 있는 경우)
+    if (criteria.userLocation?.lat && criteria.userLocation?.lng) {
+      filtered = filtered.map(f => {
+        if (f.lat && f.lng) {
+          const distance = calculateDistance(
+            criteria.userLocation.lat,
+            criteria.userLocation.lng,
+            f.lat,
+            f.lng
+          )
+          return { ...f, distance }
+        }
+        return { ...f, distance: 999 } // 좌표 없으면 매우 먼 거리로 설정
+      })
+    }
+    
+    // 3단계: 매칭 스코어 계산
+    const scored = filtered.map(f => {
+      const matchScore = calculateMatchScore(f, criteria)
+      return {
+        ...f,
+        matchScore,
+        matchReasons: generateMatchReasons(f, criteria, matchScore)
       }
-    ]
+    })
+    
+    // 4단계: 정렬 (매칭 점수 높은 순)
+    scored.sort((a, b) => b.matchScore - a.matchScore)
+    
+    // 5단계: 상위 10개 선택
+    const recommendations = scored.slice(0, 10).map(f => ({
+      id: f.id,
+      name: f.name,
+      type: f.type,
+      address: f.address,
+      sido: f.sido,
+      sigungu: f.sigungu,
+      phone: f.phone || '미등록',
+      lat: f.lat,
+      lng: f.lng,
+      distance: f.distance ? `${f.distance.toFixed(1)}km` : '거리 정보 없음',
+      matchScore: Math.round(f.matchScore),
+      matchReasons: f.matchReasons,
+      isRepresentative: f.isRepresentative || false
+    }))
+    
+    console.log(`✅ 추천 완료: ${recommendations.length}개 시설 (최고점수: ${recommendations[0]?.matchScore || 0}점)`)
     
     return c.json({
       success: true,
-      facilities: dummyFacilities
+      total: filtered.length,
+      recommendations,
+      algorithm: 'weighted_scoring_v1',
+      criteria: {
+        sido: criteria.sido,
+        sigungu: criteria.sigungu,
+        facilityType: criteria.facilityType,
+        hasUserLocation: !!(criteria.userLocation?.lat && criteria.userLocation?.lng)
+      }
     })
   } catch (error) {
-    return c.json({ success: false, message: '매칭 실패' }, 500)
+    console.error('❌ AI 매칭 오류:', error)
+    return c.json({ 
+      success: false, 
+      message: '매칭 중 오류가 발생했습니다.',
+      error: String(error)
+    }, 500)
   }
 })
+
+// 거리 계산 함수는 아래에 이미 정의되어 있음 (line ~13705)
+
+// 매칭 스코어 계산 함수
+function calculateMatchScore(facility: any, criteria: any): number {
+  let score = 0
+  const weights = {
+    location: 25,      // 지역 일치
+    distance: 20,      // 거리
+    facilityType: 15,  // 시설 타입
+    phone: 10,         // 연락처 유무
+    representative: 10, // 대표시설
+    coordinates: 10,   // 좌표 정보 유무
+    baseScore: 10      // 기본 점수
+  }
+  
+  // 기본 점수
+  score += weights.baseScore
+  
+  // 1. 지역 완전 일치 (시/도 + 시/군/구)
+  if (facility.sido === criteria.sido) {
+    score += weights.location * 0.5
+    if (facility.sigungu === criteria.sigungu) {
+      score += weights.location * 0.5
+    }
+  }
+  
+  // 2. 거리 점수 (가까울수록 높은 점수)
+  if (facility.distance !== undefined && facility.distance !== 999) {
+    let distanceScore = 0
+    if (facility.distance < 5) {
+      distanceScore = weights.distance  // 5km 이내: 만점
+    } else if (facility.distance < 10) {
+      distanceScore = weights.distance * 0.8  // 5-10km: 80%
+    } else if (facility.distance < 20) {
+      distanceScore = weights.distance * 0.5  // 10-20km: 50%
+    } else if (facility.distance < 50) {
+      distanceScore = weights.distance * 0.2  // 20-50km: 20%
+    }
+    score += distanceScore
+  }
+  
+  // 3. 시설 타입 일치
+  if (facility.type === criteria.facilityType) {
+    score += weights.facilityType
+  }
+  
+  // 4. 전화번호 있음 (연락 가능)
+  if (facility.phone && facility.phone !== '미등록' && facility.phone !== '') {
+    score += weights.phone
+  }
+  
+  // 5. 대표시설 보너스
+  if (facility.isRepresentative) {
+    score += weights.representative
+  }
+  
+  // 6. 좌표 정보 있음 (지도 표시 가능)
+  if (facility.lat && facility.lng) {
+    score += weights.coordinates
+  }
+  
+  return Math.min(100, score)  // 최대 100점
+}
+
+// 매칭 이유 생성 함수
+function generateMatchReasons(facility: any, criteria: any, score: number): string[] {
+  const reasons: string[] = []
+  
+  // 점수 등급
+  if (score >= 90) {
+    reasons.push('🏆 최고 추천 시설')
+  } else if (score >= 80) {
+    reasons.push('⭐ 우수 매칭')
+  } else if (score >= 70) {
+    reasons.push('✅ 좋은 선택')
+  }
+  
+  // 지역 일치
+  if (facility.sido === criteria.sido && facility.sigungu === criteria.sigungu) {
+    reasons.push(`📍 ${criteria.sigungu} 지역`)
+  }
+  
+  // 거리
+  if (facility.distance !== undefined && facility.distance !== 999) {
+    if (facility.distance < 5) {
+      reasons.push('🚗 매우 가까움 (5km 이내)')
+    } else if (facility.distance < 10) {
+      reasons.push('🚗 가까움 (10km 이내)')
+    } else if (facility.distance < 20) {
+      reasons.push('🚗 적당한 거리 (20km 이내)')
+    }
+  }
+  
+  // 대표시설
+  if (facility.isRepresentative) {
+    reasons.push('⭐ 지역 대표 시설')
+  }
+  
+  // 연락 가능
+  if (facility.phone && facility.phone !== '미등록') {
+    reasons.push('📞 전화 상담 가능')
+  }
+  
+  return reasons
+}
 
 // 상세견적 페이지 - 2단계 폼
 app.get('/quote-simple', (c) => {
