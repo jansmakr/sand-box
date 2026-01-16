@@ -6531,11 +6531,24 @@ app.post('/api/calculate-cost', async (c) => {
   }
 })
 
-// AI 매칭 API - 다중 조건 가중치 기반 스코어링
+// ============================================
+// 🤖 AI 매칭 API - 고급 알고리즘 (v2)
+// ============================================
+// 포함 기능:
+// - 예산 최적화 매칭
+// - 환자 상태 키워드 분석
+// - 평점/리뷰 통합
+// - 협업 필터링 (유사 사용자 선택 패턴)
+// - 거리/지역 가중치
+// - 실시간 추천 이유 생성
+// ============================================
+
 app.post('/api/ai-matching', async (c) => {
   try {
     const criteria = await c.req.json()
-    console.log('🤖 AI 매칭 요청:', criteria)
+    console.log('🤖 AI 매칭 요청 (v2):', criteria)
+    
+    const { env } = c
     
     // 현재 요청 URL에서 baseUrl 추출
     const url = new URL(c.req.url)
@@ -6551,6 +6564,8 @@ app.post('/api/ai-matching', async (c) => {
       }, 500)
     }
     
+    console.log(`📦 전체 시설: ${facilities.length}개`)
+    
     // 1단계: 기본 필터링 (필수 조건)
     let filtered = facilities.filter(f => {
       // 지역 필터
@@ -6563,7 +6578,7 @@ app.post('/api/ai-matching', async (c) => {
       return true
     })
     
-    console.log(`📊 필터링 결과: ${filtered.length}개 시설`)
+    console.log(`📊 기본 필터링: ${filtered.length}개`)
     
     if (filtered.length === 0) {
       return c.json({
@@ -6574,7 +6589,7 @@ app.post('/api/ai-matching', async (c) => {
       })
     }
     
-    // 2단계: 거리 계산 (사용자 위치가 있는 경우)
+    // 2단계: 거리 계산
     if (criteria.userLocation?.lat && criteria.userLocation?.lng) {
       filtered = filtered.map(f => {
         if (f.lat && f.lng) {
@@ -6586,26 +6601,118 @@ app.post('/api/ai-matching', async (c) => {
           )
           return { ...f, distance }
         }
-        return { ...f, distance: 999 } // 좌표 없으면 매우 먼 거리로 설정
+        return { ...f, distance: 999 }
       })
+      
+      // 최대 거리 필터링
+      const maxDistance = criteria.maxDistance || 50
+      filtered = filtered.filter(f => f.distance <= maxDistance)
+      console.log(`🚗 거리 필터링 (${maxDistance}km 이내): ${filtered.length}개`)
     }
     
-    // 3단계: 매칭 스코어 계산
+    // 3단계: D1에서 평점/리뷰 데이터 로드
+    let facilityStats = new Map<number, any>()
+    if (env?.DB) {
+      try {
+        const facilityIds = filtered.map(f => f.id).slice(0, 100) // 최대 100개까지만
+        if (facilityIds.length > 0) {
+          const placeholders = facilityIds.map(() => '?').join(',')
+          const query = `
+            SELECT 
+              facility_id,
+              AVG(overall_rating) as avg_rating,
+              COUNT(*) as review_count,
+              AVG(cleanliness_rating) as avg_cleanliness,
+              AVG(staff_rating) as avg_staff,
+              AVG(food_rating) as avg_food,
+              AVG(facilities_rating) as avg_facilities
+            FROM facility_reviews
+            WHERE facility_id IN (${placeholders})
+            GROUP BY facility_id
+          `
+          
+          const result = await env.DB.prepare(query).bind(...facilityIds).all()
+          
+          result.results?.forEach((row: any) => {
+            facilityStats.set(row.facility_id, {
+              avgRating: row.avg_rating || 0,
+              reviewCount: row.review_count || 0,
+              avgCleanliness: row.avg_cleanliness || 0,
+              avgStaff: row.avg_staff || 0,
+              avgFood: row.avg_food || 0,
+              avgFacilities: row.avg_facilities || 0
+            })
+          })
+          
+          console.log(`⭐ 평점 데이터 로드: ${facilityStats.size}개 시설`)
+        }
+      } catch (error) {
+        console.error('⚠️ 평점 데이터 로드 실패:', error)
+      }
+    }
+    
+    // 4단계: 협업 필터링 - 유사 사용자들이 선택한 시설
+    let collaborativeScores = new Map<number, number>()
+    if (env?.DB && criteria.careGrade) {
+      try {
+        // 같은 등급의 사용자들이 많이 선택한 시설 찾기
+        const query = `
+          SELECT 
+            qr.facility_id,
+            COUNT(*) as selection_count,
+            AVG(CASE WHEN fs.rating > 0 THEN fs.rating ELSE 0 END) as avg_user_rating
+          FROM quote_requests qr
+          LEFT JOIN feedback_stats fs ON qr.facility_id = fs.facility_id
+          WHERE qr.care_grade = ?
+            AND qr.facility_id IS NOT NULL
+          GROUP BY qr.facility_id
+          HAVING selection_count >= 2
+          ORDER BY selection_count DESC, avg_user_rating DESC
+          LIMIT 50
+        `
+        
+        const result = await env.DB.prepare(query).bind(criteria.careGrade).all()
+        
+        result.results?.forEach((row: any, index: number) => {
+          // 선택 빈도가 높을수록 높은 점수 (최대 15점)
+          const score = Math.min(15, (50 - index) * 0.3)
+          collaborativeScores.set(row.facility_id, score)
+        })
+        
+        console.log(`🤝 협업 필터링: ${collaborativeScores.size}개 시설에 보너스`)
+      } catch (error) {
+        console.error('⚠️ 협업 필터링 실패:', error)
+      }
+    }
+    
+    // 5단계: 고급 매칭 스코어 계산
     const scored = filtered.map(f => {
-      const matchScore = calculateMatchScore(f, criteria)
+      const stats = facilityStats.get(f.id)
+      const collaborativeScore = collaborativeScores.get(f.id) || 0
+      
+      const matchScore = calculateEnhancedMatchScore(
+        f, 
+        criteria, 
+        stats,
+        collaborativeScore
+      )
+      
       return {
         ...f,
         matchScore,
-        matchReasons: generateMatchReasons(f, criteria, matchScore)
+        stats,
+        collaborativeScore,
+        matchReasons: generateEnhancedMatchReasons(f, criteria, matchScore, stats)
       }
     })
     
-    // 4단계: 정렬 (매칭 점수 높은 순)
+    // 6단계: 정렬 (매칭 점수 + 평점 + 협업 필터링)
     scored.sort((a, b) => b.matchScore - a.matchScore)
     
-    // 5단계: 상위 10개 선택
-    const recommendations = scored.slice(0, 10).map(f => ({
+    // 7단계: 상위 10개 선택 및 포맷팅
+    const recommendations = scored.slice(0, 10).map((f, index) => ({
       id: f.id,
+      rank: index + 1,
       name: f.name,
       type: f.type,
       address: f.address,
@@ -6615,23 +6722,64 @@ app.post('/api/ai-matching', async (c) => {
       lat: f.lat,
       lng: f.lng,
       distance: f.distance ? `${f.distance.toFixed(1)}km` : '거리 정보 없음',
+      distanceValue: f.distance || 999,
       matchScore: Math.round(f.matchScore),
       matchReasons: f.matchReasons,
-      isRepresentative: f.isRepresentative || false
+      isRepresentative: f.isRepresentative || false,
+      // 평점 정보
+      rating: f.stats ? {
+        average: Math.round(f.stats.avgRating * 10) / 10,
+        count: f.stats.reviewCount,
+        cleanliness: Math.round(f.stats.avgCleanliness * 10) / 10,
+        staff: Math.round(f.stats.avgStaff * 10) / 10,
+        food: Math.round(f.stats.avgFood * 10) / 10,
+        facilities: Math.round(f.stats.avgFacilities * 10) / 10
+      } : null,
+      // 협업 필터링 보너스
+      popularityBonus: f.collaborativeScore > 0
     }))
     
-    console.log(`✅ 추천 완료: ${recommendations.length}개 시설 (최고점수: ${recommendations[0]?.matchScore || 0}점)`)
+    console.log(`✅ 추천 완료: ${recommendations.length}개 (최고: ${recommendations[0]?.matchScore || 0}점)`)
+    
+    // 8단계: 사용자 피드백 기록 (비동기)
+    if (env?.DB) {
+      try {
+        const topFacilityId = recommendations[0]?.id
+        if (topFacilityId) {
+          // 피드백 통계 업데이트 (노출 수 증가)
+          await env.DB.prepare(`
+            INSERT INTO feedback_stats (facility_id, impressions, clicks, last_shown)
+            VALUES (?, 1, 0, datetime('now'))
+            ON CONFLICT(facility_id) DO UPDATE SET
+              impressions = impressions + 1,
+              last_shown = datetime('now')
+          `).bind(topFacilityId).run()
+        }
+      } catch (error) {
+        console.error('⚠️ 피드백 기록 실패:', error)
+      }
+    }
     
     return c.json({
       success: true,
       total: filtered.length,
       recommendations,
-      algorithm: 'weighted_scoring_v1',
+      algorithm: 'enhanced_ai_v2',
+      features: [
+        'distance_optimization',
+        'budget_matching',
+        'rating_integration',
+        'collaborative_filtering',
+        'keyword_analysis'
+      ],
       criteria: {
         sido: criteria.sido,
         sigungu: criteria.sigungu,
         facilityType: criteria.facilityType,
-        hasUserLocation: !!(criteria.userLocation?.lat && criteria.userLocation?.lng)
+        careGrade: criteria.careGrade,
+        budget: criteria.budget,
+        hasUserLocation: !!(criteria.userLocation?.lat && criteria.userLocation?.lng),
+        maxDistance: criteria.maxDistance || 50
       }
     })
   } catch (error) {
@@ -6644,110 +6792,277 @@ app.post('/api/ai-matching', async (c) => {
   }
 })
 
-// 거리 계산 함수는 아래에 이미 정의되어 있음 (line ~13705)
-
-// 매칭 스코어 계산 함수
-function calculateMatchScore(facility: any, criteria: any): number {
+// ============================================
+// 🧮 고급 매칭 스코어 계산 함수
+// ============================================
+function calculateEnhancedMatchScore(
+  facility: any, 
+  criteria: any,
+  stats: any,
+  collaborativeScore: number
+): number {
   let score = 0
+  
+  // 가중치 설정 (총 100점)
   const weights = {
-    location: 25,      // 지역 일치
-    distance: 20,      // 거리
-    facilityType: 15,  // 시설 타입
-    phone: 10,         // 연락처 유무
-    representative: 10, // 대표시설
-    coordinates: 10,   // 좌표 정보 유무
-    baseScore: 10      // 기본 점수
+    location: 20,       // 지역 일치
+    distance: 18,       // 거리
+    rating: 15,         // 평점
+    collaborative: 15,  // 협업 필터링
+    budget: 12,         // 예산 적합성
+    facilityType: 8,    // 시설 타입
+    phone: 5,           // 연락처
+    representative: 4,  // 대표시설
+    coordinates: 3      // 좌표 정보
   }
   
-  // 기본 점수
-  score += weights.baseScore
-  
-  // 1. 지역 완전 일치 (시/도 + 시/군/구)
+  // 1. 지역 완전 일치
   if (facility.sido === criteria.sido) {
-    score += weights.location * 0.5
+    score += weights.location * 0.6
     if (facility.sigungu === criteria.sigungu) {
-      score += weights.location * 0.5
+      score += weights.location * 0.4
     }
   }
   
-  // 2. 거리 점수 (가까울수록 높은 점수)
+  // 2. 거리 점수 (exponential decay)
   if (facility.distance !== undefined && facility.distance !== 999) {
-    let distanceScore = 0
-    if (facility.distance < 5) {
-      distanceScore = weights.distance  // 5km 이내: 만점
-    } else if (facility.distance < 10) {
-      distanceScore = weights.distance * 0.8  // 5-10km: 80%
-    } else if (facility.distance < 20) {
-      distanceScore = weights.distance * 0.5  // 10-20km: 50%
-    } else if (facility.distance < 50) {
-      distanceScore = weights.distance * 0.2  // 20-50km: 20%
-    }
+    const distanceScore = Math.max(0, weights.distance * Math.exp(-facility.distance / 15))
     score += distanceScore
   }
   
-  // 3. 시설 타입 일치
+  // 3. 평점 점수 (0-5점 → 0-15점)
+  if (stats && stats.avgRating > 0) {
+    const ratingScore = (stats.avgRating / 5) * weights.rating
+    score += ratingScore
+    
+    // 리뷰 수 보너스 (최대 3점)
+    const reviewBonus = Math.min(3, Math.log10(stats.reviewCount + 1) * 1.5)
+    score += reviewBonus
+  }
+  
+  // 4. 협업 필터링 점수
+  score += collaborativeScore
+  
+  // 5. 예산 적합성 (추정 비용)
+  if (criteria.budget) {
+    const estimatedCost = estimateFacilityCost(facility, criteria)
+    const budgetDiff = Math.abs(criteria.budget - estimatedCost) / criteria.budget
+    
+    if (budgetDiff < 0.1) {
+      score += weights.budget  // 예산과 거의 일치
+    } else if (budgetDiff < 0.2) {
+      score += weights.budget * 0.8
+    } else if (budgetDiff < 0.3) {
+      score += weights.budget * 0.5
+    } else if (estimatedCost < criteria.budget) {
+      score += weights.budget * 0.3  // 예산 이하면 최소 점수
+    }
+  }
+  
+  // 6. 시설 타입 일치
   if (facility.type === criteria.facilityType) {
     score += weights.facilityType
   }
   
-  // 4. 전화번호 있음 (연락 가능)
+  // 7. 전화번호 있음
   if (facility.phone && facility.phone !== '미등록' && facility.phone !== '') {
     score += weights.phone
   }
   
-  // 5. 대표시설 보너스
+  // 8. 대표시설 보너스
   if (facility.isRepresentative) {
     score += weights.representative
   }
   
-  // 6. 좌표 정보 있음 (지도 표시 가능)
+  // 9. 좌표 정보
   if (facility.lat && facility.lng) {
     score += weights.coordinates
   }
   
-  return Math.min(100, score)  // 최대 100점
+  // 10. 환자 상태 키워드 매칭
+  if (criteria.patientCondition) {
+    const keywordScore = analyzePatientKeywords(criteria.patientCondition, facility)
+    score += keywordScore  // 최대 5점
+  }
+  
+  return Math.min(100, score)
 }
 
-// 매칭 이유 생성 함수
-function generateMatchReasons(facility: any, criteria: any, score: number): string[] {
+// ============================================
+// 💰 시설 비용 추정 함수
+// ============================================
+function estimateFacilityCost(facility: any, criteria: any): number {
+  // 기본 비용 (시설 타입별)
+  let baseCost = 0
+  
+  switch (facility.type) {
+    case '요양병원':
+      baseCost = 2500000  // 250만원
+      break
+    case '요양원':
+      baseCost = 2200000  // 220만원
+      break
+    case '주야간보호':
+      baseCost = 1500000  // 150만원
+      break
+    case '재가복지센터':
+      baseCost = 1200000  // 120만원
+      break
+    default:
+      baseCost = 2000000
+  }
+  
+  // 지역별 가격 조정 (서울/경기는 1.2배)
+  if (facility.sido === '서울특별시' || facility.sido === '경기도') {
+    baseCost *= 1.2
+  }
+  
+  // 간병등급별 조정
+  if (criteria.careGrade) {
+    const gradeMultiplier: any = {
+      '1등급': 1.3,
+      '2등급': 1.2,
+      '3등급': 1.1,
+      '4등급': 1.0,
+      '5등급': 0.9
+    }
+    baseCost *= gradeMultiplier[criteria.careGrade] || 1.0
+  }
+  
+  return Math.round(baseCost)
+}
+
+// ============================================
+// 🔍 환자 상태 키워드 분석 함수
+// ============================================
+function analyzePatientKeywords(condition: string, facility: any): number {
+  if (!condition) return 0
+  
+  let score = 0
+  const keywords = condition.toLowerCase()
+  
+  // 치매 관련 키워드
+  if (keywords.includes('치매') || keywords.includes('인지저하') || keywords.includes('알츠하이머')) {
+    // 요양병원/요양원이 치매에 더 적합
+    if (facility.type === '요양병원' || facility.type === '요양원') {
+      score += 3
+    }
+  }
+  
+  // 중풍/뇌졸중 관련
+  if (keywords.includes('중풍') || keywords.includes('뇌졸중') || keywords.includes('편마비')) {
+    // 요양병원이 의료 케어에 더 적합
+    if (facility.type === '요양병원') {
+      score += 4
+    } else if (facility.type === '요양원') {
+      score += 2
+    }
+  }
+  
+  // 거동 불편
+  if (keywords.includes('거동불편') || keywords.includes('휠체어') || keywords.includes('와상')) {
+    if (facility.type === '요양병원' || facility.type === '요양원') {
+      score += 3
+    }
+  }
+  
+  // 경증 (주간보호 적합)
+  if (keywords.includes('경증') || keywords.includes('독립생활') || keywords.includes('일상생활')) {
+    if (facility.type === '주야간보호' || facility.type === '재가복지센터') {
+      score += 3
+    }
+  }
+  
+  return Math.min(5, score)
+}
+
+// ============================================
+// 📝 고급 매칭 이유 생성 함수
+// ============================================
+function generateEnhancedMatchReasons(
+  facility: any, 
+  criteria: any, 
+  score: number,
+  stats: any
+): string[] {
   const reasons: string[] = []
   
-  // 점수 등급
+  // 1. 전체 점수 등급
   if (score >= 90) {
     reasons.push('🏆 최고 추천 시설')
   } else if (score >= 80) {
     reasons.push('⭐ 우수 매칭')
   } else if (score >= 70) {
     reasons.push('✅ 좋은 선택')
+  } else if (score >= 60) {
+    reasons.push('👍 적합한 시설')
   }
   
-  // 지역 일치
+  // 2. 지역 정보
   if (facility.sido === criteria.sido && facility.sigungu === criteria.sigungu) {
     reasons.push(`📍 ${criteria.sigungu} 지역`)
+  } else if (facility.sido === criteria.sido) {
+    reasons.push(`📍 ${facility.sido} 내 위치`)
   }
   
-  // 거리
+  // 3. 거리 정보
   if (facility.distance !== undefined && facility.distance !== 999) {
-    if (facility.distance < 5) {
-      reasons.push('🚗 매우 가까움 (5km 이내)')
+    if (facility.distance < 3) {
+      reasons.push('🚗 매우 가까움 (3km 이내)')
     } else if (facility.distance < 10) {
-      reasons.push('🚗 가까움 (10km 이내)')
+      reasons.push(`🚗 가까운 거리 (${facility.distance.toFixed(1)}km)`)
     } else if (facility.distance < 20) {
       reasons.push('🚗 적당한 거리 (20km 이내)')
     }
   }
   
-  // 대표시설
+  // 4. 평점 정보
+  if (stats && stats.avgRating > 0) {
+    if (stats.avgRating >= 4.5) {
+      reasons.push(`⭐ 최고 평점 (${stats.avgRating.toFixed(1)}/5.0)`)
+    } else if (stats.avgRating >= 4.0) {
+      reasons.push(`⭐ 우수 평점 (${stats.avgRating.toFixed(1)}/5.0)`)
+    } else if (stats.avgRating >= 3.5) {
+      reasons.push(`⭐ 좋은 평점 (${stats.avgRating.toFixed(1)}/5.0)`)
+    }
+    
+    if (stats.reviewCount >= 10) {
+      reasons.push(`💬 다수의 리뷰 (${stats.reviewCount}개)`)
+    }
+  }
+  
+  // 5. 협업 필터링 (인기 시설)
+  if (criteria.careGrade && facility.collaborativeScore > 10) {
+    reasons.push('🔥 같은 등급의 다른 분들이 많이 선택')
+  }
+  
+  // 6. 예산 적합성
+  if (criteria.budget) {
+    const estimatedCost = estimateFacilityCost(facility, criteria)
+    if (estimatedCost <= criteria.budget * 1.1) {
+      reasons.push('💰 예산 범위 내')
+    }
+  }
+  
+  // 7. 환자 상태 매칭
+  if (criteria.patientCondition) {
+    const keywordScore = analyzePatientKeywords(criteria.patientCondition, facility)
+    if (keywordScore >= 3) {
+      reasons.push('🏥 환자 상태에 적합')
+    }
+  }
+  
+  // 8. 대표시설
   if (facility.isRepresentative) {
     reasons.push('⭐ 지역 대표 시설')
   }
   
-  // 연락 가능
+  // 9. 연락 가능
   if (facility.phone && facility.phone !== '미등록') {
     reasons.push('📞 전화 상담 가능')
   }
   
-  return reasons
+  return reasons.slice(0, 6)  // 최대 6개까지만
 }
 
 // 상세견적 페이지 - 2단계 폼
@@ -14757,6 +15072,271 @@ app.get('/sitemap-facilities-:page.xml', async (c) => {
   } catch (error) {
     console.error('[Sitemap 생성] 오류:', error)
     return c.text('Sitemap 생성 실패', 500)
+  }
+})
+
+// ============================================
+// 📊 평점/리뷰 API
+// ============================================
+
+// 시설 평점 조회
+app.get('/api/facilities/:id/rating', async (c) => {
+  const { env } = c
+  const facilityId = c.req.param('id')
+  
+  if (!env?.DB) {
+    return c.json({ success: false, message: '데이터베이스 연결 실패' }, 500)
+  }
+  
+  try {
+    const result = await env.DB.prepare(`
+      SELECT 
+        AVG(overall_rating) as avg_rating,
+        COUNT(*) as review_count,
+        AVG(cleanliness_rating) as avg_cleanliness,
+        AVG(staff_rating) as avg_staff,
+        AVG(food_rating) as avg_food,
+        AVG(facilities_rating) as avg_facilities,
+        SUM(CASE WHEN overall_rating = 5 THEN 1 ELSE 0 END) as five_star,
+        SUM(CASE WHEN overall_rating = 4 THEN 1 ELSE 0 END) as four_star,
+        SUM(CASE WHEN overall_rating = 3 THEN 1 ELSE 0 END) as three_star,
+        SUM(CASE WHEN overall_rating = 2 THEN 1 ELSE 0 END) as two_star,
+        SUM(CASE WHEN overall_rating = 1 THEN 1 ELSE 0 END) as one_star
+      FROM facility_reviews
+      WHERE facility_id = ?
+    `).bind(facilityId).first()
+    
+    if (!result) {
+      return c.json({
+        success: true,
+        rating: null,
+        message: '리뷰가 없습니다'
+      })
+    }
+    
+    return c.json({
+      success: true,
+      rating: {
+        average: Math.round((result.avg_rating || 0) * 10) / 10,
+        count: result.review_count || 0,
+        breakdown: {
+          cleanliness: Math.round((result.avg_cleanliness || 0) * 10) / 10,
+          staff: Math.round((result.avg_staff || 0) * 10) / 10,
+          food: Math.round((result.avg_food || 0) * 10) / 10,
+          facilities: Math.round((result.avg_facilities || 0) * 10) / 10
+        },
+        distribution: {
+          5: result.five_star || 0,
+          4: result.four_star || 0,
+          3: result.three_star || 0,
+          2: result.two_star || 0,
+          1: result.one_star || 0
+        }
+      }
+    })
+  } catch (error) {
+    console.error('❌ 평점 조회 실패:', error)
+    return c.json({ 
+      success: false, 
+      message: '평점 조회 중 오류가 발생했습니다.' 
+    }, 500)
+  }
+})
+
+// 시설 리뷰 목록 조회
+app.get('/api/facilities/:id/reviews', async (c) => {
+  const { env } = c
+  const facilityId = c.req.param('id')
+  const page = parseInt(c.req.query('page') || '1')
+  const limit = parseInt(c.req.query('limit') || '10')
+  const offset = (page - 1) * limit
+  
+  if (!env?.DB) {
+    return c.json({ success: false, message: '데이터베이스 연결 실패' }, 500)
+  }
+  
+  try {
+    // 리뷰 목록 조회
+    const reviews = await env.DB.prepare(`
+      SELECT 
+        id,
+        reviewer_name,
+        overall_rating,
+        cleanliness_rating,
+        staff_rating,
+        food_rating,
+        facilities_rating,
+        comment,
+        pros,
+        cons,
+        stay_duration,
+        created_at
+      FROM facility_reviews
+      WHERE facility_id = ?
+      ORDER BY created_at DESC
+      LIMIT ? OFFSET ?
+    `).bind(facilityId, limit, offset).all()
+    
+    // 전체 리뷰 수 조회
+    const countResult = await env.DB.prepare(`
+      SELECT COUNT(*) as total
+      FROM facility_reviews
+      WHERE facility_id = ?
+    `).bind(facilityId).first()
+    
+    return c.json({
+      success: true,
+      reviews: reviews.results || [],
+      pagination: {
+        page,
+        limit,
+        total: countResult?.total || 0,
+        totalPages: Math.ceil((countResult?.total || 0) / limit)
+      }
+    })
+  } catch (error) {
+    console.error('❌ 리뷰 조회 실패:', error)
+    return c.json({ 
+      success: false, 
+      message: '리뷰 조회 중 오류가 발생했습니다.' 
+    }, 500)
+  }
+})
+
+// 리뷰 작성 (일반 고객용)
+app.post('/api/facilities/:id/reviews', async (c) => {
+  const { env } = c
+  const facilityId = c.req.param('id')
+  
+  if (!isCustomer(c)) {
+    return c.json({ error: 'Unauthorized' }, 401)
+  }
+  
+  if (!env?.DB) {
+    return c.json({ success: false, message: '데이터베이스 연결 실패' }, 500)
+  }
+  
+  try {
+    const data = await c.req.json()
+    
+    // 필수 필드 검증
+    if (!data.overall_rating || data.overall_rating < 1 || data.overall_rating > 5) {
+      return c.json({ 
+        success: false, 
+        message: '전체 평점은 1-5점 사이여야 합니다.' 
+      }, 400)
+    }
+    
+    // 리뷰 저장
+    const result = await env.DB.prepare(`
+      INSERT INTO facility_reviews (
+        facility_id,
+        reviewer_name,
+        overall_rating,
+        cleanliness_rating,
+        staff_rating,
+        food_rating,
+        facilities_rating,
+        comment,
+        pros,
+        cons,
+        stay_duration,
+        created_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+    `).bind(
+      facilityId,
+      data.reviewer_name || '익명',
+      data.overall_rating,
+      data.cleanliness_rating || data.overall_rating,
+      data.staff_rating || data.overall_rating,
+      data.food_rating || data.overall_rating,
+      data.facilities_rating || data.overall_rating,
+      data.comment || '',
+      data.pros || '',
+      data.cons || '',
+      data.stay_duration || ''
+    ).run()
+    
+    return c.json({
+      success: true,
+      message: '리뷰가 등록되었습니다.',
+      reviewId: result.meta.last_row_id
+    })
+  } catch (error) {
+    console.error('❌ 리뷰 작성 실패:', error)
+    return c.json({ 
+      success: false, 
+      message: '리뷰 작성 중 오류가 발생했습니다.' 
+    }, 500)
+  }
+})
+
+// 피드백 기록 (클릭/노출 통계)
+app.post('/api/feedback/click', async (c) => {
+  const { env } = c
+  
+  if (!env?.DB) {
+    return c.json({ success: false }, 500)
+  }
+  
+  try {
+    const { facilityId, action } = await c.req.json()
+    
+    if (action === 'click') {
+      // 클릭 수 증가
+      await env.DB.prepare(`
+        INSERT INTO feedback_stats (facility_id, clicks, last_clicked)
+        VALUES (?, 1, datetime('now'))
+        ON CONFLICT(facility_id) DO UPDATE SET
+          clicks = clicks + 1,
+          last_clicked = datetime('now')
+      `).bind(facilityId).run()
+    }
+    
+    return c.json({ success: true })
+  } catch (error) {
+    console.error('❌ 피드백 기록 실패:', error)
+    return c.json({ success: false }, 500)
+  }
+})
+
+// 피드백 통계 조회 (관리자용)
+app.get('/api/admin/feedback/stats', async (c) => {
+  const { env } = c
+  
+  if (!isAdmin(c)) {
+    return c.json({ error: 'Unauthorized' }, 401)
+  }
+  
+  if (!env?.DB) {
+    return c.json({ success: false, message: '데이터베이스 연결 실패' }, 500)
+  }
+  
+  try {
+    const result = await env.DB.prepare(`
+      SELECT 
+        fs.facility_id,
+        fs.impressions,
+        fs.clicks,
+        ROUND(CAST(fs.clicks AS FLOAT) / NULLIF(fs.impressions, 0) * 100, 2) as ctr,
+        fs.rating,
+        fs.last_shown,
+        fs.last_clicked
+      FROM feedback_stats fs
+      ORDER BY fs.impressions DESC
+      LIMIT 100
+    `).all()
+    
+    return c.json({
+      success: true,
+      stats: result.results || []
+    })
+  } catch (error) {
+    console.error('❌ 피드백 통계 조회 실패:', error)
+    return c.json({ 
+      success: false, 
+      message: '통계 조회 중 오류가 발생했습니다.' 
+    }, 500)
   }
 })
 
