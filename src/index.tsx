@@ -15601,6 +15601,87 @@ app.get('/sitemap-facilities-:page.xml', async (c) => {
 // 📊 평점/리뷰 API
 // ============================================
 
+// 시설 전체 상세 정보 조회 (통합 API)
+app.get('/api/facilities/:id', async (c) => {
+  const { env } = c
+  const facilityId = c.req.param('id')
+  
+  if (!env?.DB) {
+    return c.json({ success: false, message: '데이터베이스 연결 실패' }, 500)
+  }
+  
+  try {
+    // 1. 기본 시설 정보 조회
+    const facility = await env.DB.prepare(`
+      SELECT 
+        id, name, address, sido, sigungu, facility_type,
+        phone, latitude, longitude, zipcode
+      FROM facilities
+      WHERE id = ?
+    `).bind(facilityId).first()
+    
+    if (!facility) {
+      return c.json({ success: false, message: '시설을 찾을 수 없습니다.' }, 404)
+    }
+    
+    // 2. 상세 정보 조회
+    const details = await env.DB.prepare(`
+      SELECT 
+        specialties, admission_types, monthly_cost, deposit,
+        total_beds, available_beds, notes, updated_at
+      FROM facility_details
+      WHERE facility_id = ?
+    `).bind(facilityId).first()
+    
+    // 3. 평점 정보 조회
+    const rating = await env.DB.prepare(`
+      SELECT 
+        AVG(overall_rating) as avg_rating,
+        COUNT(*) as review_count
+      FROM facility_reviews
+      WHERE facility_id = ?
+    `).bind(facilityId).first()
+    
+    // JSON 문자열 파싱
+    const parseJSON = (str: string | null) => {
+      if (!str) return []
+      try {
+        return JSON.parse(str)
+      } catch {
+        return []
+      }
+    }
+    
+    return c.json({
+      success: true,
+      facility: {
+        ...facility,
+        details: details ? {
+          specialties: parseJSON(details.specialties as string),
+          admission_types: parseJSON(details.admission_types as string),
+          monthly_cost: details.monthly_cost,
+          deposit: details.deposit,
+          total_beds: details.total_beds,
+          available_beds: details.available_beds,
+          notes: details.notes,
+          updated_at: details.updated_at
+        } : null,
+        rating: {
+          average: rating ? Math.round((rating.avg_rating || 0) * 10) / 10 : 0,
+          count: rating ? (rating.review_count || 0) : 0
+        }
+      }
+    })
+  } catch (error) {
+    console.error('❌ 시설 정보 조회 실패:', error)
+    return c.json({ 
+      success: false, 
+      message: '시설 정보 조회 중 오류가 발생했습니다.',
+      error: String(error)
+    }, 500)
+  }
+})
+
 // 시설 평점 조회
 app.get('/api/facilities/:id/rating', async (c) => {
   const { env } = c
