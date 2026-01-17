@@ -14590,7 +14590,9 @@ app.post('/api/matching/facilities', async (c) => {
       budgetMax,
       userLatitude,
       userLongitude,
-      maxDistance = 20 // 기본 20km 반경
+      maxDistance = 20, // 기본 20km 반경
+      specialties = null, // 전문분야 배열
+      admissionTypes = null // 입소유형 배열
     } = body
     
     // 필수 파라미터 검증
@@ -14750,6 +14752,33 @@ app.post('/api/matching/facilities', async (c) => {
       } catch (error) {
         console.error('⚠️ 상세정보 로드 실패:', error)
       }
+    }
+    
+    // 5.5단계: 전문분야 및 입소유형 필터링
+    if (specialties && specialties.length > 0) {
+      filtered = filtered.filter((f: any) => {
+        const facilityDetails = detailsMap[f.id]
+        if (!facilityDetails || !facilityDetails.specialties) return false
+        
+        // 사용자가 요청한 전문분야 중 하나라도 있으면 포함
+        return specialties.some((requestedSpecialty: string) => 
+          facilityDetails.specialties.includes(requestedSpecialty)
+        )
+      })
+      console.log(`🩺 전문분야 필터링 (${specialties.join(', ')}): ${filtered.length}개`)
+    }
+    
+    if (admissionTypes && admissionTypes.length > 0) {
+      filtered = filtered.filter((f: any) => {
+        const facilityDetails = detailsMap[f.id]
+        if (!facilityDetails || !facilityDetails.admissionTypes) return false
+        
+        // 사용자가 요청한 입소유형 중 하나라도 있으면 포함
+        return admissionTypes.some((requestedType: string) => 
+          facilityDetails.admissionTypes.includes(requestedType)
+        )
+      })
+      console.log(`📅 입소유형 필터링 (${admissionTypes.join(', ')}): ${filtered.length}개`)
     }
     
     // 6단계: 고급 매칭 스코어 계산
@@ -14979,6 +15008,78 @@ app.get('/ai-matching', async (c) => {
               </div>
             </div>
 
+            <!-- 전문분야 (선택) -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                <i class="fas fa-stethoscope text-blue-500 mr-1"></i>
+                전문분야 (선택)
+              </label>
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                <label class="flex items-center p-3 border-2 border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all cursor-pointer">
+                  <input type="checkbox" name="specialty" value="치매" class="w-4 h-4 text-blue-600 mr-2">
+                  <span class="text-sm">치매</span>
+                </label>
+                <label class="flex items-center p-3 border-2 border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all cursor-pointer">
+                  <input type="checkbox" name="specialty" value="재활" class="w-4 h-4 text-blue-600 mr-2">
+                  <span class="text-sm">재활</span>
+                </label>
+                <label class="flex items-center p-3 border-2 border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all cursor-pointer">
+                  <input type="checkbox" name="specialty" value="암환자" class="w-4 h-4 text-blue-600 mr-2">
+                  <span class="text-sm">암환자</span>
+                </label>
+                <label class="flex items-center p-3 border-2 border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all cursor-pointer">
+                  <input type="checkbox" name="specialty" value="당뇨" class="w-4 h-4 text-blue-600 mr-2">
+                  <span class="text-sm">당뇨</span>
+                </label>
+                <label class="flex items-center p-3 border-2 border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all cursor-pointer">
+                  <input type="checkbox" name="specialty" value="와상" class="w-4 h-4 text-blue-600 mr-2">
+                  <span class="text-sm">와상환자</span>
+                </label>
+                <label class="flex items-center p-3 border-2 border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all cursor-pointer">
+                  <input type="checkbox" name="specialty" value="호스피스" class="w-4 h-4 text-blue-600 mr-2">
+                  <span class="text-sm">호스피스</span>
+                </label>
+              </div>
+              <p class="text-xs text-gray-500 mt-1">
+                <i class="fas fa-info-circle mr-1"></i>
+                원하시는 전문분야를 선택하시면 더 정확한 추천을 받을 수 있습니다
+              </p>
+            </div>
+
+            <!-- 입소유형 (선택) -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                <i class="fas fa-calendar-check text-teal-500 mr-1"></i>
+                입소유형 (선택)
+              </label>
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                <label class="flex items-center p-3 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 transition-all cursor-pointer">
+                  <input type="checkbox" name="admissionType" value="정규입소" class="w-4 h-4 text-teal-600 mr-2">
+                  <span class="text-sm">정규입소</span>
+                </label>
+                <label class="flex items-center p-3 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 transition-all cursor-pointer">
+                  <input type="checkbox" name="admissionType" value="단기입소" class="w-4 h-4 text-teal-600 mr-2">
+                  <span class="text-sm">단기입소</span>
+                </label>
+                <label class="flex items-center p-3 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 transition-all cursor-pointer">
+                  <input type="checkbox" name="admissionType" value="응급입소" class="w-4 h-4 text-teal-600 mr-2">
+                  <span class="text-sm">응급입소</span>
+                </label>
+                <label class="flex items-center p-3 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 transition-all cursor-pointer">
+                  <input type="checkbox" name="admissionType" value="주말입소" class="w-4 h-4 text-teal-600 mr-2">
+                  <span class="text-sm">주말입소</span>
+                </label>
+                <label class="flex items-center p-3 border-2 border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 transition-all cursor-pointer">
+                  <input type="checkbox" name="admissionType" value="야간입소" class="w-4 h-4 text-teal-600 mr-2">
+                  <span class="text-sm">야간입소</span>
+                </label>
+              </div>
+              <p class="text-xs text-gray-500 mt-1">
+                <i class="fas fa-info-circle mr-1"></i>
+                필요한 입소유형을 선택하시면 맞춤 추천을 받을 수 있습니다
+              </p>
+            </div>
+
             <!-- 최대 거리 -->
             <div>
               <label for="maxDistance" class="block text-sm font-medium text-gray-700 mb-2">
@@ -15141,6 +15242,14 @@ app.get('/ai-matching', async (c) => {
           const budgetMax = document.getElementById('budgetMax').value;
           const maxDistance = document.getElementById('maxDistance').value;
 
+          // 전문분야 체크박스 값 가져오기
+          const specialties = Array.from(document.querySelectorAll('input[name="specialty"]:checked'))
+            .map(cb => cb.value);
+
+          // 입소유형 체크박스 값 가져오기
+          const admissionTypes = Array.from(document.querySelectorAll('input[name="admissionType"]:checked'))
+            .map(cb => cb.value);
+
           if (!sido || !sigungu || !facilityType) {
             alert('필수 항목을 모두 입력해주세요 (시/도, 시/군/구, 시설 유형)');
             return;
@@ -15158,7 +15267,9 @@ app.get('/ai-matching', async (c) => {
               careGrade: careGrade || insuranceType || null,
               budgetMin: budgetMin ? parseInt(budgetMin) : null,
               budgetMax: budgetMax ? parseInt(budgetMax) : null,
-              maxDistance: parseInt(maxDistance) || 20
+              maxDistance: parseInt(maxDistance) || 20,
+              specialties: specialties.length > 0 ? specialties : null,
+              admissionTypes: admissionTypes.length > 0 ? admissionTypes : null
             });
 
             // 로딩 숨기기
