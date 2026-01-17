@@ -15636,7 +15636,7 @@ app.get('/api/facilities/:id', async (c) => {
     // 3. 평점 정보 조회
     const rating = await env.DB.prepare(`
       SELECT 
-        AVG(overall_rating) as avg_rating,
+        AVG(rating) as avg_rating,
         COUNT(*) as review_count
       FROM facility_reviews
       WHERE facility_id = ?
