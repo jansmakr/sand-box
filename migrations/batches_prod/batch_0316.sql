@@ -1,0 +1,1 @@
+INSERT OR REPLACE INTO facility_details (facility_id, specialties, admission_types, monthly_cost, deposit, notes, updated_by, updated_at) VALUES (355, '["치매"]', '["정규입소","단기입소"]', 2600000, 3900000, '자동 생성', 'auto_generator', datetime('now'));
