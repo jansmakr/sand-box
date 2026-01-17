@@ -1,14 +1,9 @@
--- facility_details 테이블의 FOREIGN KEY 제약 제거
--- 기존 테이블 백업 후 재생성
+-- facility_details 테이블 재생성 (FOREIGN KEY 제약 없이)
 
--- 1. 기존 데이터 백업 (임시 테이블)
-CREATE TABLE IF NOT EXISTS facility_details_backup AS 
-SELECT * FROM facility_details;
-
--- 2. 기존 테이블 삭제
+-- 1. 기존 테이블 삭제
 DROP TABLE IF EXISTS facility_details;
 
--- 3. FOREIGN KEY 없이 재생성
+-- 2. FOREIGN KEY 없이 재생성
 CREATE TABLE facility_details (
   facility_id INTEGER PRIMARY KEY,
   services TEXT,
@@ -35,15 +30,19 @@ CREATE TABLE facility_details (
   updated_by TEXT,
   short_term_available INTEGER DEFAULT 0,
   night_care_available INTEGER DEFAULT 0,
-  weekend_care_available INTEGER DEFAULT 0
+  weekend_care_available INTEGER DEFAULT 0,
+  specialized_care TEXT,
+  operating_hours TEXT,
+  min_stay_period TEXT,
+  daily_cost INTEGER,
+  additional_costs TEXT,
+  total_beds INTEGER,
+  available_beds INTEGER
 );
 
--- 4. 백업 데이터 복원 (있다면)
-INSERT OR IGNORE INTO facility_details 
-SELECT * FROM facility_details_backup;
-
--- 5. 백업 테이블 삭제
-DROP TABLE IF EXISTS facility_details_backup;
+-- 3. 인덱스 재생성
+CREATE INDEX IF NOT EXISTS idx_facility_details_services ON facility_details(services);
+CREATE INDEX IF NOT EXISTS idx_facility_details_cost ON facility_details(average_cost_min, average_cost_max);
 
 -- 완료
-SELECT '✅ facility_details 테이블 재생성 완료 (FOREIGN KEY 제약 제거)' as message;
+SELECT '✅ facility_details 테이블 재생성 완료 (FOREIGN KEY 제약 제거됨)' as message;
