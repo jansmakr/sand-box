@@ -15615,7 +15615,7 @@ app.get('/api/facilities/:id', async (c) => {
     const facility = await env.DB.prepare(`
       SELECT 
         id, name, address, sido, sigungu, facility_type,
-        phone, latitude, longitude, zipcode
+        phone, latitude, longitude
       FROM facilities
       WHERE id = ?
     `).bind(facilityId).first()
