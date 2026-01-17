@@ -4255,6 +4255,70 @@ app.get('/admin/dashboard', (c) => {
               </div>
             </div>
           </div>
+          
+          {/* 피드백 대시보드 섹션 */}
+          <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+            <h3 class="text-xl font-bold mb-6 flex items-center">
+              <i class="fas fa-chart-line text-indigo-600 mr-2"></i>
+              피드백 및 매칭 성능 분석
+            </h3>
+            
+            <div class="grid md:grid-cols-3 gap-6 mb-6">
+              <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-blue-600 text-sm mb-1">총 피드백</p>
+                    <p class="text-2xl font-bold text-blue-900" id="totalFeedback">0</p>
+                  </div>
+                  <i class="fas fa-comments text-3xl text-blue-500"></i>
+                </div>
+              </div>
+              
+              <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4 border border-green-200">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-green-600 text-sm mb-1">평균 평점</p>
+                    <p class="text-2xl font-bold text-green-900" id="avgRating">0</p>
+                  </div>
+                  <i class="fas fa-star text-3xl text-green-500"></i>
+                </div>
+              </div>
+              
+              <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-4 border border-purple-200">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-purple-600 text-sm mb-1">평균 매칭 결과</p>
+                    <p class="text-2xl font-bold text-purple-900" id="avgResults">0</p>
+                  </div>
+                  <i class="fas fa-search-plus text-3xl text-purple-500"></i>
+                </div>
+              </div>
+            </div>
+            
+            <div class="bg-gray-50 rounded-lg p-4 mb-6">
+              <h4 class="font-bold text-gray-700 mb-3">최근 7일 피드백 추이</h4>
+              <canvas id="feedbackChart" height="80"></canvas>
+            </div>
+            
+            <div>
+              <h4 class="font-bold text-gray-700 mb-3">최근 피드백</h4>
+              <div class="overflow-x-auto">
+                <table class="w-full">
+                  <thead class="bg-gray-100">
+                    <tr>
+                      <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600">날짜</th>
+                      <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600">사용자</th>
+                      <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600">평점</th>
+                      <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600">결과 수</th>
+                      <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600">코멘트</th>
+                    </tr>
+                  </thead>
+                  <tbody id="recentFeedbackList" class="divide-y divide-gray-200">
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         </div><div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl shadow-lg p-6 mb-8 border-2 border-purple-200">
           <h3 class="text-xl font-bold text-purple-800 mb-4 flex items-center">
             <i class="fas fa-user-shield mr-2"></i>
@@ -4460,6 +4524,7 @@ app.get('/admin/dashboard', (c) => {
       </div>
 
       <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
       <script dangerouslySetInnerHTML={{
         __html: `
         async function loadData() {
@@ -4476,6 +4541,9 @@ app.get('/admin/dashboard', (c) => {
             
             // 견적서 모니터링 로드
             await loadQuoteMonitoring();
+            
+            // 피드백 분석 로드
+            await loadFeedbackAnalytics();
             
             const partnerList = document.getElementById('partnerList');
             partnerList.innerHTML = partners.map((p, index) => {
@@ -4588,6 +4656,118 @@ app.get('/admin/dashboard', (c) => {
           } catch (error) {
             console.error('대표샵 설정 실패:', error);
             alert('대표샵 설정 중 오류가 발생했습니다.');
+          }
+        }
+        
+        // 피드백 분석 로드
+        let feedbackChart = null;
+        
+        async function loadFeedbackAnalytics() {
+          try {
+            const response = await axios.get('/api/admin/feedback/analytics');
+            const { analytics } = response.data;
+            
+            if (!analytics) return;
+            
+            // 통계 업데이트
+            document.getElementById('totalFeedback').textContent = analytics.overall.total_feedback || 0;
+            document.getElementById('avgRating').textContent = (analytics.overall.avg_rating || 0).toFixed(1);
+            document.getElementById('avgResults').textContent = (analytics.matching.avg_results || 0).toFixed(1);
+            
+            // 차트 생성
+            const ctx = document.getElementById('feedbackChart');
+            if (ctx && typeof Chart !== 'undefined') {
+              const chartData = {
+                labels: analytics.trend.map(t => new Date(t.date).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })),
+                datasets: [
+                  {
+                    label: '피드백 수',
+                    data: analytics.trend.map(t => t.count),
+                    backgroundColor: 'rgba(99, 102, 241, 0.5)',
+                    borderColor: 'rgb(99, 102, 241)',
+                    borderWidth: 2,
+                    yAxisID: 'y'
+                  },
+                  {
+                    label: '평균 평점',
+                    data: analytics.trend.map(t => t.avg_rating),
+                    backgroundColor: 'rgba(34, 197, 94, 0.5)',
+                    borderColor: 'rgb(34, 197, 94)',
+                    borderWidth: 2,
+                    yAxisID: 'y1'
+                  }
+                ]
+              };
+              
+              if (feedbackChart) {
+                feedbackChart.destroy();
+              }
+              
+              feedbackChart = new Chart(ctx, {
+                type: 'bar',
+                data: chartData,
+                options: {
+                  responsive: true,
+                  maintainAspectRatio: true,
+                  interaction: {
+                    mode: 'index',
+                    intersect: false
+                  },
+                  scales: {
+                    y: {
+                      type: 'linear',
+                      display: true,
+                      position: 'left',
+                      title: {
+                        display: true,
+                        text: '피드백 수'
+                      }
+                    },
+                    y1: {
+                      type: 'linear',
+                      display: true,
+                      position: 'right',
+                      title: {
+                        display: true,
+                        text: '평균 평점'
+                      },
+                      grid: {
+                        drawOnChartArea: false
+                      },
+                      min: 0,
+                      max: 5
+                    }
+                  }
+                }
+              });
+            }
+            
+            // 최근 피드백 목록
+            const recentList = document.getElementById('recentFeedbackList');
+            if (recentList && analytics.recent) {
+              recentList.innerHTML = analytics.recent.map(f => {
+                const date = new Date(f.created_at).toLocaleDateString('ko-KR', { 
+                  year: 'numeric', 
+                  month: '2-digit', 
+                  day: '2-digit',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                });
+                const stars = '⭐'.repeat(Math.round(f.rating || 0));
+                
+                return \`
+                  <tr>
+                    <td class="px-4 py-2 text-sm text-gray-600">\${date}</td>
+                    <td class="px-4 py-2 text-sm text-gray-700">\${f.user_id || '익명'}</td>
+                    <td class="px-4 py-2 text-sm">\${stars} \${(f.rating || 0).toFixed(1)}</td>
+                    <td class="px-4 py-2 text-sm text-gray-600">\${f.result_count || 0}개</td>
+                    <td class="px-4 py-2 text-sm text-gray-600">\${f.comment || '-'}</td>
+                  </tr>
+                \`;
+              }).join('');
+            }
+          } catch (error) {
+            console.error('피드백 분석 로드 실패:', error);
           }
         }
         
