@@ -7,29 +7,90 @@ import { getCookie, setCookie } from 'hono/cookie'
 type Bindings = {
   ADMIN_PASSWORD: string
   DB: D1Database
+  KAKAO_REST_API_KEY: string
+  KAKAO_REDIRECT_URI: string
 }
 
 const app = new Hono<{ Bindings: Bindings }>()
 
 const ADMIN_CONFIG = { sessionKey: 'admin_session' }
-const KAKAO_CONFIG = {
-  restApiKey: '1e58eebb2e1696dfe08aa1084119abd7', // REST API 키 (수정됨)
-  redirectUri: 'https://carejoa.kr/api/auth/kakao/callback' // 프로덕션 도메인
-}
-const dataStore = { 
-  partners: [] as any[], 
-  familyCare: [] as any[],
-  quoteRequests: [] as any[],
-  facilities: [] as any[],  // 시설 데이터 캐시
-  facilitiesLoaded: false,   // 로딩 여부 플래그
-  users: [] as any[],        // 사용자 데이터
-  userSessions: new Map<string, any>()  // 사용자 세션
-}
-const sessions = new Set<string>()
+// KAKAO_CONFIG는 환경 변수에서 동적으로 가져옴 (Bindings 사용)
 
 // 사용자 타입 정의
 type UserType = 'customer' | 'facility'
 type FacilityType = '요양병원' | '요양원' | '주야간보호' | '재가복지센터'
+
+// 인터페이스 정의
+interface Partner {
+  companyName: string
+  representative: string
+  phone: string
+  address: string
+  businessType: string
+  isRepresentative?: boolean
+}
+
+interface FamilyCareRequest {
+  name: string
+  phone: string
+  relationship: string
+  patientCondition: string
+  desiredService: string
+}
+
+interface QuoteRequest {
+  name: string
+  phone: string
+  location: string
+  serviceType: string
+  budget?: string
+  notes?: string
+}
+
+interface Facility {
+  id?: number
+  facility_type: string
+  name: string
+  phone: string
+  address: string
+  latitude: number
+  longitude: number
+  sido: string
+  sigungu: string
+  source_system?: string
+  source_code?: string
+}
+
+interface User {
+  id: string
+  email: string
+  password: string
+  name: string
+  type: UserType
+  facilityType?: FacilityType
+  address?: string
+  phone: string
+  createdAt: string
+}
+
+interface UserSession {
+  userId: string
+  email: string
+  name: string
+  type: UserType
+  loginTime: string
+}
+
+const dataStore = { 
+  partners: [] as Partner[], 
+  familyCare: [] as FamilyCareRequest[],
+  quoteRequests: [] as QuoteRequest[],
+  facilities: [] as Facility[],  // 시설 데이터 캐시
+  facilitiesLoaded: false,   // 로딩 여부 플래그
+  users: [] as User[],        // 사용자 데이터
+  userSessions: new Map<string, UserSession>()  // 사용자 세션
+}
+const sessions = new Set<string>()
 
 // 테스트 사용자 데이터 초기화
 function initTestUsers() {
@@ -849,7 +910,7 @@ app.post('/api/auth/register', async (c) => {
 
 // 카카오 로그인 시작
 app.get('/api/auth/kakao/login', (c) => {
-  const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_CONFIG.restApiKey}&redirect_uri=${encodeURIComponent(KAKAO_CONFIG.redirectUri)}&response_type=code`
+  const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${c.env.KAKAO_REST_API_KEY}&redirect_uri=${encodeURIComponent(c.env.KAKAO_REDIRECT_URI)}&response_type=code`
   return c.redirect(kakaoAuthUrl)
 })
 
@@ -871,8 +932,8 @@ app.get('/api/auth/kakao/callback', async (c) => {
       },
       body: new URLSearchParams({
         grant_type: 'authorization_code',
-        client_id: KAKAO_CONFIG.restApiKey,
-        redirect_uri: KAKAO_CONFIG.redirectUri,
+        client_id: c.env.KAKAO_REST_API_KEY,
+        redirect_uri: c.env.KAKAO_REDIRECT_URI,
         code: code
       })
     })
@@ -5681,6 +5742,63 @@ app.post('/api/admin/logout', (c) => {
   }
   setCookie(c, ADMIN_CONFIG.sessionKey, '', { maxAge: 0 })
   return c.json({ success: true })
+})
+
+// 시설 데이터 업로드 API
+app.post('/api/admin/upload-facilities', async (c) => {
+  if (!isAdmin(c)) {
+    return c.json({ error: 'Unauthorized' }, 401)
+  }
+
+  try {
+    const formData = await c.req.formData()
+    const file = formData.get('file')
+
+    if (!file || typeof file === 'string') {
+      return c.json({ error: 'No file uploaded' }, 400)
+    }
+
+    // 파일 읽기
+    const buffer = await file.arrayBuffer()
+    const text = new TextDecoder('utf-8').decode(buffer)
+    
+    // CSV 파싱 (간단한 구현)
+    const lines = text.split('\n')
+    const headers = lines[0].split(',')
+    
+    const facilities = []
+    for (let i = 1; i < lines.length; i++) {
+      if (!lines[i].trim()) continue
+      
+      const values = lines[i].split(',')
+      if (values.length >= 3) {
+        facilities.push({
+          name: values[0]?.trim() || '',
+          phone: values[1]?.trim() || '',
+          address: values[2]?.trim() || '',
+          type: values[3]?.trim() || '기타'
+        })
+      }
+    }
+
+    // D1 데이터베이스에 저장
+    const db = c.env.DB
+    for (const facility of facilities) {
+      await db.prepare(`
+        INSERT INTO facilities (facility_type, name, phone, address, latitude, longitude, sido, sigungu, source_system, source_code)
+        VALUES (?, ?, ?, ?, 0.0, 0.0, '', '', 'MANUAL_UPLOAD', '')
+      `).bind(facility.type, facility.name, facility.phone, facility.address).run()
+    }
+
+    return c.json({ 
+      success: true, 
+      count: facilities.length,
+      message: `${facilities.length}개 시설이 업로드되었습니다.`
+    })
+  } catch (error: any) {
+    console.error('Upload error:', error)
+    return c.json({ error: error.message || 'Upload failed' }, 500)
+  }
 })
 
 // 지역별 상담센터 조회 API
