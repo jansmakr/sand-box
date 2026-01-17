@@ -15601,6 +15601,84 @@ app.get('/sitemap-facilities-:page.xml', async (c) => {
 // 📊 평점/리뷰 API
 // ============================================
 
+// 시설 목록 조회 (페이지네이션)
+app.get('/api/facilities', async (c) => {
+  const { env } = c
+  const page = parseInt(c.req.query('page') || '1')
+  const limit = parseInt(c.req.query('limit') || '50')
+  const sido = c.req.query('sido') || ''
+  const sigungu = c.req.query('sigungu') || ''
+  const facilityType = c.req.query('facility_type') || ''
+  
+  if (!env?.DB) {
+    return c.json({ success: false, message: '데이터베이스 연결 실패' }, 500)
+  }
+  
+  try {
+    const offset = (page - 1) * limit
+    
+    // 필터 조건 생성
+    let whereConditions = []
+    let params: any[] = []
+    
+    if (sido) {
+      whereConditions.push('sido = ?')
+      params.push(sido)
+    }
+    if (sigungu) {
+      whereConditions.push('sigungu = ?')
+      params.push(sigungu)
+    }
+    if (facilityType) {
+      whereConditions.push('facility_type = ?')
+      params.push(facilityType)
+    }
+    
+    const whereClause = whereConditions.length > 0 
+      ? `WHERE ${whereConditions.join(' AND ')}`
+      : ''
+    
+    // 전체 개수 조회
+    const countQuery = `SELECT COUNT(*) as total FROM facilities ${whereClause}`
+    const countResult = await env.DB.prepare(countQuery).bind(...params).first()
+    const total = countResult?.total || 0
+    
+    // 시설 목록 조회
+    const query = `
+      SELECT 
+        id, name, address, sido, sigungu, facility_type,
+        phone, latitude, longitude
+      FROM facilities
+      ${whereClause}
+      ORDER BY id ASC
+      LIMIT ? OFFSET ?
+    `
+    
+    const { results } = await env.DB.prepare(query)
+      .bind(...params, limit, offset)
+      .all()
+    
+    return c.json({
+      success: true,
+      data: results || [],
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit)
+      },
+      filters: { sido, sigungu, facilityType }
+    })
+  } catch (error) {
+    console.error('❌ 시설 목록 조회 실패:', error)
+    return c.json({ 
+      success: false, 
+      message: '시설 목록 조회 중 오류가 발생했습니다.',
+      error: String(error)
+    }, 500)
+  }
+})
+
 // 시설 전체 상세 정보 조회 (통합 API)
 app.get('/api/facilities/:id', async (c) => {
   const { env } = c
@@ -15939,6 +16017,91 @@ app.get('/api/admin/feedback/stats', async (c) => {
     return c.json({ 
       success: false, 
       message: '통계 조회 중 오류가 발생했습니다.' 
+    }, 500)
+  }
+})
+
+// 피드백 분석 API (대시보드용)
+app.get('/api/admin/feedback/analytics', async (c) => {
+  const { env } = c
+  
+  if (!isAdmin(c)) {
+    return c.json({ error: 'Unauthorized' }, 401)
+  }
+  
+  if (!env?.DB) {
+    return c.json({ success: false, message: '데이터베이스 연결 실패' }, 500)
+  }
+  
+  try {
+    // 1. 최근 7일 피드백 추이
+    const recentFeedback = await env.DB.prepare(`
+      SELECT 
+        DATE(created_at) as date,
+        COUNT(*) as count,
+        AVG(rating) as avg_rating
+      FROM user_feedback
+      WHERE created_at >= datetime('now', '-7 days')
+      GROUP BY DATE(created_at)
+      ORDER BY date DESC
+    `).all()
+    
+    // 2. 전체 통계
+    const overallStats = await env.DB.prepare(`
+      SELECT 
+        COUNT(*) as total_feedback,
+        AVG(rating) as avg_rating,
+        SUM(CASE WHEN rating >= 4 THEN 1 ELSE 0 END) as positive_count,
+        SUM(CASE WHEN rating <= 2 THEN 1 ELSE 0 END) as negative_count
+      FROM user_feedback
+    `).first()
+    
+    // 3. 매칭 결과 통계
+    const matchingStats = await env.DB.prepare(`
+      SELECT 
+        COUNT(*) as total_matches,
+        AVG(result_count) as avg_results,
+        MIN(result_count) as min_results,
+        MAX(result_count) as max_results
+      FROM user_feedback
+      WHERE result_count > 0
+    `).first()
+    
+    // 4. 최근 피드백 목록
+    const recentList = await env.DB.prepare(`
+      SELECT 
+        id, user_id, rating, comment, result_count,
+        created_at
+      FROM user_feedback
+      ORDER BY created_at DESC
+      LIMIT 10
+    `).all()
+    
+    return c.json({
+      success: true,
+      analytics: {
+        trend: recentFeedback.results || [],
+        overall: overallStats || {
+          total_feedback: 0,
+          avg_rating: 0,
+          positive_count: 0,
+          negative_count: 0
+        },
+        matching: matchingStats || {
+          total_matches: 0,
+          avg_results: 0,
+          min_results: 0,
+          max_results: 0
+        },
+        recent: recentList.results || []
+      }
+    })
+  } catch (error) {
+    console.error('❌ 피드백 분석 조회 실패:', error)
+    return c.json({ 
+      success: false, 
+      message: '분석 조회 중 오류가 발생했습니다.',
+      error: String(error)
     }, 500)
   }
 })
