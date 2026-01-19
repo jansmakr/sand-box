@@ -814,18 +814,21 @@ app.get('/register', (c) => {
             return;
           }
 
+          // 전화번호에서 하이픈(-) 제거
+          const cleanPhone = phone.replace(/[-\s]/g, '');
+
           const data = {
             email,
             password,
             name,
-            phone,
+            phone: cleanPhone,
             type: selectedUserType
           };
 
           if (selectedUserType === 'facility') {
             const businessNumber = document.getElementById('businessNumber').value;
-
-            data.businessNumber = businessNumber;
+            // 사업자등록번호에서 하이픈(-) 제거
+            data.businessNumber = businessNumber.replace(/[-\s]/g, '');
           } else if (selectedUserType === 'hospital_manager' || selectedUserType === 'welfare_manager') {
             const organizationName = document.getElementById('organizationName').value;
             const department = document.getElementById('department').value;
@@ -874,36 +877,104 @@ app.get('/register', (c) => {
 // 회원가입 API
 app.post('/api/auth/register', async (c) => {
   const data = await c.req.json()
+  const db = c.env.DB
   
-  // 이메일 중복 체크
-  const existingUser = dataStore.users.find(u => u.email === data.email)
-  if (existingUser) {
-    return c.json({ success: false, message: '이미 사용 중인 이메일입니다.' })
+  try {
+    // 전화번호와 사업자번호에서 하이픈(-) 및 공백 제거
+    const cleanPhone = (data.phone || '').replace(/[-\s]/g, '')
+    const cleanBusinessNumber = (data.businessNumber || '').replace(/[-\s]/g, '')
+    
+    // D1 이메일 중복 체크
+    if (db) {
+      const existingUser = await db.prepare(`
+        SELECT id FROM users WHERE email = ?
+      `).bind(data.email).first()
+      
+      if (existingUser) {
+        return c.json({ success: false, message: '이미 사용 중인 이메일입니다.' })
+      }
+    }
+
+    // D1에 사용자 생성
+    if (db) {
+      // TODO: 프로덕션에서는 password를 bcrypt 등으로 해시화 필요
+      const hashedPassword = data.password
+      
+      let insertResult
+      
+      // user_type에 따라 다른 필드 처리
+      if (data.type === 'facility') {
+        insertResult = await db.prepare(`
+          INSERT INTO users (
+            user_type, email, password_hash, name, phone,
+            business_number, facility_type, facility_address,
+            created_at, updated_at
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
+        `).bind(
+          data.type,
+          data.email,
+          hashedPassword,
+          data.name,
+          cleanPhone,
+          cleanBusinessNumber,
+          data.facilityType || null,
+          data.facilityAddress || null
+        ).run()
+      } else if (data.type === 'hospital_manager' || data.type === 'welfare_manager') {
+        insertResult = await db.prepare(`
+          INSERT INTO users (
+            user_type, email, password_hash, name, phone,
+            organization_name, department, position,
+            created_at, updated_at
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
+        `).bind(
+          data.type,
+          data.email,
+          hashedPassword,
+          data.name,
+          cleanPhone,
+          data.organizationName || '',
+          data.department || '',
+          data.position || ''
+        ).run()
+      } else {
+        // customer 또는 기본 타입
+        insertResult = await db.prepare(`
+          INSERT INTO users (
+            user_type, email, password_hash, name, phone,
+            created_at, updated_at
+          ) VALUES (?, ?, ?, ?, ?, datetime('now'), datetime('now'))
+        `).bind(
+          data.type,
+          data.email,
+          hashedPassword,
+          data.name,
+          cleanPhone
+        ).run()
+      }
+      
+      const userId = insertResult.meta.last_row_id
+      
+      return c.json({ 
+        success: true, 
+        message: '회원가입이 완료되었습니다.',
+        userId: userId
+      })
+    }
+    
+    // DB가 없는 경우 (로컬 테스트용 폴백)
+    return c.json({ 
+      success: false, 
+      message: 'DB 연결 실패'
+    }, 500)
+    
+  } catch (error) {
+    console.error('Registration error:', error)
+    return c.json({ 
+      success: false, 
+      message: '회원가입 처리 중 오류가 발생했습니다.'
+    }, 500)
   }
-
-  // 새 사용자 생성
-  const newUser = {
-    id: `user_${Date.now()}_${Math.random().toString(36).substring(2)}`,
-    email: data.email,
-    password: data.password, // 실제로는 해시화 필요
-    name: data.name,
-    phone: data.phone,
-    type: data.type,
-    createdAt: new Date().toISOString()
-  }
-
-  // 시설인 경우 추가 정보
-  if (data.type === 'facility') {
-    newUser.businessNumber = data.businessNumber
-  }
-
-  dataStore.users.push(newUser)
-
-  return c.json({ 
-    success: true, 
-    message: '회원가입이 완료되었습니다.',
-    userId: newUser.id
-  })
 })
 
 // ========== 카카오 로그인 ==========
