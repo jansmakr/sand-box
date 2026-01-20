@@ -2003,6 +2003,12 @@ app.get('/', (c) => {
                 최적의 요양시설 찾기,<br />
                 케어조아와 함께하세요
               </h1>
+              <div class="flex items-center justify-center lg:justify-start gap-2 pt-2">
+                <div class="bg-white bg-opacity-20 backdrop-blur-sm rounded-full px-3 py-1.5 flex items-center gap-2">
+                  <i class="fas fa-award text-yellow-300 text-sm"></i>
+                  <span class="text-white text-xs sm:text-sm font-medium">특허 기반 AI 매칭 시스템</span>
+                </div>
+              </div>
             </div>
 
             <div class="flex justify-center lg:justify-end items-center">
@@ -2080,6 +2086,12 @@ app.get('/', (c) => {
               </div>
 
               <div class="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 text-xs sm:text-sm md:text-base mt-6 sm:mt-8">
+                <div class="flex items-center bg-gradient-to-r from-purple-500 to-indigo-500 px-3 sm:px-4 py-2 rounded-full shadow-md hover:shadow-lg transition-shadow">
+                  <div class="bg-white bg-opacity-30 rounded-full p-1 sm:p-1.5 mr-1.5 sm:mr-2 shadow">
+                    <i class="fas fa-certificate text-white text-xs sm:text-sm"></i>
+                  </div>
+                  <span class="font-semibold text-white whitespace-nowrap">특허 기반 AI 시스템</span>
+                </div>
                 <div class="flex items-center bg-white px-3 sm:px-4 py-2 rounded-full shadow-md hover:shadow-lg transition-shadow">
                   <div class="bg-blue-500 rounded-full p-1 sm:p-1.5 mr-1.5 sm:mr-2 shadow">
                     <i class="fas fa-users text-white text-xs sm:text-sm"></i>
