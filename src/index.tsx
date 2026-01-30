@@ -10075,6 +10075,55 @@ app.get('/quote-new', (c) => {
 
 // ========== 견적 요청/응답 시스템 API ==========
 
+// 견적 상세 조회 API
+app.get('/api/quote/:quoteId', async (c) => {
+  try {
+    const quoteId = c.req.param('quoteId')
+    const db = c.env.DB
+    
+    if (!db) {
+      return c.json({ 
+        success: false, 
+        message: '데이터베이스 연결 실패' 
+      }, 500)
+    }
+    
+    // 견적 요청 조회
+    const quote = await db.prepare(`
+      SELECT *
+      FROM quote_requests
+      WHERE quote_id = ?
+    `).bind(quoteId).first()
+    
+    if (!quote) {
+      return c.json({ 
+        success: false, 
+        message: '견적을 찾을 수 없습니다' 
+      }, 404)
+    }
+    
+    // 견적 응답 조회
+    const responses = await db.prepare(`
+      SELECT *
+      FROM quote_responses
+      WHERE quote_id = ?
+      ORDER BY responded_at DESC
+    `).bind(quoteId).all()
+    
+    return c.json({
+      success: true,
+      quote: quote,
+      responses: responses.results || []
+    })
+  } catch (error) {
+    console.error('견적 조회 오류:', error)
+    return c.json({ 
+      success: false, 
+      message: '견적 조회 중 오류가 발생했습니다' 
+    }, 500)
+  }
+})
+
 // 고객 대시보드 데이터 조회 API
 app.get('/api/customer/dashboard', async (c) => {
   const user = await getUser(c)
