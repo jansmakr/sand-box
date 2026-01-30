@@ -7524,10 +7524,12 @@ app.post('/api/ai-matching', async (c) => {
       console.log(`🔄 지역 재검색: ${filtered.length}개`)
     }
     
-    // 🆕 여전히 없으면 전체 시설에서 무작위 선택
+    // 🆕 여전히 없으면 전체 시설에서 무작위 2개 선택
     if (filtered.length === 0) {
-      console.log('⚠️ 여전히 결과 없음 - 전체 시설에서 샘플링')
-      filtered = facilities.slice(0, 50) // 전체에서 50개 샘플
+      console.log('⚠️ 여전히 결과 없음 - 전체 시설에서 2개 샘플링')
+      // 무작위로 2개 선택
+      const shuffled = [...facilities].sort(() => 0.5 - Math.random())
+      filtered = shuffled.slice(0, 2)
       console.log(`🎲 전체 샘플링: ${filtered.length}개`)
     }
     
@@ -7550,12 +7552,12 @@ app.post('/api/ai-matching', async (c) => {
       const maxDistance = criteria.maxDistance || 50
       const distanceFiltered = filtered.filter(f => f.distance <= maxDistance)
       
-      // 🆕 거리 필터링 결과가 너무 적으면 원본 유지
-      if (distanceFiltered.length >= 10) {
+      // 🆕 거리 필터링 결과가 2개 이상이면 적용
+      if (distanceFiltered.length >= 2) {
         filtered = distanceFiltered
         console.log(`🚗 거리 필터링 (${maxDistance}km 이내): ${filtered.length}개`)
       } else {
-        console.log(`⚠️ 거리 필터링 스킵 (결과 ${distanceFiltered.length}개 < 10개)`)
+        console.log(`⚠️ 거리 필터링 스킵 (결과 ${distanceFiltered.length}개 < 2개)`)
         // 거리 정보는 유지하되, 필터링은 하지 않음
       }
     }
@@ -7698,7 +7700,21 @@ app.post('/api/ai-matching', async (c) => {
     // 6단계: 정렬 (매칭 점수 + 평점 + 협업 필터링)
     scored.sort((a, b) => b.matchScore - a.matchScore)
     
-    // 7단계: 상위 10개 선택 및 포맷팅
+    // 7단계: 최소 2개 보장 - 결과가 부족하면 전체에서 추가
+    if (scored.length < 2 && facilities.length >= 2) {
+      console.log(`⚠️ 추천 결과 부족 (${scored.length}개) - 전체에서 2개 추가 샘플링`)
+      const shuffled = [...facilities].sort(() => 0.5 - Math.random())
+      const additional = shuffled.slice(0, 2 - scored.length).map(f => ({
+        ...f,
+        matchScore: 50, // 기본 점수
+        stats: null,
+        collaborativeScore: 0,
+        matchReasons: ['조건에 정확히 일치하지 않지만 추천드립니다']
+      }))
+      scored.push(...additional)
+    }
+    
+    // 8단계: 상위 10개 선택 및 포맷팅
     const recommendations = scored.slice(0, 10).map((f, index) => ({
       id: f.id,
       rank: index + 1,
