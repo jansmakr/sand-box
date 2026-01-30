@@ -4601,6 +4601,7 @@ app.get('/admin/dashboard', (c) => {
                     <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">응답수</th>
                     <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">상태</th>
                     <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">요청일시</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">관리</th>
                   </tr>
                 </thead>
                 <tbody id="quoteMonitoringList"></tbody>
@@ -5078,7 +5079,7 @@ app.get('/admin/dashboard', (c) => {
           const list = document.getElementById('quoteMonitoringList');
           
           if (quotes.length === 0) {
-            list.innerHTML = '<tr><td colspan="9" class="px-4 py-8 text-center text-gray-500">견적 요청 내역이 없습니다</td></tr>';
+            list.innerHTML = '<tr><td colspan="10" class="px-4 py-8 text-center text-gray-500">견적 요청 내역이 없습니다</td></tr>';
             return;
           }
           
@@ -5122,6 +5123,12 @@ app.get('/admin/dashboard', (c) => {
                 </span>
               </td>
               <td class="px-4 py-3 text-sm text-gray-600">\${requestedDate}</td>
+              <td class="px-4 py-3 text-center">
+                <a href="/admin/quote-detail/\${quote.quote_id}" 
+                   class="inline-flex items-center px-3 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-sm">
+                  <i class="fas fa-eye mr-1"></i>상세
+                </a>
+              </td>
             </tr>
             \`;
           }).join('');
@@ -5165,6 +5172,271 @@ app.get('/admin/dashboard', (c) => {
       }} />
     </div>
   )
+})
+
+// 관리자 견적 상세 페이지
+app.get('/admin/quote-detail/:quoteId', async (c) => {
+  if (!isAdmin(c)) {
+    return c.redirect('/admin')
+  }
+  
+  const quoteId = c.req.param('quoteId')
+  
+  return c.html(`
+    <!DOCTYPE html>
+    <html lang="ko">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>견적 상세 - 관리자</title>
+      <link href="/static/tailwind.css" rel="stylesheet">
+      <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+      <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
+    </head>
+    <body class="bg-gray-100">
+      <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex justify-between items-center h-16">
+            <div class="flex items-center">
+              <i class="fas fa-shield-alt text-2xl text-gray-900 mr-3"></i>
+              <h1 class="text-2xl font-bold text-gray-900">케어조아 관리자</h1>
+            </div>
+            <div class="flex items-center gap-3">
+              <a href="/admin/dashboard" class="text-gray-600 hover:text-gray-900 px-4 py-2 rounded-lg hover:bg-gray-100">
+                <i class="fas fa-arrow-left mr-1"></i>돌아가기
+              </a>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="max-w-7xl mx-auto px-4 py-8">
+        <div id="loadingMessage" class="text-center py-12">
+          <i class="fas fa-spinner fa-spin text-4xl text-gray-400 mb-4"></i>
+          <p class="text-gray-600">견적 정보를 불러오는 중...</p>
+        </div>
+
+        <div id="quoteDetailContent" style="display: none;">
+          <!-- 견적 기본 정보 -->
+          <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+              <i class="fas fa-file-invoice text-purple-600 mr-3"></i>
+              견적 기본 정보
+            </h2>
+            <div class="grid md:grid-cols-2 gap-6">
+              <div class="space-y-4">
+                <div class="flex items-start">
+                  <span class="text-gray-600 font-semibold w-32">견적 ID:</span>
+                  <span id="quoteId" class="text-gray-900 font-mono"></span>
+                </div>
+                <div class="flex items-start">
+                  <span class="text-gray-600 font-semibold w-32">신청자:</span>
+                  <span id="applicantName" class="text-gray-900"></span>
+                </div>
+                <div class="flex items-start">
+                  <span class="text-gray-600 font-semibold w-32">연락처:</span>
+                  <span id="applicantPhone" class="text-gray-900"></span>
+                </div>
+                <div class="flex items-start">
+                  <span class="text-gray-600 font-semibold w-32">요청일시:</span>
+                  <span id="requestedAt" class="text-gray-900"></span>
+                </div>
+              </div>
+              <div class="space-y-4">
+                <div class="flex items-start">
+                  <span class="text-gray-600 font-semibold w-32">환자명:</span>
+                  <span id="patientName" class="text-gray-900"></span>
+                </div>
+                <div class="flex items-start">
+                  <span class="text-gray-600 font-semibold w-32">시설유형:</span>
+                  <span id="facilityType" class="text-gray-900"></span>
+                </div>
+                <div class="flex items-start">
+                  <span class="text-gray-600 font-semibold w-32">희망지역:</span>
+                  <span id="region" class="text-gray-900"></span>
+                </div>
+                <div class="flex items-start">
+                  <span class="text-gray-600 font-semibold w-32">상태:</span>
+                  <span id="status" class="inline-flex px-3 py-1 rounded-full text-sm font-semibold"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 상세 요청 내용 -->
+          <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+              <i class="fas fa-clipboard-list text-blue-600 mr-3"></i>
+              상세 요청 내용
+            </h2>
+            <div id="detailsContent" class="space-y-4"></div>
+          </div>
+
+          <!-- 받은 견적 응답 -->
+          <div class="bg-white rounded-xl shadow-lg p-6">
+            <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+              <i class="fas fa-comments text-green-600 mr-3"></i>
+              받은 견적 응답
+              <span id="responseCount" class="ml-3 text-sm text-gray-500"></span>
+            </h2>
+            <div id="responsesContent"></div>
+          </div>
+        </div>
+
+        <div id="errorMessage" style="display: none;" class="text-center py-12">
+          <i class="fas fa-exclamation-triangle text-4xl text-red-500 mb-4"></i>
+          <p class="text-red-600 text-lg mb-4">견적 정보를 불러오지 못했습니다</p>
+          <a href="/admin/dashboard" class="text-blue-600 hover:underline">대시보드로 돌아가기</a>
+        </div>
+      </div>
+
+      <script>
+        const quoteId = '${quoteId}';
+
+        async function loadQuoteDetail() {
+          try {
+            const response = await axios.get(\`/api/quote/\${quoteId}\`);
+            console.log('견적 상세 데이터:', response.data);
+
+            if (response.data.success) {
+              const quote = response.data.quote;
+              const responses = response.data.responses || [];
+
+              // 기본 정보 표시
+              document.getElementById('quoteId').textContent = quote.quote_id;
+              document.getElementById('applicantName').textContent = quote.applicant_name || '-';
+              document.getElementById('applicantPhone').textContent = quote.applicant_phone || '-';
+              document.getElementById('patientName').textContent = quote.patient_name || '-';
+              document.getElementById('facilityType').textContent = quote.facility_type || '-';
+              
+              const region = quote.sido && quote.sigungu 
+                ? \`\${quote.sido} \${quote.sigungu}\` 
+                : (quote.region || '-');
+              document.getElementById('region').textContent = region;
+
+              const requestedDate = quote.requested_at 
+                ? new Date(quote.requested_at).toLocaleString('ko-KR')
+                : '-';
+              document.getElementById('requestedAt').textContent = requestedDate;
+
+              // 상태 표시
+              const status = quote.request_status || 'pending';
+              const statusEl = document.getElementById('status');
+              const statusText = status === 'completed' ? '완료' : 
+                               status === 'received' ? '견적 받음' : '대기중';
+              const statusColor = status === 'completed' ? 'bg-green-100 text-green-700' : 
+                                status === 'received' ? 'bg-blue-100 text-blue-700' : 
+                                'bg-yellow-100 text-yellow-700';
+              statusEl.textContent = statusText;
+              statusEl.className = \`inline-flex px-3 py-1 rounded-full text-sm font-semibold \${statusColor}\`;
+
+              // 상세 내용 표시
+              displayDetails(quote);
+
+              // 응답 표시
+              displayResponses(responses);
+
+              // 로딩 완료
+              document.getElementById('loadingMessage').style.display = 'none';
+              document.getElementById('quoteDetailContent').style.display = 'block';
+            } else {
+              throw new Error(response.data.message || '데이터 로드 실패');
+            }
+          } catch (error) {
+            console.error('견적 상세 로드 실패:', error);
+            document.getElementById('loadingMessage').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'block';
+          }
+        }
+
+        function displayDetails(quote) {
+          const detailsEl = document.getElementById('detailsContent');
+          const details = [];
+
+          // quote_type에 따라 다른 정보 표시
+          if (quote.quote_type === 'simple') {
+            details.push(\`<div class="bg-gray-50 p-4 rounded-lg"><span class="text-gray-600">견적 유형:</span> <span class="font-semibold">간편 견적</span></div>\`);
+          } else {
+            details.push(\`<div class="bg-gray-50 p-4 rounded-lg"><span class="text-gray-600">견적 유형:</span> <span class="font-semibold">상세 견적</span></div>\`);
+          }
+
+          if (quote.patient_age) {
+            details.push(\`<div class="bg-gray-50 p-4 rounded-lg"><span class="text-gray-600">환자 나이:</span> <span class="font-semibold">\${quote.patient_age}세</span></div>\`);
+          }
+
+          if (quote.patient_gender) {
+            const gender = quote.patient_gender === 'male' ? '남성' : '여성';
+            details.push(\`<div class="bg-gray-50 p-4 rounded-lg"><span class="text-gray-600">성별:</span> <span class="font-semibold">\${gender}</span></div>\`);
+          }
+
+          if (quote.care_grade) {
+            details.push(\`<div class="bg-gray-50 p-4 rounded-lg"><span class="text-gray-600">등급:</span> <span class="font-semibold">\${quote.care_grade}</span></div>\`);
+          }
+
+          if (quote.diseases) {
+            details.push(\`<div class="bg-gray-50 p-4 rounded-lg"><span class="text-gray-600">질병:</span> <span class="font-semibold">\${quote.diseases}</span></div>\`);
+          }
+
+          if (quote.mobility_status) {
+            details.push(\`<div class="bg-gray-50 p-4 rounded-lg"><span class="text-gray-600">거동 상태:</span> <span class="font-semibold">\${quote.mobility_status}</span></div>\`);
+          }
+
+          if (quote.cognitive_status) {
+            details.push(\`<div class="bg-gray-50 p-4 rounded-lg"><span class="text-gray-600">인지 상태:</span> <span class="font-semibold">\${quote.cognitive_status}</span></div>\`);
+          }
+
+          if (quote.special_care) {
+            details.push(\`<div class="bg-gray-50 p-4 rounded-lg"><span class="text-gray-600">특수 치료:</span> <span class="font-semibold">\${quote.special_care}</span></div>\`);
+          }
+
+          if (quote.budget_range) {
+            details.push(\`<div class="bg-gray-50 p-4 rounded-lg"><span class="text-gray-600">예산 범위:</span> <span class="font-semibold">\${quote.budget_range}</span></div>\`);
+          }
+
+          if (quote.additional_notes) {
+            details.push(\`<div class="bg-gray-50 p-4 rounded-lg col-span-2"><span class="text-gray-600 block mb-2">추가 요청사항:</span> <span class="font-semibold">\${quote.additional_notes}</span></div>\`);
+          }
+
+          detailsEl.innerHTML = \`<div class="grid md:grid-cols-2 gap-4">\${details.join('')}</div>\`;
+        }
+
+        function displayResponses(responses) {
+          const countEl = document.getElementById('responseCount');
+          const contentEl = document.getElementById('responsesContent');
+
+          countEl.textContent = \`(\${responses.length}개)\`;
+
+          if (responses.length === 0) {
+            contentEl.innerHTML = '<p class="text-gray-500 text-center py-8">아직 받은 견적이 없습니다</p>';
+            return;
+          }
+
+          contentEl.innerHTML = responses.map((resp, index) => \`
+            <div class="border rounded-lg p-4 mb-4 hover:shadow-md transition-shadow">
+              <div class="flex justify-between items-start mb-3">
+                <h3 class="font-bold text-lg text-gray-900">\${resp.facility_name || '시설명 없음'}</h3>
+                <span class="text-sm text-gray-500">\${new Date(resp.responded_at).toLocaleString('ko-KR')}</span>
+              </div>
+              <div class="grid md:grid-cols-2 gap-4 mb-3">
+                <div><span class="text-gray-600">담당자:</span> <span class="font-semibold">\${resp.contact_name || '-'}</span></div>
+                <div><span class="text-gray-600">연락처:</span> <span class="font-semibold">\${resp.contact_phone || '-'}</span></div>
+                <div><span class="text-gray-600">월 비용:</span> <span class="font-semibold text-blue-600">\${resp.monthly_cost ? Number(resp.monthly_cost).toLocaleString() + '원' : '-'}</span></div>
+                <div><span class="text-gray-600">입소 가능일:</span> <span class="font-semibold">\${resp.available_date || '-'}</span></div>
+              </div>
+              \${resp.response_message ? \`
+                <div class="bg-gray-50 p-3 rounded mt-3">
+                  <p class="text-sm text-gray-700">\${resp.response_message}</p>
+                </div>
+              \` : ''}
+            </div>
+          \`).join('');
+        }
+
+        loadQuoteDetail();
+      </script>
+    </body>
+    </html>
+  `)
 })
 
 // 관리자 일반고객 관리 페이지
