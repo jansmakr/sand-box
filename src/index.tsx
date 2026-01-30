@@ -5415,13 +5415,13 @@ app.get('/admin/quote-detail/:quoteId', async (c) => {
             <div class="border rounded-lg p-4 mb-4 hover:shadow-md transition-shadow">
               <div class="flex justify-between items-start mb-3">
                 <h3 class="font-bold text-lg text-gray-900">\${resp.facility_name || '시설명 없음'}</h3>
-                <span class="text-sm text-gray-500">\${new Date(resp.responded_at).toLocaleString('ko-KR')}</span>
+                <span class="text-sm text-gray-500">\${new Date(resp.created_at).toLocaleString('ko-KR')}</span>
               </div>
               <div class="grid md:grid-cols-2 gap-4 mb-3">
-                <div><span class="text-gray-600">담당자:</span> <span class="font-semibold">\${resp.contact_name || '-'}</span></div>
+                <div><span class="text-gray-600">담당자:</span> <span class="font-semibold">\${resp.contact_person || resp.contact_name || '-'}</span></div>
                 <div><span class="text-gray-600">연락처:</span> <span class="font-semibold">\${resp.contact_phone || '-'}</span></div>
-                <div><span class="text-gray-600">월 비용:</span> <span class="font-semibold text-blue-600">\${resp.monthly_cost ? Number(resp.monthly_cost).toLocaleString() + '원' : '-'}</span></div>
-                <div><span class="text-gray-600">입소 가능일:</span> <span class="font-semibold">\${resp.available_date || '-'}</span></div>
+                <div><span class="text-gray-600">월 비용:</span> <span class="font-semibold text-blue-600">\${resp.estimated_price ? Number(resp.estimated_price).toLocaleString() + '원' : '-'}</span></div>
+                <div><span class="text-gray-600">입소 가능일:</span> <span class="font-semibold">\${resp.available_rooms || '-'}</span></div>
               </div>
               \${resp.response_message ? \`
                 <div class="bg-gray-50 p-3 rounded mt-3">
@@ -10115,7 +10115,7 @@ app.get('/api/quote/:quoteId', async (c) => {
       SELECT *
       FROM quote_responses
       WHERE quote_id = ?
-      ORDER BY responded_at DESC
+      ORDER BY created_at DESC
     `).bind(quoteId).all()
     
     console.log('[견적 조회 API] 견적 응답 개수:', responses.results?.length || 0)
