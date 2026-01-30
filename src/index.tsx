@@ -5852,6 +5852,40 @@ app.post('/api/quote-request', async (c) => {
     const db = c.env.DB
     const data = await c.req.json()
     
+    // 🔒 월 2회 제한 체크 (전화번호 기준)
+    if (db && data.applicantPhone) {
+      try {
+        // 이번 달 시작일 계산
+        const now = new Date()
+        const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+        const firstDayStr = firstDayOfMonth.toISOString().split('T')[0] + ' 00:00:00'
+        
+        // 이번 달 해당 전화번호로 신청한 견적 수 조회
+        const countResult = await db.prepare(`
+          SELECT COUNT(*) as count
+          FROM quote_requests
+          WHERE applicant_phone = ?
+          AND created_at >= datetime(?)
+        `).bind(data.applicantPhone, firstDayStr).first()
+        
+        const monthlyCount = countResult?.count || 0
+        
+        if (monthlyCount >= 2) {
+          return c.json({ 
+            success: false, 
+            message: '이번 달 견적 신청 횟수를 초과했습니다. (월 2회 제한)',
+            error: 'MONTHLY_LIMIT_EXCEEDED',
+            remainingCount: 0,
+            nextAvailableDate: new Date(now.getFullYear(), now.getMonth() + 1, 1).toLocaleDateString('ko-KR')
+          }, 429)
+        }
+        
+        console.log(`✅ 월 견적 신청 횟수: ${monthlyCount}/2회 (전화번호: ${data.applicantPhone})`)
+      } catch (limitError) {
+        console.error('견적 횟수 체크 오류 (계속 진행):', limitError)
+      }
+    }
+    
     // 견적 요청 ID 생성
     const quoteId = 'Q' + Date.now()
     
@@ -5955,6 +5989,40 @@ app.post('/api/quote/submit-new', async (c) => {
   try {
     const db = c.env.DB
     const data = await c.req.json()
+    
+    // 🔒 월 2회 제한 체크 (전화번호 기준)
+    if (db && data.applicantPhone) {
+      try {
+        // 이번 달 시작일 계산
+        const now = new Date()
+        const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+        const firstDayStr = firstDayOfMonth.toISOString().split('T')[0] + ' 00:00:00'
+        
+        // 이번 달 해당 전화번호로 신청한 견적 수 조회
+        const countResult = await db.prepare(`
+          SELECT COUNT(*) as count
+          FROM quote_requests
+          WHERE applicant_phone = ?
+          AND created_at >= datetime(?)
+        `).bind(data.applicantPhone, firstDayStr).first()
+        
+        const monthlyCount = countResult?.count || 0
+        
+        if (monthlyCount >= 2) {
+          return c.json({ 
+            success: false, 
+            message: '이번 달 견적 신청 횟수를 초과했습니다. (월 2회 제한)',
+            error: 'MONTHLY_LIMIT_EXCEEDED',
+            remainingCount: 0,
+            nextAvailableDate: new Date(now.getFullYear(), now.getMonth() + 1, 1).toLocaleDateString('ko-KR')
+          }, 429)
+        }
+        
+        console.log(`✅ 월 견적 신청 횟수: ${monthlyCount}/2회 (전화번호: ${data.applicantPhone})`)
+      } catch (limitError) {
+        console.error('견적 횟수 체크 오류 (계속 진행):', limitError)
+      }
+    }
     
     // 견적 요청 ID 생성
     const quoteId = 'QN' + Date.now()
@@ -7048,7 +7116,7 @@ app.get('/quote-request', (c) => {
       </header>
 
 
-      <div class="max-w-4xl mx-auto px-4 py-12"><div class="text-center mb-12">
+      <div class="max-w-4xl mx-auto px-4 py-12"><div class="text-center mb-8">
           <h2 class="text-5xl font-extrabold text-gray-900 mb-4">
             <i class="fas fa-bolt text-teal-600 mr-3"></i>
             간편 견적 신청
@@ -7056,6 +7124,32 @@ app.get('/quote-request', (c) => {
           <p class="text-xl text-gray-600">
             3단계만 입력하면 해당 지역 시설에 자동으로 견적 요청이 전송됩니다
           </p>
+        </div>
+        
+        {/* 월 신청 횟수 제한 안내 */}
+        <div class="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-6 mb-8">
+          <div class="flex items-start">
+            <i class="fas fa-exclamation-circle text-yellow-600 text-2xl mr-4 mt-1"></i>
+            <div class="flex-1">
+              <h3 class="font-bold text-gray-900 text-lg mb-2">
+                📌 견적 신청 안내
+              </h3>
+              <ul class="space-y-2 text-gray-700">
+                <li class="flex items-start">
+                  <i class="fas fa-check-circle text-yellow-600 mr-2 mt-1"></i>
+                  <span><strong>월 2회 제한:</strong> 견적 신청은 한 달에 최대 2회까지 가능합니다</span>
+                </li>
+                <li class="flex items-start">
+                  <i class="fas fa-check-circle text-yellow-600 mr-2 mt-1"></i>
+                  <span><strong>동일 전화번호:</strong> 전화번호를 기준으로 신청 횟수가 계산됩니다</span>
+                </li>
+                <li class="flex items-start">
+                  <i class="fas fa-check-circle text-yellow-600 mr-2 mt-1"></i>
+                  <span><strong>초기화:</strong> 매월 1일 자정에 신청 횟수가 초기화됩니다</span>
+                </li>
+              </ul>
+            </div>
+          </div>
         </div><div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
           <form id="simpleQuoteForm" class="p-8 space-y-8"><div class="border-b-2 border-gray-200 pb-8">
               <div class="flex items-center mb-6">
@@ -7287,11 +7381,17 @@ app.get('/quote-request', (c) => {
               body: JSON.stringify(data)
             });
 
+            const result = await response.json();
+
             if (response.ok) {
               alert('✅ 견적 신청이 완료되었습니다!\\n\\n해당 지역의 시설에서 곧 연락을 드릴 예정입니다.');
               window.location.href = '/';
+            } else if (response.status === 429) {
+              // 월 제한 초과
+              const nextDate = result.nextAvailableDate || '다음 달';
+              alert(\`❌ \${result.message || '견적 신청 횟수를 초과했습니다.'}\\n\\n다음 신청 가능일: \${nextDate}\`);
             } else {
-              alert('❌ 견적 신청 중 오류가 발생했습니다. 다시 시도해주세요.');
+              alert(\`❌ \${result.message || '견적 신청 중 오류가 발생했습니다.'}\`);
             }
           } catch (error) {
             console.error('Error:', error);
@@ -9952,7 +10052,15 @@ app.get('/quote-new', (c) => {
             }
           } catch (error) {
             console.error('Submit error:', error);
-            alert('견적 신청 중 오류가 발생했습니다. 다시 시도해주세요.');
+            
+            // 월 제한 초과 체크
+            if (error.response && error.response.status === 429) {
+              const data = error.response.data;
+              const nextDate = data.nextAvailableDate || '다음 달';
+              alert(\`❌ \${data.message || '견적 신청 횟수를 초과했습니다.'}\\n\\n다음 신청 가능일: \${nextDate}\`);
+            } else {
+              alert('견적 신청 중 오류가 발생했습니다. 다시 시도해주세요.');
+            }
           }
         }
 
