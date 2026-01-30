@@ -257,29 +257,27 @@ app.get('/login', (c) => {
             </h2>
 
             <div class="mb-6">
-              <label class="block text-sm font-medium text-gray-700 mb-3">로그인 유형</label>
-              <div class="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">
+              <label class="block text-base font-semibold text-gray-700 mb-4">로그인 유형</label>
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
                 <button type="button" id="btnCustomer" onclick="selectUserType('customer')"
-                  class="px-3 py-4 border-2 border-teal-600 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors flex flex-col items-center justify-center gap-1">
-                  <i class="fas fa-user text-2xl mb-1"></i>
-                  <span class="font-bold text-sm">일반고객</span>
+                  class="px-4 py-5 border-2 border-teal-600 bg-teal-600 text-white rounded-xl hover:bg-teal-700 transition-colors flex flex-col items-center justify-center gap-2">
+                  <i class="fas fa-user text-3xl mb-1"></i>
+                  <span class="font-bold text-base">일반고객</span>
                 </button>
                 <button type="button" id="btnFacility" onclick="selectUserType('facility')"
-                  class="px-3 py-4 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-teal-600 hover:text-teal-600 transition-colors flex flex-col items-center justify-center gap-1">
-                  <i class="fas fa-building text-2xl mb-1"></i>
-                  <span class="font-bold text-sm">요양병원</span>
-                  <span class="text-xs text-gray-500">(시설)</span>
+                  class="px-4 py-5 border-2 border-gray-300 text-gray-700 rounded-xl hover:border-teal-600 hover:text-teal-600 transition-colors flex flex-col items-center justify-center gap-2">
+                  <i class="fas fa-building text-3xl mb-1"></i>
+                  <span class="font-bold text-sm leading-tight">요양시설<br/>(요양병원)</span>
                 </button>
                 <button type="button" id="btnHospital" onclick="selectUserType('hospital_manager')"
-                  class="px-3 py-4 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-teal-600 hover:text-teal-600 transition-colors flex flex-col items-center justify-center gap-1">
-                  <i class="fas fa-hospital-alt text-2xl mb-1"></i>
-                  <span class="font-bold text-xs leading-tight">상급 일반병의원</span>
-                  <span class="text-xs text-gray-500">(상급병원)</span>
+                  class="px-4 py-5 border-2 border-gray-300 text-gray-700 rounded-xl hover:border-teal-600 hover:text-teal-600 transition-colors flex flex-col items-center justify-center gap-2">
+                  <i class="fas fa-hospital-alt text-3xl mb-1"></i>
+                  <span class="font-bold text-sm leading-tight">상급<br/>일반병의원</span>
                 </button>
                 <button type="button" id="btnWelfare" onclick="selectUserType('welfare_manager')"
-                  class="px-3 py-4 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-teal-600 hover:text-teal-600 transition-colors flex flex-col items-center justify-center gap-1">
-                  <i class="fas fa-landmark text-2xl mb-1"></i>
-                  <span class="font-bold text-sm">행정복지</span>
+                  class="px-4 py-5 border-2 border-gray-300 text-gray-700 rounded-xl hover:border-teal-600 hover:text-teal-600 transition-colors flex flex-col items-center justify-center gap-2">
+                  <i class="fas fa-landmark text-3xl mb-1"></i>
+                  <span class="font-bold text-base">행정복지</span>
                 </button>
               </div>
             </div>
@@ -586,29 +584,27 @@ app.get('/register', (c) => {
 
             <!-- 사용자 유형 선택 -->
             <div class="mb-6">
-              <label class="block text-sm font-medium text-gray-700 mb-3">가입 유형</label>
-              <div class="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">
+              <label class="block text-base font-semibold text-gray-700 mb-4">가입 유형</label>
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
                 <button type="button" id="btnCustomer" onclick="selectUserType('customer')"
-                  class="px-3 py-4 border-2 border-teal-600 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors flex flex-col items-center justify-center gap-1">
-                  <i class="fas fa-user text-2xl mb-1"></i>
-                  <span class="font-bold text-sm">일반고객</span>
+                  class="px-4 py-5 border-2 border-teal-600 bg-teal-600 text-white rounded-xl hover:bg-teal-700 transition-colors flex flex-col items-center justify-center gap-2">
+                  <i class="fas fa-user text-3xl mb-1"></i>
+                  <span class="font-bold text-base">일반고객</span>
                 </button>
                 <button type="button" id="btnFacility" onclick="selectUserType('facility')"
-                  class="px-3 py-4 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-teal-600 hover:text-teal-600 transition-colors flex flex-col items-center justify-center gap-1">
-                  <i class="fas fa-building text-2xl mb-1"></i>
-                  <span class="font-bold text-sm">요양병원</span>
-                  <span class="text-xs text-gray-500">(시설)</span>
+                  class="px-4 py-5 border-2 border-gray-300 text-gray-700 rounded-xl hover:border-teal-600 hover:text-teal-600 transition-colors flex flex-col items-center justify-center gap-2">
+                  <i class="fas fa-building text-3xl mb-1"></i>
+                  <span class="font-bold text-sm leading-tight">요양시설<br/>(요양병원)</span>
                 </button>
                 <button type="button" id="btnHospital" onclick="selectUserType('hospital_manager')"
-                  class="px-3 py-4 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-teal-600 hover:text-teal-600 transition-colors flex flex-col items-center justify-center gap-1">
-                  <i class="fas fa-hospital-alt text-2xl mb-1"></i>
-                  <span class="font-bold text-xs leading-tight">상급 일반병의원</span>
-                  <span class="text-xs text-gray-500">(상급병원)</span>
+                  class="px-4 py-5 border-2 border-gray-300 text-gray-700 rounded-xl hover:border-teal-600 hover:text-teal-600 transition-colors flex flex-col items-center justify-center gap-2">
+                  <i class="fas fa-hospital-alt text-3xl mb-1"></i>
+                  <span class="font-bold text-sm leading-tight">상급<br/>일반병의원</span>
                 </button>
                 <button type="button" id="btnWelfare" onclick="selectUserType('welfare_manager')"
-                  class="px-3 py-4 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-teal-600 hover:text-teal-600 transition-colors flex flex-col items-center justify-center gap-1">
-                  <i class="fas fa-landmark text-2xl mb-1"></i>
-                  <span class="font-bold text-sm">행정복지</span>
+                  class="px-4 py-5 border-2 border-gray-300 text-gray-700 rounded-xl hover:border-teal-600 hover:text-teal-600 transition-colors flex flex-col items-center justify-center gap-2">
+                  <i class="fas fa-landmark text-3xl mb-1"></i>
+                  <span class="font-bold text-base">행정복지</span>
                 </button>
               </div>
             </div>
