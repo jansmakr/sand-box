@@ -7513,13 +7513,22 @@ app.post('/api/ai-matching', async (c) => {
     
     console.log(`📊 기본 필터링: ${filtered.length}개`)
     
+    // 🆕 필터링 결과가 없으면 지역 조건만으로 재검색
     if (filtered.length === 0) {
-      return c.json({
-        success: true,
-        total: 0,
-        recommendations: [],
-        message: '조건에 맞는 시설이 없습니다. 검색 조건을 변경해보세요.'
+      console.log('⚠️ 필터링 결과 없음 - 지역 조건만으로 재검색')
+      filtered = facilities.filter(f => {
+        // 시도만 일치하면 OK
+        if (criteria.sido && f.sido === criteria.sido) return true
+        return false
       })
+      console.log(`🔄 지역 재검색: ${filtered.length}개`)
+    }
+    
+    // 🆕 여전히 없으면 전체 시설에서 무작위 선택
+    if (filtered.length === 0) {
+      console.log('⚠️ 여전히 결과 없음 - 전체 시설에서 샘플링')
+      filtered = facilities.slice(0, 50) // 전체에서 50개 샘플
+      console.log(`🎲 전체 샘플링: ${filtered.length}개`)
     }
     
     // 2단계: 거리 계산
@@ -7537,10 +7546,18 @@ app.post('/api/ai-matching', async (c) => {
         return { ...f, distance: 999 }
       })
       
-      // 최대 거리 필터링
+      // 최대 거리 필터링 (결과가 충분하면 적용)
       const maxDistance = criteria.maxDistance || 50
-      filtered = filtered.filter(f => f.distance <= maxDistance)
-      console.log(`🚗 거리 필터링 (${maxDistance}km 이내): ${filtered.length}개`)
+      const distanceFiltered = filtered.filter(f => f.distance <= maxDistance)
+      
+      // 🆕 거리 필터링 결과가 너무 적으면 원본 유지
+      if (distanceFiltered.length >= 10) {
+        filtered = distanceFiltered
+        console.log(`🚗 거리 필터링 (${maxDistance}km 이내): ${filtered.length}개`)
+      } else {
+        console.log(`⚠️ 거리 필터링 스킵 (결과 ${distanceFiltered.length}개 < 10개)`)
+        // 거리 정보는 유지하되, 필터링은 하지 않음
+      }
     }
     
     // 3단계: D1에서 평점/리뷰 데이터 로드
