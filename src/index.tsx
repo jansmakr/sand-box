@@ -10079,21 +10079,28 @@ app.get('/quote-new', (c) => {
 app.get('/api/quote/:quoteId', async (c) => {
   try {
     const quoteId = c.req.param('quoteId')
+    console.log('[견적 조회 API] quoteId:', quoteId)
+    
     const db = c.env.DB
+    console.log('[견적 조회 API] DB 연결 상태:', db ? '연결됨' : '연결 안됨')
     
     if (!db) {
+      console.error('[견적 조회 API] DB가 바인딩되지 않음')
       return c.json({ 
         success: false, 
-        message: '데이터베이스 연결 실패' 
+        message: 'D1 데이터베이스가 바인딩되지 않았습니다. Cloudflare Pages 설정을 확인해주세요.' 
       }, 500)
     }
     
     // 견적 요청 조회
+    console.log('[견적 조회 API] 견적 요청 조회 시작')
     const quote = await db.prepare(`
       SELECT *
       FROM quote_requests
       WHERE quote_id = ?
     `).bind(quoteId).first()
+    
+    console.log('[견적 조회 API] 견적 조회 결과:', quote ? '발견' : '없음')
     
     if (!quote) {
       return c.json({ 
@@ -10103,6 +10110,7 @@ app.get('/api/quote/:quoteId', async (c) => {
     }
     
     // 견적 응답 조회
+    console.log('[견적 조회 API] 견적 응답 조회 시작')
     const responses = await db.prepare(`
       SELECT *
       FROM quote_responses
@@ -10110,16 +10118,19 @@ app.get('/api/quote/:quoteId', async (c) => {
       ORDER BY responded_at DESC
     `).bind(quoteId).all()
     
+    console.log('[견적 조회 API] 견적 응답 개수:', responses.results?.length || 0)
+    
     return c.json({
       success: true,
       quote: quote,
       responses: responses.results || []
     })
   } catch (error) {
-    console.error('견적 조회 오류:', error)
+    console.error('[견적 조회 API] 오류:', error)
+    console.error('[견적 조회 API] 오류 상세:', error instanceof Error ? error.message : String(error))
     return c.json({ 
       success: false, 
-      message: '견적 조회 중 오류가 발생했습니다' 
+      message: `견적 조회 중 오류: ${error instanceof Error ? error.message : String(error)}` 
     }, 500)
   }
 })
