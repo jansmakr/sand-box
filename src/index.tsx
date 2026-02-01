@@ -3119,6 +3119,122 @@ app.get('/integrated-care', (c) => {
           </div>
         </div>
 
+        <!-- 통합돌봄 전화 신청 안내 -->
+        <div class="bg-gradient-to-r from-green-50 to-blue-50 rounded-2xl shadow-xl p-8 mb-12 border-2 border-green-200">
+          <h2 class="text-3xl font-bold text-gray-900 mb-6 text-center">
+            <i class="fas fa-phone-volume text-green-600 mr-3"></i>
+            통합돌봄 전화 신청
+          </h2>
+          
+          <!-- 국민건강보험공단 -->
+          <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <div class="flex items-center mb-4">
+              <div class="bg-blue-100 rounded-full p-3 mr-4">
+                <i class="fas fa-hospital text-blue-600 text-2xl"></i>
+              </div>
+              <div>
+                <h3 class="text-xl font-bold text-gray-900">국민건강보험공단</h3>
+                <p class="text-sm text-gray-600">전국 어디서나 상담 가능</p>
+              </div>
+            </div>
+            <div class="flex items-center justify-between bg-blue-50 rounded-lg p-4">
+              <div class="flex items-center">
+                <i class="fas fa-phone-alt text-blue-600 text-xl mr-3"></i>
+                <span class="text-2xl font-bold text-blue-600">1577-1000</span>
+              </div>
+              <a href="tel:1577-1000" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold transition-colors flex items-center">
+                <i class="fas fa-phone mr-2"></i>
+                전화하기
+              </a>
+            </div>
+            <div class="mt-4 grid md:grid-cols-2 gap-3 text-sm text-gray-600">
+              <div class="flex items-center">
+                <i class="fas fa-clock text-blue-500 mr-2"></i>
+                <span>평일 09:00 ~ 18:00</span>
+              </div>
+              <div class="flex items-center">
+                <i class="fas fa-calendar-check text-blue-500 mr-2"></i>
+                <span>주말·공휴일 휴무</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 지역별 주민센터 -->
+          <div class="bg-white rounded-xl shadow-lg p-6">
+            <div class="flex items-center mb-4">
+              <div class="bg-green-100 rounded-full p-3 mr-4">
+                <i class="fas fa-building text-green-600 text-2xl"></i>
+              </div>
+              <div>
+                <h3 class="text-xl font-bold text-gray-900">거주지 읍·면·동 주민센터</h3>
+                <p class="text-sm text-gray-600">가까운 주민센터에서 신청 가능</p>
+              </div>
+            </div>
+            
+            <div class="bg-green-50 rounded-lg p-4 mb-4">
+              <div class="flex items-center mb-3">
+                <i class="fas fa-info-circle text-green-600 text-lg mr-2"></i>
+                <span class="font-bold text-gray-900">주민센터 찾기</span>
+              </div>
+              <p class="text-gray-700 mb-3">거주지 주민센터 연락처는 아래 방법으로 확인하세요:</p>
+              <div class="space-y-2">
+                <div class="flex items-start">
+                  <i class="fas fa-check-circle text-green-500 mr-2 mt-1"></i>
+                  <span class="text-gray-700"><strong>인터넷 검색:</strong> "지역명 + 주민센터" 검색</span>
+                </div>
+                <div class="flex items-start">
+                  <i class="fas fa-check-circle text-green-500 mr-2 mt-1"></i>
+                  <span class="text-gray-700"><strong>안전신문고 앱:</strong> 거주지 주민센터 정보 확인</span>
+                </div>
+                <div class="flex items-start">
+                  <i class="fas fa-check-circle text-green-500 mr-2 mt-1"></i>
+                  <span class="text-gray-700"><strong>시청·구청·군청:</strong> 대표번호로 문의</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 주요 지역 대표 연락처 예시 -->
+            <div class="border-t pt-4">
+              <p class="text-sm text-gray-500 mb-3">
+                <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>
+                주요 광역시·도 대표 연락처 (상세 주민센터 안내)
+              </p>
+              <div class="grid md:grid-cols-2 gap-3 text-sm">
+                <div class="bg-gray-50 rounded p-3">
+                  <span class="font-semibold text-gray-900">서울특별시:</span>
+                  <span class="text-gray-700 ml-2">120</span>
+                </div>
+                <div class="bg-gray-50 rounded p-3">
+                  <span class="font-semibold text-gray-900">부산광역시:</span>
+                  <span class="text-gray-700 ml-2">051-120</span>
+                </div>
+                <div class="bg-gray-50 rounded p-3">
+                  <span class="font-semibold text-gray-900">경기도:</span>
+                  <span class="text-gray-700 ml-2">031-120</span>
+                </div>
+                <div class="bg-gray-50 rounded p-3">
+                  <span class="font-semibold text-gray-900">인천광역시:</span>
+                  <span class="text-gray-700 ml-2">032-120</span>
+                </div>
+              </div>
+              <p class="text-xs text-gray-500 mt-3 text-center">
+                ※ 기타 지역은 해당 시·도 대표번호 120번으로 문의하세요
+              </p>
+            </div>
+          </div>
+
+          <!-- 준비중 안내 -->
+          <div class="mt-6 bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-lg">
+            <div class="flex items-start">
+              <i class="fas fa-exclamation-triangle text-yellow-600 text-xl mr-3 mt-1"></i>
+              <div>
+                <h4 class="font-bold text-gray-900 mb-1">케어조아 통합돌봄 전화 신청 서비스</h4>
+                <p class="text-sm text-gray-700">케어조아를 통한 통합돌봄 전화 신청 서비스는 2026년 3월 정식 오픈 예정입니다. 현재는 국민건강보험공단 또는 거주지 주민센터를 통해 신청하실 수 있습니다.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- CTA 버튼 -->
         <div class="grid md:grid-cols-2 gap-6">
           <a href="/quote-request" class="block bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-all transform hover:-translate-y-1">
