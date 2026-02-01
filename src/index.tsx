@@ -2069,15 +2069,13 @@ app.get('/', (c) => {
                   <span class="font-semibold text-gray-800 text-xs sm:text-base md:text-lg text-center leading-tight">AI 맞춤<br/>시설 찾기</span>
                 </a>
 
-                <a href="http://케어조아.shop"
-                   target="_blank"
-                   rel="noopener noreferrer"
+                <a href="/integrated-care"
                    class="group relative flex flex-col items-center justify-center bg-white py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[140px] sm:min-h-[160px]">
-                  <span class="absolute top-2 right-2 bg-blue-500 text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full shadow-lg">인기</span>
+                  <span class="absolute top-2 right-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full shadow-lg">2026</span>
                   <div class="mb-2 sm:mb-4 transform group-hover:scale-110 transition-transform duration-300">
-                    <i class="fas fa-calculator text-3xl sm:text-6xl md:text-7xl text-teal-500"></i>
+                    <i class="fas fa-heart text-3xl sm:text-6xl md:text-7xl text-pink-500"></i>
                   </div>
-                  <span class="font-semibold text-gray-800 text-xs sm:text-base md:text-lg text-center leading-tight">요양비<br/>계산</span>
+                  <span class="font-semibold text-gray-800 text-xs sm:text-base md:text-lg text-center leading-tight">통합돌봄<br/>안내</span>
                 </a>
               </div>
 
@@ -2921,6 +2919,240 @@ app.get('/facility/:id', async (c) => {
     console.error('시설 상세 조회 오류:', error)
     return c.redirect('/facilities')
   }
+})
+
+// 통합돌봄 안내 페이지
+app.get('/integrated-care', (c) => {
+  return c.html(`
+    <!DOCTYPE html>
+    <html lang="ko">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>통합돌봄 안내 - 케어조아</title>
+      <link href="/static/tailwind.css" rel="stylesheet">
+      <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+    </head>
+    <body class="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+      <!-- 헤더 -->
+      <header class="bg-white shadow-sm border-b sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex justify-between items-center h-16">
+            <a href="/" class="flex items-center">
+              <img 
+                src="https://page.gensparksite.com/v1/base64_upload/b39dca8586af1dacd6d8417554313896" 
+                alt="케어조아 로고"
+                class="h-8 w-auto mr-3"
+              />
+              <h1 class="text-2xl font-bold text-teal-600">케어조아</h1>
+            </a>
+            <a href="/" class="text-gray-600 hover:text-teal-600 transition-colors">
+              <i class="fas fa-home text-xl"></i>
+            </a>
+          </div>
+        </div>
+      </header>
+
+      <div class="max-w-7xl mx-auto px-4 py-8 sm:py-12">
+        <!-- 타이틀 섹션 -->
+        <div class="text-center mb-12">
+          <div class="inline-flex items-center justify-center bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-2 rounded-full mb-4 shadow-lg">
+            <i class="fas fa-heart text-xl mr-2"></i>
+            <span class="font-bold text-lg">2026년 3월 27일 전국 시행</span>
+          </div>
+          <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+            통합돌봄이란?
+          </h1>
+          <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+            살던 곳에서 의료·요양·돌봄 서비스를 한번에 받는 <span class="font-bold text-blue-600">맞춤형 지역 돌봄 시스템</span>
+          </p>
+        </div>
+
+        <!-- 핵심 정보 카드 -->
+        <div class="grid md:grid-cols-3 gap-6 mb-12">
+          <div class="bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-shadow">
+            <div class="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mb-4 mx-auto">
+              <i class="fas fa-users text-3xl text-blue-600"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-3 text-center">대상자</h3>
+            <ul class="space-y-2 text-gray-700">
+              <li class="flex items-start">
+                <i class="fas fa-check-circle text-blue-500 mr-2 mt-1"></i>
+                <span>65세 이상 노인</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fas fa-check-circle text-blue-500 mr-2 mt-1"></i>
+                <span>장애인</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fas fa-check-circle text-blue-500 mr-2 mt-1"></i>
+                <span>만성질환자</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fas fa-check-circle text-blue-500 mr-2 mt-1"></i>
+                <span>노쇠·거동불편자</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-shadow">
+            <div class="bg-purple-100 rounded-full w-16 h-16 flex items-center justify-center mb-4 mx-auto">
+              <i class="fas fa-hands-helping text-3xl text-purple-600"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-3 text-center">제공 서비스</h3>
+            <ul class="space-y-2 text-gray-700">
+              <li class="flex items-start">
+                <i class="fas fa-check-circle text-purple-500 mr-2 mt-1"></i>
+                <span>방문의료·간호</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fas fa-check-circle text-purple-500 mr-2 mt-1"></i>
+                <span>장기요양서비스</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fas fa-check-circle text-purple-500 mr-2 mt-1"></i>
+                <span>재가돌봄</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fas fa-check-circle text-purple-500 mr-2 mt-1"></i>
+                <span>주거·식사·이동지원</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-shadow">
+            <div class="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mb-4 mx-auto">
+              <i class="fas fa-map-marker-alt text-3xl text-green-600"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-3 text-center">시행 지역</h3>
+            <div class="text-center">
+              <p class="text-4xl font-bold text-green-600 mb-2">229개</p>
+              <p class="text-gray-700 mb-4">전국 모든 시·군·구</p>
+              <div class="bg-green-50 rounded-lg p-3">
+                <p class="text-sm text-gray-600">내가 사는 곳에서<br/>바로 신청 가능!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 신청 프로세스 -->
+        <div class="bg-white rounded-2xl shadow-xl p-8 mb-12">
+          <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">
+            <i class="fas fa-clipboard-list text-blue-600 mr-3"></i>
+            신청 프로세스
+          </h2>
+          <div class="grid md:grid-cols-5 gap-4">
+            <div class="text-center">
+              <div class="bg-blue-500 text-white rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold mx-auto mb-3">1</div>
+              <p class="font-semibold text-gray-900 mb-2">신청</p>
+              <p class="text-sm text-gray-600">주민센터·보건소·온라인</p>
+            </div>
+            <div class="hidden md:flex items-center justify-center">
+              <i class="fas fa-arrow-right text-3xl text-gray-300"></i>
+            </div>
+            <div class="text-center">
+              <div class="bg-purple-500 text-white rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold mx-auto mb-3">2</div>
+              <p class="font-semibold text-gray-900 mb-2">조사</p>
+              <p class="text-sm text-gray-600">돌봄 필요도 평가</p>
+            </div>
+            <div class="hidden md:flex items-center justify-center">
+              <i class="fas fa-arrow-right text-3xl text-gray-300"></i>
+            </div>
+            <div class="text-center">
+              <div class="bg-green-500 text-white rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold mx-auto mb-3">3</div>
+              <p class="font-semibold text-gray-900 mb-2">계획수립</p>
+              <p class="text-sm text-gray-600">개인 맞춤 서비스</p>
+            </div>
+            <div class="hidden md:flex items-center justify-center">
+              <i class="fas fa-arrow-right text-3xl text-gray-300"></i>
+            </div>
+            <div class="text-center">
+              <div class="bg-teal-500 text-white rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold mx-auto mb-3">4</div>
+              <p class="font-semibold text-gray-900 mb-2">서비스 연계</p>
+              <p class="text-sm text-gray-600">의료·요양 제공</p>
+            </div>
+            <div class="hidden md:flex items-center justify-center">
+              <i class="fas fa-arrow-right text-3xl text-gray-300"></i>
+            </div>
+            <div class="text-center">
+              <div class="bg-indigo-500 text-white rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold mx-auto mb-3">5</div>
+              <p class="font-semibold text-gray-900 mb-2">모니터링</p>
+              <p class="text-sm text-gray-600">지속적 관리</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- FAQ -->
+        <div class="bg-white rounded-2xl shadow-xl p-8 mb-12">
+          <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">
+            <i class="fas fa-question-circle text-purple-600 mr-3"></i>
+            자주 묻는 질문
+          </h2>
+          <div class="space-y-4">
+            <div class="border-b pb-4">
+              <h3 class="font-bold text-lg text-gray-900 mb-2">Q. 비용이 얼마나 드나요?</h3>
+              <p class="text-gray-700">A. 소득 수준에 따라 무료~일부 본인부담으로 차등 적용됩니다. 기초생활수급자는 무료입니다.</p>
+            </div>
+            <div class="border-b pb-4">
+              <h3 class="font-bold text-lg text-gray-900 mb-2">Q. 장기요양보험과 무엇이 다른가요?</h3>
+              <p class="text-gray-700">A. 장기요양보험은 '요양 서비스'만, 통합돌봄은 '의료+요양+생활지원'을 모두 제공합니다.</p>
+            </div>
+            <div class="border-b pb-4">
+              <h3 class="font-bold text-lg text-gray-900 mb-2">Q. 꼭 시설에 입소해야 하나요?</h3>
+              <p class="text-gray-700">A. 아닙니다! 집에서 생활하면서 필요한 서비스를 받는 '재가 중심' 돌봄입니다.</p>
+            </div>
+            <div class="pb-4">
+              <h3 class="font-bold text-lg text-gray-900 mb-2">Q. 신청 자격이 어떻게 되나요?</h3>
+              <p class="text-gray-700">A. 일상생활에 어려움이 있는 노인·장애인이면 누구나 신청 가능합니다. 소득·재산 제한 없습니다.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- CTA 버튼 -->
+        <div class="grid md:grid-cols-2 gap-6">
+          <a href="/quote-request" class="block bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-all transform hover:-translate-y-1">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="text-2xl font-bold mb-2">간편 견적 신청</h3>
+                <p class="text-blue-100">3분이면 요양시설 견적 받기</p>
+              </div>
+              <i class="fas fa-arrow-right text-4xl"></i>
+            </div>
+          </a>
+          <a href="/call-consultation" class="block bg-gradient-to-r from-green-500 to-teal-600 text-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-all transform hover:-translate-y-1">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="text-2xl font-bold mb-2">전화 상담 신청</h3>
+                <p class="text-green-100">전문 상담사가 직접 안내</p>
+              </div>
+              <i class="fas fa-phone-alt text-4xl"></i>
+            </div>
+          </a>
+        </div>
+
+        <!-- 안내 문구 -->
+        <div class="mt-12 bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-lg">
+          <div class="flex items-start">
+            <i class="fas fa-info-circle text-yellow-600 text-2xl mr-4 mt-1"></i>
+            <div>
+              <h4 class="font-bold text-gray-900 mb-2">케어조아의 통합돌봄 지원 서비스</h4>
+              <p class="text-gray-700">케어조아는 통합돌봄 신청부터 시설 연계까지 전 과정을 무료로 지원합니다. 어려운 서류 작성부터 최적의 돌봄 계획 수립까지, 전문 매니저가 함께합니다.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 푸터 -->
+      <footer class="bg-gray-900 text-white py-12 mt-20">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+          <h2 class="text-2xl font-bold mb-4">케어조아</h2>
+          <p class="text-gray-400 mb-4">어르신을 위한 최적의 요양 솔루션</p>
+          <p class="text-sm text-gray-500">© 2026 케어조아. All rights reserved.</p>
+        </div>
+      </footer>
+    </body>
+    </html>
+  `)
 })
 
 // 전국 시설 찾기 페이지
