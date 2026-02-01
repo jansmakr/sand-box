@@ -2025,7 +2025,7 @@ app.get('/', (c) => {
       {/* 메인 액션 버튼 - 히어로 바로 아래 */}
       <section class="py-8 sm:py-10 md:py-14 lg:py-16 bg-gradient-to-b from-white to-gray-50">
         <div class="max-w-6xl mx-auto px-3 sm:px-4">
-          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8" id="main-action-buttons">
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8" id="main-action-buttons">
                 <a href="/quote-request" 
                    class="group relative flex flex-col items-center justify-center bg-white py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[140px] sm:min-h-[160px]">
                   <span class="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">인기</span>
@@ -2067,6 +2067,17 @@ app.get('/', (c) => {
                     <i class="fas fa-robot text-3xl sm:text-6xl md:text-7xl text-indigo-500"></i>
                   </div>
                   <span class="font-semibold text-gray-800 text-xs sm:text-base md:text-lg text-center leading-tight">AI 맞춤<br/>시설 찾기</span>
+                </a>
+
+                <a href="http://케어조아.shop"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   class="group relative flex flex-col items-center justify-center bg-white py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[140px] sm:min-h-[160px]">
+                  <span class="absolute top-2 right-2 bg-blue-500 text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full shadow-lg">인기</span>
+                  <div class="mb-2 sm:mb-4 transform group-hover:scale-110 transition-transform duration-300">
+                    <i class="fas fa-calculator text-3xl sm:text-6xl md:text-7xl text-teal-500"></i>
+                  </div>
+                  <span class="font-semibold text-gray-800 text-xs sm:text-base md:text-lg text-center leading-tight">요양비<br/>계산</span>
                 </a>
 
                 <a href="/integrated-care"
