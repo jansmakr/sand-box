@@ -3223,16 +3223,6 @@ app.get('/integrated-care', (c) => {
             </div>
           </div>
 
-          <!-- 준비중 안내 -->
-          <div class="mt-6 bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-lg">
-            <div class="flex items-start">
-              <i class="fas fa-exclamation-triangle text-yellow-600 text-xl mr-3 mt-1"></i>
-              <div>
-                <h4 class="font-bold text-gray-900 mb-1">케어조아 통합돌봄 전화 신청 서비스</h4>
-                <p class="text-sm text-gray-700">케어조아를 통한 통합돌봄 전화 신청 서비스는 2026년 3월 정식 오픈 예정입니다. 현재는 국민건강보험공단 또는 거주지 주민센터를 통해 신청하실 수 있습니다.</p>
-              </div>
-            </div>
-          </div>
         </div>
 
         <!-- CTA 버튼 -->
@@ -3246,15 +3236,18 @@ app.get('/integrated-care', (c) => {
               <i class="fas fa-arrow-right text-4xl"></i>
             </div>
           </a>
-          <a href="/call-consultation" class="block bg-gradient-to-r from-green-500 to-teal-600 text-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-all transform hover:-translate-y-1">
+          <div class="relative block bg-gradient-to-r from-gray-400 to-gray-500 text-white rounded-2xl shadow-xl p-8 cursor-not-allowed opacity-75">
+            <div class="absolute top-4 right-4 bg-yellow-500 text-white px-4 py-1 rounded-full text-sm font-bold shadow-lg">
+              준비중
+            </div>
             <div class="flex items-center justify-between">
               <div>
                 <h3 class="text-2xl font-bold mb-2">전화 상담 신청</h3>
-                <p class="text-green-100">전문 상담사가 직접 안내</p>
+                <p class="text-gray-100">통합돌봄 전화상담 (2026년 3월 오픈)</p>
               </div>
-              <i class="fas fa-phone-alt text-4xl"></i>
+              <i class="fas fa-phone-alt text-4xl opacity-50"></i>
             </div>
-          </a>
+          </div>
         </div>
 
         <!-- 안내 문구 -->
