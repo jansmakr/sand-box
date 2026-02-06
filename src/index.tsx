@@ -2119,19 +2119,6 @@ app.get('/', (c) => {
             </div>
           </section>
 
-      {/* 프로모션 배너 - 4개 버튼 아래 */}
-      <section class="py-6 sm:py-8 md:py-10 bg-white">
-        <div class="max-w-4xl mx-auto px-3 sm:px-4">
-          <div class="relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-shadow duration-300">
-            <img 
-              src="/static/hero-promo-banner.jpg" 
-              alt="전국 어디서든 원하는 요양시설 찾기"
-              class="w-full h-auto"
-            />
-          </div>
-        </div>
-      </section>
-
       <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-1 py-2 z-50 md:hidden">
         <div class="flex justify-around items-center">
           <a href="/facilities" class="flex flex-col items-center py-2 bg-purple-600 text-white rounded-lg px-1.5 shadow-md">
