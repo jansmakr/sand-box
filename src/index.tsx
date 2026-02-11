@@ -2025,7 +2025,7 @@ app.get('/', (c) => {
       {/* 메인 액션 버튼 - 히어로 바로 아래 */}
       <section class="py-8 sm:py-10 md:py-14 lg:py-16 bg-gradient-to-b from-white to-gray-50">
         <div class="max-w-6xl mx-auto px-3 sm:px-4">
-          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8" id="main-action-buttons">
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8" id="main-action-buttons">
                 <a href="/quote-request" 
                    class="group relative flex flex-col items-center justify-center bg-white py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[140px] sm:min-h-[160px]">
                   <span class="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">인기</span>
@@ -2087,6 +2087,15 @@ app.get('/', (c) => {
                     <i class="fas fa-heart text-3xl sm:text-6xl md:text-7xl text-pink-500"></i>
                   </div>
                   <span class="font-semibold text-gray-800 text-xs sm:text-base md:text-lg text-center leading-tight">통합돌봄<br/>안내</span>
+                </a>
+
+                <a href="/haniwon-visit"
+                   class="group relative flex flex-col items-center justify-center bg-white py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[140px] sm:min-h-[160px]">
+                  <span class="absolute top-2 right-2 bg-green-500 text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full shadow-lg">일차의료</span>
+                  <div class="mb-2 sm:mb-4 transform group-hover:scale-110 transition-transform duration-300">
+                    <i class="fas fa-user-md text-3xl sm:text-6xl md:text-7xl text-green-600"></i>
+                  </div>
+                  <span class="font-semibold text-gray-800 text-xs sm:text-base md:text-lg text-center leading-tight">한의사<br/>왕진</span>
                 </a>
               </div>
 
@@ -2917,6 +2926,344 @@ app.get('/facility/:id', async (c) => {
     console.error('시설 상세 조회 오류:', error)
     return c.redirect('/facilities')
   }
+})
+
+// 한의사 왕진 신청 페이지
+app.get('/haniwon-visit', (c) => {
+  return c.html(`
+    <!DOCTYPE html>
+    <html lang="ko">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>한의사 왕진 신청 - 케어조아</title>
+      <link href="/static/tailwind.css" rel="stylesheet">
+      <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+      <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
+    </head>
+    <body class="bg-gradient-to-br from-green-50 via-teal-50 to-blue-50">
+      <!-- 헤더 -->
+      <header class="bg-white shadow-sm border-b sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex justify-between items-center h-16">
+            <a href="/" class="flex items-center">
+              <img 
+                src="https://page.gensparksite.com/v1/base64_upload/b39dca8586af1dacd6d8417554313896" 
+                alt="케어조아 로고"
+                class="h-8 w-auto mr-3"
+              />
+              <h1 class="text-2xl font-bold text-teal-600">케어조아</h1>
+            </a>
+            <a href="/" class="text-gray-600 hover:text-teal-600 transition-colors">
+              <i class="fas fa-home text-xl"></i>
+            </a>
+          </div>
+        </div>
+      </header>
+
+      <div class="max-w-4xl mx-auto px-4 py-8 sm:py-12">
+        <!-- 타이틀 -->
+        <div class="text-center mb-8">
+          <div class="inline-flex items-center justify-center bg-green-500 text-white px-6 py-2 rounded-full mb-4 shadow-lg">
+            <i class="fas fa-user-md text-xl mr-2"></i>
+            <span class="font-bold text-lg">일차의료 한의 방문진료</span>
+          </div>
+          <h1 class="text-4xl font-bold text-gray-900 mb-4">
+            한의사 왕진 신청
+          </h1>
+          <p class="text-xl text-gray-600">
+            집에서 편안하게 한의 진료를 받으세요
+          </p>
+        </div>
+
+        <!-- 안내 문구 -->
+        <div class="bg-blue-50 border-l-4 border-blue-500 p-6 rounded-lg mb-8">
+          <div class="flex items-start">
+            <i class="fas fa-info-circle text-blue-600 text-2xl mr-4 mt-1"></i>
+            <div>
+              <h3 class="font-bold text-gray-900 mb-2">일차의료 한의 방문진료 시범사업</h3>
+              <p class="text-gray-700 mb-2">건강보험 적용으로 부담 없이 집에서 한의 진료를 받으실 수 있습니다.</p>
+              <ul class="text-sm text-gray-600 space-y-1">
+                <li>• 침, 뜸, 부항 등 한방 치료</li>
+                <li>• 만성 통증, 근골격계 질환 관리</li>
+                <li>• 건강보험 수가 적용</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- 신청 폼 -->
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+          <form id="haniwonForm">
+            <!-- 환자 정보 -->
+            <div class="mb-8">
+              <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                <i class="fas fa-user text-green-600 mr-3"></i>
+                환자 정보
+              </h2>
+              
+              <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                  <label class="block text-gray-700 font-semibold mb-2">
+                    환자 성명 <span class="text-red-500">*</span>
+                  </label>
+                  <input 
+                    type="text" 
+                    name="patientName" 
+                    required
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    placeholder="홍길동"
+                  />
+                </div>
+
+                <div>
+                  <label class="block text-gray-700 font-semibold mb-2">
+                    연락처 <span class="text-red-500">*</span>
+                  </label>
+                  <input 
+                    type="tel" 
+                    name="phone" 
+                    required
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    placeholder="010-1234-5678"
+                  />
+                </div>
+
+                <div>
+                  <label class="block text-gray-700 font-semibold mb-2">
+                    나이
+                  </label>
+                  <input 
+                    type="number" 
+                    name="age" 
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    placeholder="65"
+                  />
+                </div>
+
+                <div>
+                  <label class="block text-gray-700 font-semibold mb-2">
+                    성별
+                  </label>
+                  <select 
+                    name="gender" 
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  >
+                    <option value="">선택해주세요</option>
+                    <option value="male">남성</option>
+                    <option value="female">여성</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- 주소 정보 -->
+            <div class="mb-8">
+              <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                <i class="fas fa-map-marker-alt text-green-600 mr-3"></i>
+                방문 주소
+              </h2>
+              
+              <div class="space-y-4">
+                <div class="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-gray-700 font-semibold mb-2">
+                      시/도 <span class="text-red-500">*</span>
+                    </label>
+                    <select 
+                      name="sido" 
+                      required
+                      id="sido"
+                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    >
+                      <option value="">선택해주세요</option>
+                      <option value="서울특별시">서울특별시</option>
+                      <option value="부산광역시">부산광역시</option>
+                      <option value="대구광역시">대구광역시</option>
+                      <option value="인천광역시">인천광역시</option>
+                      <option value="광주광역시">광주광역시</option>
+                      <option value="대전광역시">대전광역시</option>
+                      <option value="울산광역시">울산광역시</option>
+                      <option value="세종특별자치시">세종특별자치시</option>
+                      <option value="경기도">경기도</option>
+                      <option value="강원도">강원도</option>
+                      <option value="충청북도">충청북도</option>
+                      <option value="충청남도">충청남도</option>
+                      <option value="전라북도">전라북도</option>
+                      <option value="전라남도">전라남도</option>
+                      <option value="경상북도">경상북도</option>
+                      <option value="경상남도">경상남도</option>
+                      <option value="제주특별자치도">제주특별자치도</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label class="block text-gray-700 font-semibold mb-2">
+                      시/군/구 <span class="text-red-500">*</span>
+                    </label>
+                    <input 
+                      type="text" 
+                      name="sigungu" 
+                      required
+                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      placeholder="강남구"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-gray-700 font-semibold mb-2">
+                    상세 주소 <span class="text-red-500">*</span>
+                  </label>
+                  <input 
+                    type="text" 
+                    name="address" 
+                    required
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    placeholder="상세 주소를 입력해주세요"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- 증상 정보 -->
+            <div class="mb-8">
+              <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                <i class="fas fa-notes-medical text-green-600 mr-3"></i>
+                증상 및 요청사항
+              </h2>
+              
+              <div class="space-y-4">
+                <div>
+                  <label class="block text-gray-700 font-semibold mb-2">
+                    주요 증상 <span class="text-red-500">*</span>
+                  </label>
+                  <div class="grid md:grid-cols-3 gap-3">
+                    <label class="flex items-center space-x-2 bg-gray-50 p-3 rounded-lg cursor-pointer hover:bg-gray-100">
+                      <input type="checkbox" name="symptoms" value="허리통증" class="rounded text-green-600">
+                      <span>허리통증</span>
+                    </label>
+                    <label class="flex items-center space-x-2 bg-gray-50 p-3 rounded-lg cursor-pointer hover:bg-gray-100">
+                      <input type="checkbox" name="symptoms" value="무릎통증" class="rounded text-green-600">
+                      <span>무릎통증</span>
+                    </label>
+                    <label class="flex items-center space-x-2 bg-gray-50 p-3 rounded-lg cursor-pointer hover:bg-gray-100">
+                      <input type="checkbox" name="symptoms" value="어깨통증" class="rounded text-green-600">
+                      <span>어깨통증</span>
+                    </label>
+                    <label class="flex items-center space-x-2 bg-gray-50 p-3 rounded-lg cursor-pointer hover:bg-gray-100">
+                      <input type="checkbox" name="symptoms" value="목통증" class="rounded text-green-600">
+                      <span>목통증</span>
+                    </label>
+                    <label class="flex items-center space-x-2 bg-gray-50 p-3 rounded-lg cursor-pointer hover:bg-gray-100">
+                      <input type="checkbox" name="symptoms" value="관절염" class="rounded text-green-600">
+                      <span>관절염</span>
+                    </label>
+                    <label class="flex items-center space-x-2 bg-gray-50 p-3 rounded-lg cursor-pointer hover:bg-gray-100">
+                      <input type="checkbox" name="symptoms" value="기타" class="rounded text-green-600">
+                      <span>기타</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-gray-700 font-semibold mb-2">
+                    추가 요청사항
+                  </label>
+                  <textarea 
+                    name="notes" 
+                    rows="4"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    placeholder="증상, 병력, 희망 방문 시간 등을 자유롭게 작성해주세요"
+                  ></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- 제출 버튼 -->
+            <div class="flex gap-4">
+              <button 
+                type="submit"
+                class="flex-1 bg-gradient-to-r from-green-500 to-teal-600 text-white py-4 rounded-xl font-bold text-lg hover:from-green-600 hover:to-teal-700 transition-all shadow-lg hover:shadow-xl"
+              >
+                <i class="fas fa-paper-plane mr-2"></i>
+                신청하기
+              </button>
+              <a 
+                href="/haniwon-info"
+                class="px-6 py-4 bg-gray-200 text-gray-700 rounded-xl font-bold hover:bg-gray-300 transition-colors flex items-center"
+              >
+                <i class="fas fa-info-circle mr-2"></i>
+                시범기관 보기
+              </a>
+            </div>
+          </form>
+        </div>
+
+        <!-- 하단 안내 -->
+        <div class="mt-8 bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-lg">
+          <div class="flex items-start">
+            <i class="fas fa-lightbulb text-yellow-600 text-2xl mr-4 mt-1"></i>
+            <div>
+              <h4 class="font-bold text-gray-900 mb-2">신청 후 절차</h4>
+              <ol class="text-gray-700 space-y-1">
+                <li>1. 신청 접수 후 1~2일 내 담당 한의원에서 연락드립니다</li>
+                <li>2. 방문 일정 및 진료 내용을 상담합니다</li>
+                <li>3. 약속된 시간에 한의사가 방문하여 진료합니다</li>
+                <li>4. 건강보험 수가가 적용됩니다</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 푸터 -->
+      <footer class="bg-gray-900 text-white py-12 mt-20">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+          <h2 class="text-2xl font-bold mb-4">케어조아</h2>
+          <p class="text-gray-400 mb-4">어르신을 위한 최적의 요양 솔루션</p>
+          <p class="text-sm text-gray-500">© 2026 케어조아. All rights reserved.</p>
+        </div>
+      </footer>
+
+      <script>
+        document.getElementById('haniwonForm').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          
+          const formData = new FormData(e.target);
+          const symptoms = [];
+          formData.getAll('symptoms').forEach(s => symptoms.push(s));
+          
+          const data = {
+            patientName: formData.get('patientName'),
+            phone: formData.get('phone'),
+            age: formData.get('age'),
+            gender: formData.get('gender'),
+            sido: formData.get('sido'),
+            sigungu: formData.get('sigungu'),
+            address: formData.get('address'),
+            symptoms: symptoms.join(', '),
+            notes: formData.get('notes')
+          };
+
+          try {
+            const response = await axios.post('/api/haniwon-visit/request', data);
+            
+            if (response.data.success) {
+              alert('한의사 왕진 신청이 완료되었습니다!\\n\\n담당 한의원에서 1~2일 내 연락드릴 예정입니다.');
+              window.location.href = '/';
+            } else {
+              alert('신청 중 오류가 발생했습니다: ' + response.data.message);
+            }
+          } catch (error) {
+            console.error('신청 오류:', error);
+            alert('신청 중 오류가 발생했습니다. 다시 시도해주세요.');
+          }
+        });
+      </script>
+    </body>
+    </html>
+  `)
 })
 
 // 통합돌봄 안내 페이지

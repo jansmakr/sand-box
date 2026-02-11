@@ -3,7 +3,7 @@
   <!-- 메인 페이지 -->
   <url>
     <loc>https://carejoa.kr/</loc>
-    <lastmod>2026-02-06</lastmod>
+    <lastmod>2026-02-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
@@ -11,31 +11,31 @@
   <!-- 주요 페이지 -->
   <url>
     <loc>https://carejoa.kr/facilities</loc>
-    <lastmod>2026-02-06</lastmod>
+    <lastmod>2026-02-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://carejoa.kr/ai-matching</loc>
-    <lastmod>2026-02-06</lastmod>
+    <lastmod>2026-02-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://carejoa.kr/call-consultation</loc>
-    <lastmod>2026-02-06</lastmod>
+    <lastmod>2026-02-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://carejoa.kr/quote-request</loc>
-    <lastmod>2026-02-06</lastmod>
+    <lastmod>2026-02-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://carejoa.kr/quote-simple</loc>
-    <lastmod>2026-02-06</lastmod>
+    <lastmod>2026-02-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
