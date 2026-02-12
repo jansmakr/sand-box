@@ -16476,6 +16476,84 @@ app.get('/ai-matching', async (c) => {
 
       <!-- 메인 컨텐츠 -->
       <main class="max-w-4xl mx-auto px-4 py-6">
+        <!-- 특허 기술 설명 -->
+        <div class="bg-white rounded-2xl shadow-xl p-6 mb-6 border-2 border-indigo-100">
+          <div class="flex items-center mb-4">
+            <div class="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full p-3 mr-3 shadow-lg">
+              <i class="fas fa-certificate text-white text-xl"></i>
+            </div>
+            <div>
+              <h2 class="text-xl font-bold text-gray-900">특허 출원 AI 매칭 시스템</h2>
+              <p class="text-sm text-gray-500">특허번호: 10-2025-0058040</p>
+            </div>
+          </div>
+          
+          <div class="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-5 mb-4">
+            <h3 class="font-bold text-gray-800 mb-3 flex items-center">
+              <i class="fas fa-brain text-indigo-600 mr-2"></i>
+              12가지 매칭 변수로 정밀 분석
+            </h3>
+            <div class="grid sm:grid-cols-2 gap-3 text-sm">
+              <div class="flex items-start">
+                <i class="fas fa-check-circle text-green-500 mr-2 mt-0.5"></i>
+                <span class="text-gray-700"><strong>지역 & 거리:</strong> 위치 기반 최적 매칭</span>
+              </div>
+              <div class="flex items-start">
+                <i class="fas fa-check-circle text-green-500 mr-2 mt-0.5"></i>
+                <span class="text-gray-700"><strong>시설 유형:</strong> 요양원/병원/센터</span>
+              </div>
+              <div class="flex items-start">
+                <i class="fas fa-check-circle text-green-500 mr-2 mt-0.5"></i>
+                <span class="text-gray-700"><strong>요양등급:</strong> 1~5등급 맞춤</span>
+              </div>
+              <div class="flex items-start">
+                <i class="fas fa-check-circle text-green-500 mr-2 mt-0.5"></i>
+                <span class="text-gray-700"><strong>예산 범위:</strong> 비용 최적화</span>
+              </div>
+              <div class="flex items-start">
+                <i class="fas fa-check-circle text-green-500 mr-2 mt-0.5"></i>
+                <span class="text-gray-700"><strong>시설 평점:</strong> 리뷰 데이터 반영</span>
+              </div>
+              <div class="flex items-start">
+                <i class="fas fa-check-circle text-green-500 mr-2 mt-0.5"></i>
+                <span class="text-gray-700"><strong>특화 프로그램:</strong> 맞춤 서비스</span>
+              </div>
+              <div class="flex items-start">
+                <i class="fas fa-check-circle text-green-500 mr-2 mt-0.5"></i>
+                <span class="text-gray-700"><strong>입소 가능성:</strong> 실시간 현황</span>
+              </div>
+              <div class="flex items-start">
+                <i class="fas fa-check-circle text-green-500 mr-2 mt-0.5"></i>
+                <span class="text-gray-700"><strong>협업 필터링:</strong> 유사 케이스</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="grid sm:grid-cols-3 gap-3">
+            <div class="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-500">
+              <div class="flex items-center mb-2">
+                <i class="fas fa-filter text-blue-600 mr-2"></i>
+                <h4 class="font-bold text-gray-800 text-sm">다단계 필터링</h4>
+              </div>
+              <p class="text-xs text-gray-600">기본 → 거리 → 평점 → 가격 순으로 정밀 매칭</p>
+            </div>
+            <div class="bg-green-50 rounded-lg p-4 border-l-4 border-green-500">
+              <div class="flex items-center mb-2">
+                <i class="fas fa-percentage text-green-600 mr-2"></i>
+                <h4 class="font-bold text-gray-800 text-sm">적합도 점수</h4>
+              </div>
+              <p class="text-xs text-gray-600">0~100점 매칭 점수로 최적 시설 추천</p>
+            </div>
+            <div class="bg-purple-50 rounded-lg p-4 border-l-4 border-purple-500">
+              <div class="flex items-center mb-2">
+                <i class="fas fa-sync-alt text-purple-600 mr-2"></i>
+                <h4 class="font-bold text-gray-800 text-sm">선순환 학습</h4>
+              </div>
+              <p class="text-xs text-gray-600">사용자 피드백으로 정확도 지속 향상</p>
+            </div>
+          </div>
+        </div>
+
         <!-- 안내 -->
         <div class="bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-2xl p-6 mb-6 shadow-lg">
           <div class="flex items-start gap-4">
@@ -16484,7 +16562,7 @@ app.get('/ai-matching', async (c) => {
             </div>
             <div class="flex-1">
               <h2 class="text-xl font-bold mb-2">AI가 최적의 시설을 찾아드립니다</h2>
-              <p class="text-sm opacity-90">지역, 예산, 요양등급을 입력하시면 AI가 거리와 조건에 맞는 최적의 시설을 즉시 추천해드립니다.</p>
+              <p class="text-sm opacity-90">12가지 매칭 변수를 분석하여 거리, 비용, 평점을 종합한 최적의 시설을 즉시 추천해드립니다.</p>
             </div>
           </div>
         </div>
@@ -17011,7 +17089,7 @@ app.get('/ai-matching', async (c) => {
               
               return \`
                 <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow border-2 border-transparent hover:border-purple-200">
-                  <!-- 순위 & 점수 & 평점 -->
+                  <!-- 순위 & 적합도 점수 & 평점 -->
                   <div class="flex items-center justify-between mb-4">
                     <div class="flex items-center gap-3">
                       <div class="bg-gradient-to-br from-purple-500 to-indigo-600 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold text-lg shadow-lg">
@@ -17023,8 +17101,14 @@ app.get('/ai-matching', async (c) => {
                       </span>
                     </div>
                     <div class="text-right">
-                      <div class="text-2xl font-bold text-purple-600">\${facility.matchScore}</div>
-                      <div class="text-xs text-gray-500">매칭 점수</div>
+                      <div class="flex items-center gap-2">
+                        <div class="text-2xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">\${facility.matchScore}</div>
+                        <div class="text-xs text-gray-400">/100</div>
+                      </div>
+                      <div class="text-xs text-gray-500">
+                        <i class="fas fa-chart-line mr-1"></i>
+                        적합도 점수
+                      </div>
                     </div>
                   </div>
 
