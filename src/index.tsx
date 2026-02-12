@@ -2099,16 +2099,45 @@ app.get('/', (c) => {
                 </a>
               </div>
 
-              {/* 특허 배너 (상단 강조) */}
-              <div class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 px-4 sm:px-6 py-3 sm:py-4 rounded-2xl shadow-2xl mb-6 sm:mb-8 border-2 border-white/20">
-                <div class="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3">
+              {/* 특허 배너 (상단 강조) - 기술 명세 강화 */}
+              <div class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 px-4 sm:px-6 py-4 sm:py-5 rounded-2xl shadow-2xl mb-6 sm:mb-8 border-2 border-white/20">
+                <div class="flex flex-col items-center justify-center gap-3">
+                  {/* 메인 타이틀 */}
                   <div class="flex items-center">
-                    <div class="bg-white/30 backdrop-blur-sm rounded-full p-2 mr-2 shadow-lg animate-pulse">
-                      <i class="fas fa-certificate text-white text-lg"></i>
+                    <div class="bg-white/30 backdrop-blur-sm rounded-full p-2 sm:p-3 mr-3 shadow-lg animate-pulse">
+                      <i class="fas fa-certificate text-white text-xl sm:text-2xl"></i>
                     </div>
                     <div class="text-white">
-                      <div class="font-bold text-sm sm:text-base">특허 받은 AI 매칭 알고리즘 적용 중</div>
-                      <div class="text-xs sm:text-sm opacity-90">특허번호: 10-2025-0058040 | 정부 인증 벤처기업</div>
+                      <div class="font-bold text-base sm:text-lg md:text-xl">특허 출원 AI 매칭 시스템</div>
+                      <div class="text-xs sm:text-sm opacity-90">특허번호: 10-2025-0058040</div>
+                    </div>
+                  </div>
+                  
+                  {/* 핵심 기술 스펙 */}
+                  <div class="flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-xs sm:text-sm">
+                    <div class="bg-white/20 backdrop-blur-sm rounded-full px-3 py-1.5 flex items-center">
+                      <i class="fas fa-brain text-yellow-300 mr-1.5"></i>
+                      <span class="font-semibold text-white">12가지 매칭 변수</span>
+                    </div>
+                    <div class="bg-white/20 backdrop-blur-sm rounded-full px-3 py-1.5 flex items-center">
+                      <i class="fas fa-filter text-green-300 mr-1.5"></i>
+                      <span class="font-semibold text-white">다단계 필터링</span>
+                    </div>
+                    <div class="bg-white/20 backdrop-blur-sm rounded-full px-3 py-1.5 flex items-center">
+                      <i class="fas fa-calculator text-blue-300 mr-1.5"></i>
+                      <span class="font-semibold text-white">실시간 비용 예측</span>
+                    </div>
+                    <div class="bg-white/20 backdrop-blur-sm rounded-full px-3 py-1.5 flex items-center">
+                      <i class="fas fa-shield-alt text-red-300 mr-1.5"></i>
+                      <span class="font-semibold text-white">AES-256 보안</span>
+                    </div>
+                  </div>
+                  
+                  {/* 정부 인증 */}
+                  <div class="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2 border border-white/30">
+                    <div class="flex items-center text-white">
+                      <i class="fas fa-award text-yellow-300 mr-2"></i>
+                      <span class="font-bold text-xs sm:text-sm">정부 인증 벤처기업</span>
                     </div>
                   </div>
                 </div>
