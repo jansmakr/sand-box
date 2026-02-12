@@ -2099,12 +2099,27 @@ app.get('/', (c) => {
                 </a>
               </div>
 
+              {/* 특허 배너 (상단 강조) */}
+              <div class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 px-4 sm:px-6 py-3 sm:py-4 rounded-2xl shadow-2xl mb-6 sm:mb-8 border-2 border-white/20">
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3">
+                  <div class="flex items-center">
+                    <div class="bg-white/30 backdrop-blur-sm rounded-full p-2 mr-2 shadow-lg animate-pulse">
+                      <i class="fas fa-certificate text-white text-lg"></i>
+                    </div>
+                    <div class="text-white">
+                      <div class="font-bold text-sm sm:text-base">특허 받은 AI 매칭 알고리즘 적용 중</div>
+                      <div class="text-xs sm:text-sm opacity-90">특허번호: 10-2025-0058040 | 정부 인증 벤처기업</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <div class="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 text-xs sm:text-sm md:text-base mt-6 sm:mt-8">
                 <div class="flex items-center bg-gradient-to-r from-purple-500 to-indigo-500 px-3 sm:px-4 py-2 rounded-full shadow-md hover:shadow-lg transition-shadow">
                   <div class="bg-white bg-opacity-30 rounded-full p-1 sm:p-1.5 mr-1.5 sm:mr-2 shadow">
                     <i class="fas fa-certificate text-white text-xs sm:text-sm"></i>
                   </div>
-                  <span class="font-semibold text-white whitespace-nowrap">특허 기반 AI 시스템</span>
+                  <span class="font-semibold text-white whitespace-nowrap">특허 출원 (10-2025-0058040)</span>
                 </div>
                 <div class="flex items-center bg-white px-3 sm:px-4 py-2 rounded-full shadow-md hover:shadow-lg transition-shadow">
                   <div class="bg-blue-500 rounded-full p-1 sm:p-1.5 mr-1.5 sm:mr-2 shadow">
@@ -2147,7 +2162,54 @@ app.get('/', (c) => {
             <span class="text-[10px] font-medium">입점신청</span>
           </a>
         </div>
-      </div><section class="py-20 bg-white">
+      </div>
+
+      {/* 회사 소개 섹션 */}
+      <section class="py-12 sm:py-16 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+        <div class="max-w-5xl mx-auto px-4">
+          <div class="bg-white rounded-3xl shadow-2xl p-6 sm:p-10 border-2 border-indigo-100">
+            <div class="flex items-center justify-center mb-6">
+              <div class="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full p-3 mr-3 shadow-lg">
+                <i class="fas fa-building text-white text-2xl"></i>
+              </div>
+              <h2 class="text-2xl sm:text-3xl font-bold text-gray-900">케어조아 소개</h2>
+            </div>
+            
+            <div class="text-center space-y-4 sm:space-y-5">
+              <p class="text-base sm:text-lg leading-relaxed text-gray-700">
+                <span class="font-bold text-indigo-600">케어조아</span>는 
+                <span class="font-semibold text-purple-600">특허 출원 기반 AI 매칭 알고리즘</span>
+                <span class="text-sm text-gray-500">(특허번호: 10-2025-0058040)</span>을 적용한 
+                <span class="font-bold text-pink-600">정부 인증 벤처기업</span>입니다.
+              </p>
+              
+              <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-4 sm:p-6 border-l-4 border-green-500">
+                <p class="text-base sm:text-lg leading-relaxed text-gray-800">
+                  <span class="font-semibold text-green-700">입소 전 한의원 왕진 연계</span>를 통해 
+                  어르신의 <span class="font-bold text-teal-600">최적 맞춤형 요양시설 선정</span>을 지원합니다.
+                </p>
+              </div>
+              
+              <div class="grid sm:grid-cols-3 gap-3 sm:gap-4 mt-6">
+                <div class="bg-indigo-50 rounded-xl p-4 border border-indigo-200">
+                  <div class="text-2xl sm:text-3xl font-bold text-indigo-600 mb-1">특허 출원</div>
+                  <div class="text-xs sm:text-sm text-gray-600">AI 매칭 알고리즘</div>
+                </div>
+                <div class="bg-purple-50 rounded-xl p-4 border border-purple-200">
+                  <div class="text-2xl sm:text-3xl font-bold text-purple-600 mb-1">정부 인증</div>
+                  <div class="text-xs sm:text-sm text-gray-600">벤처기업</div>
+                </div>
+                <div class="bg-green-50 rounded-xl p-4 border border-green-200">
+                  <div class="text-2xl sm:text-3xl font-bold text-green-600 mb-1">한의원 왕진</div>
+                  <div class="text-xs sm:text-sm text-gray-600">입소 전 연계</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="py-20 bg-white">
         <div class="max-w-7xl mx-auto px-4">
           <div class="text-center mb-16">
             <h3 class="text-3xl font-bold text-gray-900 mb-4">
@@ -2977,17 +3039,25 @@ app.get('/haniwon-visit', (c) => {
         </div>
 
         <!-- 안내 문구 -->
-        <div class="bg-blue-50 border-l-4 border-blue-500 p-6 rounded-lg mb-8">
+        <div class="bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-200 p-6 rounded-xl mb-8 shadow-lg">
           <div class="flex items-start">
-            <i class="fas fa-info-circle text-blue-600 text-2xl mr-4 mt-1"></i>
+            <i class="fas fa-certificate text-indigo-600 text-2xl mr-4 mt-1"></i>
             <div>
-              <h3 class="font-bold text-gray-900 mb-2">일차의료 한의 방문진료 시범사업</h3>
-              <p class="text-gray-700 mb-2">건강보험 적용으로 부담 없이 집에서 한의 진료를 받으실 수 있습니다.</p>
-              <ul class="text-sm text-gray-600 space-y-1">
-                <li>• 침, 뜸, 부항 등 한방 치료</li>
-                <li>• 만성 통증, 근골격계 질환 관리</li>
-                <li>• 건강보험 수가 적용</li>
-              </ul>
+              <h3 class="font-bold text-gray-900 mb-3 text-lg">케어조아 × 한의원 왕진 연계 서비스</h3>
+              <p class="text-gray-700 mb-3">
+                <span class="font-semibold text-indigo-600">특허 출원 AI 매칭 알고리즘</span> 
+                <span class="text-sm text-gray-500">(특허번호: 10-2025-0058040)</span>을 기반으로 
+                <span class="font-bold text-purple-600">입소 전 한의원 왕진을 통해 최적의 요양시설을 추천</span>합니다.
+              </p>
+              <div class="bg-white/70 rounded-lg p-4 mt-3">
+                <p class="text-sm text-gray-700 font-medium mb-2">🩺 제공 서비스:</p>
+                <ul class="text-sm text-gray-600 space-y-1 ml-4">
+                  <li>• 침, 뜸, 부항 등 한방 치료</li>
+                  <li>• 만성 통증, 근골격계 질환 관리</li>
+                  <li>• 건강보험 수가 적용 (일차의료 시범사업)</li>
+                  <li>• <span class="font-semibold text-green-600">왕진 후 맞춤형 요양시설 추천</span></li>
+                </ul>
+              </div>
             </div>
           </div>
         </div>
@@ -3261,6 +3331,210 @@ app.get('/haniwon-visit', (c) => {
           }
         });
       </script>
+    </body>
+    </html>
+  `)
+})
+
+// 한의원 시범기관 안내 페이지
+app.get('/haniwon-info', (c) => {
+  return c.html(`
+    <!DOCTYPE html>
+    <html lang="ko">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>한의원 왕진 시범사업 안내 - 케어조아</title>
+      <link href="/static/tailwind.css" rel="stylesheet">
+      <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+    </head>
+    <body class="bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50">
+      <div class="max-w-5xl mx-auto px-4 py-8 sm:py-12">
+        <!-- 헤더 -->
+        <div class="text-center mb-10">
+          <a href="/" class="inline-flex items-center text-teal-600 hover:text-teal-700 mb-6">
+            <i class="fas fa-arrow-left mr-2"></i>
+            홈으로
+          </a>
+          
+          <div class="inline-flex items-center justify-center bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-3 rounded-full mb-6 shadow-xl">
+            <i class="fas fa-stethoscope text-2xl mr-3"></i>
+            <span class="font-bold text-xl">일차의료 한의 방문진료</span>
+          </div>
+          
+          <h1 class="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
+            한의원 왕진 시범사업 안내
+          </h1>
+          <p class="text-xl text-gray-600">
+            케어조아와 함께하는 맞춤형 한방 재택 의료 서비스
+          </p>
+        </div>
+
+        <!-- 케어조아 특별 가치 제안 -->
+        <div class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-3xl shadow-2xl p-8 mb-10 text-white">
+          <div class="flex items-center mb-4">
+            <div class="bg-white/20 backdrop-blur-sm rounded-full p-3 mr-3">
+              <i class="fas fa-certificate text-2xl"></i>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-bold">케어조아만의 차별화된 가치</h2>
+          </div>
+          
+          <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 mb-6">
+            <p class="text-lg leading-relaxed mb-4">
+              <span class="font-bold text-yellow-300">특허 출원 AI 매칭 알고리즘</span> 
+              <span class="text-sm opacity-90">(특허번호: 10-2025-0058040)</span>을 기반으로 
+              <span class="font-bold">입소 전 한의원 왕진을 통해 최적의 요양시설을 추천</span>합니다.
+            </p>
+            <p class="text-base opacity-90">
+              요양시설 입소 전, 한의사의 전문적인 진단과 케어조아의 AI 매칭으로 
+              어르신께 가장 적합한 시설을 찾아드립니다.
+            </p>
+          </div>
+          
+          <div class="grid sm:grid-cols-3 gap-4">
+            <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center">
+              <div class="text-3xl font-bold mb-1">①</div>
+              <div class="font-semibold">한의사 왕진</div>
+              <div class="text-sm opacity-90">건강상태 진단</div>
+            </div>
+            <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center">
+              <div class="text-3xl font-bold mb-1">②</div>
+              <div class="font-semibold">AI 매칭</div>
+              <div class="text-sm opacity-90">특허 알고리즘 적용</div>
+            </div>
+            <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center">
+              <div class="text-3xl font-bold mb-1">③</div>
+              <div class="font-semibold">시설 추천</div>
+              <div class="text-sm opacity-90">맞춤형 요양시설</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 일차의료 한의 방문진료란? -->
+        <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
+          <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+            <i class="fas fa-question-circle text-green-600 mr-3"></i>
+            일차의료 한의 방문진료란?
+          </h2>
+          <p class="text-lg text-gray-700 leading-relaxed mb-4">
+            거동이 불편한 환자의 집으로 한의사가 직접 방문하여 침, 뜸, 부항 등의 한방 치료를 제공하는 서비스입니다.
+          </p>
+          <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-lg">
+            <p class="text-gray-700">
+              <i class="fas fa-check-circle text-green-600 mr-2"></i>
+              <strong>건강보험 적용</strong>으로 부담 없이 이용 가능
+            </p>
+            <p class="text-gray-700 mt-2">
+              <i class="fas fa-check-circle text-green-600 mr-2"></i>
+              <strong>2024년 시범사업</strong>으로 전국 확대 진행 중
+            </p>
+          </div>
+        </div>
+
+        <!-- 제공 서비스 -->
+        <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
+          <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+            <i class="fas fa-hand-holding-medical text-teal-600 mr-3"></i>
+            제공 서비스
+          </h2>
+          <div class="grid sm:grid-cols-2 gap-6">
+            <div class="border-2 border-green-200 rounded-xl p-6 hover:shadow-lg transition-shadow">
+              <div class="flex items-center mb-3">
+                <div class="bg-green-100 rounded-full p-3 mr-3">
+                  <i class="fas fa-syringe text-green-600 text-xl"></i>
+                </div>
+                <h3 class="font-bold text-lg">침 치료</h3>
+              </div>
+              <p class="text-gray-600">통증 완화, 혈액순환 개선</p>
+            </div>
+            
+            <div class="border-2 border-orange-200 rounded-xl p-6 hover:shadow-lg transition-shadow">
+              <div class="flex items-center mb-3">
+                <div class="bg-orange-100 rounded-full p-3 mr-3">
+                  <i class="fas fa-fire text-orange-600 text-xl"></i>
+                </div>
+                <h3 class="font-bold text-lg">뜸 치료</h3>
+              </div>
+              <p class="text-gray-600">면역력 강화, 만성질환 관리</p>
+            </div>
+            
+            <div class="border-2 border-purple-200 rounded-xl p-6 hover:shadow-lg transition-shadow">
+              <div class="flex items-center mb-3">
+                <div class="bg-purple-100 rounded-full p-3 mr-3">
+                  <i class="fas fa-circle text-purple-600 text-xl"></i>
+                </div>
+                <h3 class="font-bold text-lg">부항 치료</h3>
+              </div>
+              <p class="text-gray-600">어혈 제거, 근육통 완화</p>
+            </div>
+            
+            <div class="border-2 border-blue-200 rounded-xl p-6 hover:shadow-lg transition-shadow">
+              <div class="flex items-center mb-3">
+                <div class="bg-blue-100 rounded-full p-3 mr-3">
+                  <i class="fas fa-capsules text-blue-600 text-xl"></i>
+                </div>
+                <h3 class="font-bold text-lg">한약 처방</h3>
+              </div>
+              <p class="text-gray-600">체질 맞춤 한약 상담 (별도)</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 수가 안내 -->
+        <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
+          <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+            <i class="fas fa-won-sign text-indigo-600 mr-3"></i>
+            수가 안내 (건강보험 적용)
+          </h2>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left">
+              <thead class="bg-gray-100">
+                <tr>
+                  <th class="px-4 py-3 font-semibold">서비스</th>
+                  <th class="px-4 py-3 font-semibold">본인부담금</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y">
+                <tr>
+                  <td class="px-4 py-3">기본 방문 진료</td>
+                  <td class="px-4 py-3 font-semibold text-green-600">약 15,000원</td>
+                </tr>
+                <tr>
+                  <td class="px-4 py-3">침 치료</td>
+                  <td class="px-4 py-3 font-semibold text-green-600">약 9,000원</td>
+                </tr>
+                <tr>
+                  <td class="px-4 py-3">뜸 치료</td>
+                  <td class="px-4 py-3 font-semibold text-green-600">약 6,000원</td>
+                </tr>
+                <tr>
+                  <td class="px-4 py-3">부항 치료</td>
+                  <td class="px-4 py-3 font-semibold text-green-600">약 4,500원</td>
+                </tr>
+                <tr>
+                  <td class="px-4 py-3">교통비 (거리별)</td>
+                  <td class="px-4 py-3 font-semibold text-green-600">5,000 ~ 20,000원</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="text-sm text-gray-500 mt-4">
+            * 본인부담금은 건강보험 적용 후 금액이며, 지역 및 한의원에 따라 다를 수 있습니다.
+          </p>
+        </div>
+
+        <!-- CTA -->
+        <div class="bg-gradient-to-r from-green-500 to-teal-600 rounded-2xl shadow-2xl p-8 text-center text-white">
+          <h2 class="text-3xl font-bold mb-4">지금 바로 신청하세요!</h2>
+          <p class="text-lg mb-6 opacity-90">
+            한의사 왕진으로 건강 관리부터 최적의 요양시설 선정까지 한 번에
+          </p>
+          <a href="/haniwon-visit" class="inline-block bg-white text-green-600 hover:bg-gray-100 px-8 py-4 rounded-full text-lg font-bold shadow-xl transition-all transform hover:scale-105">
+            <i class="fas fa-edit mr-2"></i>
+            왕진 신청하기
+          </a>
+        </div>
+      </div>
     </body>
     </html>
   `)
