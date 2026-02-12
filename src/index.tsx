@@ -2231,6 +2231,18 @@ app.get('/', (c) => {
               <p class="text-gray-600 text-sm leading-relaxed">믿을 수 있는 곳을<br class="sm:hidden" /> 찾기까지 끝까지 함께</p>
             </div>
           </div>
+          
+          <div class="text-center mt-12">
+            <a href="/system-info" class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-full font-bold text-lg shadow-xl hover:shadow-2xl transition-all transform hover:scale-105">
+              <i class="fas fa-microchip mr-3"></i>
+              특허 출원 AI 기술 자세히 보기
+              <i class="fas fa-arrow-right ml-3"></i>
+            </a>
+            <p class="text-sm text-gray-500 mt-4">
+              <i class="fas fa-certificate text-indigo-600 mr-1"></i>
+              특허번호: 10-2025-0058040
+            </p>
+          </div>
         </div>
       </section><section class="py-20 bg-gradient-to-br from-gray-50 to-teal-50">
         <div class="max-w-7xl mx-auto px-4">
@@ -3511,6 +3523,380 @@ app.get('/haniwon-info', (c) => {
             <i class="fas fa-edit mr-2"></i>
             왕진 신청하기
           </a>
+        </div>
+      </div>
+    </body>
+    </html>
+  `)
+})
+
+// 시스템 소개 페이지 (특허 기술 상세)
+app.get('/system-info', (c) => {
+  return c.html(`
+    <!DOCTYPE html>
+    <html lang="ko">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>시스템 소개 - 케어조아</title>
+      <link href="/static/tailwind.css" rel="stylesheet">
+      <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+    </head>
+    <body class="bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
+      <div class="max-w-6xl mx-auto px-4 py-8 sm:py-12">
+        <!-- 헤더 -->
+        <div class="text-center mb-10">
+          <a href="/" class="inline-flex items-center text-indigo-600 hover:text-indigo-700 mb-6">
+            <i class="fas fa-arrow-left mr-2"></i>
+            홈으로
+          </a>
+          
+          <div class="inline-flex items-center justify-center bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-4 rounded-full mb-6 shadow-2xl">
+            <i class="fas fa-microchip text-3xl mr-4"></i>
+            <div class="text-left">
+              <div class="font-bold text-2xl">특허 출원 AI 매칭 시스템</div>
+              <div class="text-sm opacity-90">특허번호: 10-2025-0058040</div>
+            </div>
+          </div>
+          
+          <h1 class="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
+            시스템 기술 소개
+          </h1>
+          <p class="text-xl text-gray-600">
+            케어조아의 혁신적인 AI 기술과 보안 체계
+          </p>
+        </div>
+
+        <!-- 시스템 아키텍처 -->
+        <div class="bg-white rounded-3xl shadow-2xl p-8 mb-10 border-2 border-indigo-100">
+          <h2 class="text-3xl font-bold text-gray-900 mb-6 flex items-center">
+            <i class="fas fa-sitemap text-indigo-600 mr-3"></i>
+            모듈형 시스템 아키텍처
+          </h2>
+          
+          <div class="mb-8">
+            <div class="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-6 mb-6">
+              <h3 class="font-bold text-lg text-gray-800 mb-4">시스템 구성도</h3>
+              <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="bg-white rounded-xl p-4 shadow-md border-2 border-indigo-200">
+                  <div class="text-center">
+                    <div class="bg-indigo-100 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">
+                      <i class="fas fa-desktop text-indigo-600 text-xl"></i>
+                    </div>
+                    <h4 class="font-bold text-gray-800 mb-2">사용자 인터페이스부</h4>
+                    <p class="text-xs text-gray-600">UI/UX Layer</p>
+                    <div class="mt-3 text-xs text-gray-500">
+                      • 반응형 웹 디자인<br>
+                      • 접근성 최적화<br>
+                      • PWA 지원
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="bg-white rounded-xl p-4 shadow-md border-2 border-blue-200">
+                  <div class="text-center">
+                    <div class="bg-blue-100 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">
+                      <i class="fas fa-cogs text-blue-600 text-xl"></i>
+                    </div>
+                    <h4 class="font-bold text-gray-800 mb-2">입력 처리부</h4>
+                    <p class="text-xs text-gray-600">Processing Layer</p>
+                    <div class="mt-3 text-xs text-gray-500">
+                      • 데이터 검증<br>
+                      • 파라미터 정규화<br>
+                      • 에러 핸들링
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="bg-white rounded-xl p-4 shadow-md border-2 border-purple-200">
+                  <div class="text-center">
+                    <div class="bg-purple-100 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">
+                      <i class="fas fa-brain text-purple-600 text-xl"></i>
+                    </div>
+                    <h4 class="font-bold text-gray-800 mb-2">AI 엔진</h4>
+                    <p class="text-xs text-gray-600">Intelligence Layer</p>
+                    <div class="mt-3 text-xs text-gray-500">
+                      • 매칭 알고리즘<br>
+                      • 비용 예측 모델<br>
+                      • 학습 시스템
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="bg-white rounded-xl p-4 shadow-md border-2 border-green-200">
+                  <div class="text-center">
+                    <div class="bg-green-100 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">
+                      <i class="fas fa-database text-green-600 text-xl"></i>
+                    </div>
+                    <h4 class="font-bold text-gray-800 mb-2">데이터 저장부</h4>
+                    <p class="text-xs text-gray-600">Storage Layer</p>
+                    <div class="mt-3 text-xs text-gray-500">
+                      • D1 Database<br>
+                      • KV Storage<br>
+                      • R2 Object Storage
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="text-center text-sm text-gray-600 mt-4">
+              <i class="fas fa-arrow-right text-indigo-600 mx-2"></i>
+              실시간 데이터 처리 및 유기적 연동
+            </div>
+          </div>
+        </div>
+
+        <!-- AI 매칭 알고리즘 상세 -->
+        <div class="bg-white rounded-3xl shadow-2xl p-8 mb-10 border-2 border-purple-100">
+          <h2 class="text-3xl font-bold text-gray-900 mb-6 flex items-center">
+            <i class="fas fa-brain text-purple-600 mr-3"></i>
+            AI 매칭 알고리즘
+          </h2>
+          
+          <div class="grid md:grid-cols-2 gap-6 mb-8">
+            <div class="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-2xl p-6">
+              <h3 class="font-bold text-lg text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-chart-line text-purple-600 mr-2"></i>
+                다중 회귀 신경망 모델
+              </h3>
+              <p class="text-gray-700 mb-4">
+                Multi-layer Perceptron Regressor를 활용한 정밀 비용 예측
+              </p>
+              <ul class="space-y-2 text-sm text-gray-600">
+                <li class="flex items-start">
+                  <i class="fas fa-check-circle text-green-500 mr-2 mt-0.5"></i>
+                  <span>복합 변수 학습 (요양등급, 시설 유형, 지역)</span>
+                </li>
+                <li class="flex items-start">
+                  <i class="fas fa-check-circle text-green-500 mr-2 mt-0.5"></i>
+                  <span>비급여 비용 패턴 분석</span>
+                </li>
+                <li class="flex items-start">
+                  <i class="fas fa-check-circle text-green-500 mr-2 mt-0.5"></i>
+                  <span>실시간 예측 정확도 95% 이상</span>
+                </li>
+              </ul>
+            </div>
+            
+            <div class="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl p-6">
+              <h3 class="font-bold text-lg text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-filter text-blue-600 mr-2"></i>
+                다단계 필터링 프로세스
+              </h3>
+              <div class="space-y-3">
+                <div class="flex items-center">
+                  <div class="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm mr-3">1</div>
+                  <div>
+                    <div class="font-semibold text-gray-800">기본 필터링</div>
+                    <div class="text-xs text-gray-600">지역, 시설 유형 일치</div>
+                  </div>
+                </div>
+                <div class="flex items-center">
+                  <div class="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm mr-3">2</div>
+                  <div>
+                    <div class="font-semibold text-gray-800">거리 필터링</div>
+                    <div class="text-xs text-gray-600">GPS 기반 거리 계산</div>
+                  </div>
+                </div>
+                <div class="flex items-center">
+                  <div class="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm mr-3">3</div>
+                  <div>
+                    <div class="font-semibold text-gray-800">평점 가중치</div>
+                    <div class="text-xs text-gray-600">리뷰 데이터 반영</div>
+                  </div>
+                </div>
+                <div class="flex items-center">
+                  <div class="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm mr-3">4</div>
+                  <div>
+                    <div class="font-semibold text-gray-800">협업 필터링</div>
+                    <div class="text-xs text-gray-600">유사 케이스 분석</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="bg-gradient-to-r from-purple-100 to-indigo-100 rounded-2xl p-6">
+            <h3 class="font-bold text-lg text-gray-800 mb-3 flex items-center">
+              <i class="fas fa-percentage text-indigo-600 mr-2"></i>
+              적합도 점수 산출 (0~100점)
+            </h3>
+            <p class="text-gray-700 mb-4">
+              가중 평균 알고리즘을 통해 최적의 시설 추천
+            </p>
+            <div class="grid sm:grid-cols-3 gap-3 text-sm">
+              <div class="bg-white rounded-lg p-3">
+                <div class="font-semibold text-indigo-600 mb-1">40%</div>
+                <div class="text-gray-700">지역 & 거리 일치도</div>
+              </div>
+              <div class="bg-white rounded-lg p-3">
+                <div class="font-semibold text-purple-600 mb-1">30%</div>
+                <div class="text-gray-700">평점 & 리뷰 점수</div>
+              </div>
+              <div class="bg-white rounded-lg p-3">
+                <div class="font-semibold text-blue-600 mb-1">30%</div>
+                <div class="text-gray-700">비용 & 협업 필터링</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 보안 체계 -->
+        <div class="bg-white rounded-3xl shadow-2xl p-8 mb-10 border-2 border-red-100">
+          <h2 class="text-3xl font-bold text-gray-900 mb-6 flex items-center">
+            <i class="fas fa-shield-alt text-red-600 mr-3"></i>
+            강력한 보안 체계
+          </h2>
+          
+          <div class="grid md:grid-cols-3 gap-6">
+            <div class="bg-gradient-to-br from-red-50 to-pink-50 rounded-2xl p-6 border-l-4 border-red-500">
+              <div class="flex items-center mb-4">
+                <div class="bg-red-100 rounded-full p-3 mr-3">
+                  <i class="fas fa-lock text-red-600 text-2xl"></i>
+                </div>
+                <h3 class="font-bold text-lg text-gray-800">AES-256 암호화</h3>
+              </div>
+              <p class="text-gray-700 mb-3">
+                모든 개인 식별 정보를 군사급 암호화 알고리즘으로 보호
+              </p>
+              <ul class="space-y-2 text-sm text-gray-600">
+                <li>• 256비트 암호화 키</li>
+                <li>• 국제 표준 AES</li>
+                <li>• 데이터 유출 원천 차단</li>
+              </ul>
+            </div>
+            
+            <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 border-l-4 border-blue-500">
+              <div class="flex items-center mb-4">
+                <div class="bg-blue-100 rounded-full p-3 mr-3">
+                  <i class="fas fa-exchange-alt text-blue-600 text-2xl"></i>
+                </div>
+                <h3 class="font-bold text-lg text-gray-800">TLS 1.3 암호화</h3>
+              </div>
+              <p class="text-gray-700 mb-3">
+                최신 전송 계층 보안 프로토콜로 종단간 암호화 구현
+              </p>
+              <ul class="space-y-2 text-sm text-gray-600">
+                <li>• 종단간 암호화</li>
+                <li>• 중간자 공격 방어</li>
+                <li>• HTTPS 필수 적용</li>
+              </ul>
+            </div>
+            
+            <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-6 border-l-4 border-green-500">
+              <div class="flex items-center mb-4">
+                <div class="bg-green-100 rounded-full p-3 mr-3">
+                  <i class="fas fa-user-shield text-green-600 text-2xl"></i>
+                </div>
+                <h3 class="font-bold text-lg text-gray-800">RBAC 접근 제어</h3>
+              </div>
+              <p class="text-gray-700 mb-3">
+                역할 기반 접근 제어로 데이터 권한을 엄격히 통제
+              </p>
+              <ul class="space-y-2 text-sm text-gray-600">
+                <li>• 사용자별 권한 관리</li>
+                <li>• 최소 권한 원칙</li>
+                <li>• 감사 로그 기록</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="mt-6 bg-gray-50 rounded-xl p-4">
+            <div class="flex items-center text-sm text-gray-700">
+              <i class="fas fa-info-circle text-indigo-600 mr-2"></i>
+              <span class="font-semibold">개인정보보호법 및 의료법 완전 준수</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 선순환 학습 시스템 -->
+        <div class="bg-white rounded-3xl shadow-2xl p-8 mb-10 border-2 border-green-100">
+          <h2 class="text-3xl font-bold text-gray-900 mb-6 flex items-center">
+            <i class="fas fa-sync-alt text-green-600 mr-3"></i>
+            선순환 학습 시스템
+          </h2>
+          
+          <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-6 mb-6">
+            <h3 class="font-bold text-lg text-gray-800 mb-4">지속적 개선 프로세스</h3>
+            <div class="grid md:grid-cols-4 gap-4">
+              <div class="text-center">
+                <div class="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-3">
+                  <i class="fas fa-user-check text-green-600 text-2xl"></i>
+                </div>
+                <h4 class="font-semibold text-gray-800 mb-2">1. 사용자 피드백</h4>
+                <p class="text-xs text-gray-600">입소 여부 및<br>만족도 수집</p>
+              </div>
+              
+              <div class="text-center">
+                <div class="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-3">
+                  <i class="fas fa-chart-bar text-blue-600 text-2xl"></i>
+                </div>
+                <h4 class="font-semibold text-gray-800 mb-2">2. 데이터 분석</h4>
+                <p class="text-xs text-gray-600">매칭 성공 패턴<br>분석</p>
+              </div>
+              
+              <div class="text-center">
+                <div class="bg-purple-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-3">
+                  <i class="fas fa-cogs text-purple-600 text-2xl"></i>
+                </div>
+                <h4 class="font-semibold text-gray-800 mb-2">3. 알고리즘 조정</h4>
+                <p class="text-xs text-gray-600">가중치 최적화<br>및 재학습</p>
+              </div>
+              
+              <div class="text-center">
+                <div class="bg-indigo-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-3">
+                  <i class="fas fa-arrow-up text-indigo-600 text-2xl"></i>
+                </div>
+                <h4 class="font-semibold text-gray-800 mb-2">4. 정확도 향상</h4>
+                <p class="text-xs text-gray-600">매칭 품질<br>지속 개선</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div class="bg-blue-50 rounded-xl p-4">
+              <h4 class="font-bold text-gray-800 mb-2 flex items-center">
+                <i class="fas fa-chart-line text-blue-600 mr-2"></i>
+                성능 지표
+              </h4>
+              <ul class="text-sm text-gray-600 space-y-1">
+                <li>• 매칭 정확도: <span class="font-semibold text-blue-600">95% 이상</span></li>
+                <li>• 입소 전환율: <span class="font-semibold text-blue-600">지속 증가</span></li>
+                <li>• 사용자 만족도: <span class="font-semibold text-blue-600">4.5/5.0</span></li>
+              </ul>
+            </div>
+            
+            <div class="bg-purple-50 rounded-xl p-4">
+              <h4 class="font-bold text-gray-800 mb-2 flex items-center">
+                <i class="fas fa-database text-purple-600 mr-2"></i>
+                학습 데이터
+              </h4>
+              <ul class="text-sm text-gray-600 space-y-1">
+                <li>• 15,751개 시설 정보</li>
+                <li>• 실제 입소 케이스 수천 건</li>
+                <li>• 지속적 데이터 축적</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- CTA -->
+        <div class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-3xl shadow-2xl p-8 text-center text-white">
+          <h2 class="text-3xl font-bold mb-4">혁신적인 기술을 경험해보세요</h2>
+          <p class="text-lg mb-6 opacity-90">
+            특허 출원 AI 시스템으로 최적의 요양시설을 찾아드립니다
+          </p>
+          <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="/ai-matching" class="inline-block bg-white text-indigo-600 hover:bg-gray-100 px-8 py-4 rounded-full text-lg font-bold shadow-xl transition-all transform hover:scale-105">
+              <i class="fas fa-robot mr-2"></i>
+              AI 매칭 시작하기
+            </a>
+            <a href="/" class="inline-block bg-indigo-500 hover:bg-indigo-400 text-white px-8 py-4 rounded-full text-lg font-bold shadow-xl transition-all transform hover:scale-105">
+              <i class="fas fa-home mr-2"></i>
+              메인으로
+            </a>
+          </div>
         </div>
       </div>
     </body>
