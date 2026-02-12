@@ -2115,12 +2115,6 @@ app.get('/', (c) => {
               </div>
 
               <div class="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 text-xs sm:text-sm md:text-base mt-6 sm:mt-8">
-                <div class="flex items-center bg-gradient-to-r from-purple-500 to-indigo-500 px-3 sm:px-4 py-2 rounded-full shadow-md hover:shadow-lg transition-shadow">
-                  <div class="bg-white bg-opacity-30 rounded-full p-1 sm:p-1.5 mr-1.5 sm:mr-2 shadow">
-                    <i class="fas fa-certificate text-white text-xs sm:text-sm"></i>
-                  </div>
-                  <span class="font-semibold text-white whitespace-nowrap">특허 출원 (10-2025-0058040)</span>
-                </div>
                 <div class="flex items-center bg-white px-3 sm:px-4 py-2 rounded-full shadow-md hover:shadow-lg transition-shadow">
                   <div class="bg-blue-500 rounded-full p-1 sm:p-1.5 mr-1.5 sm:mr-2 shadow">
                     <i class="fas fa-users text-white text-xs sm:text-sm"></i>
@@ -2163,51 +2157,6 @@ app.get('/', (c) => {
           </a>
         </div>
       </div>
-
-      {/* 회사 소개 섹션 */}
-      <section class="py-12 sm:py-16 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
-        <div class="max-w-5xl mx-auto px-4">
-          <div class="bg-white rounded-3xl shadow-2xl p-6 sm:p-10 border-2 border-indigo-100">
-            <div class="flex items-center justify-center mb-6">
-              <div class="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full p-3 mr-3 shadow-lg">
-                <i class="fas fa-building text-white text-2xl"></i>
-              </div>
-              <h2 class="text-2xl sm:text-3xl font-bold text-gray-900">케어조아 소개</h2>
-            </div>
-            
-            <div class="text-center space-y-4 sm:space-y-5">
-              <p class="text-base sm:text-lg leading-relaxed text-gray-700">
-                <span class="font-bold text-indigo-600">케어조아</span>는 
-                <span class="font-semibold text-purple-600">특허 출원 기반 AI 매칭 알고리즘</span>
-                <span class="text-sm text-gray-500">(특허번호: 10-2025-0058040)</span>을 적용한 
-                <span class="font-bold text-pink-600">정부 인증 벤처기업</span>입니다.
-              </p>
-              
-              <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-4 sm:p-6 border-l-4 border-green-500">
-                <p class="text-base sm:text-lg leading-relaxed text-gray-800">
-                  <span class="font-semibold text-green-700">입소 전 한의원 왕진 연계</span>를 통해 
-                  어르신의 <span class="font-bold text-teal-600">최적 맞춤형 요양시설 선정</span>을 지원합니다.
-                </p>
-              </div>
-              
-              <div class="grid sm:grid-cols-3 gap-3 sm:gap-4 mt-6">
-                <div class="bg-indigo-50 rounded-xl p-4 border border-indigo-200">
-                  <div class="text-2xl sm:text-3xl font-bold text-indigo-600 mb-1">특허 출원</div>
-                  <div class="text-xs sm:text-sm text-gray-600">AI 매칭 알고리즘</div>
-                </div>
-                <div class="bg-purple-50 rounded-xl p-4 border border-purple-200">
-                  <div class="text-2xl sm:text-3xl font-bold text-purple-600 mb-1">정부 인증</div>
-                  <div class="text-xs sm:text-sm text-gray-600">벤처기업</div>
-                </div>
-                <div class="bg-green-50 rounded-xl p-4 border border-green-200">
-                  <div class="text-2xl sm:text-3xl font-bold text-green-600 mb-1">한의원 왕진</div>
-                  <div class="text-xs sm:text-sm text-gray-600">입소 전 연계</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       <section class="py-20 bg-white">
         <div class="max-w-7xl mx-auto px-4">
