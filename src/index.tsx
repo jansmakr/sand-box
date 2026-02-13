@@ -8780,11 +8780,11 @@ app.get('/quote-request', (c) => {
 
       <div class="max-w-4xl mx-auto px-4 py-12"><div class="text-center mb-8">
           <h2 class="text-5xl font-extrabold text-gray-900 mb-4">
-            <i class="fas fa-bolt text-teal-600 mr-3"></i>
-            간편 견적 신청
+            <i class="fas fa-file-invoice text-teal-600 mr-3"></i>
+            상세 견적 신청
           </h2>
           <p class="text-xl text-gray-600">
-            3단계만 입력하면 해당 지역 시설에 자동으로 견적 요청이 전송됩니다
+            시설 유형과 지역을 선택하면 해당 시설에 자동으로 견적 요청이 전송됩니다
           </p>
         </div>
         
