@@ -2026,13 +2026,13 @@ app.get('/', (c) => {
       <section class="py-8 sm:py-10 md:py-14 lg:py-16 bg-gradient-to-b from-white to-gray-50">
         <div class="max-w-6xl mx-auto px-3 sm:px-4">
           <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8" id="main-action-buttons">
-                <a href="/quote-request" 
-                   class="group relative flex flex-col items-center justify-center bg-white py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[140px] sm:min-h-[160px]">
-                  <span class="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">인기</span>
+                <a href="/apply" 
+                   class="group relative flex flex-col items-center justify-center bg-gradient-to-br from-purple-500 to-indigo-600 py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[140px] sm:min-h-[160px]">
+                  <span class="absolute top-2 right-2 bg-yellow-400 text-gray-900 text-xs font-bold px-2 py-1 rounded-full">NEW</span>
                   <div class="mb-2 sm:mb-4 transform group-hover:scale-110 transition-transform duration-300">
-                    <i class="fas fa-calculator text-3xl sm:text-6xl md:text-7xl text-blue-500"></i>
+                    <i class="fas fa-clipboard-list text-3xl sm:text-6xl md:text-7xl text-white"></i>
                   </div>
-                  <span class="font-semibold text-gray-800 text-xs sm:text-base md:text-lg text-center leading-tight">간편견적</span>
+                  <span class="font-semibold text-white text-xs sm:text-base md:text-lg text-center leading-tight">통합<br/>신청</span>
                 </a>
 
                 <a href="/quote-simple"
@@ -8409,6 +8409,369 @@ app.post('/api/admin/facility/delete', async (c) => {
 })
 
 // 실시간 견적 플랫폼 페이지
+// 통합 신청 페이지 (견적/상담/왕진 통합)
+app.get('/apply', (c) => {
+  return c.html(`
+    <!DOCTYPE html>
+    <html lang="ko">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>서비스 신청 - 케어조아</title>
+      <script src="https://cdn.tailwindcss.com"></script>
+      <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+    </head>
+    <body class="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 min-h-screen">
+      <!-- 헤더 -->
+      <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+          <button onclick="history.back()" class="text-gray-600 hover:text-purple-600">
+            <i class="fas fa-arrow-left text-xl"></i>
+          </button>
+          <h1 class="text-lg font-bold text-gray-800">
+            <i class="fas fa-clipboard-list text-purple-600 mr-2"></i>
+            서비스 신청
+          </h1>
+          <div class="w-8"></div>
+        </div>
+      </header>
+
+      <main class="max-w-4xl mx-auto px-4 py-6">
+        <!-- 안내 -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+          <h2 class="text-xl font-bold text-gray-900 mb-3">
+            <i class="fas fa-hand-holding-heart text-purple-600 mr-2"></i>
+            필요하신 서비스를 선택해주세요
+          </h2>
+          <p class="text-sm text-gray-600">
+            한 번의 신청으로 맞춤형 서비스를 받으실 수 있습니다
+          </p>
+        </div>
+
+        <!-- Step 1: 서비스 유형 선택 -->
+        <div id="step1" class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+          <div class="flex items-center mb-6">
+            <div class="bg-purple-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold mr-3">1</div>
+            <h3 class="text-lg font-bold text-gray-900">신청 유형 선택</h3>
+          </div>
+
+          <div class="grid sm:grid-cols-2 gap-4">
+            <label class="service-type-card cursor-pointer">
+              <input type="radio" name="serviceType" value="간편견적" class="hidden" onchange="handleServiceTypeChange()">
+              <div class="service-card border-2 border-gray-200 rounded-xl p-6 hover:border-purple-500 hover:shadow-lg transition-all">
+                <div class="flex items-center mb-3">
+                  <div class="bg-blue-100 rounded-full p-3 mr-3">
+                    <i class="fas fa-calculator text-blue-600 text-2xl"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-bold text-gray-900">간편 견적</h4>
+                    <p class="text-xs text-gray-500">3분 이내</p>
+                  </div>
+                </div>
+                <p class="text-sm text-gray-600">간단한 정보로 빠르게 견적 확인</p>
+              </div>
+            </label>
+
+            <label class="service-type-card cursor-pointer">
+              <input type="radio" name="serviceType" value="상세견적" class="hidden" onchange="handleServiceTypeChange()">
+              <div class="service-card border-2 border-gray-200 rounded-xl p-6 hover:border-purple-500 hover:shadow-lg transition-all">
+                <div class="flex items-center mb-3">
+                  <div class="bg-green-100 rounded-full p-3 mr-3">
+                    <i class="fas fa-file-invoice text-green-600 text-2xl"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-bold text-gray-900">상세 견적</h4>
+                    <p class="text-xs text-gray-500">5분 소요</p>
+                  </div>
+                </div>
+                <p class="text-sm text-gray-600">상세한 요구사항 맞춤 견적</p>
+              </div>
+            </label>
+
+            <label class="service-type-card cursor-pointer">
+              <input type="radio" name="serviceType" value="전화상담" class="hidden" onchange="handleServiceTypeChange()">
+              <div class="service-card border-2 border-gray-200 rounded-xl p-6 hover:border-purple-500 hover:shadow-lg transition-all">
+                <div class="flex items-center mb-3">
+                  <div class="bg-purple-100 rounded-full p-3 mr-3">
+                    <i class="fas fa-phone-alt text-purple-600 text-2xl"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-bold text-gray-900">전화 상담</h4>
+                    <p class="text-xs text-gray-500">전문가 연결</p>
+                  </div>
+                </div>
+                <p class="text-sm text-gray-600">전문 상담사가 직접 안내</p>
+              </div>
+            </label>
+
+            <label class="service-type-card cursor-pointer">
+              <input type="radio" name="serviceType" value="한의사왕진" class="hidden" onchange="handleServiceTypeChange()">
+              <div class="service-card border-2 border-gray-200 rounded-xl p-6 hover:border-purple-500 hover:shadow-lg transition-all">
+                <div class="flex items-center mb-3">
+                  <div class="bg-emerald-100 rounded-full p-3 mr-3">
+                    <i class="fas fa-user-md text-emerald-600 text-2xl"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-bold text-gray-900">한의사 왕진</h4>
+                    <p class="text-xs text-gray-500 bg-green-100 text-green-700 px-2 py-0.5 rounded-full inline-block">일차의료</p>
+                  </div>
+                </div>
+                <p class="text-sm text-gray-600">집에서 편안한 한의 진료</p>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Step 2: 공통 정보 입력 -->
+        <div id="step2" class="hidden bg-white rounded-2xl shadow-lg p-6 mb-6">
+          <div class="flex items-center mb-6">
+            <div class="bg-purple-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold mr-3">2</div>
+            <h3 class="text-lg font-bold text-gray-900">기본 정보 입력</h3>
+          </div>
+
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                <i class="fas fa-user text-purple-600 mr-1"></i>
+                이름 *
+              </label>
+              <input type="text" id="name" required class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-purple-600">
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                <i class="fas fa-phone text-green-600 mr-1"></i>
+                연락처 *
+              </label>
+              <input type="tel" id="phone" required placeholder="010-0000-0000" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-purple-600">
+            </div>
+
+            <div class="grid sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  <i class="fas fa-map-marker-alt text-red-600 mr-1"></i>
+                  시/도 *
+                </label>
+                <select id="sido" required class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-purple-600">
+                  <option value="">선택해주세요</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  <i class="fas fa-map-pin text-blue-600 mr-1"></i>
+                  시/군/구 *
+                </label>
+                <select id="sigungu" required disabled class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-purple-600">
+                  <option value="">먼저 시/도를 선택해주세요</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3: 유형별 추가 정보 -->
+        <div id="step3" class="hidden bg-white rounded-2xl shadow-lg p-6 mb-6">
+          <div class="flex items-center mb-6">
+            <div class="bg-purple-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold mr-3">3</div>
+            <h3 class="text-lg font-bold text-gray-900">추가 정보</h3>
+          </div>
+
+          <!-- 간편견적 추가 정보 -->
+          <div id="simple-quote-fields" class="hidden">
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">시설 유형</label>
+                <select id="facilityType" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-purple-600">
+                  <option value="">선택해주세요</option>
+                  <option value="요양병원">요양병원</option>
+                  <option value="요양원">요양원</option>
+                  <option value="주야간보호">주야간보호센터</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">요양등급</label>
+                <select id="careGrade" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-purple-600">
+                  <option value="">선택해주세요</option>
+                  <option value="1">1등급</option>
+                  <option value="2">2등급</option>
+                  <option value="3">3등급</option>
+                  <option value="4">4등급</option>
+                  <option value="5">5등급</option>
+                  <option value="인지지원">인지지원등급</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- 상세견적 추가 정보 -->
+          <div id="detailed-quote-fields" class="hidden">
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">환자 나이</label>
+                <input type="number" id="patientAge" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-purple-600">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">특이사항</label>
+                <textarea id="specialNotes" rows="4" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-purple-600"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- 전화상담 추가 정보 -->
+          <div id="call-consultation-fields" class="hidden">
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">상담 희망 시간</label>
+                <select id="preferredTime" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-purple-600">
+                  <option value="">선택해주세요</option>
+                  <option value="오전 9-12시">오전 9-12시</option>
+                  <option value="오후 12-3시">오후 12-3시</option>
+                  <option value="오후 3-6시">오후 3-6시</option>
+                  <option value="저녁 6-9시">저녁 6-9시</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">상담 내용</label>
+                <textarea id="consultationContent" rows="4" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-purple-600"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- 한의사왕진 추가 정보 -->
+          <div id="haniwon-fields" class="hidden">
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">증상 (복수 선택 가능)</label>
+                <div class="grid sm:grid-cols-2 gap-2">
+                  <label class="flex items-center">
+                    <input type="checkbox" value="근골격계 통증" class="mr-2">
+                    <span class="text-sm">근골격계 통증</span>
+                  </label>
+                  <label class="flex items-center">
+                    <input type="checkbox" value="만성 통증" class="mr-2">
+                    <span class="text-sm">만성 통증</span>
+                  </label>
+                  <label class="flex items-center">
+                    <input type="checkbox" value="중풍 후유증" class="mr-2">
+                    <span class="text-sm">중풍 후유증</span>
+                  </label>
+                  <label class="flex items-center">
+                    <input type="checkbox" value="소화기 질환" class="mr-2">
+                    <span class="text-sm">소화기 질환</span>
+                  </label>
+                </div>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">희망 방문 일시</label>
+                <input type="datetime-local" id="visitDateTime" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-purple-600">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 제출 버튼 -->
+        <div id="submitSection" class="hidden">
+          <button id="submitBtn" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-4 rounded-xl font-bold text-lg shadow-xl hover:shadow-2xl transition-all transform hover:scale-105">
+            <i class="fas fa-paper-plane mr-2"></i>
+            신청하기
+          </button>
+        </div>
+      </main>
+
+      <script>
+        const SIDO_LIST = [
+          '서울특별시', '부산광역시', '대구광역시', '인천광역시', '광주광역시',
+          '대전광역시', '울산광역시', '세종특별자치시', '경기도', '강원특별자치도',
+          '충청북도', '충청남도', '전북특별자치도', '전라남도', '경상북도',
+          '경상남도', '제주특별자치도'
+        ];
+
+        let selectedService = '';
+
+        // 초기화
+        document.addEventListener('DOMContentLoaded', () => {
+          const sidoSelect = document.getElementById('sido');
+          SIDO_LIST.forEach(sido => {
+            const option = document.createElement('option');
+            option.value = sido;
+            option.textContent = sido;
+            sidoSelect.appendChild(option);
+          });
+        });
+
+        // 서비스 유형 선택
+        function handleServiceTypeChange() {
+          const selected = document.querySelector('input[name="serviceType"]:checked');
+          if (!selected) return;
+
+          selectedService = selected.value;
+
+          // 모든 카드 초기화
+          document.querySelectorAll('.service-card').forEach(card => {
+            card.classList.remove('border-purple-500', 'bg-purple-50');
+            card.classList.add('border-gray-200');
+          });
+
+          // 선택된 카드 강조
+          const selectedCard = selected.parentElement.querySelector('.service-card');
+          selectedCard.classList.remove('border-gray-200');
+          selectedCard.classList.add('border-purple-500', 'bg-purple-50');
+
+          // Step 2 표시
+          document.getElementById('step2').classList.remove('hidden');
+          document.getElementById('step3').classList.remove('hidden');
+          document.getElementById('submitSection').classList.remove('hidden');
+
+          // 추가 정보 필드 표시/숨김
+          hideAllExtraFields();
+          showExtraFields(selectedService);
+        }
+
+        function hideAllExtraFields() {
+          document.getElementById('simple-quote-fields').classList.add('hidden');
+          document.getElementById('detailed-quote-fields').classList.add('hidden');
+          document.getElementById('call-consultation-fields').classList.add('hidden');
+          document.getElementById('haniwon-fields').classList.add('hidden');
+        }
+
+        function showExtraFields(service) {
+          switch(service) {
+            case '간편견적':
+              document.getElementById('simple-quote-fields').classList.remove('hidden');
+              break;
+            case '상세견적':
+              document.getElementById('detailed-quote-fields').classList.remove('hidden');
+              break;
+            case '전화상담':
+              document.getElementById('call-consultation-fields').classList.remove('hidden');
+              break;
+            case '한의사왕진':
+              document.getElementById('haniwon-fields').classList.remove('hidden');
+              break;
+          }
+        }
+
+        // 제출
+        document.getElementById('submitBtn')?.addEventListener('click', () => {
+          const name = document.getElementById('name').value;
+          const phone = document.getElementById('phone').value;
+          const sido = document.getElementById('sido').value;
+          const sigungu = document.getElementById('sigungu').value;
+
+          if (!name || !phone || !sido || !sigungu) {
+            alert('필수 정보를 모두 입력해주세요.');
+            return;
+          }
+
+          alert(\`\${selectedService} 신청이 접수되었습니다.\\n담당자가 곧 연락드리겠습니다.\`);
+          window.location.href = '/';
+        });
+      </script>
+    </body>
+    </html>
+  `)
+})
+
 app.get('/quote-request', (c) => {
   return c.render(
     <div class="min-h-screen bg-gradient-to-br from-teal-50 via-white to-blue-50"><header class="bg-white shadow-md border-b-2 border-teal-500">
