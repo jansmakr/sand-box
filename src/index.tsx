@@ -2034,13 +2034,12 @@ app.get('/', (c) => {
                   <span class="font-semibold text-gray-800 text-xs sm:text-base md:text-lg text-center leading-tight">간편견적</span>
                 </a>
 
-                <a href="/apply" 
-                   class="group relative flex flex-col items-center justify-center bg-gradient-to-br from-purple-500 to-indigo-600 py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[140px] sm:min-h-[160px]">
-                  <span class="absolute top-2 right-2 bg-yellow-400 text-gray-900 text-xs font-bold px-2 py-1 rounded-full">NEW</span>
+                <a href="/quote-request"
+                   class="group flex flex-col items-center justify-center bg-white py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[140px] sm:min-h-[160px]">
                   <div class="mb-2 sm:mb-4 transform group-hover:scale-110 transition-transform duration-300">
-                    <i class="fas fa-notes-medical text-3xl sm:text-6xl md:text-7xl text-white"></i>
+                    <i class="fas fa-notes-medical text-3xl sm:text-6xl md:text-7xl text-green-500"></i>
                   </div>
-                  <span class="font-semibold text-white text-xs sm:text-base md:text-lg text-center leading-tight">상세견적신청</span>
+                  <span class="font-semibold text-gray-800 text-xs sm:text-base md:text-lg text-center leading-tight">상세견적신청</span>
                 </a>
 
                 <a href="/call-consultation"
@@ -2089,7 +2088,7 @@ app.get('/', (c) => {
                   <span class="font-semibold text-gray-800 text-xs sm:text-base md:text-lg text-center leading-tight">통합돌봄<br/>안내</span>
                 </a>
 
-                <a href="/apply"
+                <a href="/quote-request?type=한의사왕진"
                    class="group relative flex flex-col items-center justify-center bg-white py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[140px] sm:min-h-[160px]">
                   <span class="absolute top-2 right-2 bg-green-500 text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full shadow-lg">일차의료</span>
                   <div class="mb-2 sm:mb-4 transform group-hover:scale-110 transition-transform duration-300">
@@ -8854,6 +8853,15 @@ app.get('/quote-request', (c) => {
                     <div class="font-semibold text-gray-700 group-hover:text-teal-700 peer-checked:text-teal-700">재가복지센터</div>
                   </div>
                 </label>
+                
+                <label class="relative cursor-pointer group">
+                  <input type="radio" name="facility_type" value="한의사왕진" required class="peer sr-only" />
+                  <div class="border-2 border-gray-300 rounded-xl p-6 text-center hover:border-teal-500 peer-checked:border-teal-600 peer-checked:bg-teal-50 transition-all">
+                    <i class="fas fa-user-md text-3xl text-gray-400 mb-3 group-hover:text-teal-600 peer-checked:text-teal-600"></i>
+                    <div class="font-semibold text-gray-700 group-hover:text-teal-700 peer-checked:text-teal-700">한의사왕진</div>
+                    <span class="inline-block mt-1 bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full">일차의료</span>
+                  </div>
+                </label>
               </div>
             </div><div class="border-b-2 border-gray-200 pb-8">
               <div class="flex items-center mb-6">
@@ -8954,6 +8962,30 @@ app.get('/quote-request', (c) => {
       </div>
 
       <script dangerouslySetInnerHTML={{__html: `
+        // URL 파라미터 확인 및 한의사왕진 자동 선택
+        const urlParams = new URLSearchParams(window.location.search);
+        const typeParam = urlParams.get('type');
+        
+        // 페이지 로드 시 한의사왕진 자동 선택
+        if (typeParam === '한의사왕진') {
+          window.addEventListener('DOMContentLoaded', () => {
+            const haniwonRadio = document.querySelector('input[name="facility_type"][value="한의사왕진"]');
+            if (haniwonRadio) {
+              haniwonRadio.checked = true;
+              // 선택된 스타일 적용
+              const haniwonCard = haniwonRadio.closest('label').querySelector('.border-2');
+              if (haniwonCard) {
+                haniwonCard.classList.remove('border-gray-300');
+                haniwonCard.classList.add('border-teal-600', 'bg-teal-50');
+              }
+              // 스크롤 애니메이션
+              setTimeout(() => {
+                haniwonRadio.closest('label').scrollIntoView({ behavior: 'smooth', block: 'center' });
+              }, 300);
+            }
+          });
+        }
+        
         // 시군구 데이터
         const sigunguData = {
           '서울특별시': ['강남구', '강동구', '강북구', '강서구', '관악구', '광진구', '구로구', '금천구', '노원구', '도봉구', '동대문구', '동작구', '마포구', '서대문구', '서초구', '성동구', '성북구', '송파구', '양천구', '영등포구', '용산구', '은평구', '종로구', '중구', '중랑구'],
