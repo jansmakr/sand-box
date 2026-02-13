@@ -17176,7 +17176,109 @@ app.post('/api/matching/facilities', async (c) => {
     
     // 7단계: 점수순 정렬 및 상위 10개
     scored.sort((a: any, b: any) => b.matchScore - a.matchScore)
-    const topRecommendations = scored.slice(0, 10)
+    let topRecommendations = scored.slice(0, 10)
+    let isAlternative = false
+    
+    // 🆕 조건에 맞는 시설이 없을 때 대안 시설 제공
+    if (topRecommendations.length === 0 && userLatitude && userLongitude) {
+      console.log('⚠️ 조건에 맞는 시설 없음 → 거리 기반 대안 시설 제공')
+      isAlternative = true
+      
+      // 거리 계산 (모든 시설 대상, 시설 유형만 동일하게)
+      let alternatives = allFacilities
+        .filter((f: any) => f.type === facilityType) // 시설 유형은 유지
+        .map((f: any) => {
+          if (f.lat && f.lng) {
+            const distance = calculateDistance(
+              parseFloat(userLatitude),
+              parseFloat(userLongitude),
+              parseFloat(f.lat),
+              parseFloat(f.lng)
+            )
+            return { ...f, distance: Math.round(distance * 10) / 10 }
+          }
+          return { ...f, distance: 999 }
+        })
+        .filter((f: any) => f.distance < 999)
+        .sort((a: any, b: any) => a.distance - b.distance)
+        .slice(0, 5) // 가장 가까운 5개
+      
+      // 대안 시설에도 평점/협업 필터링 데이터 로드
+      const altFacilityIds = alternatives.map((f: any) => f.id)
+      if (altFacilityIds.length > 0 && db) {
+        try {
+          const altStatsQuery = await db.prepare(`
+            SELECT facility_id, AVG(overall_rating) as avg_rating, COUNT(*) as review_count
+            FROM facility_reviews
+            WHERE facility_id IN (${altFacilityIds.map(() => '?').join(',')})
+            GROUP BY facility_id
+          `).bind(...altFacilityIds).all()
+          
+          if (altStatsQuery.results) {
+            altStatsQuery.results.forEach((row: any) => {
+              facilityStats[row.facility_id] = {
+                avgRating: Math.round((row.avg_rating || 0) * 10) / 10,
+                reviewCount: row.review_count || 0
+              }
+            })
+          }
+          
+          // 상세 정보도 로드
+          const altDetailsQuery = await db.prepare(`
+            SELECT facility_id, specialties, admission_types
+            FROM facility_details
+            WHERE facility_id IN (${altFacilityIds.map(() => '?').join(',')})
+          `).bind(...altFacilityIds).all()
+          
+          if (altDetailsQuery.results) {
+            altDetailsQuery.results.forEach((row: any) => {
+              try {
+                detailsMap[row.facility_id] = {
+                  specialties: row.specialties ? JSON.parse(row.specialties) : [],
+                  admissionTypes: row.admission_types ? JSON.parse(row.admission_types) : []
+                }
+              } catch (e) {
+                console.error(`⚠️ 상세 정보 파싱 실패 (시설 ${row.facility_id}):`, e)
+              }
+            })
+          }
+        } catch (error) {
+          console.error('⚠️ 대안 시설 데이터 로드 실패:', error)
+        }
+      }
+      
+      // 대안 시설 스코어링
+      topRecommendations = alternatives.map((facility: any) => {
+        const stats = facilityStats[facility.id] || {}
+        const details = detailsMap[facility.id] || {}
+        
+        // 대안 시설은 거리 위주로 점수 계산
+        const distanceScore = facility.distance <= 10 ? 40 : Math.max(0, 40 - (facility.distance - 10) * 2)
+        const ratingScore = (stats.avgRating || 3.0) * 6
+        const matchScore = Math.min(100, distanceScore + ratingScore + 10)
+        
+        return {
+          id: facility.id,
+          name: facility.name,
+          facility_type: facility.type,
+          address: facility.address,
+          sido: facility.sido,
+          sigungu: facility.sigungu,
+          phone: facility.phone,
+          latitude: facility.lat,
+          longitude: facility.lng,
+          distance: facility.distance,
+          matchScore,
+          matchReasons: [`${facility.distance}km 이내 위치`, '거리 기반 추천'],
+          isRepresentative: facility.isRepresentative || false,
+          stats,
+          details,
+          isAlternative: true // 대안 시설 플래그
+        }
+      })
+      
+      console.log(`🔄 대안 시설 추천: ${topRecommendations.length}개 (거리 기반)`)
+    }
     
     console.log(`✅ 추천 완료: ${topRecommendations.length}개 시설 (최고점수: ${topRecommendations[0]?.matchScore || 0}점)`)
     
@@ -17184,6 +17286,7 @@ app.post('/api/matching/facilities', async (c) => {
       success: true,
       count: topRecommendations.length,
       facilities: topRecommendations,
+      isAlternative, // 대안 시설 여부
       filters: aiCriteria,
       matchingInfo: {
         totalScanned: allFacilities.length,
@@ -17772,7 +17875,37 @@ app.get('/ai-matching', async (c) => {
               </div>
             \`;
           } else {
-            facilityList.innerHTML = facilities.map((facility, index) => {
+            // 🆕 대안 시설 안내 메시지
+            let alternativeNotice = '';
+            if (data.isAlternative) {
+              alternativeNotice = \`
+                <div class="bg-gradient-to-r from-orange-50 to-amber-50 border-2 border-orange-200 rounded-2xl p-5 mb-6 shadow-md">
+                  <div class="flex items-start gap-3">
+                    <div class="bg-orange-500 text-white rounded-full p-2 flex-shrink-0">
+                      <i class="fas fa-info-circle text-xl"></i>
+                    </div>
+                    <div class="flex-1">
+                      <h3 class="font-bold text-gray-900 mb-2 text-lg">
+                        <i class="fas fa-exclamation-triangle text-orange-500 mr-2"></i>
+                        조건에 정확히 일치하는 시설이 없습니다
+                      </h3>
+                      <p class="text-sm text-gray-700 mb-2">
+                        요청하신 조건(등급, 예산, 전문분야)에 정확히 맞는 시설을 찾지 못했습니다.
+                      </p>
+                      <div class="bg-white rounded-lg p-3 border border-orange-200">
+                        <p class="text-sm text-gray-800">
+                          <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>
+                          <strong>대신 가까운 위치의 시설</strong>을 추천해드립니다. 
+                          거리 기준 가까운 순으로 정렬되었으며, 조건을 변경하시면 더 정확한 결과를 받으실 수 있습니다.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              \`;
+            }
+            
+            facilityList.innerHTML = alternativeNotice + facilities.map((facility, index) => {
               const typeConfig = {
                 '요양병원': { icon: 'fa-hospital', color: 'blue' },
                 '요양원': { icon: 'fa-home', color: 'green' },
@@ -17874,6 +18007,7 @@ app.get('/ai-matching', async (c) => {
                     <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-purple-600 transition-colors">
                       \${facility.name}
                       \${facility.isRepresentative ? '<span class="inline-flex items-center px-2 py-0.5 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded-full ml-2"><i class="fas fa-crown mr-1"></i>대표시설</span>' : ''}
+                      \${facility.isAlternative ? '<span class="inline-flex items-center px-2 py-0.5 bg-orange-100 text-orange-800 text-xs font-semibold rounded-full ml-2"><i class="fas fa-compass mr-1"></i>대안 추천</span>' : ''}
                       <i class="fas fa-arrow-right ml-2 text-sm opacity-0 group-hover:opacity-100 transition-opacity"></i>
                     </h3>
                   </a>
