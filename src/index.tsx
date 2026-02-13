@@ -2099,7 +2099,7 @@ app.get('/', (c) => {
                 </a>
               </div>
 
-              {/* 특허 배너 (상단 강조) - 기술 명세 강화 */}
+              {/* 특허 배너 (상단 강조) - 간결한 버전 */}
               <div class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 px-4 sm:px-6 py-4 sm:py-5 rounded-2xl shadow-2xl mb-6 sm:mb-8 border-2 border-white/20">
                 <div class="flex flex-col items-center justify-center gap-3">
                   {/* 메인 타이틀 */}
@@ -2113,23 +2113,15 @@ app.get('/', (c) => {
                     </div>
                   </div>
                   
-                  {/* 핵심 기술 스펙 */}
+                  {/* 핵심 기술 스펙 - 간결 버전 */}
                   <div class="flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-xs sm:text-sm">
                     <div class="bg-white/20 backdrop-blur-sm rounded-full px-3 py-1.5 flex items-center">
                       <i class="fas fa-brain text-yellow-300 mr-1.5"></i>
-                      <span class="font-semibold text-white">12가지 매칭 변수</span>
+                      <span class="font-semibold text-white">12가지 매칭 알고리즘</span>
                     </div>
                     <div class="bg-white/20 backdrop-blur-sm rounded-full px-3 py-1.5 flex items-center">
-                      <i class="fas fa-filter text-green-300 mr-1.5"></i>
-                      <span class="font-semibold text-white">다단계 필터링</span>
-                    </div>
-                    <div class="bg-white/20 backdrop-blur-sm rounded-full px-3 py-1.5 flex items-center">
-                      <i class="fas fa-calculator text-blue-300 mr-1.5"></i>
-                      <span class="font-semibold text-white">실시간 비용 예측</span>
-                    </div>
-                    <div class="bg-white/20 backdrop-blur-sm rounded-full px-3 py-1.5 flex items-center">
-                      <i class="fas fa-shield-alt text-red-300 mr-1.5"></i>
-                      <span class="font-semibold text-white">AES-256 보안</span>
+                      <i class="fas fa-microchip text-blue-300 mr-1.5"></i>
+                      <span class="font-semibold text-white">4가지 핵심 기술</span>
                     </div>
                   </div>
                   
