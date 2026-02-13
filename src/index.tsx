@@ -2026,21 +2026,21 @@ app.get('/', (c) => {
       <section class="py-8 sm:py-10 md:py-14 lg:py-16 bg-gradient-to-b from-white to-gray-50">
         <div class="max-w-6xl mx-auto px-3 sm:px-4">
           <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8" id="main-action-buttons">
+                <a href="/quote-simple"
+                   class="group flex flex-col items-center justify-center bg-white py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[140px] sm:min-h-[160px]">
+                  <div class="mb-2 sm:mb-4 transform group-hover:scale-110 transition-transform duration-300">
+                    <i class="fas fa-calculator text-3xl sm:text-6xl md:text-7xl text-blue-500"></i>
+                  </div>
+                  <span class="font-semibold text-gray-800 text-xs sm:text-base md:text-lg text-center leading-tight">간편견적</span>
+                </a>
+
                 <a href="/apply" 
                    class="group relative flex flex-col items-center justify-center bg-gradient-to-br from-purple-500 to-indigo-600 py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[140px] sm:min-h-[160px]">
                   <span class="absolute top-2 right-2 bg-yellow-400 text-gray-900 text-xs font-bold px-2 py-1 rounded-full">NEW</span>
                   <div class="mb-2 sm:mb-4 transform group-hover:scale-110 transition-transform duration-300">
-                    <i class="fas fa-clipboard-list text-3xl sm:text-6xl md:text-7xl text-white"></i>
+                    <i class="fas fa-notes-medical text-3xl sm:text-6xl md:text-7xl text-white"></i>
                   </div>
-                  <span class="font-semibold text-white text-xs sm:text-base md:text-lg text-center leading-tight">통합<br/>신청</span>
-                </a>
-
-                <a href="/quote-simple"
-                   class="group flex flex-col items-center justify-center bg-white py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[140px] sm:min-h-[160px]">
-                  <div class="mb-2 sm:mb-4 transform group-hover:scale-110 transition-transform duration-300">
-                    <i class="fas fa-notes-medical text-3xl sm:text-6xl md:text-7xl text-green-500"></i>
-                  </div>
-                  <span class="font-semibold text-gray-800 text-xs sm:text-base md:text-lg text-center leading-tight">상세견적신청</span>
+                  <span class="font-semibold text-white text-xs sm:text-base md:text-lg text-center leading-tight">상세견적신청</span>
                 </a>
 
                 <a href="/call-consultation"
@@ -2089,7 +2089,7 @@ app.get('/', (c) => {
                   <span class="font-semibold text-gray-800 text-xs sm:text-base md:text-lg text-center leading-tight">통합돌봄<br/>안내</span>
                 </a>
 
-                <a href="/haniwon-visit"
+                <a href="/apply"
                    class="group relative flex flex-col items-center justify-center bg-white py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[140px] sm:min-h-[160px]">
                   <span class="absolute top-2 right-2 bg-green-500 text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full shadow-lg">일차의료</span>
                   <div class="mb-2 sm:mb-4 transform group-hover:scale-110 transition-transform duration-300">
@@ -8456,22 +8456,6 @@ app.get('/apply', (c) => {
           </div>
 
           <div class="grid sm:grid-cols-2 gap-4">
-            <label class="service-type-card cursor-pointer">
-              <input type="radio" name="serviceType" value="간편견적" class="hidden" onchange="handleServiceTypeChange()">
-              <div class="service-card border-2 border-gray-200 rounded-xl p-6 hover:border-purple-500 hover:shadow-lg transition-all">
-                <div class="flex items-center mb-3">
-                  <div class="bg-blue-100 rounded-full p-3 mr-3">
-                    <i class="fas fa-calculator text-blue-600 text-2xl"></i>
-                  </div>
-                  <div>
-                    <h4 class="font-bold text-gray-900">간편 견적</h4>
-                    <p class="text-xs text-gray-500">3분 이내</p>
-                  </div>
-                </div>
-                <p class="text-sm text-gray-600">간단한 정보로 빠르게 견적 확인</p>
-              </div>
-            </label>
-
             <label class="service-type-card cursor-pointer">
               <input type="radio" name="serviceType" value="상세견적" class="hidden" onchange="handleServiceTypeChange()">
               <div class="service-card border-2 border-gray-200 rounded-xl p-6 hover:border-purple-500 hover:shadow-lg transition-all">
