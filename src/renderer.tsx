@@ -46,10 +46,13 @@ export const renderer = jsxRenderer(({ children }) => {
         <meta name="naver-site-verification" content="dc43a9599c76357b725d565f539f29ee2d907b81" />
         
         {/* Content Security Policy */}
-        <meta httpEquiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://cdn.jsdelivr.net https://unpkg.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; img-src 'self' data: https:; font-src 'self' data: https://cdn.jsdelivr.net; connect-src 'self' https://www.google-analytics.com https://www.genspark.ai https://cloudflareinsights.com https://cdn.jsdelivr.net; frame-src 'self';" />
+        <meta httpEquiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://pagead2.googlesyndication.com https://adservice.google.com https://cdn.jsdelivr.net https://unpkg.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; img-src 'self' data: https:; font-src 'self' data: https://cdn.jsdelivr.net; connect-src 'self' https://www.google-analytics.com https://pagead2.googlesyndication.com https://www.genspark.ai https://cloudflareinsights.com https://cdn.jsdelivr.net; frame-src 'self' https://googleads.g.doubleclick.net https://tpc.googlesyndication.com;" />
         
         {/* Google Analytics 4 */}
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-KWGGQN7LR3"></script>
+        
+        {/* Google AdSense */}
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7374276712890453" crossorigin="anonymous"></script>
         
         {/* Favicon */}
         <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>❤️</text></svg>" />
