@@ -2134,19 +2134,6 @@ app.get('/', (c) => {
                 </div>
               </div>
 
-              {/* 🎯 광고 배너 A - 특허 배너 직후 (위치 A) */}
-              <div class="mb-6 sm:mb-8">
-                <ins class="adsbygoogle"
-                     style="display:block"
-                     data-ad-client="ca-pub-7374276712890453"
-                     data-ad-slot="1234567890"
-                     data-ad-format="auto"
-                     data-full-width-responsive="true"></ins>
-                <script dangerouslySetInnerHTML={{
-                  __html: `(adsbygoogle = window.adsbygoogle || []).push({});`
-                }} />
-              </div>
-
               <div class="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 text-xs sm:text-sm md:text-base mt-6 sm:mt-8">
                 <div class="flex items-center bg-white px-3 sm:px-4 py-2 rounded-full shadow-md hover:shadow-lg transition-shadow">
                   <div class="bg-blue-500 rounded-full p-1 sm:p-1.5 mr-1.5 sm:mr-2 shadow">
