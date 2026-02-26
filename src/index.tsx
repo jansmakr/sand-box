@@ -19334,6 +19334,4 @@ export default {
   // 외부 Cron 서비스(예: GitHub Actions, Uptime Robot 등)를 통해 주기적으로 호출할 수 있습니다
 }
 
-으로 호출할 수 있습니다
-}
 
