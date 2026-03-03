@@ -889,6 +889,21 @@ app.post('/api/auth/register', async (c) => {
       if (existingUser) {
         return c.json({ success: false, message: '이미 사용 중인 이메일입니다.' })
       }
+      
+      // 시설 회원가입 시 사업자번호 중복 체크
+      if (data.type === 'facility' && cleanBusinessNumber) {
+        const duplicateBusiness = await db.prepare(`
+          SELECT id, name FROM users 
+          WHERE business_number = ? AND user_type = 'facility'
+        `).bind(cleanBusinessNumber).first()
+        
+        if (duplicateBusiness) {
+          return c.json({ 
+            success: false, 
+            message: `이미 등록된 사업자번호입니다. (등록 시설: ${duplicateBusiness.name})` 
+          })
+        }
+      }
     }
 
     // D1에 사용자 생성
@@ -897,15 +912,56 @@ app.post('/api/auth/register', async (c) => {
       const hashedPassword = data.password
       
       let insertResult
+      let matchedFacilityId = null
       
       // user_type에 따라 다른 필드 처리
       if (data.type === 'facility') {
+        // 🔍 오픈 데이터에서 기존 시설 찾기
+        try {
+          // 우선순위 1: 시설명 + 전화번호 일치
+          let existingFacility = await db.prepare(`
+            SELECT id, name, address, phone 
+            FROM facilities 
+            WHERE name = ? AND phone = ?
+            LIMIT 1
+          `).bind(data.name, cleanPhone).first()
+          
+          // 우선순위 2: 시설명 + 시/도 + 시/군/구 일치
+          if (!existingFacility && data.region_sido && data.region_sigungu) {
+            existingFacility = await db.prepare(`
+              SELECT id, name, address, phone 
+              FROM facilities 
+              WHERE name = ? AND sido = ? AND sigungu = ?
+              LIMIT 1
+            `).bind(data.name, data.region_sido, data.region_sigungu).first()
+          }
+          
+          // 우선순위 3: 전화번호만 일치 (다른 시설명일 수 있으므로 주의)
+          if (!existingFacility && cleanPhone) {
+            existingFacility = await db.prepare(`
+              SELECT id, name, address, phone 
+              FROM facilities 
+              WHERE phone = ?
+              LIMIT 1
+            `).bind(cleanPhone).first()
+          }
+          
+          if (existingFacility) {
+            matchedFacilityId = existingFacility.id
+            console.log(`✅ 기존 시설과 매칭됨: ${existingFacility.name} (ID: ${matchedFacilityId})`)
+          }
+        } catch (matchError) {
+          console.error('시설 매칭 오류 (무시):', matchError)
+        }
+        
+        // facility_id 포함하여 사용자 생성
         insertResult = await db.prepare(`
           INSERT INTO users (
             user_type, email, password_hash, name, phone,
-            business_number, facility_type, facility_address,
+            business_number, facility_type, region_sido, region_sigungu,
+            address, facility_id,
             created_at, updated_at
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
         `).bind(
           data.type,
           data.email,
@@ -914,7 +970,10 @@ app.post('/api/auth/register', async (c) => {
           cleanPhone,
           cleanBusinessNumber,
           data.facilityType || null,
-          data.facilityAddress || null
+          data.region_sido || null,
+          data.region_sigungu || null,
+          data.facilityAddress || null,
+          matchedFacilityId
         ).run()
       } else if (data.type === 'hospital_manager' || data.type === 'welfare_manager') {
         insertResult = await db.prepare(`
@@ -951,10 +1010,18 @@ app.post('/api/auth/register', async (c) => {
       
       const userId = insertResult.meta.last_row_id
       
+      // 시설 회원가입 시 매칭 정보 포함
+      let responseMessage = '회원가입이 완료되었습니다.'
+      if (data.type === 'facility' && matchedFacilityId) {
+        responseMessage = '회원가입이 완료되었습니다. 기존 등록된 시설 정보와 자동으로 연결되었습니다.'
+      }
+      
       return c.json({ 
         success: true, 
-        message: '회원가입이 완료되었습니다.',
-        userId: userId
+        message: responseMessage,
+        userId: userId,
+        facilityMatched: !!matchedFacilityId,
+        facilityId: matchedFacilityId
       })
     }
     
@@ -5304,8 +5371,12 @@ app.get('/admin/facilities', (c) => {
           document.getElementById('editForm').reset();
           document.getElementById('editFacilityId').value = '';
           
-          // 시군구 초기화
-          document.getElementById('editSigungu').innerHTML = '<option value="">선택하세요</option>';
+          // 시/도 선택 초기화 (첫 번째 옵션 선택)
+          const sidoSelect = document.getElementById('editSido');
+          sidoSelect.selectedIndex = 0; // "서울특별시" 선택
+          
+          // 시군구 옵션 업데이트
+          updateEditSigunguOptions();
           
           // 모달 제목 변경
           document.querySelector('#editModal h3').innerHTML = '<i class="fas fa-plus text-green-600 mr-2"></i>신규 시설 등록';
