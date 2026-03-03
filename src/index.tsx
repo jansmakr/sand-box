@@ -551,6 +551,10 @@ app.get('/api/auth/me', async (c) => {
 
 // 회원가입 페이지
 app.get('/register', (c) => {
+  return c.render(registerPage())
+})
+
+app.get('/signup', (c) => {
   return c.html(`
     <!DOCTYPE html>
     <html lang="ko">
@@ -663,16 +667,38 @@ app.get('/register', (c) => {
                 <div class="bg-teal-50 border border-teal-200 rounded-lg p-4 mb-4">
                   <p class="text-sm text-gray-700">
                     <i class="fas fa-info-circle text-teal-600 mr-2"></i>
-                    <strong>안내:</strong> 시설 유형, 주소 등 상세 정보는 로그인 후 <strong>시설 정보 수정</strong>에서 입력하실 수 있습니다.
+                    <strong>안내:</strong> 사업자등록번호와 시설명을 입력하면 기존 등록된 시설인지 확인합니다.
                   </p>
                 </div>
 
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">사업자등록번호 (선택)</label>
-                  <input type="text" id="businessNumber" placeholder="123-45-67890"
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-id-card text-gray-400 mr-1"></i>사업자등록번호 *
+                  </label>
+                  <input type="text" id="businessNumber" required placeholder="123-45-67890" maxlength="12"
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent" />
-                  <p class="text-xs text-gray-500 mt-1">사업자등록번호가 있으면 입력해주세요.</p>
+                  <p class="text-xs text-gray-500 mt-1">하이픈(-)은 자동으로 입력됩니다</p>
                 </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-hospital text-gray-400 mr-1"></i>시설명 *
+                  </label>
+                  <input type="text" id="facilityName" required placeholder="서울요양병원"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent" />
+                </div>
+
+                <button type="button" id="checkFacilityBtn" 
+                  class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-4 rounded-lg transition-colors">
+                  <i class="fas fa-search mr-2"></i>기존 시설 확인
+                </button>
+
+                <!-- 매칭 결과 표시 영역 -->
+                <div id="matchResult" style="display: none;" class="mt-4"></div>
+                
+                <!-- 매칭된 facility_id 저장 -->
+                <input type="hidden" id="matchedFacilityId" value="" />
+                <input type="hidden" id="isNewFacility" value="true" />
               </div>
 
               <!-- 파트너 전용 정보 (숨김 처리) -->
@@ -749,6 +775,7 @@ app.get('/register', (c) => {
 
       <script>
         let selectedUserType = 'customer';
+        let matchedFacility = null;
 
         function selectUserType(type) {
           selectedUserType = type;
@@ -784,6 +811,109 @@ app.get('/register', (c) => {
             partnerFields.style.display = 'block';
           }
         }
+
+        // 사업자번호 자동 하이픈 입력
+        document.addEventListener('DOMContentLoaded', function() {
+          const businessNumberInput = document.getElementById('businessNumber');
+          if (businessNumberInput) {
+            businessNumberInput.addEventListener('input', function(e) {
+              let value = e.target.value.replace(/[^0-9]/g, '');
+              if (value.length > 10) value = value.slice(0, 10);
+              
+              if (value.length >= 6) {
+                value = value.slice(0, 3) + '-' + value.slice(3, 5) + '-' + value.slice(5);
+              } else if (value.length >= 4) {
+                value = value.slice(0, 3) + '-' + value.slice(3);
+              }
+              
+              e.target.value = value;
+            });
+          }
+        });
+
+        // 기존 시설 확인
+        document.addEventListener('DOMContentLoaded', function() {
+          const checkBtn = document.getElementById('checkFacilityBtn');
+          if (checkBtn) {
+            checkBtn.addEventListener('click', async function() {
+              const businessNumber = document.getElementById('businessNumber').value;
+              const facilityName = document.getElementById('facilityName').value;
+              
+              if (!businessNumber && !facilityName) {
+                alert('사업자등록번호 또는 시설명을 입력해주세요.');
+                return;
+              }
+              
+              checkBtn.disabled = true;
+              checkBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>확인 중...';
+              
+              try {
+                const response = await fetch('/api/facility/check-existing', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ businessNumber, facilityName })
+                });
+                
+                const result = await response.json();
+                const matchResultDiv = document.getElementById('matchResult');
+                
+                if (result.matched && result.facility) {
+                  matchedFacility = result.facility;
+                  document.getElementById('matchedFacilityId').value = result.facility.id;
+                  document.getElementById('isNewFacility').value = 'false';
+                  
+                  const facilityAddress = result.facility.address || (result.facility.sido + ' ' + result.facility.sigungu);
+                  const facilityPhone = result.facility.phone || '-';
+                  const facilityType = result.facility.facilityType || '-';
+                  
+                  matchResultDiv.innerHTML = '<div class="bg-green-50 border-2 border-green-500 rounded-lg p-4">' +
+                    '<div class="flex items-start mb-3">' +
+                    '<i class="fas fa-check-circle text-green-600 text-2xl mr-3"></i>' +
+                    '<div class="flex-1">' +
+                    '<h4 class="font-bold text-green-800 text-lg mb-2">기존 등록된 시설을 찾았습니다!</h4>' +
+                    '<div class="bg-white rounded p-3 space-y-2 text-sm">' +
+                    '<p><strong>시설명:</strong> ' + result.facility.name + '</p>' +
+                    '<p><strong>주소:</strong> ' + facilityAddress + '</p>' +
+                    '<p><strong>전화번호:</strong> ' + facilityPhone + '</p>' +
+                    '<p><strong>시설유형:</strong> ' + facilityType + '</p>' +
+                    '</div>' +
+                    '<p class="mt-3 text-green-700 font-medium">' +
+                    '<i class="fas fa-info-circle mr-1"></i>' +
+                    '이 시설 정보로 회원가입이 진행됩니다. 회원가입을 계속하시려면 아래 정보를 입력해주세요.' +
+                    '</p>' +
+                    '</div>' +
+                    '</div>' +
+                    '</div>';
+                } else {
+                  matchedFacility = null;
+                  document.getElementById('matchedFacilityId').value = '';
+                  document.getElementById('isNewFacility').value = 'true';
+                  
+                  matchResultDiv.innerHTML = '<div class="bg-blue-50 border-2 border-blue-500 rounded-lg p-4">' +
+                    '<div class="flex items-start">' +
+                    '<i class="fas fa-info-circle text-blue-600 text-2xl mr-3"></i>' +
+                    '<div class="flex-1">' +
+                    '<h4 class="font-bold text-blue-800 text-lg mb-2">신규 시설 등록</h4>' +
+                    '<p class="text-blue-700">' +
+                    '입력하신 정보로 등록된 시설이 없습니다.<br/>' +
+                    '신규 시설로 회원가입이 진행됩니다.' +
+                    '</p>' +
+                    '</div>' +
+                    '</div>' +
+                    '</div>';
+                }
+                
+                matchResultDiv.style.display = 'block';
+              } catch (error) {
+                alert('시설 확인 중 오류가 발생했습니다.');
+                console.error(error);
+              } finally {
+                checkBtn.disabled = false;
+                checkBtn.innerHTML = '<i class="fas fa-search mr-2"></i>기존 시설 확인';
+              }
+            });
+          }
+        });
 
         function toggleAllAgreements() {
           const agreeAll = document.getElementById('agreeAll');
@@ -823,8 +953,28 @@ app.get('/register', (c) => {
 
           if (selectedUserType === 'facility') {
             const businessNumber = document.getElementById('businessNumber').value;
+            const facilityName = document.getElementById('facilityName').value;
+            const matchedFacilityId = document.getElementById('matchedFacilityId').value;
+            const isNewFacility = document.getElementById('isNewFacility').value === 'true';
+            
+            if (!businessNumber || !facilityName) {
+              alert('사업자등록번호와 시설명을 입력해주세요.');
+              return;
+            }
+            
             // 사업자등록번호에서 하이픈(-) 제거
             data.businessNumber = businessNumber.replace(/[-\s]/g, '');
+            data.facilityName = facilityName;
+            data.matchedFacilityId = matchedFacilityId ? parseInt(matchedFacilityId) : null;
+            data.isNewFacility = isNewFacility;
+            
+            // 매칭된 시설 정보가 있으면 추가
+            if (matchedFacility) {
+              data.facilityType = matchedFacility.facilityType;
+              data.region_sido = matchedFacility.sido;
+              data.region_sigungu = matchedFacility.sigungu;
+              data.address = matchedFacility.address;
+            }
           } else if (selectedUserType === 'hospital_manager' || selectedUserType === 'welfare_manager') {
             const organizationName = document.getElementById('organizationName').value;
             const department = document.getElementById('department').value;
@@ -868,6 +1018,78 @@ app.get('/register', (c) => {
     </body>
     </html>
   `)
+})
+
+// 시설 매칭 확인 API
+app.post('/api/facility/check-existing', async (c) => {
+  const data = await c.req.json()
+  const db = c.env.DB
+  
+  try {
+    if (!db) {
+      return c.json({ success: false, message: 'DB 연결 실패' }, 500)
+    }
+    
+    const cleanBusinessNumber = (data.businessNumber || '').replace(/[-\s]/g, '')
+    const facilityName = data.facilityName || ''
+    
+    if (!cleanBusinessNumber && !facilityName) {
+      return c.json({ success: false, message: '사업자등록번호 또는 시설명을 입력해주세요.' })
+    }
+    
+    // 1. 사업자번호로 검색 (가장 정확)
+    let facility = null
+    if (cleanBusinessNumber) {
+      facility = await db.prepare(`
+        SELECT id, name, address, phone, facility_type as facilityType, sido, sigungu
+        FROM facilities 
+        WHERE phone = ? OR name LIKE ?
+        LIMIT 1
+      `).bind(cleanBusinessNumber, `%${facilityName}%`).first()
+    }
+    
+    // 2. 시설명으로 검색
+    if (!facility && facilityName) {
+      facility = await db.prepare(`
+        SELECT id, name, address, phone, facility_type as facilityType, sido, sigungu
+        FROM facilities 
+        WHERE name = ? OR name LIKE ?
+        LIMIT 5
+      `).bind(facilityName, `%${facilityName}%`).all()
+      
+      // 여러 개 있으면 첫 번째만
+      if (facility && facility.results && facility.results.length > 0) {
+        facility = facility.results[0]
+      } else {
+        facility = null
+      }
+    }
+    
+    if (facility) {
+      return c.json({
+        success: true,
+        matched: true,
+        facility: {
+          id: facility.id,
+          name: facility.name,
+          address: facility.address,
+          phone: facility.phone,
+          facilityType: facility.facilityType || facility.facility_type,
+          sido: facility.sido,
+          sigungu: facility.sigungu
+        }
+      })
+    } else {
+      return c.json({
+        success: true,
+        matched: false,
+        message: '등록된 시설이 없습니다. 신규 시설로 등록을 진행합니다.'
+      })
+    }
+  } catch (error) {
+    console.error('Facility check error:', error)
+    return c.json({ success: false, message: '시설 확인 중 오류가 발생했습니다.' }, 500)
+  }
 })
 
 // 회원가입 API
@@ -2024,6 +2246,9 @@ app.get('/', (c) => {
               <a href="/login" class="bg-teal-600 text-white hover:bg-teal-700 px-3 py-2 rounded-lg whitespace-nowrap">
                 <i class="fas fa-sign-in-alt mr-1"></i>로그인
               </a>
+              <a href="/signup" class="bg-blue-600 text-white hover:bg-blue-700 px-3 py-2 rounded-lg whitespace-nowrap">
+                <i class="fas fa-user-plus mr-1"></i>회원가입
+              </a>
             </nav><button id="mobile-menu-btn" class="md:hidden p-2 text-gray-600 hover:text-teal-600 focus:outline-none" aria-label="메뉴 열기" aria-expanded="false">
               <i class="fas fa-bars text-2xl" aria-hidden="true"></i>
             </button>
@@ -2041,6 +2266,9 @@ app.get('/', (c) => {
             </a>
             <a href="/login" class="block bg-teal-600 text-white hover:bg-teal-700 px-4 py-3 rounded-lg text-center">
               <i class="fas fa-sign-in-alt mr-2"></i>로그인
+            </a>
+            <a href="/signup" class="block bg-blue-600 text-white hover:bg-blue-700 px-4 py-3 rounded-lg text-center">
+              <i class="fas fa-user-plus mr-2"></i>회원가입
             </a>
           </nav>
         </div>
