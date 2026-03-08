@@ -2933,22 +2933,30 @@ app.get('/', (c) => {
       {/* 메인 액션 버튼 - 히어로 바로 아래 */}
       <section class="py-8 sm:py-10 md:py-14 lg:py-16 bg-gradient-to-b from-white to-gray-50">
         <div class="max-w-6xl mx-auto px-3 sm:px-4">
-          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8" id="main-action-buttons">
-                <a href="/manager-consultation"
-                   class="group relative flex flex-col items-center justify-center bg-gradient-to-br from-teal-50 to-cyan-50 py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[140px] sm:min-h-[160px] border-2 border-teal-400">
-                  <span class="absolute top-2 right-2 bg-teal-500 text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full shadow-lg">전문상담</span>
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8" id="main-action-buttons">
+                <a href="/quote-simple"
+                   class="group flex flex-col items-center justify-center bg-white py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[140px] sm:min-h-[160px]">
                   <div class="mb-2 sm:mb-4 transform group-hover:scale-110 transition-transform duration-300">
-                    <i class="fas fa-user-tie text-3xl sm:text-6xl md:text-7xl text-teal-600"></i>
+                    <i class="fas fa-calculator text-3xl sm:text-6xl md:text-7xl text-blue-500"></i>
                   </div>
-                  <span class="font-semibold text-gray-800 text-xs sm:text-base md:text-lg text-center leading-tight">케어조아<br/>매니저 상담</span>
+                  <span class="font-semibold text-gray-800 text-xs sm:text-base md:text-lg text-center leading-tight">간편견적</span>
                 </a>
 
                 <a href="/quote-request"
                    class="group flex flex-col items-center justify-center bg-white py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[140px] sm:min-h-[160px]">
                   <div class="mb-2 sm:mb-4 transform group-hover:scale-110 transition-transform duration-300">
-                    <i class="fas fa-calculator text-3xl sm:text-6xl md:text-7xl text-blue-500"></i>
+                    <i class="fas fa-notes-medical text-3xl sm:text-6xl md:text-7xl text-green-500"></i>
                   </div>
-                  <span class="font-semibold text-gray-800 text-xs sm:text-base md:text-lg text-center leading-tight">시설 견적<br/>신청</span>
+                  <span class="font-semibold text-gray-800 text-xs sm:text-base md:text-lg text-center leading-tight">상세견적신청</span>
+                </a>
+
+                <a href="/call-consultation"
+                   class="group relative flex flex-col items-center justify-center bg-white py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[140px] sm:min-h-[160px]">
+                  <span class="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">인기</span>
+                  <div class="mb-2 sm:mb-4 transform group-hover:scale-110 transition-transform duration-300">
+                    <i class="fas fa-phone-alt text-3xl sm:text-6xl md:text-7xl text-green-500"></i>
+                  </div>
+                  <span class="font-semibold text-gray-800 text-xs sm:text-base md:text-lg text-center leading-tight">지역별<br/>전화상담</span>
                 </a>
 
                 <a href="/facilities"
@@ -2968,23 +2976,41 @@ app.get('/', (c) => {
                   <span class="font-semibold text-gray-800 text-xs sm:text-base md:text-lg text-center leading-tight">AI 맞춤<br/>시설 찾기</span>
                 </a>
 
-                <a href="/call-consultation"
+                <a href="http://케어조아.shop"
+                   target="_blank"
+                   rel="noopener noreferrer"
                    class="group relative flex flex-col items-center justify-center bg-white py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[140px] sm:min-h-[160px]">
-                  <span class="absolute top-2 right-2 bg-red-500 text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full shadow-lg">인기</span>
+                  <span class="absolute top-2 right-2 bg-blue-500 text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full shadow-lg">인기</span>
                   <div class="mb-2 sm:mb-4 transform group-hover:scale-110 transition-transform duration-300">
-                    <i class="fas fa-phone-alt text-3xl sm:text-6xl md:text-7xl text-green-500"></i>
+                    <i class="fas fa-calculator text-3xl sm:text-6xl md:text-7xl text-teal-500"></i>
                   </div>
-                  <span class="font-semibold text-gray-800 text-xs sm:text-base md:text-lg text-center leading-tight">지역별<br/>전화상담</span>
+                  <span class="font-semibold text-gray-800 text-xs sm:text-base md:text-lg text-center leading-tight">요양비<br/>계산</span>
                 </a>
 
-                <a href="/subscription"
-                   class="group relative flex flex-col items-center justify-center bg-gradient-to-br from-yellow-100 to-orange-100 py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[140px] sm:min-h-[160px] border-2 border-yellow-400">
-                  <span class="absolute top-2 right-2 bg-yellow-500 text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full shadow-lg animate-pulse">HOT</span>
-                  <div class="mb-2 sm:mb-4 transform group-hover:scale-110 transition-transform duration-300">
-                    <i class="fas fa-crown text-3xl sm:text-6xl md:text-7xl text-yellow-500"></i>
+                <div class="group relative flex flex-col items-center justify-center bg-gradient-to-br from-yellow-50 to-orange-50 py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg min-h-[140px] sm:min-h-[160px] border-2 border-yellow-300 opacity-75 cursor-not-allowed">
+                  <span class="absolute top-2 right-2 bg-gray-500 text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full shadow-lg">준비중</span>
+                  <div class="mb-2 sm:mb-4">
+                    <i class="fas fa-crown text-3xl sm:text-6xl md:text-7xl text-gray-400"></i>
                   </div>
-                  <span class="font-semibold text-gray-800 text-xs sm:text-base md:text-lg text-center leading-tight">멤버십<br/>₩990</span>
+                  <span class="font-semibold text-gray-500 text-xs sm:text-base md:text-lg text-center leading-tight">멤버십<br/>₩990</span>
+                </div>
+
+                <a href="/integrated-care"
+                   class="group relative flex flex-col items-center justify-center bg-white py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[140px] sm:min-h-[160px]">
+                  <span class="absolute top-2 right-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full shadow-lg">2026</span>
+                  <div class="mb-2 sm:mb-4 transform group-hover:scale-110 transition-transform duration-300">
+                    <i class="fas fa-heart text-3xl sm:text-6xl md:text-7xl text-pink-500"></i>
+                  </div>
+                  <span class="font-semibold text-gray-800 text-xs sm:text-base md:text-lg text-center leading-tight">통합돌봄<br/>안내</span>
                 </a>
+
+                <div class="group relative flex flex-col items-center justify-center bg-gradient-to-br from-teal-50 to-cyan-50 py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg min-h-[140px] sm:min-h-[160px] border-2 border-teal-300 opacity-75 cursor-not-allowed">
+                  <span class="absolute top-2 right-2 bg-gray-500 text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full shadow-lg">준비중</span>
+                  <div class="mb-2 sm:mb-4">
+                    <i class="fas fa-user-tie text-3xl sm:text-6xl md:text-7xl text-gray-400"></i>
+                  </div>
+                  <span class="font-semibold text-gray-500 text-xs sm:text-base md:text-lg text-center leading-tight">매니저<br/>상담</span>
+                </div>
               </div>
 
               {/* 특허 배너 (상단 강조) - 간결한 버전 */}
