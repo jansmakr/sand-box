@@ -9,6 +9,10 @@ type Bindings = {
   DB: D1Database
   KAKAO_REST_API_KEY: string
   KAKAO_REDIRECT_URI: string
+  PORTONE_API_KEY: string
+  PORTONE_API_SECRET: string
+  PORTONE_STORE_ID: string
+  PORTONE_CHANNEL_KEY: string
 }
 
 const app = new Hono<{ Bindings: Bindings }>()
@@ -19852,6 +19856,41 @@ app.post('/api/admin/bulk-insert-details', async (c) => {
 
 // ========== 포트원(PortOne) 정기결제 API ==========
 
+// 포트원 API 헬퍼 함수
+async function getPortOneToken(apiKey: string, apiSecret: string): Promise<string> {
+  const response = await fetch('https://api.portone.io/login/api', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ api_key: apiKey, api_secret: apiSecret })
+  })
+  const data: any = await response.json()
+  return data.access_token
+}
+
+// 포트원 빌링키로 결제 요청
+async function requestPortOnePayment(
+  token: string,
+  customerUid: string,
+  merchantUid: string,
+  amount: number,
+  name: string
+): Promise<any> {
+  const response = await fetch(`https://api.portone.io/subscribe/payments/again`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': token
+    },
+    body: JSON.stringify({
+      customer_uid: customerUid,
+      merchant_uid: merchantUid,
+      amount: amount,
+      name: name
+    })
+  })
+  return await response.json()
+}
+
 // 1. 구독 플랜 조회 API
 app.get('/api/subscription/plans', async (c) => {
   try {
@@ -20157,6 +20196,167 @@ Crawl-delay: 1
   
   c.header('Content-Type', 'text/plain')
   return c.text(robotsTxt)
+})
+
+// 9. 정기 결제 자동 청구 API (Cron Job에서 호출)
+app.post('/api/subscription/auto-billing', async (c) => {
+  try {
+    const db = c.env.DB
+    const today = new Date().toISOString().split('T')[0]
+    
+    // 오늘 결제일인 구독 조회
+    const subscriptions: any = await db.prepare(`
+      SELECT s.*, u.email, u.name
+      FROM subscriptions s
+      JOIN users u ON s.user_id = u.id
+      WHERE s.status = 'active' 
+      AND s.next_billing_date <= ?
+      AND s.billing_key IS NOT NULL
+    `).bind(today).all()
+    
+    if (!subscriptions.results || subscriptions.results.length === 0) {
+      return c.json({ success: true, message: '청구할 구독이 없습니다', count: 0 })
+    }
+    
+    // 포트원 토큰 발급
+    const token = await getPortOneToken(
+      c.env.PORTONE_API_KEY,
+      c.env.PORTONE_API_SECRET
+    )
+    
+    let successCount = 0
+    let failCount = 0
+    const results = []
+    
+    // 각 구독에 대해 결제 시도
+    for (const sub of subscriptions.results) {
+      const merchantUid = `sub_${Date.now()}_${sub.user_id}_${sub.id}`
+      
+      try {
+        // 포트원 결제 요청
+        const paymentResult = await requestPortOnePayment(
+          token,
+          sub.customer_uid,
+          merchantUid,
+          sub.monthly_fee,
+          `케어조아 ${sub.plan_type === 'basic' ? '베이직' : '프리미엄'} 멤버십`
+        )
+        
+        if (paymentResult.code === 0) {
+          // 결제 성공
+          successCount++
+          
+          // 다음 결제일 계산
+          const nextBillingDate = new Date(sub.next_billing_date)
+          nextBillingDate.setMonth(nextBillingDate.getMonth() + 1)
+          
+          // 구독 정보 업데이트
+          await db.prepare(`
+            UPDATE subscriptions
+            SET next_billing_date = ?,
+                last_billing_date = ?,
+                failed_count = 0
+            WHERE id = ?
+          `).bind(
+            nextBillingDate.toISOString().split('T')[0],
+            today,
+            sub.id
+          ).run()
+          
+          // 결제 기록 저장
+          await db.prepare(`
+            INSERT INTO payments (
+              user_id, subscription_id, imp_uid, merchant_uid,
+              payment_type, amount, paid_amount, status,
+              pg_provider, paid_at
+            ) VALUES (?, ?, ?, ?, 'subscription', ?, ?, 'paid', 'kcp', datetime('now'))
+          `).bind(
+            sub.user_id,
+            sub.id,
+            paymentResult.imp_uid,
+            merchantUid,
+            sub.monthly_fee,
+            paymentResult.paid_amount
+          ).run()
+          
+          results.push({
+            user_id: sub.user_id,
+            email: sub.email,
+            status: 'success',
+            amount: sub.monthly_fee
+          })
+        } else {
+          // 결제 실패
+          failCount++
+          
+          // 실패 횟수 증가
+          const newFailedCount = (sub.failed_count || 0) + 1
+          
+          // 3회 실패 시 구독 일시정지
+          if (newFailedCount >= 3) {
+            await db.prepare(`
+              UPDATE subscriptions
+              SET status = 'paused',
+                  failed_count = ?
+              WHERE id = ?
+            `).bind(newFailedCount, sub.id).run()
+          } else {
+            await db.prepare(`
+              UPDATE subscriptions
+              SET failed_count = ?
+              WHERE id = ?
+            `).bind(newFailedCount, sub.id).run()
+          }
+          
+          // 실패 기록 저장
+          await db.prepare(`
+            INSERT INTO payments (
+              user_id, subscription_id, merchant_uid,
+              payment_type, amount, status, fail_reason,
+              pg_provider, failed_at
+            ) VALUES (?, ?, ?, 'subscription', ?, 'failed', ?, 'kcp', datetime('now'))
+          `).bind(
+            sub.user_id,
+            sub.id,
+            merchantUid,
+            sub.monthly_fee,
+            paymentResult.message || '결제 실패'
+          ).run()
+          
+          results.push({
+            user_id: sub.user_id,
+            email: sub.email,
+            status: 'failed',
+            reason: paymentResult.message,
+            failed_count: newFailedCount
+          })
+        }
+      } catch (error) {
+        failCount++
+        results.push({
+          user_id: sub.user_id,
+          email: sub.email,
+          status: 'error',
+          error: String(error)
+        })
+      }
+    }
+    
+    return c.json({
+      success: true,
+      message: '자동 청구 완료',
+      total: subscriptions.results.length,
+      success_count: successCount,
+      fail_count: failCount,
+      results
+    })
+  } catch (error) {
+    return c.json({
+      success: false,
+      message: '자동 청구 처리 실패',
+      error: String(error)
+    }, 500)
+  }
 })
 
 // ========== Cloudflare Workers 설정 ==========
