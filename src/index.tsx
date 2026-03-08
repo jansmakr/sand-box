@@ -222,6 +222,247 @@ app.use(renderer)
 // 테스트 사용자 초기화
 initTestUsers()
 
+// ========== 구독 관련 라우트 ==========
+
+// 구독 페이지
+app.get('/subscription', (c) => {
+  return c.html(`
+    <!DOCTYPE html>
+    <html lang="ko">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>멤버십 구독 - 케어조아</title>
+      <script src="https://cdn.tailwindcss.com"></script>
+      <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+      <script src="https://cdn.iamport.kr/v1/iamport.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
+    </head>
+    <body class="bg-gradient-to-br from-teal-50 to-blue-50 min-h-screen">
+      <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex justify-between items-center h-16">
+            <a href="/" class="flex items-center">
+              <img 
+                src="https://page.gensparksite.com/v1/base64_upload/b39dca8586af1dacd6d8417554313896" 
+                alt="케어조아 로고"
+                class="h-8 w-auto mr-3"
+              />
+              <h1 class="text-2xl font-bold text-teal-600">케어조아</h1>
+            </a>
+            <div class="flex items-center space-x-4">
+              <a href="/login" class="text-gray-600 hover:text-gray-900">
+                <i class="fas fa-sign-in-alt mr-1"></i>로그인
+              </a>
+              <a href="/" class="text-gray-600 hover:text-gray-900">
+                <i class="fas fa-home mr-1"></i>홈으로
+              </a>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <section class="py-16">
+        <div class="max-w-6xl mx-auto px-4">
+          <div class="text-center mb-12">
+            <h2 class="text-4xl font-bold text-gray-900 mb-4">
+              <i class="fas fa-crown text-yellow-500 mr-3"></i>케어조아 멤버십
+            </h2>
+            <p class="text-lg text-gray-600">월 990원으로 모든 간병 서비스 최대 40% 할인</p>
+          </div>
+
+          <!-- 플랜 카드 -->
+          <div class="grid md:grid-cols-2 gap-8 mb-12" id="plan-cards">
+            <!-- 베이직 플랜 -->
+            <div class="bg-white rounded-2xl shadow-xl p-8 border-2 border-gray-200 hover:border-teal-500 transition-all duration-300">
+              <div class="text-center mb-6">
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">
+                  <i class="fas fa-user text-teal-600 mr-2"></i>베이직 멤버십
+                </h3>
+                <div class="text-5xl font-bold text-teal-600 mb-2">
+                  ₩990<span class="text-xl text-gray-600">/월</span>
+                </div>
+                <p class="text-gray-600">모든 서비스 30% 할인</p>
+              </div>
+
+              <div class="space-y-3 mb-8">
+                <div class="flex items-center">
+                  <i class="fas fa-check text-teal-600 mr-3"></i>
+                  <span>월 990원 정기결제</span>
+                </div>
+                <div class="flex items-center">
+                  <i class="fas fa-check text-teal-600 mr-3"></i>
+                  <span>모든 간병 서비스 30% 할인</span>
+                </div>
+                <div class="flex items-center">
+                  <i class="fas fa-check text-teal-600 mr-3"></i>
+                  <span>24시간 고객센터 지원</span>
+                </div>
+                <div class="flex items-center">
+                  <i class="fas fa-check text-teal-600 mr-3"></i>
+                  <span>안심 리포트 제공</span>
+                </div>
+              </div>
+
+              <button 
+                onclick="subscribePlan(1, '베이직 멤버십', 990)"
+                class="w-full bg-teal-600 text-white py-4 rounded-xl hover:bg-teal-700 transition-all duration-300 font-bold text-lg">
+                <i class="fas fa-credit-card mr-2"></i>지금 구독하기
+              </button>
+            </div>
+
+            <!-- 프리미엄 플랜 -->
+            <div class="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-2xl shadow-2xl p-8 border-4 border-yellow-400 relative">
+              <div class="absolute top-0 right-0 bg-yellow-400 text-gray-900 px-4 py-1 rounded-bl-xl rounded-tr-xl font-bold">
+                <i class="fas fa-star mr-1"></i>인기
+              </div>
+              
+              <div class="text-center mb-6">
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">
+                  <i class="fas fa-crown text-yellow-600 mr-2"></i>프리미엄 멤버십
+                </h3>
+                <div class="text-5xl font-bold text-yellow-600 mb-2">
+                  ₩4,990<span class="text-xl text-gray-600">/월</span>
+                </div>
+                <p class="text-gray-600">모든 서비스 40% 할인 + 우선 매칭</p>
+              </div>
+
+              <div class="space-y-3 mb-8">
+                <div class="flex items-center">
+                  <i class="fas fa-check text-yellow-600 mr-3"></i>
+                  <span class="font-semibold">월 4,990원 정기결제</span>
+                </div>
+                <div class="flex items-center">
+                  <i class="fas fa-check text-yellow-600 mr-3"></i>
+                  <span class="font-semibold">모든 간병 서비스 40% 할인</span>
+                </div>
+                <div class="flex items-center">
+                  <i class="fas fa-check text-yellow-600 mr-3"></i>
+                  <span class="font-semibold">우선 파트너 매칭</span>
+                </div>
+                <div class="flex items-center">
+                  <i class="fas fa-check text-yellow-600 mr-3"></i>
+                  <span class="font-semibold">24시간 전담 매니저 배정</span>
+                </div>
+                <div class="flex items-center">
+                  <i class="fas fa-check text-yellow-600 mr-3"></i>
+                  <span class="font-semibold">예약 취소 수수료 면제</span>
+                </div>
+                <div class="flex items-center">
+                  <i class="fas fa-check text-yellow-600 mr-3"></i>
+                  <span class="font-semibold">실시간 안심 리포트</span>
+                </div>
+              </div>
+
+              <button 
+                onclick="subscribePlan(2, '프리미엄 멤버십', 4990)"
+                class="w-full bg-gradient-to-r from-yellow-500 to-orange-500 text-white py-4 rounded-xl hover:from-yellow-600 hover:to-orange-600 transition-all duration-300 font-bold text-lg shadow-lg">
+                <i class="fas fa-crown mr-2"></i>지금 구독하기
+              </button>
+            </div>
+          </div>
+
+          <!-- 가격 비교표 -->
+          <div class="bg-white rounded-2xl shadow-xl p-8 mb-12">
+            <h3 class="text-2xl font-bold text-center mb-8">
+              <i class="fas fa-calculator text-teal-600 mr-2"></i>서비스별 가격 비교
+            </h3>
+            <div class="overflow-x-auto">
+              <table class="w-full">
+                <thead>
+                  <tr class="border-b-2 border-gray-200">
+                    <th class="py-4 px-6 text-left">서비스</th>
+                    <th class="py-4 px-6 text-center">비회원</th>
+                    <th class="py-4 px-6 text-center bg-teal-50">베이직 회원</th>
+                    <th class="py-4 px-6 text-center bg-yellow-50">프리미엄 회원</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="border-b border-gray-100">
+                    <td class="py-4 px-6">보행 가능 환자</td>
+                    <td class="py-4 px-6 text-center text-gray-600">₩90,000</td>
+                    <td class="py-4 px-6 text-center bg-teal-50 font-bold text-teal-600">₩59,000</td>
+                    <td class="py-4 px-6 text-center bg-yellow-50 font-bold text-yellow-600">₩54,000</td>
+                  </tr>
+                  <tr class="border-b border-gray-100">
+                    <td class="py-4 px-6">휠체어 필요</td>
+                    <td class="py-4 px-6 text-center text-gray-600">₩110,000</td>
+                    <td class="py-4 px-6 text-center bg-teal-50 font-bold text-teal-600">₩79,000</td>
+                    <td class="py-4 px-6 text-center bg-yellow-50 font-bold text-yellow-600">₩66,000</td>
+                  </tr>
+                  <tr>
+                    <td class="py-4 px-6">와상 환자 (특수차량)</td>
+                    <td class="py-4 px-6 text-center text-gray-600">₩180,000</td>
+                    <td class="py-4 px-6 text-center bg-teal-50 font-bold text-teal-600">₩139,000</td>
+                    <td class="py-4 px-6 text-center bg-yellow-50 font-bold text-yellow-600">₩108,000</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <script>
+        // 포트원 초기화 (실제 가맹점 코드로 교체 필요)
+        const IMP = window.IMP;
+        IMP.init('imp00000000'); // 실제 가맹점 식별코드로 교체
+
+        async function subscribePlan(planId, planName, price) {
+          // 로그인 확인 (실제로는 세션에서 userId 가져오기)
+          const userId = prompt('테스트용: 사용자 ID를 입력하세요 (실제로는 로그인 상태에서 자동으로 가져옵니다):');
+          if (!userId) {
+            alert('로그인이 필요합니다');
+            window.location.href = '/login';
+            return;
+          }
+
+          const customerUid = 'customer_' + userId + '_' + Date.now();
+          const merchantUid = 'sub_' + Date.now() + '_' + userId;
+
+          // 포트원 빌링키 발급 요청
+          IMP.request_pay({
+            pg: 'kcp_billing',
+            pay_method: 'card',
+            merchant_uid: merchantUid,
+            customer_uid: customerUid,
+            name: planName + ' 정기결제',
+            amount: price,
+            buyer_email: 'user@example.com',
+            buyer_name: '홍길동',
+            buyer_tel: '010-1234-5678'
+          }, async function(rsp) {
+            if (rsp.success) {
+              try {
+                // 백엔드에 빌링키 저장 및 구독 등록
+                const response = await axios.post('/api/subscription/register', {
+                  userId: userId,
+                  planId: planId,
+                  billingKey: rsp.customer_uid,
+                  customerUid: customerUid
+                });
+
+                if (response.data.success) {
+                  alert('구독이 완료되었습니다! 첫 결제가 완료되었으며, 다음 결제일은 1개월 후입니다.');
+                  window.location.href = '/';
+                } else {
+                  alert('구독 등록 실패: ' + response.data.message);
+                }
+              } catch (error) {
+                alert('구독 처리 중 오류가 발생했습니다.');
+                console.error(error);
+              }
+            } else {
+              alert('결제 실패: ' + rsp.error_msg);
+            }
+          });
+        }
+      </script>
+    </body>
+    </html>
+  `)
+})
+
 // ========== 인증 관련 라우트 ==========
 
 // 로그인 페이지
@@ -2372,6 +2613,15 @@ app.get('/', (c) => {
                     <i class="fas fa-calculator text-3xl sm:text-6xl md:text-7xl text-teal-500"></i>
                   </div>
                   <span class="font-semibold text-gray-800 text-xs sm:text-base md:text-lg text-center leading-tight">요양비<br/>계산</span>
+                </a>
+
+                <a href="/subscription"
+                   class="group relative flex flex-col items-center justify-center bg-gradient-to-br from-yellow-100 to-orange-100 py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[140px] sm:min-h-[160px] border-2 border-yellow-400">
+                  <span class="absolute top-2 right-2 bg-yellow-500 text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full shadow-lg animate-pulse">HOT</span>
+                  <div class="mb-2 sm:mb-4 transform group-hover:scale-110 transition-transform duration-300">
+                    <i class="fas fa-crown text-3xl sm:text-6xl md:text-7xl text-yellow-500"></i>
+                  </div>
+                  <span class="font-semibold text-gray-800 text-xs sm:text-base md:text-lg text-center leading-tight">멤버십<br/>₩990</span>
                 </a>
 
                 <a href="/integrated-care"
@@ -19597,6 +19847,292 @@ app.post('/api/admin/bulk-insert-details', async (c) => {
       message: '대량 삽입 중 오류가 발생했습니다.',
       error: String(error)
     }, 500)
+  }
+})
+
+// ========== 포트원(PortOne) 정기결제 API ==========
+
+// 1. 구독 플랜 조회 API
+app.get('/api/subscription/plans', async (c) => {
+  try {
+    const db = c.env.DB
+    const plans = await db.prepare(`
+      SELECT * FROM subscription_plans 
+      WHERE is_active = true 
+      ORDER BY price ASC
+    `).all()
+    
+    return c.json({ success: true, plans: plans.results })
+  } catch (error) {
+    return c.json({ success: false, message: '플랜 조회 실패', error: String(error) }, 500)
+  }
+})
+
+// 2. 포트원 빌링키 발급 및 구독 등록 API
+app.post('/api/subscription/register', async (c) => {
+  try {
+    const { userId, planId, billingKey, customerUid } = await c.req.json()
+    const db = c.env.DB
+    
+    // 플랜 정보 조회
+    const plan = await db.prepare(`
+      SELECT * FROM subscription_plans WHERE id = ?
+    `).bind(planId).first()
+    
+    if (!plan) {
+      return c.json({ success: false, message: '존재하지 않는 플랜입니다' }, 404)
+    }
+    
+    // 다음 결제일 계산 (1개월 후)
+    const nextBillingDate = new Date()
+    nextBillingDate.setMonth(nextBillingDate.getMonth() + 1)
+    
+    // 구독 등록
+    const result = await db.prepare(`
+      INSERT INTO subscriptions (
+        user_id, plan_id, billing_key, customer_uid, 
+        next_billing_date, status
+      ) VALUES (?, ?, ?, ?, ?, 'active')
+    `).bind(
+      userId, 
+      planId, 
+      billingKey, 
+      customerUid, 
+      nextBillingDate.toISOString().split('T')[0]
+    ).run()
+    
+    // 첫 결제 기록
+    const merchantUid = `sub_${Date.now()}_${userId}`
+    await db.prepare(`
+      INSERT INTO payments (
+        user_id, subscription_id, merchant_uid, payment_type,
+        amount, status, pg_provider, paid_at
+      ) VALUES (?, ?, ?, 'subscription', ?, 'paid', 'kcp', datetime('now'))
+    `).bind(userId, result.meta.last_row_id, merchantUid, plan.price).run()
+    
+    return c.json({ 
+      success: true, 
+      message: '구독이 성공적으로 등록되었습니다',
+      subscription_id: result.meta.last_row_id
+    })
+  } catch (error) {
+    return c.json({ success: false, message: '구독 등록 실패', error: String(error) }, 500)
+  }
+})
+
+// 3. 구독 취소 API
+app.post('/api/subscription/cancel', async (c) => {
+  try {
+    const { userId } = await c.req.json()
+    const db = c.env.DB
+    
+    const result = await db.prepare(`
+      UPDATE subscriptions 
+      SET status = 'cancelled', cancelled_at = datetime('now')
+      WHERE user_id = ? AND status = 'active'
+    `).bind(userId).run()
+    
+    return c.json({ 
+      success: true, 
+      message: '구독이 취소되었습니다'
+    })
+  } catch (error) {
+    return c.json({ success: false, message: '구독 취소 실패', error: String(error) }, 500)
+  }
+})
+
+// 4. 사용자 구독 정보 조회 API
+app.get('/api/subscription/status/:userId', async (c) => {
+  try {
+    const userId = c.req.param('userId')
+    const db = c.env.DB
+    
+    const subscription = await db.prepare(`
+      SELECT 
+        s.*,
+        p.name as plan_name,
+        p.price as plan_price,
+        p.discount_rate
+      FROM subscriptions s
+      JOIN subscription_plans p ON s.plan_id = p.id
+      WHERE s.user_id = ? AND s.status = 'active'
+      ORDER BY s.created_at DESC
+      LIMIT 1
+    `).bind(userId).first()
+    
+    return c.json({ 
+      success: true, 
+      subscription,
+      isMember: !!subscription
+    })
+  } catch (error) {
+    return c.json({ success: false, message: '구독 조회 실패', error: String(error) }, 500)
+  }
+})
+
+// 5. 서비스 가격 조회 API (회원/비회원 가격)
+app.get('/api/pricing/:patientCondition', async (c) => {
+  try {
+    const patientCondition = c.req.param('patientCondition')
+    const userId = c.req.query('userId')
+    const db = c.env.DB
+    
+    // 가격표 조회
+    const pricing = await db.prepare(`
+      SELECT * FROM service_pricing WHERE patient_condition = ?
+    `).bind(patientCondition).first()
+    
+    if (!pricing) {
+      return c.json({ success: false, message: '존재하지 않는 서비스입니다' }, 404)
+    }
+    
+    // 회원인지 확인
+    let isMember = false
+    if (userId) {
+      const subscription = await db.prepare(`
+        SELECT id FROM subscriptions 
+        WHERE user_id = ? AND status = 'active'
+      `).bind(userId).first()
+      isMember = !!subscription
+    }
+    
+    return c.json({
+      success: true,
+      patientCondition,
+      originalPrice: pricing.non_member_price,
+      memberPrice: pricing.member_price,
+      finalPrice: isMember ? pricing.member_price : pricing.non_member_price,
+      discountAmount: isMember ? (pricing.non_member_price - pricing.member_price) : 0,
+      isMember,
+      description: pricing.description
+    })
+  } catch (error) {
+    return c.json({ success: false, message: '가격 조회 실패', error: String(error) }, 500)
+  }
+})
+
+// 6. 예약 생성 및 결제 API
+app.post('/api/booking/create', async (c) => {
+  try {
+    const {
+      userId,
+      patientCondition,
+      hospitalName,
+      hospitalAddress,
+      pickupLocation,
+      appointmentDate,
+      appointmentTime,
+      servicePurpose,
+      specialNotes
+    } = await c.req.json()
+    
+    const db = c.env.DB
+    
+    // 가격 정보 조회
+    const pricing = await db.prepare(`
+      SELECT * FROM service_pricing WHERE patient_condition = ?
+    `).bind(patientCondition).first()
+    
+    // 회원 여부 확인
+    const subscription = await db.prepare(`
+      SELECT id FROM subscriptions 
+      WHERE user_id = ? AND status = 'active'
+    `).bind(userId).first()
+    
+    const isMember = !!subscription
+    const originalPrice = pricing.non_member_price
+    const finalPrice = isMember ? pricing.member_price : pricing.non_member_price
+    const discountAmount = originalPrice - finalPrice
+    const partnerFee = Math.floor(finalPrice * 0.6) // 60% 수수료
+    
+    // 예약 생성
+    const bookingResult = await db.prepare(`
+      INSERT INTO bookings (
+        user_id, patient_condition, hospital_name, hospital_address,
+        pickup_location, appointment_date, appointment_time, service_purpose,
+        special_notes, original_price, discount_amount, final_price,
+        commission_rate, partner_fee, status, payment_status
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 60, ?, 'pending', 'unpaid')
+    `).bind(
+      userId, patientCondition, hospitalName, hospitalAddress,
+      pickupLocation, appointmentDate, appointmentTime, servicePurpose,
+      specialNotes, originalPrice, discountAmount, finalPrice, partnerFee
+    ).run()
+    
+    const bookingId = bookingResult.meta.last_row_id
+    
+    return c.json({
+      success: true,
+      message: '예약이 생성되었습니다',
+      booking: {
+        id: bookingId,
+        finalPrice,
+        discountAmount,
+        isMember
+      }
+    })
+  } catch (error) {
+    return c.json({ success: false, message: '예약 생성 실패', error: String(error) }, 500)
+  }
+})
+
+// 7. 결제 완료 처리 API (포트원 웹훅)
+app.post('/api/payment/complete', async (c) => {
+  try {
+    const { imp_uid, merchant_uid, status, paid_amount } = await c.req.json()
+    const db = c.env.DB
+    
+    // 예약 ID 추출 (merchant_uid 형식: booking_12345)
+    const bookingId = merchant_uid.split('_')[1]
+    
+    if (status === 'paid') {
+      // 결제 기록 저장
+      await db.prepare(`
+        INSERT INTO payments (
+          user_id, booking_id, imp_uid, merchant_uid, payment_type,
+          amount, status, pg_provider, paid_at
+        ) VALUES (
+          (SELECT user_id FROM bookings WHERE id = ?),
+          ?, ?, ?, 'booking', ?, 'paid', 'kcp', datetime('now')
+        )
+      `).bind(bookingId, bookingId, imp_uid, merchant_uid, paid_amount).run()
+      
+      // 예약 상태 업데이트
+      await db.prepare(`
+        UPDATE bookings 
+        SET payment_status = 'paid', status = 'confirmed', confirmed_at = datetime('now')
+        WHERE id = ?
+      `).bind(bookingId).run()
+      
+      return c.json({ success: true, message: '결제가 완료되었습니다' })
+    } else {
+      return c.json({ success: false, message: '결제가 실패했습니다' }, 400)
+    }
+  } catch (error) {
+    return c.json({ success: false, message: '결제 처리 실패', error: String(error) }, 500)
+  }
+})
+
+// 8. 사용자 예약 내역 조회 API
+app.get('/api/booking/list/:userId', async (c) => {
+  try {
+    const userId = c.req.param('userId')
+    const db = c.env.DB
+    
+    const bookings = await db.prepare(`
+      SELECT 
+        b.*,
+        p.status as payment_status_detail,
+        p.paid_at
+      FROM bookings b
+      LEFT JOIN payments p ON b.id = p.booking_id
+      WHERE b.user_id = ?
+      ORDER BY b.created_at DESC
+    `).bind(userId).all()
+    
+    return c.json({ success: true, bookings: bookings.results })
+  } catch (error) {
+    return c.json({ success: false, message: '예약 조회 실패', error: String(error) }, 500)
   }
 })
 
