@@ -286,16 +286,24 @@ app.get('/subscription', (c) => {
                 <h3 class="text-2xl font-bold text-gray-900 mb-2">
                   <i class="fas fa-user text-teal-600 mr-2"></i>베이직 멤버십
                 </h3>
+                <div class="mb-3">
+                  <span class="text-2xl text-gray-400 line-through">₩4,990</span>
+                  <span class="ml-2 bg-red-500 text-white text-sm px-2 py-1 rounded-full font-bold">80% 할인</span>
+                </div>
                 <div class="text-5xl font-bold text-teal-600 mb-2">
                   ₩990<span class="text-xl text-gray-600">/월</span>
                 </div>
-                <p class="text-gray-600">모든 서비스 30% 할인</p>
+                <p class="text-red-600 font-semibold">🎉 사용후기 작성 시 특별 할인가!</p>
               </div>
 
               <div class="space-y-3 mb-8">
                 <div class="flex items-center">
                   <i class="fas fa-check text-teal-600 mr-3"></i>
-                  <span>월 990원 정기결제</span>
+                  <span>월 990원 정기결제 <span class="text-red-500 font-bold">(이벤트 가격)</span></span>
+                </div>
+                <div class="flex items-center">
+                  <i class="fas fa-star text-yellow-500 mr-3"></i>
+                  <span><strong>매달 사용후기 작성 필수</strong></span>
                 </div>
                 <div class="flex items-center">
                   <i class="fas fa-check text-teal-600 mr-3"></i>
@@ -332,16 +340,25 @@ app.get('/subscription', (c) => {
                 <h3 class="text-2xl font-bold text-gray-900 mb-2">
                   <i class="fas fa-crown text-yellow-600 mr-2"></i>프리미엄 멤버십
                 </h3>
-                <div class="text-5xl font-bold text-yellow-600 mb-2">
-                  ₩4,990<span class="text-xl text-gray-600">/월</span>
+                <div class="mb-4">
+                  <div class="text-3xl font-bold text-gray-400 line-through mb-1">
+                    ₩4,990<span class="text-lg text-gray-400">/월</span>
+                  </div>
+                  <div class="text-5xl font-bold text-yellow-600 mb-2">
+                    ₩990<span class="text-xl text-gray-600">/월</span>
+                  </div>
+                  <div class="inline-block bg-gradient-to-r from-red-500 to-pink-500 text-white px-4 py-1 rounded-full text-sm font-bold">
+                    🎉 런칭 이벤트 80% 할인!
+                  </div>
                 </div>
                 <p class="text-gray-600">모든 서비스 40% 할인 + 우선 매칭</p>
+                <p class="text-sm text-teal-600 mt-2 font-semibold">💝 사용후기 작성 시 다음 달도 990원!</p>
               </div>
 
               <div class="space-y-3 mb-8">
                 <div class="flex items-center">
                   <i class="fas fa-check text-yellow-600 mr-3"></i>
-                  <span class="font-semibold">월 4,990원 정기결제</span>
+                  <span class="font-semibold">이벤트가 <span class="line-through text-gray-400">₩4,990</span> → <span class="text-red-600 font-bold">₩990/월</span></span>
                 </div>
                 <div class="flex items-center">
                   <i class="fas fa-check text-yellow-600 mr-3"></i>
@@ -413,6 +430,44 @@ app.get('/subscription', (c) => {
                   </tr>
                 </tbody>
               </table>
+            </div>
+          </div>
+
+          <!-- 이벤트 안내 배너 -->
+          <div class="bg-gradient-to-r from-red-500 via-pink-500 to-purple-500 rounded-2xl shadow-2xl p-8 mb-12 text-white">
+            <div class="text-center">
+              <h3 class="text-3xl font-bold mb-4">
+                <i class="fas fa-gift mr-3"></i>🎉 런칭 특별 이벤트
+              </h3>
+              <div class="bg-white/20 backdrop-blur-sm rounded-xl p-6 mb-6">
+                <p class="text-2xl font-bold mb-3">
+                  프리미엄 멤버십 <span class="text-yellow-300">80% 할인</span> 이벤트!
+                </p>
+                <p class="text-xl mb-2">
+                  <span class="line-through text-white/70">₩4,990</span>
+                  <span class="mx-3">→</span>
+                  <span class="text-yellow-300 font-bold text-3xl">₩990</span>/월
+                </p>
+              </div>
+              
+              <div class="grid md:grid-cols-2 gap-6 mb-6">
+                <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6">
+                  <i class="fas fa-star text-yellow-300 text-3xl mb-3"></i>
+                  <h4 class="font-bold text-xl mb-2">이벤트 조건</h4>
+                  <p class="text-sm">매달 서비스 이용 후<br/><strong class="text-yellow-300">사용후기 작성</strong> 필수</p>
+                </div>
+                
+                <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6">
+                  <i class="fas fa-crown text-yellow-300 text-3xl mb-3"></i>
+                  <h4 class="font-bold text-xl mb-2">프리미엄 멤버십</h4>
+                  <p class="text-sm">후기 작성 없이<br/><strong class="text-yellow-300">모든 혜택 이용 가능</strong></p>
+                </div>
+              </div>
+
+              <div class="bg-yellow-400 text-gray-900 rounded-xl p-4 font-bold text-lg">
+                <i class="fas fa-exclamation-circle mr-2"></i>
+                후기 미작성 시 다음 달부터 정상가(₩4,990) 자동 적용
+              </div>
             </div>
           </div>
         </div>
@@ -2459,6 +2514,443 @@ app.get('/chat', async (c) => {
   `)
 })
 
+// ========== 사용후기 시스템 페이지 ==========
+
+// 1. 후기 작성 페이지
+app.get('/review/write', (c) => {
+  const bookingId = c.req.query('bookingId')
+  const serviceType = c.req.query('serviceType') || 'facility'
+  
+  return c.html(`
+    <!DOCTYPE html>
+    <html lang="ko">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>사용후기 작성 | 케어조아</title>
+      <script src="https://cdn.tailwindcss.com"></script>
+      <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+      <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
+    </head>
+    <body class="bg-gray-50">
+      <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex justify-between items-center h-16">
+            <a href="/" class="flex items-center">
+              <img 
+                src="https://page.gensparksite.com/v1/base64_upload/b39dca8586af1dacd6d8417554313896" 
+                alt="케어조아 로고"
+                class="h-8 w-auto mr-3"
+              />
+              <h1 class="text-2xl font-bold text-teal-600">케어조아</h1>
+            </a>
+            <a href="/" class="text-gray-600 hover:text-gray-900">
+              <i class="fas fa-home mr-1"></i>홈으로
+            </a>
+          </div>
+        </div>
+      </header>
+
+      <main class="max-w-3xl mx-auto px-4 py-12">
+        <!-- 이벤트 안내 배너 -->
+        <div class="bg-gradient-to-r from-pink-500 to-purple-600 rounded-2xl p-6 mb-8 text-white text-center">
+          <h2 class="text-2xl font-bold mb-2">
+            <i class="fas fa-gift mr-2"></i>후기 작성 이벤트
+          </h2>
+          <p class="text-lg">
+            후기를 작성하시면 <span class="text-yellow-300 font-bold text-xl">다음 달 멤버십도 990원</span>으로 자동 적용됩니다! 🎉
+          </p>
+          <p class="text-sm mt-2 opacity-90">
+            (프리미엄 멤버십 회원 대상)
+          </p>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+          <h2 class="text-3xl font-bold mb-6 text-gray-800">
+            <i class="fas fa-pen-to-square text-teal-600 mr-3"></i>
+            사용후기 작성
+          </h2>
+
+          <form id="reviewForm" class="space-y-6">
+            <!-- 서비스 종류 -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                서비스 종류 <span class="text-red-500">*</span>
+              </label>
+              <select 
+                id="serviceType" 
+                required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent">
+                <option value="facility" ${serviceType === 'facility' ? 'selected' : ''}>시설 상담</option>
+                <option value="manager_consultation" ${serviceType === 'manager_consultation' ? 'selected' : ''}>매니저 상담</option>
+                <option value="hospital_companion" ${serviceType === 'hospital_companion' ? 'selected' : ''}>병원 동행</option>
+                <option value="facility_rounding" ${serviceType === 'facility_rounding' ? 'selected' : ''}>시설 라운딩</option>
+              </select>
+            </div>
+
+            <!-- 평점 -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                평점 <span class="text-red-500">*</span>
+              </label>
+              <div class="flex items-center space-x-2">
+                ${[1, 2, 3, 4, 5].map(star => `
+                  <button type="button" class="rating-star text-4xl text-gray-300 hover:text-yellow-400 transition-colors" data-rating="${star}">
+                    <i class="fas fa-star"></i>
+                  </button>
+                `).join('')}
+                <span id="ratingText" class="ml-4 text-lg font-semibold text-gray-600">별점을 선택해주세요</span>
+              </div>
+              <input type="hidden" id="rating" name="rating" required>
+            </div>
+
+            <!-- 제목 -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                제목 <span class="text-red-500">*</span>
+              </label>
+              <input 
+                type="text" 
+                id="title" 
+                required
+                placeholder="후기 제목을 입력해주세요"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent">
+            </div>
+
+            <!-- 내용 -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                상세 후기 <span class="text-red-500">*</span>
+              </label>
+              <textarea 
+                id="content" 
+                rows="6" 
+                required
+                placeholder="서비스 이용 경험을 자세히 작성해주세요 (최소 50자)"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none"></textarea>
+              <p class="text-sm text-gray-500 mt-1">
+                <span id="charCount">0</span>/1000자
+              </p>
+            </div>
+
+            <!-- 버튼 -->
+            <div class="flex space-x-4">
+              <button 
+                type="button"
+                onclick="history.back()"
+                class="flex-1 bg-gray-200 text-gray-700 py-4 rounded-xl font-bold text-lg hover:bg-gray-300 transition-colors">
+                취소
+              </button>
+              <button 
+                type="submit"
+                id="submitBtn"
+                class="flex-1 bg-gradient-to-r from-teal-500 to-cyan-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all">
+                후기 등록하고 990원 혜택 받기 🎉
+              </button>
+            </div>
+          </form>
+        </div>
+      </main>
+
+      <script>
+        let selectedRating = 0
+        const userId = localStorage.getItem('userId') || 'temp_user_' + Date.now()
+        const bookingId = new URLSearchParams(window.location.search).get('bookingId')
+        
+        // 별점 선택
+        document.querySelectorAll('.rating-star').forEach(star => {
+          star.addEventListener('click', function() {
+            selectedRating = parseInt(this.dataset.rating)
+            document.getElementById('rating').value = selectedRating
+            
+            // 별 색상 업데이트
+            document.querySelectorAll('.rating-star').forEach((s, idx) => {
+              if (idx < selectedRating) {
+                s.classList.remove('text-gray-300')
+                s.classList.add('text-yellow-400')
+              } else {
+                s.classList.remove('text-yellow-400')
+                s.classList.add('text-gray-300')
+              }
+            })
+            
+            // 텍스트 업데이트
+            const ratingTexts = ['', '별로예요', '그저그래요', '좋아요', '아주 좋아요', '최고예요!']
+            document.getElementById('ratingText').textContent = ratingTexts[selectedRating]
+          })
+        })
+        
+        // 글자 수 카운트
+        const contentTextarea = document.getElementById('content')
+        const charCount = document.getElementById('charCount')
+        
+        contentTextarea.addEventListener('input', function() {
+          const count = this.value.length
+          charCount.textContent = count
+          
+          if (count > 1000) {
+            this.value = this.value.substring(0, 1000)
+            charCount.textContent = 1000
+          }
+        })
+        
+        // 폼 제출
+        document.getElementById('reviewForm').addEventListener('submit', async function(e) {
+          e.preventDefault()
+          
+          if (selectedRating === 0) {
+            alert('별점을 선택해주세요')
+            return
+          }
+          
+          const content = contentTextarea.value
+          if (content.length < 50) {
+            alert('후기를 최소 50자 이상 작성해주세요')
+            return
+          }
+          
+          const submitBtn = document.getElementById('submitBtn')
+          submitBtn.disabled = true
+          submitBtn.textContent = '등록 중...'
+          
+          try {
+            const response = await axios.post('/api/review/create', {
+              userId,
+              bookingId: bookingId ? parseInt(bookingId) : null,
+              serviceType: document.getElementById('serviceType').value,
+              rating: selectedRating,
+              title: document.getElementById('title').value,
+              content: content,
+              photos: null
+            })
+            
+            if (response.data.success) {
+              alert(response.data.message)
+              window.location.href = '/reviews'
+            } else {
+              alert(response.data.message || '후기 등록에 실패했습니다')
+            }
+          } catch (error) {
+            console.error('Error:', error)
+            alert('후기 등록 중 오류가 발생했습니다')
+          } finally {
+            submitBtn.disabled = false
+            submitBtn.textContent = '후기 등록하고 990원 혜택 받기 🎉'
+          }
+        })
+      </script>
+    </body>
+    </html>
+  `)
+})
+
+// 2. 후기 목록 페이지
+app.get('/reviews', (c) => {
+  return c.html(`
+    <!DOCTYPE html>
+    <html lang="ko">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>사용후기 | 케어조아</title>
+      <script src="https://cdn.tailwindcss.com"></script>
+      <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+      <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
+    </head>
+    <body class="bg-gray-50">
+      <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex justify-between items-center h-16">
+            <a href="/" class="flex items-center">
+              <img 
+                src="https://page.gensparksite.com/v1/base64_upload/b39dca8586af1dacd6d8417554313896" 
+                alt="케어조아 로고"
+                class="h-8 w-auto mr-3"
+              />
+              <h1 class="text-2xl font-bold text-teal-600">케어조아</h1>
+            </a>
+            <a href="/" class="text-gray-600 hover:text-gray-900">
+              <i class="fas fa-home mr-1"></i>홈으로
+            </a>
+          </div>
+        </div>
+      </header>
+
+      <main class="max-w-6xl mx-auto px-4 py-12">
+        <!-- 헤더 -->
+        <div class="flex justify-between items-center mb-8">
+          <div>
+            <h2 class="text-3xl font-bold text-gray-800 mb-2">
+              <i class="fas fa-comments text-teal-600 mr-3"></i>
+              사용후기
+            </h2>
+            <p class="text-gray-600">케어조아 서비스 이용 고객님들의 생생한 후기</p>
+          </div>
+          <a 
+            href="/review/write"
+            class="bg-gradient-to-r from-teal-500 to-cyan-600 text-white px-6 py-3 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all">
+            <i class="fas fa-pen mr-2"></i>후기 작성
+          </a>
+        </div>
+
+        <!-- 필터 -->
+        <div class="bg-white rounded-xl shadow-md p-4 mb-8">
+          <div class="flex flex-wrap gap-3">
+            <button class="filter-btn active px-4 py-2 rounded-lg font-semibold transition-colors" data-type="">
+              전체
+            </button>
+            <button class="filter-btn px-4 py-2 rounded-lg font-semibold transition-colors" data-type="facility">
+              <i class="fas fa-building mr-1"></i>시설 상담
+            </button>
+            <button class="filter-btn px-4 py-2 rounded-lg font-semibold transition-colors" data-type="manager_consultation">
+              <i class="fas fa-user-tie mr-1"></i>매니저 상담
+            </button>
+            <button class="filter-btn px-4 py-2 rounded-lg font-semibold transition-colors" data-type="hospital_companion">
+              <i class="fas fa-hospital mr-1"></i>병원 동행
+            </button>
+            <button class="filter-btn px-4 py-2 rounded-lg font-semibold transition-colors" data-type="facility_rounding">
+              <i class="fas fa-route mr-1"></i>시설 라운딩
+            </button>
+          </div>
+        </div>
+
+        <!-- 후기 목록 -->
+        <div id="reviewList" class="space-y-6">
+          <!-- 로딩 중 -->
+          <div class="text-center py-12">
+            <i class="fas fa-spinner fa-spin text-4xl text-teal-600 mb-4"></i>
+            <p class="text-gray-600">후기를 불러오는 중...</p>
+          </div>
+        </div>
+
+        <!-- 페이지네이션 -->
+        <div id="pagination" class="mt-8"></div>
+      </main>
+
+      <script>
+        let currentPage = 1
+        let currentFilter = ''
+        
+        // 필터 버튼 클릭
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+          btn.addEventListener('click', function() {
+            document.querySelectorAll('.filter-btn').forEach(b => {
+              b.classList.remove('active', 'bg-teal-600', 'text-white')
+              b.classList.add('bg-gray-100', 'text-gray-700')
+            })
+            this.classList.add('active', 'bg-teal-600', 'text-white')
+            this.classList.remove('bg-gray-100', 'text-gray-700')
+            
+            currentFilter = this.dataset.type
+            currentPage = 1
+            loadReviews()
+          })
+        })
+        
+        // 초기 스타일 설정
+        document.querySelector('.filter-btn.active').classList.add('bg-teal-600', 'text-white')
+        document.querySelectorAll('.filter-btn:not(.active)').forEach(btn => {
+          btn.classList.add('bg-gray-100', 'text-gray-700')
+        })
+        
+        // 후기 목록 불러오기
+        async function loadReviews() {
+          try {
+            const params = new URLSearchParams({
+              page: currentPage,
+              limit: 10
+            })
+            if (currentFilter) {
+              params.append('serviceType', currentFilter)
+            }
+            
+            const response = await axios.get('/api/review/list?' + params.toString())
+            
+            if (response.data.success) {
+              renderReviews(response.data.reviews)
+              renderPagination(response.data.pagination)
+            }
+          } catch (error) {
+            console.error('Error:', error)
+            document.getElementById('reviewList').innerHTML = '<div class="text-center py-12"><i class="fas fa-exclamation-circle text-4xl text-red-500 mb-4"></i><p class="text-gray-600">후기를 불러오는데 실패했습니다</p></div>'
+          }
+        }
+        
+        // 후기 렌더링
+        function renderReviews(reviews) {
+          const container = document.getElementById('reviewList')
+          
+          if (!reviews || reviews.length === 0) {
+            container.innerHTML = '<div class="text-center py-12"><i class="fas fa-inbox text-4xl text-gray-400 mb-4"></i><p class="text-gray-600">아직 등록된 후기가 없습니다</p><a href="/review/write" class="inline-block mt-4 text-teal-600 font-semibold hover:underline">첫 후기를 작성해보세요 →</a></div>'
+            return
+          }
+          
+          const serviceTypeNames = {
+            facility: '시설 상담',
+            manager_consultation: '매니저 상담',
+            hospital_companion: '병원 동행',
+            facility_rounding: '시설 라운딩'
+          }
+          
+          container.innerHTML = reviews.map(review => {
+            const stars = '\u2605'.repeat(review.rating) + '\u2606'.repeat(5 - review.rating)
+            const createdDate = new Date(review.created_at).toLocaleDateString('ko-KR')
+            const serviceTypeName = serviceTypeNames[review.service_type] || review.service_type
+            const rewardBadge = review.is_rewarded ? '<span class="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-3 py-1 rounded-full text-xs font-bold">\ud83d\udc9d 990\uc6d0 \ud61c\ud0dd</span>' : ''
+            const adminReply = review.admin_reply ? '<div class="mt-4 p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500"><p class="text-sm font-semibold text-blue-900 mb-1"><i class="fas fa-reply mr-1"></i>\ucf00\uc5b4\uc870\uc544 \ub2f5\ubcc0</p><p class="text-sm text-gray-700">' + review.admin_reply + '</p></div>' : ''
+            
+            return '<div class="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow"><div class="flex justify-between items-start mb-4"><div><div class="flex items-center space-x-3 mb-2"><span class="text-2xl text-yellow-400">' + stars + '</span><span class="bg-teal-100 text-teal-700 px-3 py-1 rounded-full text-sm font-semibold">' + serviceTypeName + '</span>' + rewardBadge + '</div><h3 class="text-xl font-bold text-gray-800 mb-1">' + review.title + '</h3><p class="text-sm text-gray-500">' + review.masked_user_id + ' \u2022 ' + createdDate + '</p></div></div><p class="text-gray-700 leading-relaxed whitespace-pre-wrap">' + review.content + '</p>' + adminReply + '</div>'
+          }).join('')
+        }
+        
+        // 페이지네이션 렌더링
+        function renderPagination(pagination) {
+          const container = document.getElementById('pagination')
+          
+          if (pagination.totalPages <= 1) {
+            container.innerHTML = ''
+            return
+          }
+          
+          let html = '<div class="flex justify-center space-x-2">'
+          
+          // 이전 페이지
+          if (pagination.page > 1) {
+            html += '<button onclick="goToPage(' + (pagination.page - 1) + ')" class="px-4 py-2 bg-white rounded-lg shadow hover:bg-gray-50"><i class="fas fa-chevron-left"></i></button>'
+          }
+          
+          // 페이지 번호
+          for (let i = 1; i <= pagination.totalPages; i++) {
+            if (i === pagination.page) {
+              html += '<button class="px-4 py-2 bg-teal-600 text-white rounded-lg shadow font-bold">' + i + '</button>'
+            } else {
+              html += '<button onclick="goToPage(' + i + ')" class="px-4 py-2 bg-white rounded-lg shadow hover:bg-gray-50">' + i + '</button>'
+            }
+          }
+          
+          // 다음 페이지
+          if (pagination.page < pagination.totalPages) {
+            html += '<button onclick="goToPage(' + (pagination.page + 1) + ')" class="px-4 py-2 bg-white rounded-lg shadow hover:bg-gray-50"><i class="fas fa-chevron-right"></i></button>'
+          }
+          
+          html += '</div>'
+          container.innerHTML = html
+        }
+        
+        function goToPage(page) {
+          currentPage = page
+          loadReviews()
+          window.scrollTo({ top: 0, behavior: 'smooth' })
+        }
+        
+        // 초기 로드
+        loadReviews()
+      </script>
+    </body>
+    </html>
+  `)
+})
+
 // ========== 케어조아 매니저 상담 ==========
 
 // 매니저 상담 신청 페이지
@@ -2992,7 +3484,7 @@ app.get('/', (c) => {
                   <div class="mb-2 sm:mb-4">
                     <i class="fas fa-crown text-3xl sm:text-6xl md:text-7xl text-gray-400"></i>
                   </div>
-                  <span class="font-semibold text-gray-500 text-xs sm:text-base md:text-lg text-center leading-tight">멤버십<br/>₩990</span>
+                  <span class="font-semibold text-gray-500 text-xs sm:text-base md:text-lg text-center leading-tight">멤버십<br/><span class="line-through text-gray-400 text-[10px]">₩4,990</span> <span class="text-red-500">₩990</span></span>
                 </div>
 
                 <a href="/integrated-care"
@@ -20722,6 +21214,211 @@ app.post('/api/subscription/auto-billing', async (c) => {
       message: '자동 청구 처리 실패',
       error: String(error)
     }, 500)
+  }
+})
+
+// ========== 사용후기 시스템 API ==========
+
+// 1. 사용후기 작성 API
+app.post('/api/review/create', async (c) => {
+  try {
+    const {
+      userId,
+      bookingId,
+      serviceType,
+      rating,
+      title,
+      content,
+      photos
+    } = await c.req.json()
+    
+    const db = c.env.DB
+    
+    // 이미 후기를 작성했는지 확인
+    const existingReview = await db.prepare(`
+      SELECT id FROM service_reviews 
+      WHERE user_id = ? AND booking_id = ?
+    `).bind(userId, bookingId).first()
+    
+    if (existingReview) {
+      return c.json({ success: false, message: '이미 후기를 작성하셨습니다' }, 400)
+    }
+    
+    // 후기 저장
+    const reviewResult = await db.prepare(`
+      INSERT INTO service_reviews (
+        user_id, booking_id, service_type, rating, title, content, photos, status
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, 'approved')
+    `).bind(
+      userId, bookingId || null, serviceType, rating, title, content, 
+      photos ? JSON.stringify(photos) : null
+    ).run()
+    
+    const reviewId = reviewResult.meta.last_row_id
+    
+    // 프리미엄 멤버십 구독 확인
+    const subscription = await db.prepare(`
+      SELECT s.id, s.user_id, s.plan_id, sp.price, sp.name
+      FROM subscriptions s
+      JOIN subscription_plans sp ON s.plan_id = sp.id
+      WHERE s.user_id = ? AND s.status = 'active' AND sp.name LIKE '%프리미엄%'
+      ORDER BY s.created_at DESC
+      LIMIT 1
+    `).bind(userId).first()
+    
+    if (subscription) {
+      // 후기 작성 이벤트 적용: 다음 달도 990원
+      const eventResult = await db.prepare(`
+        INSERT INTO review_event_history (
+          user_id, review_id, subscription_id, event_type, 
+          discount_amount, original_price, final_price,
+          valid_until
+        ) VALUES (?, ?, ?, 'review_discount', 4000, 4990, 990, datetime('now', '+1 month'))
+      `).bind(userId, reviewId, subscription.id).run()
+      
+      // 후기에 리워드 표시
+      await db.prepare(`
+        UPDATE service_reviews 
+        SET is_rewarded = 1, reward_applied_at = datetime('now')
+        WHERE id = ?
+      `).bind(reviewId).run()
+      
+      return c.json({
+        success: true,
+        message: '후기가 등록되었습니다! 다음 달 멤버십도 990원으로 자동 적용됩니다 🎉',
+        reviewId,
+        eventApplied: true,
+        nextMonthPrice: 990
+      })
+    }
+    
+    return c.json({
+      success: true,
+      message: '후기가 등록되었습니다',
+      reviewId
+    })
+  } catch (error) {
+    return c.json({ success: false, message: '후기 등록 실패', error: String(error) }, 500)
+  }
+})
+
+// 2. 사용후기 목록 조회 API
+app.get('/api/review/list', async (c) => {
+  try {
+    const serviceType = c.req.query('serviceType')
+    const page = parseInt(c.req.query('page') || '1')
+    const limit = parseInt(c.req.query('limit') || '10')
+    const offset = (page - 1) * limit
+    
+    const db = c.env.DB
+    
+    let query = `
+      SELECT 
+        sr.*,
+        CASE 
+          WHEN sr.user_id IS NOT NULL 
+          THEN substr(sr.user_id, 1, 4) || '***'
+          ELSE '익명'
+        END as masked_user_id
+      FROM service_reviews sr
+      WHERE sr.status = 'approved'
+    `
+    
+    const params: any[] = []
+    if (serviceType) {
+      query += ` AND sr.service_type = ?`
+      params.push(serviceType)
+    }
+    
+    query += ` ORDER BY sr.created_at DESC LIMIT ? OFFSET ?`
+    params.push(limit, offset)
+    
+    const reviews = await db.prepare(query).bind(...params).all()
+    
+    // 총 개수 조회
+    let countQuery = `SELECT COUNT(*) as total FROM service_reviews WHERE status = 'approved'`
+    const countParams: any[] = []
+    if (serviceType) {
+      countQuery += ` AND service_type = ?`
+      countParams.push(serviceType)
+    }
+    
+    const countResult = await db.prepare(countQuery).bind(...countParams).first()
+    
+    return c.json({
+      success: true,
+      reviews: reviews.results,
+      pagination: {
+        page,
+        limit,
+        total: countResult?.total || 0,
+        totalPages: Math.ceil((countResult?.total || 0) / limit)
+      }
+    })
+  } catch (error) {
+    return c.json({ success: false, message: '후기 조회 실패', error: String(error) }, 500)
+  }
+})
+
+// 3. 내 후기 조회 API
+app.get('/api/review/my/:userId', async (c) => {
+  try {
+    const userId = c.req.param('userId')
+    const db = c.env.DB
+    
+    const reviews = await db.prepare(`
+      SELECT sr.*, reh.final_price as next_month_price
+      FROM service_reviews sr
+      LEFT JOIN review_event_history reh ON sr.id = reh.review_id
+      WHERE sr.user_id = ?
+      ORDER BY sr.created_at DESC
+    `).bind(userId).all()
+    
+    return c.json({
+      success: true,
+      reviews: reviews.results
+    })
+  } catch (error) {
+    return c.json({ success: false, message: '후기 조회 실패', error: String(error) }, 500)
+  }
+})
+
+// 4. 후기 이벤트 혜택 확인 API
+app.get('/api/review/event-status/:userId', async (c) => {
+  try {
+    const userId = c.req.param('userId')
+    const db = c.env.DB
+    
+    // 최근 후기 이벤트 확인
+    const eventHistory = await db.prepare(`
+      SELECT 
+        reh.*,
+        sr.title as review_title,
+        sr.created_at as review_created_at
+      FROM review_event_history reh
+      JOIN service_reviews sr ON reh.review_id = sr.id
+      WHERE reh.user_id = ? 
+        AND reh.valid_until > datetime('now')
+      ORDER BY reh.applied_at DESC
+      LIMIT 1
+    `).bind(userId).first()
+    
+    if (!eventHistory) {
+      return c.json({
+        success: true,
+        hasActiveEvent: false,
+        message: '사용후기를 작성하고 다음 달 990원 혜택을 받으세요!'
+      })
+    }
+    
+    return c.json({
+      success: true,
+      hasActiveEvent: true,
+      event: eventHistory,
+      message: `후기 작성으로 다음 달 ${eventHistory.final_price}원 혜택이 적용됩니다!`
+    })
+  } catch (error) {
+    return c.json({ success: false, message: '이벤트 상태 조회 실패', error: String(error) }, 500)
   }
 })
 
