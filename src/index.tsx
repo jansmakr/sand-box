@@ -2459,6 +2459,363 @@ app.get('/chat', async (c) => {
   `)
 })
 
+// ========== 케어조아 매니저 상담 ==========
+
+// 매니저 상담 신청 페이지
+app.get('/manager-consultation', (c) => {
+  return c.html(`
+    <!DOCTYPE html>
+    <html lang="ko">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>케어조아 매니저 상담 | 케어조아</title>
+      <script src="https://cdn.tailwindcss.com"></script>
+      <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+    </head>
+    <body class="bg-gray-50">
+      <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex justify-between items-center h-16">
+            <a href="/" class="flex items-center">
+              <img 
+                src="https://page.gensparksite.com/v1/base64_upload/b39dca8586af1dacd6d8417554313896" 
+                alt="케어조아 로고"
+                class="h-8 w-auto mr-3"
+              />
+              <h1 class="text-2xl font-bold text-teal-600">케어조아</h1>
+            </a>
+            <a href="/" class="text-gray-600 hover:text-gray-900">
+              <i class="fas fa-home mr-1"></i>홈으로
+            </a>
+          </div>
+        </div>
+      </header>
+
+      <section class="py-16 bg-gradient-to-br from-teal-50 to-cyan-50 min-h-screen">
+        <div class="max-w-4xl mx-auto px-4">
+          <div class="text-center mb-12">
+            <h2 class="text-4xl font-bold text-gray-900 mb-4">
+              <i class="fas fa-user-tie text-teal-600 mr-3"></i>케어조아 매니저 상담
+            </h2>
+            <p class="text-lg text-gray-600">전문 매니저가 최적의 요양 솔루션을 제안해 드립니다</p>
+          </div>
+
+          <div class="bg-white p-8 rounded-2xl shadow-lg mb-8">
+            <h3 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+              <i class="fas fa-list-check text-teal-600 mr-3"></i>
+              상담 서비스 종류
+            </h3>
+            <div class="grid md:grid-cols-2 gap-4 mb-8">
+              <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl border-2 border-transparent hover:border-blue-500 transition-all">
+                <div class="flex items-start">
+                  <i class="fas fa-comments text-3xl text-blue-600 mr-4"></i>
+                  <div>
+                    <h4 class="font-bold text-lg text-gray-900 mb-2">상담 서비스</h4>
+                    <p class="text-gray-600 text-sm">요양 시설 선택, 비용, 입소 절차 등 전반적인 상담</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl border-2 border-transparent hover:border-green-500 transition-all">
+                <div class="flex items-start">
+                  <i class="fas fa-building text-3xl text-green-600 mr-4"></i>
+                  <div>
+                    <h4 class="font-bold text-lg text-gray-900 mb-2">시설 라운딩 동행</h4>
+                    <p class="text-gray-600 text-sm">직접 시설 방문 시 전문가가 동행하여 꼼꼼히 체크</p>
+                    <span class="inline-block bg-green-600 text-white text-xs px-2 py-1 rounded-full mt-2">멤버십 혜택</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-xl border-2 border-transparent hover:border-purple-500 transition-all">
+                <div class="flex items-start">
+                  <i class="fas fa-hospital text-3xl text-purple-600 mr-4"></i>
+                  <div>
+                    <h4 class="font-bold text-lg text-gray-900 mb-2">병원 동행 서비스</h4>
+                    <p class="text-gray-600 text-sm">진료, 검사 동행 및 의료진과 소통 지원</p>
+                    <span class="inline-block bg-purple-600 text-white text-xs px-2 py-1 rounded-full mt-2">멤버십 30% 할인</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="bg-gradient-to-br from-gray-50 to-gray-100 p-6 rounded-xl border-2 border-transparent hover:border-gray-500 transition-all">
+                <div class="flex items-start">
+                  <i class="fas fa-ellipsis-h text-3xl text-gray-600 mr-4"></i>
+                  <div>
+                    <h4 class="font-bold text-lg text-gray-900 mb-2">기타 서비스</h4>
+                    <p class="text-gray-600 text-sm">간병인 연결, 장기요양등급 신청 등 기타 문의</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <form id="consultationForm" class="bg-white p-8 rounded-2xl shadow-lg">
+            <h3 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+              <i class="fas fa-edit text-teal-600 mr-3"></i>
+              상담 신청서
+            </h3>
+
+            <!-- 신청자 정보 -->
+            <div class="mb-6">
+              <h4 class="font-bold text-lg text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-user text-teal-600 mr-2"></i>
+                신청자 정보
+              </h4>
+              <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                    이름 <span class="text-red-500">*</span>
+                  </label>
+                  <input 
+                    type="text" 
+                    id="name" 
+                    required
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                    placeholder="홍길동"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                    연락처 <span class="text-red-500">*</span>
+                  </label>
+                  <input 
+                    type="tel" 
+                    id="phone" 
+                    required
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                    placeholder="010-0000-0000"
+                  />
+                </div>
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                    이메일 (선택)
+                  </label>
+                  <input 
+                    type="email" 
+                    id="email"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                    placeholder="example@email.com"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- 상담 종류 -->
+            <div class="mb-6">
+              <h4 class="font-bold text-lg text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-list text-teal-600 mr-2"></i>
+                상담 서비스 선택
+              </h4>
+              <select 
+                id="serviceCategory" 
+                required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              >
+                <option value="">서비스를 선택해주세요</option>
+                <option value="consultation">상담 서비스</option>
+                <option value="facility_tour">시설 라운딩 동행</option>
+                <option value="hospital_companion">병원 동행 서비스</option>
+                <option value="other">기타 서비스</option>
+              </select>
+            </div>
+
+            <!-- 희망 일정 -->
+            <div class="mb-6">
+              <h4 class="font-bold text-lg text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-calendar-alt text-teal-600 mr-2"></i>
+                희망 상담 일정
+              </h4>
+              <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                    희망 날짜 (선택)
+                  </label>
+                  <input 
+                    type="date" 
+                    id="preferredDate"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                    희망 시간대 (선택)
+                  </label>
+                  <select 
+                    id="preferredTime"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                  >
+                    <option value="">시간대 선택</option>
+                    <option value="morning">오전 (09:00 - 12:00)</option>
+                    <option value="afternoon">오후 (13:00 - 17:00)</option>
+                    <option value="evening">저녁 (18:00 - 20:00)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- 환자 정보 -->
+            <div class="mb-6">
+              <h4 class="font-bold text-lg text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-user-injured text-teal-600 mr-2"></i>
+                환자 정보 (선택)
+              </h4>
+              <div class="grid md:grid-cols-3 gap-4 mb-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">연령대</label>
+                  <input 
+                    type="number" 
+                    id="patientAge"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                    placeholder="80"
+                  />
+                </div>
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium text-gray-700 mb-2">지역</label>
+                  <input 
+                    type="text" 
+                    id="region"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                    placeholder="서울 강남구"
+                  />
+                </div>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">환자 상태</label>
+                <input 
+                  type="text" 
+                  id="patientCondition"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                  placeholder="예: 치매, 거동 불편, 와상 등"
+                />
+              </div>
+            </div>
+
+            <!-- 상담 내용 -->
+            <div class="mb-6">
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                상담 내용 / 요청 사항
+              </label>
+              <textarea 
+                id="message"
+                rows="5"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                placeholder="상담받고 싶은 내용이나 특별히 고려해야 할 사항을 자유롭게 작성해주세요."
+              ></textarea>
+            </div>
+
+            <!-- 제출 버튼 -->
+            <button 
+              type="submit"
+              class="w-full bg-teal-600 text-white py-4 rounded-xl hover:bg-teal-700 transition-all duration-300 font-bold text-lg shadow-lg">
+              <i class="fas fa-paper-plane mr-2"></i>상담 신청하기
+            </button>
+          </form>
+
+          <!-- 안내 사항 -->
+          <div class="mt-8 bg-blue-50 border-l-4 border-blue-500 p-6 rounded-lg">
+            <h4 class="font-bold text-blue-900 mb-2 flex items-center">
+              <i class="fas fa-info-circle mr-2"></i>안내 사항
+            </h4>
+            <ul class="text-blue-800 text-sm space-y-2">
+              <li>• 신청 후 영업일 기준 24시간 이내에 담당 매니저가 연락드립니다.</li>
+              <li>• 상담은 전화 또는 대면으로 진행되며, 무료로 제공됩니다.</li>
+              <li>• 시설 라운딩 동행과 병원 동행은 멤버십 회원 전용 서비스입니다.</li>
+              <li>• 긴급 상담이 필요하신 경우 고객센터(1588-0000)로 연락주세요.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <script>
+        document.getElementById('consultationForm').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          
+          const formData = {
+            name: document.getElementById('name').value,
+            phone: document.getElementById('phone').value,
+            email: document.getElementById('email').value,
+            service_category: document.getElementById('serviceCategory').value,
+            preferred_date: document.getElementById('preferredDate').value,
+            preferred_time: document.getElementById('preferredTime').value,
+            patient_age: document.getElementById('patientAge').value,
+            region: document.getElementById('region').value,
+            patient_condition: document.getElementById('patientCondition').value,
+            message: document.getElementById('message').value
+          };
+          
+          try {
+            const response = await fetch('/api/manager-consultation/request', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(formData)
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+              alert('상담 신청이 완료되었습니다!\\n담당 매니저가 빠른 시일 내에 연락드리겠습니다.');
+              window.location.href = '/';
+            } else {
+              alert('신청 중 오류가 발생했습니다: ' + data.message);
+            }
+          } catch (error) {
+            console.error('Error:', error);
+            alert('신청 중 오류가 발생했습니다. 다시 시도해주세요.');
+          }
+        });
+      </script>
+    </body>
+    </html>
+  `)
+})
+
+// 매니저 상담 신청 API
+app.post('/api/manager-consultation/request', async (c) => {
+  try {
+    const data = await c.req.json()
+    const db = c.env.DB
+    
+    // 필수 값 검증
+    if (!data.name || !data.phone || !data.service_category) {
+      return c.json({ success: false, message: '필수 정보를 입력해주세요.' }, 400)
+    }
+    
+    // 데이터베이스에 저장
+    await db.prepare(`
+      INSERT INTO manager_consultations (
+        name, phone, email, service_category, preferred_date, preferred_time,
+        patient_age, patient_condition, region, message, status
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')
+    `).bind(
+      data.name,
+      data.phone,
+      data.email || null,
+      data.service_category,
+      data.preferred_date || null,
+      data.preferred_time || null,
+      data.patient_age || null,
+      data.patient_condition || null,
+      data.region || null,
+      data.message || null
+    ).run()
+    
+    return c.json({ 
+      success: true, 
+      message: '상담 신청이 완료되었습니다. 담당 매니저가 곧 연락드리겠습니다.' 
+    })
+  } catch (error) {
+    console.error('Manager consultation request error:', error)
+    return c.json({ 
+      success: false, 
+      message: '상담 신청 처리 중 오류가 발생했습니다.' 
+    }, 500)
+  }
+})
+
 // ========== 대시보드 라우트 ========== (대시보드는 다음에 구현)
 
 // 메인 페이지 (전체 디자인)
@@ -2576,30 +2933,22 @@ app.get('/', (c) => {
       {/* 메인 액션 버튼 - 히어로 바로 아래 */}
       <section class="py-8 sm:py-10 md:py-14 lg:py-16 bg-gradient-to-b from-white to-gray-50">
         <div class="max-w-6xl mx-auto px-3 sm:px-4">
-          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8" id="main-action-buttons">
-                <a href="/quote-simple"
-                   class="group flex flex-col items-center justify-center bg-white py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[140px] sm:min-h-[160px]">
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8" id="main-action-buttons">
+                <a href="/manager-consultation"
+                   class="group relative flex flex-col items-center justify-center bg-gradient-to-br from-teal-50 to-cyan-50 py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[140px] sm:min-h-[160px] border-2 border-teal-400">
+                  <span class="absolute top-2 right-2 bg-teal-500 text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full shadow-lg">전문상담</span>
                   <div class="mb-2 sm:mb-4 transform group-hover:scale-110 transition-transform duration-300">
-                    <i class="fas fa-calculator text-3xl sm:text-6xl md:text-7xl text-blue-500"></i>
+                    <i class="fas fa-user-tie text-3xl sm:text-6xl md:text-7xl text-teal-600"></i>
                   </div>
-                  <span class="font-semibold text-gray-800 text-xs sm:text-base md:text-lg text-center leading-tight">간편견적</span>
+                  <span class="font-semibold text-gray-800 text-xs sm:text-base md:text-lg text-center leading-tight">케어조아<br/>매니저 상담</span>
                 </a>
 
                 <a href="/quote-request"
                    class="group flex flex-col items-center justify-center bg-white py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[140px] sm:min-h-[160px]">
                   <div class="mb-2 sm:mb-4 transform group-hover:scale-110 transition-transform duration-300">
-                    <i class="fas fa-notes-medical text-3xl sm:text-6xl md:text-7xl text-green-500"></i>
+                    <i class="fas fa-calculator text-3xl sm:text-6xl md:text-7xl text-blue-500"></i>
                   </div>
-                  <span class="font-semibold text-gray-800 text-xs sm:text-base md:text-lg text-center leading-tight">상세견적신청</span>
-                </a>
-
-                <a href="/call-consultation"
-                   class="group relative flex flex-col items-center justify-center bg-white py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[140px] sm:min-h-[160px]">
-                  <span class="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">인기</span>
-                  <div class="mb-2 sm:mb-4 transform group-hover:scale-110 transition-transform duration-300">
-                    <i class="fas fa-phone-alt text-3xl sm:text-6xl md:text-7xl text-green-500"></i>
-                  </div>
-                  <span class="font-semibold text-gray-800 text-xs sm:text-base md:text-lg text-center leading-tight">지역별<br/>전화상담</span>
+                  <span class="font-semibold text-gray-800 text-xs sm:text-base md:text-lg text-center leading-tight">시설 견적<br/>신청</span>
                 </a>
 
                 <a href="/facilities"
@@ -2619,15 +2968,13 @@ app.get('/', (c) => {
                   <span class="font-semibold text-gray-800 text-xs sm:text-base md:text-lg text-center leading-tight">AI 맞춤<br/>시설 찾기</span>
                 </a>
 
-                <a href="http://케어조아.shop"
-                   target="_blank"
-                   rel="noopener noreferrer"
+                <a href="/call-consultation"
                    class="group relative flex flex-col items-center justify-center bg-white py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[140px] sm:min-h-[160px]">
-                  <span class="absolute top-2 right-2 bg-blue-500 text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full shadow-lg">인기</span>
+                  <span class="absolute top-2 right-2 bg-red-500 text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full shadow-lg">인기</span>
                   <div class="mb-2 sm:mb-4 transform group-hover:scale-110 transition-transform duration-300">
-                    <i class="fas fa-calculator text-3xl sm:text-6xl md:text-7xl text-teal-500"></i>
+                    <i class="fas fa-phone-alt text-3xl sm:text-6xl md:text-7xl text-green-500"></i>
                   </div>
-                  <span class="font-semibold text-gray-800 text-xs sm:text-base md:text-lg text-center leading-tight">요양비<br/>계산</span>
+                  <span class="font-semibold text-gray-800 text-xs sm:text-base md:text-lg text-center leading-tight">지역별<br/>전화상담</span>
                 </a>
 
                 <a href="/subscription"
@@ -2637,24 +2984,6 @@ app.get('/', (c) => {
                     <i class="fas fa-crown text-3xl sm:text-6xl md:text-7xl text-yellow-500"></i>
                   </div>
                   <span class="font-semibold text-gray-800 text-xs sm:text-base md:text-lg text-center leading-tight">멤버십<br/>₩990</span>
-                </a>
-
-                <a href="/integrated-care"
-                   class="group relative flex flex-col items-center justify-center bg-white py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[140px] sm:min-h-[160px]">
-                  <span class="absolute top-2 right-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full shadow-lg">2026</span>
-                  <div class="mb-2 sm:mb-4 transform group-hover:scale-110 transition-transform duration-300">
-                    <i class="fas fa-heart text-3xl sm:text-6xl md:text-7xl text-pink-500"></i>
-                  </div>
-                  <span class="font-semibold text-gray-800 text-xs sm:text-base md:text-lg text-center leading-tight">통합돌봄<br/>안내</span>
-                </a>
-
-                <a href="/quote-request?type=한의사왕진"
-                   class="group relative flex flex-col items-center justify-center bg-white py-6 sm:py-8 px-2 sm:px-4 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[140px] sm:min-h-[160px]">
-                  <span class="absolute top-2 right-2 bg-green-500 text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full shadow-lg">일차의료</span>
-                  <div class="mb-2 sm:mb-4 transform group-hover:scale-110 transition-transform duration-300">
-                    <i class="fas fa-user-md text-3xl sm:text-6xl md:text-7xl text-green-600"></i>
-                  </div>
-                  <span class="font-semibold text-gray-800 text-xs sm:text-base md:text-lg text-center leading-tight">한의사<br/>왕진</span>
                 </a>
               </div>
 
