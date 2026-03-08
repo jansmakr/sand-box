@@ -272,7 +272,10 @@ app.get('/subscription', (c) => {
             <h2 class="text-4xl font-bold text-gray-900 mb-4">
               <i class="fas fa-crown text-yellow-500 mr-3"></i>케어조아 멤버십
             </h2>
-            <p class="text-lg text-gray-600">월 990원으로 모든 간병 서비스 최대 40% 할인</p>
+            <p class="text-lg text-gray-600">전문 매니저 상담부터 병원 동행까지 - 준비중</p>
+            <div class="inline-block bg-yellow-100 text-yellow-800 px-4 py-2 rounded-full font-semibold mt-2">
+              <i class="fas fa-clock mr-2"></i>오픈 준비중
+            </div>
           </div>
 
           <!-- 플랜 카드 -->
@@ -296,22 +299,26 @@ app.get('/subscription', (c) => {
                 </div>
                 <div class="flex items-center">
                   <i class="fas fa-check text-teal-600 mr-3"></i>
-                  <span>모든 간병 서비스 30% 할인</span>
+                  <span><strong>케어조아 매니저 상담</strong></span>
                 </div>
                 <div class="flex items-center">
                   <i class="fas fa-check text-teal-600 mr-3"></i>
-                  <span>24시간 고객센터 지원</span>
+                  <span><strong>무료 시설 라운딩 동행</strong></span>
                 </div>
                 <div class="flex items-center">
                   <i class="fas fa-check text-teal-600 mr-3"></i>
-                  <span>안심 리포트 제공</span>
+                  <span><strong>병원 동행 서비스 30% 할인</strong></span>
+                </div>
+                <div class="flex items-center">
+                  <i class="fas fa-check text-teal-600 mr-3"></i>
+                  <span><strong>안심 리포트 제공</strong></span>
                 </div>
               </div>
 
               <button 
-                onclick="subscribePlan(1, '베이직 멤버십', 990)"
-                class="w-full bg-teal-600 text-white py-4 rounded-xl hover:bg-teal-700 transition-all duration-300 font-bold text-lg">
-                <i class="fas fa-credit-card mr-2"></i>지금 구독하기
+                disabled
+                class="w-full bg-gray-400 text-white py-4 rounded-xl cursor-not-allowed font-bold text-lg">
+                <i class="fas fa-clock mr-2"></i>준비중
               </button>
             </div>
 
@@ -338,15 +345,19 @@ app.get('/subscription', (c) => {
                 </div>
                 <div class="flex items-center">
                   <i class="fas fa-check text-yellow-600 mr-3"></i>
-                  <span class="font-semibold">모든 간병 서비스 40% 할인</span>
+                  <span class="font-semibold">베이직 멤버십 전체 혜택 포함</span>
                 </div>
                 <div class="flex items-center">
                   <i class="fas fa-check text-yellow-600 mr-3"></i>
-                  <span class="font-semibold">우선 파트너 매칭</span>
+                  <span class="font-semibold"><strong>병원 동행 서비스 40% 할인</strong></span>
                 </div>
                 <div class="flex items-center">
                   <i class="fas fa-check text-yellow-600 mr-3"></i>
-                  <span class="font-semibold">24시간 전담 매니저 배정</span>
+                  <span class="font-semibold"><strong>우선 파트너 매칭</strong></span>
+                </div>
+                <div class="flex items-center">
+                  <i class="fas fa-check text-yellow-600 mr-3"></i>
+                  <span class="font-semibold"><strong>24시간 전담 매니저 배정</strong></span>
                 </div>
                 <div class="flex items-center">
                   <i class="fas fa-check text-yellow-600 mr-3"></i>
@@ -359,9 +370,9 @@ app.get('/subscription', (c) => {
               </div>
 
               <button 
-                onclick="subscribePlan(2, '프리미엄 멤버십', 4990)"
-                class="w-full bg-gradient-to-r from-yellow-500 to-orange-500 text-white py-4 rounded-xl hover:from-yellow-600 hover:to-orange-600 transition-all duration-300 font-bold text-lg shadow-lg">
-                <i class="fas fa-crown mr-2"></i>지금 구독하기
+                disabled
+                class="w-full bg-gray-400 text-white py-4 rounded-xl cursor-not-allowed font-bold text-lg shadow-lg">
+                <i class="fas fa-clock mr-2"></i>준비중
               </button>
             </div>
           </div>
