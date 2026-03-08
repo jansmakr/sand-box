@@ -374,7 +374,7 @@ app.get('/subscription', (c) => {
                 </div>
                 <div class="flex items-center">
                   <i class="fas fa-check text-yellow-600 mr-3"></i>
-                  <span class="font-semibold"><strong>24시간 전담 매니저 배정</strong></span>
+                  <span class="font-semibold"><strong>전담 매니저 배정</strong></span>
                 </div>
                 <div class="flex items-center">
                   <i class="fas fa-check text-yellow-600 mr-3"></i>
@@ -3211,7 +3211,7 @@ app.get('/manager-consultation', (c) => {
               <i class="fas fa-info-circle mr-2"></i>안내 사항
             </h4>
             <ul class="text-blue-800 text-sm space-y-2">
-              <li>• 신청 후 영업일 기준 24시간 이내에 담당 매니저가 연락드립니다.</li>
+              <li>• 신청 후 영업일 기준 1~2일 이내에 담당 매니저가 연락드립니다.</li>
               <li>• 상담은 전화 또는 대면으로 진행되며, 무료로 제공됩니다.</li>
               <li>• 시설 라운딩 동행과 병원 동행은 멤버십 회원 전용 서비스입니다.</li>
               <li>• 긴급 상담이 필요하신 경우 고객센터(1588-0000)로 연락주세요.</li>
@@ -3618,7 +3618,7 @@ app.get('/', (c) => {
                 <i class="fas fa-user-md text-3xl text-white drop-shadow-lg"></i>
               </div>
               <h4 class="text-xl font-bold mb-2 text-gray-800">전문 상담</h4>
-              <p class="text-gray-600 text-sm leading-relaxed">자격을 보유한<br class="sm:hidden" /> 전문 상담사가 24시간 상담</p>
+              <p class="text-gray-600 text-sm leading-relaxed">자격을 보유한<br class="sm:hidden" /> 전문 상담사의 맞춤 상담</p>
             </div>
             
             <div class="group text-center p-6 bg-gradient-to-br from-pink-50 to-rose-100 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 hover:scale-105">
