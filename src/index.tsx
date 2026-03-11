@@ -3339,6 +3339,12 @@ app.get('/', (c) => {
               />
               <h1 class="text-xl sm:text-2xl font-bold text-teal-600">케어조아</h1>
             </div><nav class="hidden md:flex items-center space-x-3">
+              {/* 정부인증 벤처기업 배지 */}
+              <div class="bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200 px-3 py-1.5 rounded-full flex items-center">
+                <i class="fas fa-award text-indigo-600 text-sm mr-1.5"></i>
+                <span class="text-xs font-semibold text-indigo-700">정부인증 벤처기업</span>
+              </div>
+              
               {/* 드롭다운 메뉴 */}
               <div class="relative">
                 <button id="desktop-menu-btn" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg whitespace-nowrap flex items-center transition-colors">
@@ -3505,7 +3511,7 @@ app.get('/', (c) => {
                     <i class="fas fa-phone-alt text-5xl sm:text-6xl md:text-7xl text-white drop-shadow-lg"></i>
                   </div>
                   <h3 class="font-bold text-white text-lg sm:text-xl md:text-2xl text-center mb-2">전화상담</h3>
-                  <p class="text-purple-100 text-sm sm:text-base text-center">지역별 전문가</p>
+                  <p class="text-purple-100 text-sm sm:text-base text-center">지역별 대표시설</p>
                 </a>
 
                 {/* 4. AI 맞춤 시설 찾기 (NEW) */}
