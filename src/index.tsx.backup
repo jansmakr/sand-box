@@ -3473,79 +3473,151 @@ app.get('/', (c) => {
       </section>
 
       {/* 메인 액션 버튼 - 히어로 바로 아래 */}
-      <section class="py-12 sm:py-14 md:py-16 bg-gradient-to-b from-white to-gray-50">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6">
-          {/* 4개 핵심 버튼 */}
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-8" id="main-action-buttons">
+      <section class="py-8 sm:py-10 md:py-14 lg:py-16 bg-gradient-to-b from-white to-gray-50">
+        <div class="max-w-6xl mx-auto px-3 sm:px-4">
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-9 gap-2 sm:gap-3 md:gap-4 mb-6 sm:mb-8" id="main-action-buttons">
                 {/* 1. 간편견적 */}
                 <a href="/quote-simple"
-                   class="group flex flex-col items-center justify-center bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 py-8 sm:py-10 md:py-12 px-4 sm:px-6 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[180px] sm:min-h-[200px] md:min-h-[220px]">
-                  <div class="mb-3 sm:mb-4 transform group-hover:scale-110 transition-transform duration-300">
-                    <i class="fas fa-calculator text-5xl sm:text-6xl md:text-7xl text-white drop-shadow-lg"></i>
+                   class="group flex flex-col items-center justify-center bg-white py-4 sm:py-6 md:py-8 px-1 sm:px-2 md:px-4 rounded-xl sm:rounded-2xl md:rounded-3xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 min-h-[120px] sm:min-h-[140px] md:min-h-[160px]">
+                  <div class="mb-1 sm:mb-2 md:mb-4 transform group-hover:scale-110 transition-transform duration-300">
+                    <i class="fas fa-calculator text-2xl sm:text-4xl md:text-6xl lg:text-7xl text-blue-500"></i>
                   </div>
-                  <h3 class="font-bold text-white text-lg sm:text-xl md:text-2xl text-center mb-2">간편견적</h3>
-                  <p class="text-blue-100 text-sm sm:text-base text-center">빠른 비용 확인</p>
+                  <span class="font-semibold text-gray-800 text-[10px] sm:text-xs md:text-base lg:text-lg text-center leading-tight">간편견적</span>
                 </a>
 
                 {/* 2. 상세견적신청 */}
                 <a href="/quote-request"
-                   class="group flex flex-col items-center justify-center bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 py-8 sm:py-10 md:py-12 px-4 sm:px-6 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[180px] sm:min-h-[200px] md:min-h-[220px]">
-                  <div class="mb-3 sm:mb-4 transform group-hover:scale-110 transition-transform duration-300">
-                    <i class="fas fa-file-invoice text-5xl sm:text-6xl md:text-7xl text-white drop-shadow-lg"></i>
+                   class="group flex flex-col items-center justify-center bg-white py-4 sm:py-6 md:py-8 px-1 sm:px-2 md:px-4 rounded-xl sm:rounded-2xl md:rounded-3xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 min-h-[120px] sm:min-h-[140px] md:min-h-[160px]">
+                  <div class="mb-1 sm:mb-2 md:mb-4 transform group-hover:scale-110 transition-transform duration-300">
+                    <i class="fas fa-notes-medical text-2xl sm:text-4xl md:text-6xl lg:text-7xl text-green-500"></i>
                   </div>
-                  <h3 class="font-bold text-white text-lg sm:text-xl md:text-2xl text-center mb-2">상세견적</h3>
-                  <p class="text-green-100 text-sm sm:text-base text-center">맞춤 견적서</p>
+                  <span class="font-semibold text-gray-800 text-[10px] sm:text-xs md:text-base lg:text-lg text-center leading-tight">상세견적<br/>신청</span>
                 </a>
 
                 {/* 3. 지역별 전화상담 (인기) */}
                 <a href="/call-consultation"
-                   class="group relative flex flex-col items-center justify-center bg-gradient-to-br from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 py-8 sm:py-10 md:py-12 px-4 sm:px-6 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[180px] sm:min-h-[200px] md:min-h-[220px]">
-                  <span class="absolute top-3 right-3 bg-red-500 text-white text-xs sm:text-sm font-bold px-2 py-1 rounded-full shadow-lg">인기</span>
-                  <div class="mb-3 sm:mb-4 transform group-hover:scale-110 transition-transform duration-300">
-                    <i class="fas fa-phone-alt text-5xl sm:text-6xl md:text-7xl text-white drop-shadow-lg"></i>
+                   class="group relative flex flex-col items-center justify-center bg-white py-4 sm:py-6 md:py-8 px-1 sm:px-2 md:px-4 rounded-xl sm:rounded-2xl md:rounded-3xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 min-h-[120px] sm:min-h-[140px] md:min-h-[160px]">
+                  <span class="absolute top-1 right-1 sm:top-2 sm:right-2 bg-red-500 text-white text-[8px] sm:text-[10px] md:text-xs font-bold px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full">인기</span>
+                  <div class="mb-1 sm:mb-2 md:mb-4 transform group-hover:scale-110 transition-transform duration-300">
+                    <i class="fas fa-phone-alt text-2xl sm:text-4xl md:text-6xl lg:text-7xl text-green-500"></i>
                   </div>
-                  <h3 class="font-bold text-white text-lg sm:text-xl md:text-2xl text-center mb-2">전화상담</h3>
-                  <p class="text-purple-100 text-sm sm:text-base text-center">지역별 전문가</p>
+                  <span class="font-semibold text-gray-800 text-[10px] sm:text-xs md:text-base lg:text-lg text-center leading-tight">지역별<br/>전화상담</span>
                 </a>
 
-                {/* 4. AI 맞춤 시설 찾기 (NEW) */}
+                {/* 4. 전국 시설 찾기 */}
+                <a href="/facilities"
+                   class="group flex flex-col items-center justify-center bg-white py-4 sm:py-6 md:py-8 px-1 sm:px-2 md:px-4 rounded-xl sm:rounded-2xl md:rounded-3xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 min-h-[120px] sm:min-h-[140px] md:min-h-[160px]">
+                  <div class="mb-1 sm:mb-2 md:mb-4 transform group-hover:scale-110 transition-transform duration-300">
+                    <i class="fas fa-search-location text-2xl sm:text-4xl md:text-6xl lg:text-7xl text-purple-500"></i>
+                  </div>
+                  <span class="font-semibold text-gray-800 text-[10px] sm:text-xs md:text-base lg:text-lg text-center leading-tight">전국 시설<br/>찾기</span>
+                </a>
+
+                {/* 5. AI 맞춤 시설 찾기 (NEW) */}
                 <a href="/ai-matching"
-                   class="group relative flex flex-col items-center justify-center bg-gradient-to-br from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 py-8 sm:py-10 md:py-12 px-4 sm:px-6 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[180px] sm:min-h-[200px] md:min-h-[220px]">
-                  <span class="absolute top-3 right-3 bg-yellow-400 text-gray-900 text-xs sm:text-sm font-bold px-2 py-1 rounded-full shadow-lg">NEW</span>
-                  <div class="mb-3 sm:mb-4 transform group-hover:scale-110 transition-transform duration-300">
-                    <i class="fas fa-robot text-5xl sm:text-6xl md:text-7xl text-white drop-shadow-lg"></i>
+                   class="group relative flex flex-col items-center justify-center bg-white py-4 sm:py-6 md:py-8 px-1 sm:px-2 md:px-4 rounded-xl sm:rounded-2xl md:rounded-3xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 min-h-[120px] sm:min-h-[140px] md:min-h-[160px]">
+                  <span class="absolute top-1 right-1 sm:top-2 sm:right-2 bg-red-500 text-white text-[8px] sm:text-[10px] md:text-xs font-bold px-1.5 py-0.5 sm:px-2 sm:py-0.5 rounded-full shadow-md">NEW</span>
+                  <div class="mb-1 sm:mb-2 md:mb-4 transform group-hover:scale-110 transition-transform duration-300">
+                    <i class="fas fa-robot text-2xl sm:text-4xl md:text-6xl lg:text-7xl text-indigo-500"></i>
                   </div>
-                  <h3 class="font-bold text-white text-lg sm:text-xl md:text-2xl text-center mb-2">AI매칭</h3>
-                  <p class="text-indigo-100 text-sm sm:text-base text-center">특허 알고리즘</p>
+                  <span class="font-semibold text-gray-800 text-[10px] sm:text-xs md:text-base lg:text-lg text-center leading-tight">AI 맞춤<br/>시설 찾기</span>
                 </a>
 
+                {/* 6. 요양비 계산 (인기) */}
+                <a href="http://케어조아.shop"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   class="group relative flex flex-col items-center justify-center bg-white py-4 sm:py-6 md:py-8 px-1 sm:px-2 md:px-4 rounded-xl sm:rounded-2xl md:rounded-3xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 min-h-[120px] sm:min-h-[140px] md:min-h-[160px]">
+                  <span class="absolute top-1 right-1 sm:top-2 sm:right-2 bg-blue-500 text-white text-[8px] sm:text-[10px] md:text-xs font-bold px-1.5 py-0.5 sm:px-2 sm:py-0.5 rounded-full shadow-md">인기</span>
+                  <div class="mb-1 sm:mb-2 md:mb-4 transform group-hover:scale-110 transition-transform duration-300">
+                    <i class="fas fa-calculator text-2xl sm:text-4xl md:text-6xl lg:text-7xl text-teal-500"></i>
+                  </div>
+                  <span class="font-semibold text-gray-800 text-[10px] sm:text-xs md:text-base lg:text-lg text-center leading-tight">요양비<br/>계산</span>
+                </a>
 
+                {/* 7. 통합돌봄 안내 (2026) */}
+                <a href="/integrated-care"
+                   class="group relative flex flex-col items-center justify-center bg-white py-4 sm:py-6 md:py-8 px-1 sm:px-2 md:px-4 rounded-xl sm:rounded-2xl md:rounded-3xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 min-h-[120px] sm:min-h-[140px] md:min-h-[160px]">
+                  <span class="absolute top-1 right-1 sm:top-2 sm:right-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-[8px] sm:text-[10px] md:text-xs font-bold px-1.5 py-0.5 sm:px-2 sm:py-0.5 rounded-full shadow-md">2026</span>
+                  <div class="mb-1 sm:mb-2 md:mb-4 transform group-hover:scale-110 transition-transform duration-300">
+                    <i class="fas fa-heart text-2xl sm:text-4xl md:text-6xl lg:text-7xl text-pink-500"></i>
+                  </div>
+                  <span class="font-semibold text-gray-800 text-[10px] sm:text-xs md:text-base lg:text-lg text-center leading-tight">통합돌봄<br/>안내</span>
+                </a>
+
+                {/* 8. 매니저 상담 (준비중) */}
+                <div class="group relative flex flex-col items-center justify-center bg-gradient-to-br from-teal-50 to-cyan-50 py-4 sm:py-6 md:py-8 px-1 sm:px-2 md:px-4 rounded-xl sm:rounded-2xl md:rounded-3xl shadow-md min-h-[120px] sm:min-h-[140px] md:min-h-[160px] border-2 border-teal-300 opacity-75 cursor-not-allowed">
+                  <span class="absolute top-1 right-1 sm:top-2 sm:right-2 bg-gray-500 text-white text-[8px] sm:text-[10px] md:text-xs font-bold px-1.5 py-0.5 sm:px-2 sm:py-0.5 rounded-full shadow-md">준비중</span>
+                  <div class="mb-1 sm:mb-2 md:mb-4">
+                    <i class="fas fa-user-tie text-2xl sm:text-4xl md:text-6xl lg:text-7xl text-gray-400"></i>
+                  </div>
+                  <span class="font-semibold text-gray-500 text-[10px] sm:text-xs md:text-base lg:text-lg text-center leading-tight">매니저<br/>상담</span>
+                </div>
+
+                {/* 9. 멤버십 (준비중) - 매니저 상담 옆으로 이동 */}
+                <div class="group relative flex flex-col items-center justify-center bg-gradient-to-br from-yellow-50 to-orange-50 py-4 sm:py-6 md:py-8 px-1 sm:px-2 md:px-4 rounded-xl sm:rounded-2xl md:rounded-3xl shadow-md min-h-[120px] sm:min-h-[140px] md:min-h-[160px] border-2 border-yellow-300 opacity-75 cursor-not-allowed">
+                  <span class="absolute top-1 right-1 sm:top-2 sm:right-2 bg-gray-500 text-white text-[8px] sm:text-[10px] md:text-xs font-bold px-1.5 py-0.5 sm:px-2 sm:py-0.5 rounded-full shadow-md">준비중</span>
+                  <div class="mb-1 sm:mb-2 md:mb-4">
+                    <i class="fas fa-crown text-2xl sm:text-4xl md:text-6xl lg:text-7xl text-gray-400"></i>
+                  </div>
+                  <span class="font-semibold text-gray-500 text-[10px] sm:text-xs md:text-base lg:text-lg text-center leading-tight px-0.5">멤버십<br/><span class="line-through text-gray-400 text-[8px] sm:text-[9px] md:text-[10px]">₩4,990</span> <span class="text-red-500 text-[9px] sm:text-[10px] md:text-xs">₩990</span></span>
+                </div>
               </div>
 
-              {/* 특허 배너 - 모바일 최적화 */}
-              <div class="bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-3 rounded-xl shadow-lg mb-6">
-                <div class="flex items-center justify-center gap-2">
-                  <i class="fas fa-certificate text-yellow-300 text-lg"></i>
-                  <div class="text-white text-center">
-                    <div class="font-bold text-base sm:text-lg">특허 기반 AI 매칭</div>
-                    <div class="text-xs opacity-90">특허번호: 10-2025-0058040</div>
+              {/* 특허 배너 (상단 강조) - 간결한 버전 */}
+              <div class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 px-4 sm:px-6 py-4 sm:py-5 rounded-2xl shadow-2xl mb-6 sm:mb-8 border-2 border-white/20">
+                <div class="flex flex-col items-center justify-center gap-3">
+                  {/* 메인 타이틀 */}
+                  <div class="flex items-center">
+                    <div class="bg-white/30 backdrop-blur-sm rounded-full p-2 sm:p-3 mr-3 shadow-lg animate-pulse">
+                      <i class="fas fa-certificate text-white text-xl sm:text-2xl"></i>
+                    </div>
+                    <div class="text-white">
+                      <div class="font-bold text-base sm:text-lg md:text-xl">특허 출원 AI 매칭 시스템</div>
+                      <div class="text-xs sm:text-sm opacity-90">특허번호: 10-2025-0058040</div>
+                    </div>
+                  </div>
+                  
+                  {/* 핵심 기술 스펙 - 간결 버전 */}
+                  <div class="flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-xs sm:text-sm">
+                    <div class="bg-white/20 backdrop-blur-sm rounded-full px-3 py-1.5 flex items-center">
+                      <i class="fas fa-brain text-yellow-300 mr-1.5"></i>
+                      <span class="font-semibold text-white">12가지 매칭 알고리즘</span>
+                    </div>
+                    <div class="bg-white/20 backdrop-blur-sm rounded-full px-3 py-1.5 flex items-center">
+                      <i class="fas fa-microchip text-blue-300 mr-1.5"></i>
+                      <span class="font-semibold text-white">4가지 핵심 기술</span>
+                    </div>
+                  </div>
+                  
+                  {/* 정부 인증 */}
+                  <div class="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2 border border-white/30">
+                    <div class="flex items-center text-white">
+                      <i class="fas fa-award text-yellow-300 mr-2"></i>
+                      <span class="font-bold text-xs sm:text-sm">정부 인증 벤처기업</span>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* 통계 정보 - 심플 버전 */}
-              <div class="flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-xs sm:text-sm">
-                <div class="bg-white px-3 py-1.5 rounded-full shadow-sm">
-                  <i class="fas fa-users text-blue-500 mr-1"></i>
-                  <span class="font-semibold text-gray-700">월 10만+ 이용</span>
+              <div class="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 text-xs sm:text-sm md:text-base mt-6 sm:mt-8">
+                <div class="flex items-center bg-white px-3 sm:px-4 py-2 rounded-full shadow-md hover:shadow-lg transition-shadow">
+                  <div class="bg-blue-500 rounded-full p-1 sm:p-1.5 mr-1.5 sm:mr-2 shadow">
+                    <i class="fas fa-users text-white text-xs sm:text-sm"></i>
+                  </div>
+                  <span class="font-semibold text-gray-700 whitespace-nowrap">월 10만+ 이용자</span>
                 </div>
-                <div class="bg-white px-3 py-1.5 rounded-full shadow-sm">
-                  <i class="fas fa-building text-teal-500 mr-1"></i>
-                  <span class="font-semibold text-gray-700">3,000+ 시설</span>
+                <div class="flex items-center bg-white px-3 sm:px-4 py-2 rounded-full shadow-md hover:shadow-lg transition-shadow">
+                  <div class="bg-teal-500 rounded-full p-1 sm:p-1.5 mr-1.5 sm:mr-2 shadow">
+                    <i class="fas fa-building text-white text-xs sm:text-sm"></i>
+                  </div>
+                  <span class="font-semibold text-gray-700 whitespace-nowrap">3,000+ 등록 시설</span>
                 </div>
-                <div class="bg-white px-3 py-1.5 rounded-full shadow-sm">
-                  <i class="fas fa-star text-yellow-500 mr-1"></i>
-                  <span class="font-semibold text-gray-700">평균 4.5점</span>
+                <div class="flex items-center bg-white px-3 sm:px-4 py-2 rounded-full shadow-md hover:shadow-lg transition-shadow">
+                  <div class="bg-yellow-500 rounded-full p-1 sm:p-1.5 mr-1.5 sm:mr-2 shadow">
+                    <i class="fas fa-star text-white text-xs sm:text-sm"></i>
+                  </div>
+                  <span class="font-semibold text-gray-700 whitespace-nowrap">평균 4.5점 우수</span>
                 </div>
               </div>
             </div>
@@ -3573,84 +3645,97 @@ app.get('/', (c) => {
         </div>
       </div>
 
-      {/* 케어조아만의 특별함 - 모바일 최적화 */}
-      <section class="py-12 sm:py-16 bg-white">
-        <div class="max-w-6xl mx-auto px-4">
-          <div class="text-center mb-8 sm:mb-12">
-            <h3 class="text-2xl sm:text-3xl font-bold text-gray-900">
-              <i class="fas fa-certificate text-teal-500 mr-2"></i>
-              케어조아의 강점
+      <section class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4">
+          <div class="text-center mb-16">
+            <h3 class="text-3xl font-bold text-gray-900 mb-4">
+              <div class="inline-block bg-teal-500 rounded-full p-3 mr-3 shadow-lg">
+                <i class="fas fa-certificate text-white text-2xl"></i>
+              </div>
+              케어조아만의 특별함
             </h3>
           </div>
           
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
-            <div class="text-center p-4 sm:p-6 bg-blue-50 rounded-xl">
-              <div class="w-16 h-16 sm:w-20 sm:h-20 bg-blue-500 rounded-xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                <i class="fas fa-calculator text-2xl sm:text-3xl text-white"></i>
+          <div class="grid md:grid-cols-4 gap-6">
+            <div class="group text-center p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 hover:scale-105">
+              <div class="w-20 h-20 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl group-hover:shadow-2xl group-hover:rotate-6 transition-all duration-300">
+                <i class="fas fa-calculator text-3xl text-white drop-shadow-lg"></i>
               </div>
-              <h4 class="text-base sm:text-lg font-bold mb-1 sm:mb-2 text-gray-800">실시간 견적</h4>
-              <p class="text-gray-600 text-xs sm:text-sm">즉시 확인</p>
+              <h4 class="text-xl font-bold mb-2 text-gray-800">실시간 견적</h4>
+              <p class="text-gray-600 text-sm leading-relaxed">간단한 정보 입력으로<br class="sm:hidden" /> 맞춤형 견적을 즉시 확인</p>
             </div>
             
-            <div class="text-center p-4 sm:p-6 bg-teal-50 rounded-xl">
-              <div class="w-16 h-16 sm:w-20 sm:h-20 bg-teal-500 rounded-xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                <i class="fas fa-hospital text-2xl sm:text-3xl text-white"></i>
+            <div class="group text-center p-6 bg-gradient-to-br from-teal-50 to-emerald-100 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 hover:scale-105">
+              <div class="w-20 h-20 bg-gradient-to-br from-teal-500 via-emerald-600 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl group-hover:shadow-2xl group-hover:rotate-6 transition-all duration-300">
+                <i class="fas fa-hospital text-3xl text-white drop-shadow-lg"></i>
               </div>
-              <h4 class="text-base sm:text-lg font-bold mb-1 sm:mb-2 text-gray-800">검증된 시설</h4>
-              <p class="text-gray-600 text-xs sm:text-sm">정부 인증</p>
+              <h4 class="text-xl font-bold mb-2 text-gray-800">검증된 시설</h4>
+              <p class="text-gray-600 text-sm leading-relaxed">정부 인증 및<br class="sm:hidden" /> 전문가 방문을 통해 검증</p>
             </div>
             
-            <div class="text-center p-4 sm:p-6 bg-purple-50 rounded-xl">
-              <div class="w-16 h-16 sm:w-20 sm:h-20 bg-purple-500 rounded-xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                <i class="fas fa-user-md text-2xl sm:text-3xl text-white"></i>
+            <div class="group text-center p-6 bg-gradient-to-br from-purple-50 to-fuchsia-100 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 hover:scale-105">
+              <div class="w-20 h-20 bg-gradient-to-br from-purple-500 via-fuchsia-600 to-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl group-hover:shadow-2xl group-hover:rotate-6 transition-all duration-300">
+                <i class="fas fa-user-md text-3xl text-white drop-shadow-lg"></i>
               </div>
-              <h4 class="text-base sm:text-lg font-bold mb-1 sm:mb-2 text-gray-800">전문 상담</h4>
-              <p class="text-gray-600 text-xs sm:text-sm">맞춤 상담</p>
+              <h4 class="text-xl font-bold mb-2 text-gray-800">전문 상담</h4>
+              <p class="text-gray-600 text-sm leading-relaxed">자격을 보유한<br class="sm:hidden" /> 전문 상담사의 맞춤 상담</p>
             </div>
             
-            <div class="text-center p-4 sm:p-6 bg-pink-50 rounded-xl">
-              <div class="w-16 h-16 sm:w-20 sm:h-20 bg-pink-500 rounded-xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                <i class="fas fa-heart text-2xl sm:text-3xl text-white"></i>
+            <div class="group text-center p-6 bg-gradient-to-br from-pink-50 to-rose-100 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 hover:scale-105">
+              <div class="w-20 h-20 bg-gradient-to-br from-pink-500 via-rose-600 to-red-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl group-hover:shadow-2xl group-hover:rotate-6 transition-all duration-300">
+                <i class="fas fa-heart text-3xl text-white drop-shadow-lg"></i>
               </div>
-              <h4 class="text-base sm:text-lg font-bold mb-1 sm:mb-2 text-gray-800">가족같은 마음</h4>
-              <p class="text-gray-600 text-xs sm:text-sm">끝까지 함께</p>
+              <h4 class="text-xl font-bold mb-2 text-gray-800">가족 같은 마음</h4>
+              <p class="text-gray-600 text-sm leading-relaxed">믿을 수 있는 곳을<br class="sm:hidden" /> 찾기까지 끝까지 함께</p>
             </div>
+          </div>
+          
+          <div class="text-center mt-12">
+            <a href="/system-info" class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-full font-bold text-lg shadow-xl hover:shadow-2xl transition-all transform hover:scale-105">
+              <i class="fas fa-microchip mr-3"></i>
+              특허 출원 AI 기술 자세히 보기
+              <i class="fas fa-arrow-right ml-3"></i>
+            </a>
+            <p class="text-sm text-gray-500 mt-4">
+              <i class="fas fa-certificate text-indigo-600 mr-1"></i>
+              특허번호: 10-2025-0058040
+            </p>
           </div>
         </div>
-      </section>
-
-      {/* 간단한 3단계 - 모바일 최적화 */}
-      <section class="py-12 sm:py-16 bg-gradient-to-br from-gray-50 to-teal-50">
-        <div class="max-w-6xl mx-auto px-4">
-          <div class="text-center mb-8 sm:mb-12">
-            <h3 class="text-2xl sm:text-3xl font-bold text-gray-900">
-              간단한 3단계로 <span class="text-teal-600">완료!</span>
+      </section><section class="py-20 bg-gradient-to-br from-gray-50 to-teal-50">
+        <div class="max-w-7xl mx-auto px-4">
+          <div class="text-center mb-16">
+            <h3 class="text-3xl font-bold text-gray-900 mb-4">
+              간단한 3단계로 <span class="text-teal-600">완료! 🎉</span>
             </h3>
           </div>
           
-          <div class="grid grid-cols-3 gap-4 sm:gap-8">
-            <div class="text-center">
-              <div class="w-16 h-16 sm:w-20 sm:h-20 bg-blue-500 rounded-xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                <span class="text-2xl sm:text-3xl font-bold text-white">1</span>
+          <div class="grid md:grid-cols-3 gap-8 relative">
+            <div class="hidden md:block absolute top-12 left-1/3 w-1/3 h-1 bg-gradient-to-r from-blue-300 to-teal-300 z-0"></div>
+            <div class="hidden md:block absolute top-12 right-0 w-1/3 h-1 bg-gradient-to-r from-teal-300 to-purple-300 z-0"></div>
+            
+            <div class="text-center relative z-10 group">
+              <div class="w-24 h-24 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl group-hover:shadow-2xl group-hover:scale-110 transition-all duration-300 group-hover:rotate-6">
+                <span class="text-3xl font-bold text-white drop-shadow-lg">1</span>
               </div>
-              <h4 class="text-sm sm:text-lg font-bold mb-1 sm:mb-2 text-gray-800">정보 입력</h4>
-              <p class="text-gray-600 text-xs sm:text-sm">기본 정보</p>
+              <h4 class="text-xl font-bold mb-4 text-gray-800">정보 입력</h4>
+              <p class="text-gray-600 leading-relaxed">어르신의 기본 정보와<br class="sm:hidden" /> 필요한 서비스를 입력</p>
             </div>
             
-            <div class="text-center">
-              <div class="w-16 h-16 sm:w-20 sm:h-20 bg-teal-500 rounded-xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                <span class="text-2xl sm:text-3xl font-bold text-white">2</span>
+            <div class="text-center relative z-10 group">
+              <div class="w-24 h-24 bg-gradient-to-br from-teal-500 via-emerald-600 to-green-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl group-hover:shadow-2xl group-hover:scale-110 transition-all duration-300 group-hover:rotate-6">
+                <span class="text-3xl font-bold text-white drop-shadow-lg">2</span>
               </div>
-              <h4 class="text-sm sm:text-lg font-bold mb-1 sm:mb-2 text-gray-800">견적 비교</h4>
-              <p class="text-gray-600 text-xs sm:text-sm">실시간 매칭</p>
+              <h4 class="text-xl font-bold mb-4 text-gray-800">견적 비교</h4>
+              <p class="text-gray-600 leading-relaxed">실시간으로<br class="sm:hidden" /> 매칭된 시설들을 비교</p>
             </div>
             
-            <div class="text-center">
-              <div class="w-16 h-16 sm:w-20 sm:h-20 bg-purple-500 rounded-xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                <span class="text-2xl sm:text-3xl font-bold text-white">3</span>
+            <div class="text-center relative z-10 group">
+              <div class="w-24 h-24 bg-gradient-to-br from-purple-500 via-fuchsia-600 to-pink-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl group-hover:shadow-2xl group-hover:scale-110 transition-all duration-300 group-hover:rotate-6">
+                <span class="text-3xl font-bold text-white drop-shadow-lg">3</span>
               </div>
-              <h4 class="text-sm sm:text-lg font-bold mb-1 sm:mb-2 text-gray-800">전문 상담</h4>
-              <p class="text-gray-600 text-xs sm:text-sm">1:1 맞춤</p>
+              <h4 class="text-xl font-bold mb-4 text-gray-800">전문 상담</h4>
+              <p class="text-gray-600 leading-relaxed">전문 상담사와<br class="sm:hidden" /> 1:1 맞춤 상담</p>
             </div>
           </div>
         </div>
