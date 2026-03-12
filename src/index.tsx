@@ -3450,7 +3450,7 @@ app.get('/', (c) => {
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 md:py-16 lg:py-20 relative z-10">
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 items-center">
             {/* 모바일: 이미지를 작게 왼쪽에 표시 */}
-            <div class="flex lg:hidden items-center gap-4">
+            <div class="flex lg:hidden items-center gap-4 mb-4">
               <img 
                 src="/static/hero-nurse.jpg" 
                 alt="케어조아 전문 상담사"
@@ -3466,7 +3466,7 @@ app.get('/', (c) => {
               </div>
             </div>
 
-            {/* 데스크톱: 왼쪽 이미지, 오른쪽 텍스트 */}
+            {/* 데스크톱: 왼쪽 이미지 */}
             <div class="hidden lg:block">
               <img 
                 src="/static/hero-nurse.jpg" 
@@ -3476,17 +3476,26 @@ app.get('/', (c) => {
               />
             </div>
 
-            <div class="space-y-4 text-center lg:text-left">
-              <h1 class="hidden lg:block text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white leading-tight">
+            {/* 데스크톱: 오른쪽 텍스트 */}
+            <div class="hidden lg:block space-y-4 text-left">
+              <h1 class="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white leading-tight">
                 최적의 요양시설 찾기,<br />
                 케어조아와<br />
                 함께하세요
               </h1>
-              <div class="flex items-center justify-center lg:justify-start gap-2 pt-2">
+              <div class="flex items-center justify-start gap-2 pt-2">
                 <div class="bg-gradient-to-r from-orange-500 to-orange-600 rounded-full px-4 py-2 flex items-center gap-2 shadow-xl border-2 border-orange-400">
                   <i class="fas fa-award text-white text-base"></i>
                   <span class="text-white text-sm sm:text-base font-bold">특허 기반 AI 매칭 시스템</span>
                 </div>
+              </div>
+            </div>
+
+            {/* 모바일: 특허 배지만 */}
+            <div class="flex lg:hidden items-center justify-center gap-2">
+              <div class="bg-gradient-to-r from-orange-500 to-orange-600 rounded-full px-4 py-2 flex items-center gap-2 shadow-xl border-2 border-orange-400">
+                <i class="fas fa-award text-white text-base"></i>
+                <span class="text-white text-sm sm:text-base font-bold">특허 기반 AI 매칭 시스템</span>
               </div>
             </div>
           </div>
