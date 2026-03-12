@@ -3445,64 +3445,54 @@ app.get('/', (c) => {
             }
           });
         `
-      }} /><section class="relative overflow-hidden">
-        {/* 히어로 이미지 - 클릭 가능한 영역 포함 */}
-        <div class="relative w-full">
+      }} /><section class="relative overflow-hidden bg-white">
+        {/* 히어로 이미지 - 전체 배경 */}
+        <div class="relative w-full max-w-7xl mx-auto">
           <img 
             src="https://www.genspark.ai/api/files/s/9CDKbP4U" 
             alt="케어조아 - 최적의 요양시설 찾기"
-            class="w-full h-auto object-cover"
-            useMap="#hero-map"
+            class="w-full h-auto object-contain"
             loading="eager"
+            style="display: block; max-width: 100%;"
           />
           
-          {/* 이미지 맵 - 4개 버튼 클릭 영역 */}
-          <map name="hero-map">
+          {/* 클릭 가능한 버튼 오버레이 - 절대 위치 */}
+          <div class="absolute inset-0 w-full h-full">
             {/* 간편검색 버튼 영역 (왼쪽 첫번째) */}
-            <area 
-              shape="rect" 
-              coords="42,300,265,460" 
+            <a 
               href="/quote-simple" 
-              alt="간편검색 - 빠른 매칭 확인"
+              class="absolute hover:bg-blue-500 hover:bg-opacity-10 transition-all rounded-2xl"
+              style="left: 4%; bottom: 35%; width: 22%; height: 33%;"
               title="간편검색"
-            />
+              aria-label="간편검색"
+            ></a>
             
             {/* 상세검색 버튼 영역 (왼쪽 두번째) */}
-            <area 
-              shape="rect" 
-              coords="280,300,503,460" 
+            <a 
               href="/quote-request" 
-              alt="상세검색 - 맞춤형 요양시설 추천"
+              class="absolute hover:bg-green-500 hover:bg-opacity-10 transition-all rounded-2xl"
+              style="left: 27.5%; bottom: 35%; width: 22%; height: 33%;"
               title="상세검색"
-            />
+              aria-label="상세검색"
+            ></a>
             
             {/* 생생후기 버튼 영역 (오른쪽 첫번째) */}
-            <area 
-              shape="rect" 
-              coords="518,300,741,460" 
+            <a 
               href="/reviews" 
-              alt="생생후기 - 진솔한 사용자 평가"
+              class="absolute hover:bg-yellow-500 hover:bg-opacity-10 transition-all rounded-2xl"
+              style="left: 51%; bottom: 35%; width: 22%; height: 33%;"
               title="생생후기"
-            />
+              aria-label="생생후기"
+            ></a>
             
             {/* 전문상담 버튼 영역 (오른쪽 두번째) */}
-            <area 
-              shape="rect" 
-              coords="756,300,979,460" 
+            <a 
               href="/call-consultation" 
-              alt="전문상담 - 전문가 맞춤 상담 지원"
+              class="absolute hover:bg-purple-500 hover:bg-opacity-10 transition-all rounded-2xl"
+              style="left: 74.5%; bottom: 35%; width: 22%; height: 33%;"
               title="전문상담"
-            />
-          </map>
-
-          {/* 모바일용 버튼 오버레이 (이미지 맵 대신) */}
-          <div class="absolute inset-0 md:hidden">
-            <div class="grid grid-cols-2 gap-2 absolute bottom-0 left-0 right-0 p-4">
-              <a href="/quote-simple" class="bg-blue-600 bg-opacity-0 hover:bg-opacity-20 transition-all h-32 rounded-lg"></a>
-              <a href="/quote-request" class="bg-green-600 bg-opacity-0 hover:bg-opacity-20 transition-all h-32 rounded-lg"></a>
-              <a href="/reviews" class="bg-yellow-600 bg-opacity-0 hover:bg-opacity-20 transition-all h-32 rounded-lg"></a>
-              <a href="/call-consultation" class="bg-purple-600 bg-opacity-0 hover:bg-opacity-20 transition-all h-32 rounded-lg"></a>
-            </div>
+              aria-label="전문상담"
+            ></a>
           </div>
         </div>
       </section>
