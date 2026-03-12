@@ -3445,34 +3445,31 @@ app.get('/', (c) => {
             }
           });
         `
-      }} /><section class="relative bg-gradient-to-r from-teal-500 via-teal-400 to-blue-400 overflow-hidden">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 md:py-16 lg:py-20 relative z-10">
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8 items-center">
-            <div class="space-y-4 text-center lg:text-left">
-              <h1 class="text-xl sm:text-2xl md:text-3xl lg:text-3xl xl:text-4xl font-bold text-white leading-tight">
-                {/* 모바일 & 데스크톱 모두 3줄 */}
-                어르신을 위한<br />
-                최적의 요양시설 찾기,<br />
-                케어조아와 함께하세요
-              </h1>
-              <div class="flex items-center justify-center lg:justify-start gap-2 pt-2">
-                <div class="bg-white bg-opacity-20 backdrop-blur-sm rounded-full px-3 py-1.5 flex items-center gap-2">
-                  <i class="fas fa-award text-yellow-300 text-sm"></i>
-                  <span class="text-white text-xs sm:text-sm font-medium">특허 기반 AI 매칭 시스템</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="hidden lg:flex justify-end items-center">
+      }} /><section class="relative bg-gradient-to-r from-cyan-400 via-teal-400 to-blue-500 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 md:py-20 lg:py-24 relative z-10">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+            {/* 왼쪽: 간호사 이미지 */}
+            <div class="flex justify-center lg:justify-start order-2 lg:order-1">
               <img 
-                src="/static/carejoa-character.png" 
-                alt="케어조아 캐릭터"
-                width="144"
-                height="144"
-                class="w-32 lg:w-32 xl:w-36 h-auto object-contain"
-                style="image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;"
+                src="https://www.genspark.ai/api/files/s/8ugoFsd1" 
+                alt="케어조아 전문 상담사"
+                class="w-full max-w-md lg:max-w-lg h-auto object-contain"
                 loading="eager"
               />
+            </div>
+
+            {/* 오른쪽: 타이틀과 배지 */}
+            <div class="space-y-6 text-center lg:text-left order-1 lg:order-2">
+              <div>
+                <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight mb-4">
+                  최적의 요양시설 찾기,<br />
+                  케어조아와 함께하세요
+                </h1>
+                <div class="inline-flex items-center bg-orange-500 text-white px-4 py-2 rounded-full shadow-lg">
+                  <i class="fas fa-certificate text-yellow-300 mr-2"></i>
+                  <span class="text-sm sm:text-base font-bold">특허 기반 AI 매칭 시스템</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
