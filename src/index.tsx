@@ -3452,7 +3452,7 @@ app.get('/', (c) => {
             {/* 모바일: 이미지를 작게 왼쪽에 표시 */}
             <div class="flex lg:hidden items-center gap-4 mb-4">
               <img 
-                src="/static/hero-nurse.jpg" 
+                src="/static/hero-nurse-new.jpg" 
                 alt="케어조아 전문 상담사"
                 class="w-24 h-24 sm:w-32 sm:h-32 object-cover rounded-full border-4 border-white/20 shadow-2xl"
                 loading="eager"
@@ -3469,7 +3469,7 @@ app.get('/', (c) => {
             {/* 데스크톱: 왼쪽 이미지 */}
             <div class="hidden lg:block">
               <img 
-                src="/static/hero-nurse.jpg" 
+                src="/static/hero-nurse-new.jpg" 
                 alt="케어조아 전문 상담사"
                 class="w-full max-w-md h-auto object-contain drop-shadow-2xl"
                 loading="eager"
