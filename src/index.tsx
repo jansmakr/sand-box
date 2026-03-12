@@ -3445,34 +3445,49 @@ app.get('/', (c) => {
             }
           });
         `
-      }} /><section class="relative bg-gradient-to-r from-teal-500 via-teal-400 to-blue-400 overflow-hidden">
+      }} /><section class="relative bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-t from-teal-500/10 to-transparent"></div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 md:py-16 lg:py-20 relative z-10">
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8 items-center">
-            <div class="space-y-4 text-center lg:text-left">
-              <h1 class="text-xl sm:text-2xl md:text-3xl lg:text-3xl xl:text-4xl font-bold text-white leading-tight">
-                {/* 모바일 & 데스크톱 모두 3줄 */}
-                어르신을 위한<br />
-                최적의 요양시설 찾기,<br />
-                케어조아와 함께하세요
-              </h1>
-              <div class="flex items-center justify-center lg:justify-start gap-2 pt-2">
-                <div class="bg-white bg-opacity-20 backdrop-blur-sm rounded-full px-3 py-1.5 flex items-center gap-2">
-                  <i class="fas fa-award text-yellow-300 text-sm"></i>
-                  <span class="text-white text-xs sm:text-sm font-medium">특허 기반 AI 매칭 시스템</span>
-                </div>
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 items-center">
+            {/* 모바일: 이미지를 작게 왼쪽에 표시 */}
+            <div class="flex lg:hidden items-center gap-4">
+              <img 
+                src="/static/hero-nurse.jpg" 
+                alt="케어조아 전문 상담사"
+                class="w-24 h-24 sm:w-32 sm:h-32 object-cover rounded-full border-4 border-white/20 shadow-2xl"
+                loading="eager"
+              />
+              <div class="flex-1">
+                <h1 class="text-lg sm:text-xl font-bold text-white leading-tight">
+                  최적의 요양시설 찾기,<br />
+                  케어조아와<br />
+                  함께하세요
+                </h1>
               </div>
             </div>
 
-            <div class="hidden lg:flex justify-end items-center">
+            {/* 데스크톱: 왼쪽 이미지, 오른쪽 텍스트 */}
+            <div class="hidden lg:block">
               <img 
-                src="/static/carejoa-character.png" 
-                alt="케어조아 캐릭터"
-                width="144"
-                height="144"
-                class="w-32 lg:w-32 xl:w-36 h-auto object-contain"
-                style="image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;"
+                src="/static/hero-nurse.jpg" 
+                alt="케어조아 전문 상담사"
+                class="w-full max-w-md h-auto object-contain drop-shadow-2xl"
                 loading="eager"
               />
+            </div>
+
+            <div class="space-y-4 text-center lg:text-left">
+              <h1 class="hidden lg:block text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white leading-tight">
+                최적의 요양시설 찾기,<br />
+                케어조아와<br />
+                함께하세요
+              </h1>
+              <div class="flex items-center justify-center lg:justify-start gap-2 pt-2">
+                <div class="bg-gradient-to-r from-orange-500 to-orange-600 rounded-full px-4 py-2 flex items-center gap-2 shadow-xl border-2 border-orange-400">
+                  <i class="fas fa-award text-white text-base"></i>
+                  <span class="text-white text-sm sm:text-base font-bold">특허 기반 AI 매칭 시스템</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -3481,48 +3496,60 @@ app.get('/', (c) => {
       {/* 메인 액션 버튼 - 히어로 바로 아래 */}
       <section class="py-12 sm:py-14 md:py-16 bg-gradient-to-b from-white to-gray-50">
         <div class="max-w-6xl mx-auto px-4 sm:px-6">
-          {/* 4개 핵심 버튼 */}
+          {/* 4개 핵심 버튼 - 첫 번째 이미지 스타일 */}
           <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-8" id="main-action-buttons">
-                {/* 1. 간편견적 */}
+                {/* 1. 간편검색 (파란색) */}
                 <a href="/quote-simple"
-                   class="group flex flex-col items-center justify-center bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 py-8 sm:py-10 md:py-12 px-4 sm:px-6 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[180px] sm:min-h-[200px] md:min-h-[220px]">
-                  <div class="mb-3 sm:mb-4 transform group-hover:scale-110 transition-transform duration-300">
-                    <i class="fas fa-calculator text-5xl sm:text-6xl md:text-7xl text-white drop-shadow-lg"></i>
+                   class="group relative flex flex-col items-center justify-center bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600 hover:from-blue-500 hover:via-blue-600 hover:to-blue-700 py-10 sm:py-12 md:py-14 px-4 sm:px-6 rounded-3xl shadow-[0_8px_30px_rgb(59,130,246,0.5)] hover:shadow-[0_12px_40px_rgb(59,130,246,0.7)] transition-all duration-300 transform hover:-translate-y-3 hover:scale-105 min-h-[200px] sm:min-h-[220px] md:min-h-[240px] border-4 border-blue-300/50">
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent rounded-3xl"></div>
+                  <div class="relative z-10 mb-4 sm:mb-5 transform group-hover:scale-125 group-hover:rotate-12 transition-all duration-300">
+                    <div class="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
+                      <i class="fas fa-calculator text-5xl sm:text-6xl md:text-7xl text-white drop-shadow-2xl"></i>
+                    </div>
                   </div>
-                  <h3 class="font-bold text-white text-lg sm:text-xl md:text-2xl text-center mb-2">간편견적</h3>
-                  <p class="text-blue-100 text-sm sm:text-base text-center">빠른 비용 확인</p>
+                  <h3 class="relative z-10 font-black text-white text-xl sm:text-2xl md:text-3xl text-center mb-2 drop-shadow-lg tracking-tight">간편검색</h3>
+                  <p class="relative z-10 text-blue-50 text-sm sm:text-base text-center font-medium">빠른 매칭 확인</p>
                 </a>
 
-                {/* 2. 상세견적신청 */}
+                {/* 2. 상세검색 (초록색) */}
                 <a href="/quote-request"
-                   class="group flex flex-col items-center justify-center bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 py-8 sm:py-10 md:py-12 px-4 sm:px-6 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[180px] sm:min-h-[200px] md:min-h-[220px]">
-                  <div class="mb-3 sm:mb-4 transform group-hover:scale-110 transition-transform duration-300">
-                    <i class="fas fa-file-invoice text-5xl sm:text-6xl md:text-7xl text-white drop-shadow-lg"></i>
+                   class="group relative flex flex-col items-center justify-center bg-gradient-to-br from-green-400 via-green-500 to-green-600 hover:from-green-500 hover:via-green-600 hover:to-green-700 py-10 sm:py-12 md:py-14 px-4 sm:px-6 rounded-3xl shadow-[0_8px_30px_rgb(34,197,94,0.5)] hover:shadow-[0_12px_40px_rgb(34,197,94,0.7)] transition-all duration-300 transform hover:-translate-y-3 hover:scale-105 min-h-[200px] sm:min-h-[220px] md:min-h-[240px] border-4 border-green-300/50">
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent rounded-3xl"></div>
+                  <div class="relative z-10 mb-4 sm:mb-5 transform group-hover:scale-125 group-hover:rotate-12 transition-all duration-300">
+                    <div class="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
+                      <i class="fas fa-file-alt text-5xl sm:text-6xl md:text-7xl text-white drop-shadow-2xl"></i>
+                    </div>
                   </div>
-                  <h3 class="font-bold text-white text-lg sm:text-xl md:text-2xl text-center mb-2">상세견적</h3>
-                  <p class="text-green-100 text-sm sm:text-base text-center">맞춤 견적서</p>
+                  <h3 class="relative z-10 font-black text-white text-xl sm:text-2xl md:text-3xl text-center mb-2 drop-shadow-lg tracking-tight">상세검색</h3>
+                  <p class="relative z-10 text-green-50 text-sm sm:text-base text-center font-medium">맞춤형 요양시설 추천</p>
                 </a>
 
-                {/* 3. 지역별 전화상담 (인기) */}
+                {/* 3. 생생후기 (노란색) */}
                 <a href="/call-consultation"
-                   class="group relative flex flex-col items-center justify-center bg-gradient-to-br from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 py-8 sm:py-10 md:py-12 px-4 sm:px-6 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[180px] sm:min-h-[200px] md:min-h-[220px]">
-                  <span class="absolute top-3 right-3 bg-red-500 text-white text-xs sm:text-sm font-bold px-2 py-1 rounded-full shadow-lg">인기</span>
-                  <div class="mb-3 sm:mb-4 transform group-hover:scale-110 transition-transform duration-300">
-                    <i class="fas fa-phone-alt text-5xl sm:text-6xl md:text-7xl text-white drop-shadow-lg"></i>
+                   class="group relative flex flex-col items-center justify-center bg-gradient-to-br from-yellow-400 via-yellow-500 to-orange-500 hover:from-yellow-500 hover:via-yellow-600 hover:to-orange-600 py-10 sm:py-12 md:py-14 px-4 sm:px-6 rounded-3xl shadow-[0_8px_30px_rgb(234,179,8,0.5)] hover:shadow-[0_12px_40px_rgb(234,179,8,0.7)] transition-all duration-300 transform hover:-translate-y-3 hover:scale-105 min-h-[200px] sm:min-h-[220px] md:min-h-[240px] border-4 border-yellow-300/50">
+                  <span class="absolute top-3 right-3 bg-red-500 text-white text-xs sm:text-sm font-bold px-3 py-1.5 rounded-full shadow-lg z-20 animate-pulse">인기</span>
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent rounded-3xl"></div>
+                  <div class="relative z-10 mb-4 sm:mb-5 transform group-hover:scale-125 group-hover:rotate-12 transition-all duration-300">
+                    <div class="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
+                      <i class="fas fa-phone-alt text-5xl sm:text-6xl md:text-7xl text-white drop-shadow-2xl"></i>
+                    </div>
                   </div>
-                  <h3 class="font-bold text-white text-lg sm:text-xl md:text-2xl text-center mb-2">전화상담</h3>
-                  <p class="text-purple-100 text-sm sm:text-base text-center">지역별 대표시설</p>
+                  <h3 class="relative z-10 font-black text-white text-xl sm:text-2xl md:text-3xl text-center mb-2 drop-shadow-lg tracking-tight">전화상담</h3>
+                  <p class="relative z-10 text-yellow-50 text-sm sm:text-base text-center font-medium">지역별 대표시설</p>
                 </a>
 
-                {/* 4. AI 맞춤 시설 찾기 (NEW) */}
+                {/* 4. 전문상담 (분홍/보라색) */}
                 <a href="/ai-matching"
-                   class="group relative flex flex-col items-center justify-center bg-gradient-to-br from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 py-8 sm:py-10 md:py-12 px-4 sm:px-6 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 min-h-[180px] sm:min-h-[200px] md:min-h-[220px]">
-                  <span class="absolute top-3 right-3 bg-yellow-400 text-gray-900 text-xs sm:text-sm font-bold px-2 py-1 rounded-full shadow-lg">NEW</span>
-                  <div class="mb-3 sm:mb-4 transform group-hover:scale-110 transition-transform duration-300">
-                    <i class="fas fa-robot text-5xl sm:text-6xl md:text-7xl text-white drop-shadow-lg"></i>
+                   class="group relative flex flex-col items-center justify-center bg-gradient-to-br from-pink-400 via-pink-500 to-purple-600 hover:from-pink-500 hover:via-pink-600 hover:to-purple-700 py-10 sm:py-12 md:py-14 px-4 sm:px-6 rounded-3xl shadow-[0_8px_30px_rgb(236,72,153,0.5)] hover:shadow-[0_12px_40px_rgb(236,72,153,0.7)] transition-all duration-300 transform hover:-translate-y-3 hover:scale-105 min-h-[200px] sm:min-h-[220px] md:min-h-[240px] border-4 border-pink-300/50">
+                  <span class="absolute top-3 right-3 bg-yellow-400 text-gray-900 text-xs sm:text-sm font-bold px-3 py-1.5 rounded-full shadow-lg z-20">NEW</span>
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent rounded-3xl"></div>
+                  <div class="relative z-10 mb-4 sm:mb-5 transform group-hover:scale-125 group-hover:rotate-12 transition-all duration-300">
+                    <div class="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
+                      <i class="fas fa-robot text-5xl sm:text-6xl md:text-7xl text-white drop-shadow-2xl"></i>
+                    </div>
                   </div>
-                  <h3 class="font-bold text-white text-lg sm:text-xl md:text-2xl text-center mb-2">AI매칭</h3>
-                  <p class="text-indigo-100 text-sm sm:text-base text-center">특허 알고리즘</p>
+                  <h3 class="relative z-10 font-black text-white text-xl sm:text-2xl md:text-3xl text-center mb-2 drop-shadow-lg tracking-tight">AI매칭</h3>
+                  <p class="relative z-10 text-pink-50 text-sm sm:text-base text-center font-medium">특허 알고리즘</p>
                 </a>
 
 
