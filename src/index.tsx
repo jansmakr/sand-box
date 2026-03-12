@@ -3447,78 +3447,44 @@ app.get('/', (c) => {
         `
       }} />
       
-      {/* 풀스크린 히어로 섹션 */}
-      <section class="relative min-h-[500px] sm:min-h-[600px] md:min-h-[700px] flex items-center justify-center overflow-hidden">
-        {/* 배경 이미지 */}
-        <div class="absolute inset-0">
-          <img 
-            src="/static/hero-background.jpg" 
-            alt="요양시설 배경"
-            class="w-full h-full object-cover"
-            loading="eager"
-          />
-          {/* 다크 오버레이 */}
-          <div class="absolute inset-0 bg-gradient-to-b from-blue-900/80 via-blue-900/70 to-blue-900/80"></div>
-        </div>
-
-        {/* 콘텐츠 */}
-        <div class="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          {/* 메인 타이틀 */}
-          <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 sm:mb-6 leading-tight">
-            대한민국 1등 요양시설 매칭
-          </h1>
-          
-          {/* 서브 타이틀 */}
-          <p class="text-lg sm:text-xl md:text-2xl text-white/90 mb-8 sm:mb-10 font-medium">
-            가족을 위한 최선의 선택, 케어조아와 함께하세요
-          </p>
-
-          {/* 통합 검색창 */}
-          <div class="max-w-3xl mx-auto mb-8 sm:mb-10">
-            <form action="/facilities" method="GET" class="relative">
-              <div class="flex flex-col sm:flex-row gap-3 sm:gap-0 bg-white rounded-2xl sm:rounded-full shadow-2xl p-2 sm:p-3">
-                {/* 검색 입력 */}
-                <div class="flex-1 px-4 sm:px-6 py-3 sm:py-4">
-                  <input 
-                    type="text" 
-                    name="keyword"
-                    placeholder="지역, 시설명으로 검색하세요 (예: 강남구, 서울요양원)"
-                    class="w-full text-base sm:text-lg text-gray-800 placeholder-gray-400 focus:outline-none"
-                  />
-                </div>
-                {/* 검색 버튼 */}
-                <button 
-                  type="submit"
-                  class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold text-base sm:text-lg px-8 sm:px-12 py-3 sm:py-4 rounded-xl sm:rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
-                >
-                  <i class="fas fa-search"></i>
-                  <span>검색</span>
-                </button>
+      {/* 히어로 섹션 - 간호사 모델 + 텍스트 */}
+      <section class="relative bg-gradient-to-r from-blue-900 via-blue-800 to-teal-700 overflow-hidden">
+        {/* 상단 그라데이션 라인 */}
+        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-teal-400 via-green-400 to-blue-500"></div>
+        
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 md:py-16 lg:py-20">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+            
+            {/* 왼쪽: 간호사 이미지 */}
+            <div class="flex justify-center lg:justify-start">
+              <div class="relative">
+                <img 
+                  src="https://www.genspark.ai/api/files/s/vQoS1dHM" 
+                  alt="케어조아 전문 상담사"
+                  class="w-full max-w-md h-auto object-contain drop-shadow-2xl"
+                  loading="eager"
+                />
               </div>
-            </form>
-          </div>
+            </div>
 
-          {/* 신뢰 지표 */}
-          <div class="flex flex-wrap items-center justify-center gap-4 sm:gap-6 md:gap-8 text-white">
-            <div class="flex items-center gap-2">
-              <i class="fas fa-users text-xl sm:text-2xl text-blue-300"></i>
-              <span class="text-sm sm:text-base md:text-lg font-semibold">월 10만+ 이용자</span>
+            {/* 오른쪽: 텍스트 + 배지 */}
+            <div class="text-center lg:text-left space-y-6">
+              {/* 메인 타이틀 */}
+              <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
+                최적의 요양시설 찾기,<br />
+                케어조아와<br />
+                함께하세요
+              </h1>
+
+              {/* 특허 배지 */}
+              <div class="flex justify-center lg:justify-start">
+                <div class="bg-gradient-to-r from-orange-500 to-orange-600 rounded-full px-6 py-3 flex items-center gap-3 shadow-2xl border-4 border-orange-400 transform hover:scale-105 transition-transform duration-300">
+                  <i class="fas fa-award text-white text-xl"></i>
+                  <span class="text-white text-base sm:text-lg font-bold">특허 기반 AI 매칭 시스템</span>
+                </div>
+              </div>
             </div>
-            <div class="hidden sm:block w-px h-6 bg-white/30"></div>
-            <div class="flex items-center gap-2">
-              <i class="fas fa-hospital text-xl sm:text-2xl text-blue-300"></i>
-              <span class="text-sm sm:text-base md:text-lg font-semibold">15,751개 시설</span>
-            </div>
-            <div class="hidden sm:block w-px h-6 bg-white/30"></div>
-            <div class="flex items-center gap-2">
-              <i class="fas fa-star text-xl sm:text-2xl text-yellow-400"></i>
-              <span class="text-sm sm:text-base md:text-lg font-semibold">평균 4.5★</span>
-            </div>
-            <div class="hidden sm:block w-px h-6 bg-white/30"></div>
-            <div class="flex items-center gap-2">
-              <i class="fas fa-award text-xl sm:text-2xl text-orange-400"></i>
-              <span class="text-sm sm:text-base md:text-lg font-semibold">특허 AI 매칭</span>
-            </div>
+
           </div>
         </div>
       </section>
