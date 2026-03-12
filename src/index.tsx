@@ -3453,7 +3453,7 @@ app.get('/', (c) => {
             <div class="flex lg:hidden items-center gap-4 mb-4">
               <div class="relative w-24 h-24 sm:w-32 sm:h-32 rounded-full border-4 border-white/20 shadow-2xl overflow-hidden bg-gradient-to-br from-blue-800 to-blue-900">
                 <img 
-                  src="/static/hero-nurse-new.jpg" 
+                  src="/static/hero-nurse-final.jpg" 
                   alt="케어조아 전문 상담사"
                   class="w-full h-full object-cover mix-blend-lighten opacity-90"
                   loading="eager"
@@ -3472,7 +3472,7 @@ app.get('/', (c) => {
             <div class="hidden lg:block relative">
               <div class="absolute inset-0 bg-gradient-to-br from-blue-800/30 to-blue-900/30 rounded-2xl"></div>
               <img 
-                src="/static/hero-nurse-new.jpg" 
+                src="/static/hero-nurse-final.jpg" 
                 alt="케어조아 전문 상담사"
                 class="w-full max-w-md h-auto object-contain drop-shadow-2xl relative z-10 mix-blend-lighten opacity-95"
                 loading="eager"
