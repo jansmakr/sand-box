@@ -3447,8 +3447,8 @@ app.get('/', (c) => {
         `
       }} /><section class="relative bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 overflow-hidden">
         <div class="absolute inset-0 bg-gradient-to-t from-teal-500/10 to-transparent"></div>
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 md:py-10 lg:py-12 relative z-10">
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 items-center">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-3 md:py-4 lg:py-4 relative z-10">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 items-center">
             {/* 모바일: 이미지를 작게 왼쪽에 표시 */}
             <div class="flex lg:hidden items-center gap-4 mb-4">
               <div class="relative w-24 h-24 sm:w-32 sm:h-32 rounded-full border-4 border-white/20 shadow-2xl overflow-hidden bg-gradient-to-br from-blue-800 to-blue-900">
