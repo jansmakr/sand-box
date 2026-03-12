@@ -3445,61 +3445,79 @@ app.get('/', (c) => {
             }
           });
         `
-      }} /><section class="relative bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 overflow-hidden">
-        <div class="absolute inset-0 bg-gradient-to-t from-teal-500/10 to-transparent"></div>
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-3 md:py-4 lg:py-4 relative z-10">
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 items-center">
-            {/* 모바일: 이미지를 크게 왼쪽에 표시 */}
-            <div class="flex lg:hidden items-center gap-3 sm:gap-4 mb-3">
-              <div class="relative w-32 h-32 sm:w-40 sm:h-40 rounded-full border-4 border-white/30 shadow-2xl overflow-hidden bg-gradient-to-br from-blue-800 to-blue-900">
-                <img 
-                  src="/static/hero-nurse-final.jpg" 
-                  alt="케어조아 전문 상담사"
-                  class="w-full h-full object-cover mix-blend-lighten opacity-95"
-                  loading="eager"
-                />
-              </div>
-              <div class="flex-1">
-                <h1 class="text-base sm:text-lg font-bold text-white leading-tight">
-                  최적의 요양시설 찾기,<br />
-                  케어조아와<br />
-                  함께하세요
-                </h1>
-              </div>
-            </div>
+      }} />
+      
+      {/* 풀스크린 히어로 섹션 */}
+      <section class="relative min-h-[500px] sm:min-h-[600px] md:min-h-[700px] flex items-center justify-center overflow-hidden">
+        {/* 배경 이미지 */}
+        <div class="absolute inset-0">
+          <img 
+            src="/static/hero-background.jpg" 
+            alt="요양시설 배경"
+            class="w-full h-full object-cover"
+            loading="eager"
+          />
+          {/* 다크 오버레이 */}
+          <div class="absolute inset-0 bg-gradient-to-b from-blue-900/80 via-blue-900/70 to-blue-900/80"></div>
+        </div>
 
-            {/* 데스크톱: 왼쪽 이미지 */}
-            <div class="hidden lg:block relative">
-              <div class="absolute inset-0 bg-gradient-to-br from-blue-800/30 to-blue-900/30 rounded-2xl"></div>
-              <img 
-                src="/static/hero-nurse-final.jpg" 
-                alt="케어조아 전문 상담사"
-                class="w-full max-w-md h-auto object-contain drop-shadow-2xl relative z-10 mix-blend-lighten opacity-95"
-                loading="eager"
-              />
-            </div>
+        {/* 콘텐츠 */}
+        <div class="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          {/* 메인 타이틀 */}
+          <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 sm:mb-6 leading-tight">
+            대한민국 1등 요양시설 매칭
+          </h1>
+          
+          {/* 서브 타이틀 */}
+          <p class="text-lg sm:text-xl md:text-2xl text-white/90 mb-8 sm:mb-10 font-medium">
+            가족을 위한 최선의 선택, 케어조아와 함께하세요
+          </p>
 
-            {/* 데스크톱: 오른쪽 텍스트 */}
-            <div class="hidden lg:block space-y-4 text-left">
-              <h1 class="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white leading-tight">
-                최적의 요양시설 찾기,<br />
-                케어조아와<br />
-                함께하세요
-              </h1>
-              <div class="flex items-center justify-start gap-2 pt-2">
-                <div class="bg-gradient-to-r from-orange-500 to-orange-600 rounded-full px-4 py-2 flex items-center gap-2 shadow-xl border-2 border-orange-400">
-                  <i class="fas fa-award text-white text-base"></i>
-                  <span class="text-white text-sm sm:text-base font-bold">특허 기반 AI 매칭 시스템</span>
+          {/* 통합 검색창 */}
+          <div class="max-w-3xl mx-auto mb-8 sm:mb-10">
+            <form action="/facilities" method="GET" class="relative">
+              <div class="flex flex-col sm:flex-row gap-3 sm:gap-0 bg-white rounded-2xl sm:rounded-full shadow-2xl p-2 sm:p-3">
+                {/* 검색 입력 */}
+                <div class="flex-1 px-4 sm:px-6 py-3 sm:py-4">
+                  <input 
+                    type="text" 
+                    name="keyword"
+                    placeholder="지역, 시설명으로 검색하세요 (예: 강남구, 서울요양원)"
+                    class="w-full text-base sm:text-lg text-gray-800 placeholder-gray-400 focus:outline-none"
+                  />
                 </div>
+                {/* 검색 버튼 */}
+                <button 
+                  type="submit"
+                  class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold text-base sm:text-lg px-8 sm:px-12 py-3 sm:py-4 rounded-xl sm:rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+                >
+                  <i class="fas fa-search"></i>
+                  <span>검색</span>
+                </button>
               </div>
-            </div>
+            </form>
+          </div>
 
-            {/* 모바일: 특허 배지만 */}
-            <div class="flex lg:hidden items-center justify-center gap-2">
-              <div class="bg-gradient-to-r from-orange-500 to-orange-600 rounded-full px-4 py-2 flex items-center gap-2 shadow-xl border-2 border-orange-400">
-                <i class="fas fa-award text-white text-base"></i>
-                <span class="text-white text-sm sm:text-base font-bold">특허 기반 AI 매칭 시스템</span>
-              </div>
+          {/* 신뢰 지표 */}
+          <div class="flex flex-wrap items-center justify-center gap-4 sm:gap-6 md:gap-8 text-white">
+            <div class="flex items-center gap-2">
+              <i class="fas fa-users text-xl sm:text-2xl text-blue-300"></i>
+              <span class="text-sm sm:text-base md:text-lg font-semibold">월 10만+ 이용자</span>
+            </div>
+            <div class="hidden sm:block w-px h-6 bg-white/30"></div>
+            <div class="flex items-center gap-2">
+              <i class="fas fa-hospital text-xl sm:text-2xl text-blue-300"></i>
+              <span class="text-sm sm:text-base md:text-lg font-semibold">15,751개 시설</span>
+            </div>
+            <div class="hidden sm:block w-px h-6 bg-white/30"></div>
+            <div class="flex items-center gap-2">
+              <i class="fas fa-star text-xl sm:text-2xl text-yellow-400"></i>
+              <span class="text-sm sm:text-base md:text-lg font-semibold">평균 4.5★</span>
+            </div>
+            <div class="hidden sm:block w-px h-6 bg-white/30"></div>
+            <div class="flex items-center gap-2">
+              <i class="fas fa-award text-xl sm:text-2xl text-orange-400"></i>
+              <span class="text-sm sm:text-base md:text-lg font-semibold">특허 AI 매칭</span>
             </div>
           </div>
         </div>
