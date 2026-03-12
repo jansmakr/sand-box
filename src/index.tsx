@@ -3449,7 +3449,7 @@ app.get('/', (c) => {
         {/* 히어로 이미지 - 전체 배경 */}
         <div class="relative w-full max-w-7xl mx-auto">
           <img 
-            src="https://www.genspark.ai/api/files/s/9CDKbP4U" 
+            src="/static/hero-image.jpg" 
             alt="케어조아 - 최적의 요양시설 찾기"
             class="w-full h-auto object-contain"
             loading="eager"
