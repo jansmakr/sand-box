@@ -3447,16 +3447,18 @@ app.get('/', (c) => {
         `
       }} /><section class="relative bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 overflow-hidden">
         <div class="absolute inset-0 bg-gradient-to-t from-teal-500/10 to-transparent"></div>
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 md:py-16 lg:py-20 relative z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 md:py-10 lg:py-12 relative z-10">
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 items-center">
             {/* 모바일: 이미지를 작게 왼쪽에 표시 */}
             <div class="flex lg:hidden items-center gap-4 mb-4">
-              <img 
-                src="/static/hero-nurse-new.jpg" 
-                alt="케어조아 전문 상담사"
-                class="w-24 h-24 sm:w-32 sm:h-32 object-cover rounded-full border-4 border-white/20 shadow-2xl"
-                loading="eager"
-              />
+              <div class="relative w-24 h-24 sm:w-32 sm:h-32 rounded-full border-4 border-white/20 shadow-2xl overflow-hidden bg-gradient-to-br from-blue-800 to-blue-900">
+                <img 
+                  src="/static/hero-nurse-new.jpg" 
+                  alt="케어조아 전문 상담사"
+                  class="w-full h-full object-cover mix-blend-lighten opacity-90"
+                  loading="eager"
+                />
+              </div>
               <div class="flex-1">
                 <h1 class="text-lg sm:text-xl font-bold text-white leading-tight">
                   최적의 요양시설 찾기,<br />
@@ -3467,11 +3469,12 @@ app.get('/', (c) => {
             </div>
 
             {/* 데스크톱: 왼쪽 이미지 */}
-            <div class="hidden lg:block">
+            <div class="hidden lg:block relative">
+              <div class="absolute inset-0 bg-gradient-to-br from-blue-800/30 to-blue-900/30 rounded-2xl"></div>
               <img 
                 src="/static/hero-nurse-new.jpg" 
                 alt="케어조아 전문 상담사"
-                class="w-full max-w-md h-auto object-contain drop-shadow-2xl"
+                class="w-full max-w-md h-auto object-contain drop-shadow-2xl relative z-10 mix-blend-lighten opacity-95"
                 loading="eager"
               />
             </div>
