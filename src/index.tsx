@@ -3445,34 +3445,63 @@ app.get('/', (c) => {
             }
           });
         `
-      }} /><section class="relative bg-gradient-to-r from-teal-500 via-teal-400 to-blue-400 overflow-hidden">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 md:py-16 lg:py-20 relative z-10">
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8 items-center">
-            <div class="space-y-4 text-center lg:text-left">
-              <h1 class="text-xl sm:text-2xl md:text-3xl lg:text-3xl xl:text-4xl font-bold text-white leading-tight">
-                {/* 모바일 & 데스크톱 모두 3줄 */}
-                어르신을 위한<br />
-                최적의 요양시설 찾기,<br />
-                케어조아와 함께하세요
-              </h1>
-              <div class="flex items-center justify-center lg:justify-start gap-2 pt-2">
-                <div class="bg-white bg-opacity-20 backdrop-blur-sm rounded-full px-3 py-1.5 flex items-center gap-2">
-                  <i class="fas fa-award text-yellow-300 text-sm"></i>
-                  <span class="text-white text-xs sm:text-sm font-medium">특허 기반 AI 매칭 시스템</span>
-                </div>
-              </div>
-            </div>
+      }} /><section class="relative overflow-hidden">
+        {/* 히어로 이미지 - 클릭 가능한 영역 포함 */}
+        <div class="relative w-full">
+          <img 
+            src="https://www.genspark.ai/api/files/s/9CDKbP4U" 
+            alt="케어조아 - 최적의 요양시설 찾기"
+            class="w-full h-auto object-cover"
+            useMap="#hero-map"
+            loading="eager"
+          />
+          
+          {/* 이미지 맵 - 4개 버튼 클릭 영역 */}
+          <map name="hero-map">
+            {/* 간편검색 버튼 영역 (왼쪽 첫번째) */}
+            <area 
+              shape="rect" 
+              coords="42,300,265,460" 
+              href="/quote-simple" 
+              alt="간편검색 - 빠른 매칭 확인"
+              title="간편검색"
+            />
+            
+            {/* 상세검색 버튼 영역 (왼쪽 두번째) */}
+            <area 
+              shape="rect" 
+              coords="280,300,503,460" 
+              href="/quote-request" 
+              alt="상세검색 - 맞춤형 요양시설 추천"
+              title="상세검색"
+            />
+            
+            {/* 생생후기 버튼 영역 (오른쪽 첫번째) */}
+            <area 
+              shape="rect" 
+              coords="518,300,741,460" 
+              href="/reviews" 
+              alt="생생후기 - 진솔한 사용자 평가"
+              title="생생후기"
+            />
+            
+            {/* 전문상담 버튼 영역 (오른쪽 두번째) */}
+            <area 
+              shape="rect" 
+              coords="756,300,979,460" 
+              href="/call-consultation" 
+              alt="전문상담 - 전문가 맞춤 상담 지원"
+              title="전문상담"
+            />
+          </map>
 
-            <div class="hidden lg:flex justify-end items-center">
-              <img 
-                src="/static/carejoa-character.png" 
-                alt="케어조아 캐릭터"
-                width="144"
-                height="144"
-                class="w-32 lg:w-32 xl:w-36 h-auto object-contain"
-                style="image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;"
-                loading="eager"
-              />
+          {/* 모바일용 버튼 오버레이 (이미지 맵 대신) */}
+          <div class="absolute inset-0 md:hidden">
+            <div class="grid grid-cols-2 gap-2 absolute bottom-0 left-0 right-0 p-4">
+              <a href="/quote-simple" class="bg-blue-600 bg-opacity-0 hover:bg-opacity-20 transition-all h-32 rounded-lg"></a>
+              <a href="/quote-request" class="bg-green-600 bg-opacity-0 hover:bg-opacity-20 transition-all h-32 rounded-lg"></a>
+              <a href="/reviews" class="bg-yellow-600 bg-opacity-0 hover:bg-opacity-20 transition-all h-32 rounded-lg"></a>
+              <a href="/call-consultation" class="bg-purple-600 bg-opacity-0 hover:bg-opacity-20 transition-all h-32 rounded-lg"></a>
             </div>
           </div>
         </div>
