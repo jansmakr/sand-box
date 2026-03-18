@@ -3564,95 +3564,129 @@ app.get('/', (c) => {
         </div>
       </div>
 
-      {/* 케어조아만의 특별함 - 정보 카드 스타일 */}
-      <section class="py-12 sm:py-16 bg-gray-50">
+      {/* 케어조아의 강점 - 랜딩페이지 스타일 */}
+      <section class="py-16 sm:py-20 bg-gradient-to-b from-white to-gray-50">
         <div class="max-w-6xl mx-auto px-4">
-          <div class="text-center mb-8 sm:mb-12">
-            <h3 class="text-2xl sm:text-3xl font-bold text-gray-900">
-              <i class="fas fa-certificate text-teal-500 mr-2"></i>
+          <div class="text-center mb-12 sm:mb-16">
+            <h3 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
               케어조아의 강점
             </h3>
-            <p class="text-gray-600 mt-2">믿을 수 있는 요양시설 정보 플랫폼</p>
+            <p class="text-gray-600 text-lg">믿을 수 있는 요양시설 정보 플랫폼</p>
           </div>
           
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
-            <div class="text-center p-4 sm:p-6 bg-white border-2 border-blue-200 rounded-xl">
-              <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                <i class="fas fa-calculator text-2xl sm:text-3xl text-white"></i>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-8 sm:gap-12">
+            <div class="text-center">
+              <div class="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg">
+                <i class="fas fa-calculator text-3xl sm:text-4xl text-white"></i>
               </div>
-              <h4 class="text-base sm:text-lg font-bold mb-1 sm:mb-2 text-gray-900">실시간 견적</h4>
-              <p class="text-gray-500 text-xs sm:text-sm">즉시 확인 가능</p>
+              <h4 class="text-lg sm:text-xl font-bold mb-2 text-gray-900">실시간 견적</h4>
+              <p class="text-gray-600 text-sm sm:text-base leading-relaxed">즉시 확인 가능</p>
             </div>
             
-            <div class="text-center p-4 sm:p-6 bg-white border-2 border-teal-200 rounded-xl">
-              <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-teal-400 to-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                <i class="fas fa-hospital text-2xl sm:text-3xl text-white"></i>
+            <div class="text-center">
+              <div class="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-teal-400 to-teal-600 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg">
+                <i class="fas fa-hospital text-3xl sm:text-4xl text-white"></i>
               </div>
-              <h4 class="text-base sm:text-lg font-bold mb-1 sm:mb-2 text-gray-900">검증된 시설</h4>
-              <p class="text-gray-500 text-xs sm:text-sm">정부 인증 완료</p>
+              <h4 class="text-lg sm:text-xl font-bold mb-2 text-gray-900">검증된 시설</h4>
+              <p class="text-gray-600 text-sm sm:text-base leading-relaxed">정부 인증 완료</p>
             </div>
             
-            <div class="text-center p-4 sm:p-6 bg-white border-2 border-purple-200 rounded-xl">
-              <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-purple-400 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                <i class="fas fa-user-md text-2xl sm:text-3xl text-white"></i>
+            <div class="text-center">
+              <div class="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg">
+                <i class="fas fa-user-md text-3xl sm:text-4xl text-white"></i>
               </div>
-              <h4 class="text-base sm:text-lg font-bold mb-1 sm:mb-2 text-gray-900">전문 상담</h4>
-              <p class="text-gray-500 text-xs sm:text-sm">1:1 맞춤 상담</p>
+              <h4 class="text-lg sm:text-xl font-bold mb-2 text-gray-900">전문 상담</h4>
+              <p class="text-gray-600 text-sm sm:text-base leading-relaxed">1:1 맞춤 상담</p>
             </div>
             
-            <div class="text-center p-4 sm:p-6 bg-white border-2 border-pink-200 rounded-xl">
-              <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-pink-400 to-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                <i class="fas fa-heart text-2xl sm:text-3xl text-white"></i>
+            <div class="text-center">
+              <div class="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-pink-400 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg">
+                <i class="fas fa-heart text-3xl sm:text-4xl text-white"></i>
               </div>
-              <h4 class="text-base sm:text-lg font-bold mb-1 sm:mb-2 text-gray-900">가족같은 마음</h4>
-              <p class="text-gray-500 text-xs sm:text-sm">처음부터 끝까지</p>
+              <h4 class="text-lg sm:text-xl font-bold mb-2 text-gray-900">가족같은 마음</h4>
+              <p class="text-gray-600 text-sm sm:text-base leading-relaxed">처음부터 끝까지</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 간단한 3단계 - 정보 패널 스타일 */}
-      <section class="py-12 sm:py-16 bg-white">
+      {/* 간단한 3단계 - 플로우차트 스타일 */}
+      <section class="py-16 sm:py-20 bg-white">
         <div class="max-w-6xl mx-auto px-4">
-          <div class="text-center mb-8 sm:mb-12">
-            <h3 class="text-2xl sm:text-3xl font-bold text-gray-900">
+          <div class="text-center mb-12 sm:mb-16">
+            <h3 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
               간단한 3단계로 <span class="text-teal-600">완료!</span>
             </h3>
-            <p class="text-gray-600 mt-2">빠르고 쉬운 요양시설 매칭</p>
+            <p class="text-gray-600 text-lg">빠르고 쉬운 요양시설 매칭</p>
           </div>
           
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
-            <div class="relative bg-gradient-to-br from-blue-50 to-white border-2 border-blue-200 rounded-xl p-6 sm:p-8">
-              <div class="absolute top-4 right-4 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                <span class="text-blue-600 font-bold text-sm">1</span>
+          {/* 데스크톱: 가로 플로우 */}
+          <div class="hidden md:flex items-center justify-center gap-4">
+            <div class="flex-1 text-center">
+              <div class="w-24 h-24 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl">
+                <span class="text-4xl font-bold text-white">1</span>
               </div>
-              <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl flex items-center justify-center mb-4">
-                <i class="fas fa-edit text-2xl sm:text-3xl text-white"></i>
-              </div>
-              <h4 class="text-lg sm:text-xl font-bold mb-2 text-gray-900">정보 입력</h4>
-              <p class="text-gray-600 text-sm">환자 상태와 필요한 서비스를 간단히 입력하세요</p>
+              <h4 class="text-xl font-bold mb-3 text-gray-900">정보 입력</h4>
+              <p class="text-gray-600 leading-relaxed">환자 상태와 필요한<br/>서비스를 간단히 입력</p>
             </div>
             
-            <div class="relative bg-gradient-to-br from-teal-50 to-white border-2 border-teal-200 rounded-xl p-6 sm:p-8">
-              <div class="absolute top-4 right-4 w-8 h-8 bg-teal-100 rounded-full flex items-center justify-center">
-                <span class="text-teal-600 font-bold text-sm">2</span>
-              </div>
-              <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-teal-400 to-teal-600 rounded-2xl flex items-center justify-center mb-4">
-                <i class="fas fa-search text-2xl sm:text-3xl text-white"></i>
-              </div>
-              <h4 class="text-lg sm:text-xl font-bold mb-2 text-gray-900">견적 비교</h4>
-              <p class="text-gray-600 text-sm">AI가 분석한 맞춤 시설을 실시간으로 비교하세요</p>
+            <div class="flex-shrink-0 text-teal-500">
+              <i class="fas fa-arrow-right text-4xl"></i>
             </div>
             
-            <div class="relative bg-gradient-to-br from-purple-50 to-white border-2 border-purple-200 rounded-xl p-6 sm:p-8">
-              <div class="absolute top-4 right-4 w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-                <span class="text-purple-600 font-bold text-sm">3</span>
+            <div class="flex-1 text-center">
+              <div class="w-24 h-24 bg-gradient-to-br from-teal-400 to-teal-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl">
+                <span class="text-4xl font-bold text-white">2</span>
               </div>
-              <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-purple-400 to-purple-600 rounded-2xl flex items-center justify-center mb-4">
-                <i class="fas fa-phone-alt text-2xl sm:text-3xl text-white"></i>
+              <h4 class="text-xl font-bold mb-3 text-gray-900">견적 비교</h4>
+              <p class="text-gray-600 leading-relaxed">AI가 분석한 맞춤 시설을<br/>실시간으로 비교</p>
+            </div>
+            
+            <div class="flex-shrink-0 text-teal-500">
+              <i class="fas fa-arrow-right text-4xl"></i>
+            </div>
+            
+            <div class="flex-1 text-center">
+              <div class="w-24 h-24 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl">
+                <span class="text-4xl font-bold text-white">3</span>
               </div>
-              <h4 class="text-lg sm:text-xl font-bold mb-2 text-gray-900">전문 상담</h4>
-              <p class="text-gray-600 text-sm">전문 상담사가 1:1로 최적의 선택을 도와드립니다</p>
+              <h4 class="text-xl font-bold mb-3 text-gray-900">전문 상담</h4>
+              <p class="text-gray-600 leading-relaxed">전문 상담사가 1:1로<br/>최적의 선택을 도움</p>
+            </div>
+          </div>
+          
+          {/* 모바일: 세로 플로우 */}
+          <div class="md:hidden space-y-6">
+            <div class="text-center">
+              <div class="w-20 h-20 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-xl">
+                <span class="text-3xl font-bold text-white">1</span>
+              </div>
+              <h4 class="text-lg font-bold mb-2 text-gray-900">정보 입력</h4>
+              <p class="text-gray-600 text-sm leading-relaxed">환자 상태와 필요한 서비스를 간단히 입력</p>
+            </div>
+            
+            <div class="flex justify-center text-teal-500">
+              <i class="fas fa-arrow-down text-3xl"></i>
+            </div>
+            
+            <div class="text-center">
+              <div class="w-20 h-20 bg-gradient-to-br from-teal-400 to-teal-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-xl">
+                <span class="text-3xl font-bold text-white">2</span>
+              </div>
+              <h4 class="text-lg font-bold mb-2 text-gray-900">견적 비교</h4>
+              <p class="text-gray-600 text-sm leading-relaxed">AI가 분석한 맞춤 시설을 실시간으로 비교</p>
+            </div>
+            
+            <div class="flex justify-center text-teal-500">
+              <i class="fas fa-arrow-down text-3xl"></i>
+            </div>
+            
+            <div class="text-center">
+              <div class="w-20 h-20 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-xl">
+                <span class="text-3xl font-bold text-white">3</span>
+              </div>
+              <h4 class="text-lg font-bold mb-2 text-gray-900">전문 상담</h4>
+              <p class="text-gray-600 text-sm leading-relaxed">전문 상담사가 1:1로 최적의 선택을 도움</p>
             </div>
           </div>
         </div>
