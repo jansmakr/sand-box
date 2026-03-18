@@ -21820,6 +21820,596 @@ app.post('/api/reviews/create', async (c) => {
   }
 })
 
+// ========== 소식/후기 페이지 ==========
+
+// 1. 소식 목록 페이지
+app.get('/news', async (c) => {
+  const page = parseInt(c.req.query('page') || '1')
+  const category = c.req.query('category') || ''
+  const limit = 12
+  
+  let newsList: any[] = []
+  let totalNews = 0
+  
+  try {
+    const db = c.env.DB
+    if (db) {
+      let query = `
+        SELECT id, title, preview, category, view_count, published_at, created_at
+        FROM news
+        WHERE status = 'published'
+      `
+      const params: any[] = []
+      
+      if (category) {
+        query += ` AND category = ?`
+        params.push(category)
+      }
+      
+      query += ` ORDER BY published_at DESC LIMIT ? OFFSET ?`
+      params.push(limit, (page - 1) * limit)
+      
+      const result = await db.prepare(query).bind(...params).all()
+      newsList = result.results || []
+      
+      // 총 개수
+      let countQuery = `SELECT COUNT(*) as total FROM news WHERE status = 'published'`
+      const countParams: any[] = []
+      if (category) {
+        countQuery += ` AND category = ?`
+        countParams.push(category)
+      }
+      const countResult = await db.prepare(countQuery).bind(...countParams).first()
+      totalNews = countResult?.total || 0
+    }
+  } catch (error) {
+    console.error('News list error:', error)
+  }
+  
+  const totalPages = Math.ceil(totalNews / limit)
+  
+  return c.html(
+    <html lang="ko">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>요양시설 소식 - 케어조아</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet" />
+      </head>
+      <body class="bg-gray-50">
+        {/* 헤더 */}
+        <header class="bg-white shadow-sm border-b sticky top-0 z-50">
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+              <a href="/" class="flex items-center">
+                <img 
+                  src="https://page.gensparksite.com/v1/base64_upload/b39dca8586af1dacd6d8417554313896" 
+                  alt="케어조아 로고"
+                  class="h-8 w-auto mr-2"
+                />
+                <h1 class="text-xl sm:text-2xl font-bold text-teal-600">케어조아</h1>
+              </a>
+              <a href="/" class="text-gray-600 hover:text-teal-600 transition-colors">
+                <i class="fas fa-home text-xl"></i>
+              </a>
+            </div>
+          </div>
+        </header>
+
+        {/* 메인 컨텐츠 */}
+        <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* 타이틀 */}
+          <div class="mb-8">
+            <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-2 flex items-center gap-3">
+              <i class="fas fa-newspaper text-blue-600"></i>
+              요양시설 소식
+            </h1>
+            <p class="text-gray-600">최신 요양시설 관련 소식과 정책을 확인하세요</p>
+          </div>
+
+          {/* 카테고리 필터 */}
+          <div class="mb-6 flex gap-2 flex-wrap">
+            <a 
+              href="/news" 
+              class={`px-4 py-2 rounded-lg font-semibold transition-colors ${!category ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-100'}`}
+            >
+              전체
+            </a>
+            <a 
+              href="/news?category=policy" 
+              class={`px-4 py-2 rounded-lg font-semibold transition-colors ${category === 'policy' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-100'}`}
+            >
+              <i class="fas fa-bullhorn mr-1"></i>
+              정책
+            </a>
+            <a 
+              href="/news?category=facility" 
+              class={`px-4 py-2 rounded-lg font-semibold transition-colors ${category === 'facility' ? 'bg-green-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-100'}`}
+            >
+              <i class="fas fa-hospital mr-1"></i>
+              시설
+            </a>
+            <a 
+              href="/news?category=notice" 
+              class={`px-4 py-2 rounded-lg font-semibold transition-colors ${category === 'notice' ? 'bg-purple-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-100'}`}
+            >
+              <i class="fas fa-star mr-1"></i>
+              공지
+            </a>
+          </div>
+
+          {/* 소식 목록 */}
+          {newsList.length > 0 ? (
+            <div>
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                {newsList.map((news: any) => {
+                  const iconMap: Record<string, string> = {
+                    'policy': 'fa-bullhorn text-blue-600',
+                    'facility': 'fa-hospital text-green-600',
+                    'notice': 'fa-star text-purple-600',
+                    'event': 'fa-gift text-orange-600'
+                  }
+                  const bgMap: Record<string, string> = {
+                    'policy': 'bg-blue-50',
+                    'facility': 'bg-green-50',
+                    'notice': 'bg-purple-50',
+                    'event': 'bg-orange-50'
+                  }
+                  const icon = iconMap[news.category] || 'fa-newspaper text-gray-600'
+                  const bgColor = bgMap[news.category] || 'bg-gray-50'
+                  
+                  let dateStr = '방금 전'
+                  try {
+                    if (news.published_at) {
+                      const date = new Date(news.published_at)
+                      dateStr = date.toISOString().split('T')[0].replace(/-/g, '.')
+                    }
+                  } catch (e) {}
+                  
+                  return (
+                    <a href={`/news/${news.id}`} class="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group">
+                      <div class={`${bgColor} p-6 flex items-center justify-center`}>
+                        <i class={`fas ${icon} text-5xl`}></i>
+                      </div>
+                      <div class="p-6">
+                        <h3 class="text-lg font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors line-clamp-2">
+                          {news.title}
+                        </h3>
+                        <p class="text-sm text-gray-600 mb-4 line-clamp-3">
+                          {news.preview || news.content?.substring(0, 100)}
+                        </p>
+                        <div class="flex items-center justify-between text-xs text-gray-500">
+                          <span>
+                            <i class="fas fa-calendar mr-1"></i>
+                            {dateStr}
+                          </span>
+                          <span>
+                            <i class="fas fa-eye mr-1"></i>
+                            {news.view_count}
+                          </span>
+                        </div>
+                      </div>
+                    </a>
+                  )
+                })}
+              </div>
+
+              {/* 페이지네이션 */}
+              {totalPages > 1 && (
+                <div class="flex justify-center gap-2">
+                  {page > 1 && (
+                    <a 
+                      href={`/news?page=${page - 1}${category ? `&category=${category}` : ''}`}
+                      class="px-4 py-2 bg-white rounded-lg font-semibold text-gray-700 hover:bg-gray-100 transition-colors"
+                    >
+                      <i class="fas fa-chevron-left"></i>
+                    </a>
+                  )}
+                  
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    const pageNum = Math.max(1, Math.min(page - 2, totalPages - 4)) + i
+                    if (pageNum > totalPages) return null
+                    return (
+                      <a
+                        href={`/news?page=${pageNum}${category ? `&category=${category}` : ''}`}
+                        class={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+                          pageNum === page
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-white text-gray-700 hover:bg-gray-100'
+                        }`}
+                      >
+                        {pageNum}
+                      </a>
+                    )
+                  })}
+                  
+                  {page < totalPages && (
+                    <a 
+                      href={`/news?page=${page + 1}${category ? `&category=${category}` : ''}`}
+                      class="px-4 py-2 bg-white rounded-lg font-semibold text-gray-700 hover:bg-gray-100 transition-colors"
+                    >
+                      <i class="fas fa-chevron-right"></i>
+                    </a>
+                  )}
+                </div>
+              )}
+            </div>
+          ) : (
+            <div class="text-center py-20">
+              <i class="fas fa-inbox text-6xl text-gray-300 mb-4"></i>
+              <p class="text-xl text-gray-500">등록된 소식이 없습니다</p>
+            </div>
+          )}
+        </main>
+
+        {/* 푸터 */}
+        <footer class="bg-white border-t mt-20 py-8">
+          <div class="max-w-6xl mx-auto px-4 text-center text-gray-600">
+            <p>&copy; 2026 케어조아. All rights reserved.</p>
+          </div>
+        </footer>
+      </body>
+    </html>
+  )
+})
+
+// 2. 소식 상세 페이지
+app.get('/news/:id', async (c) => {
+  const id = c.req.param('id')
+  let news: any = null
+  
+  try {
+    const db = c.env.DB
+    if (db) {
+      // 조회수 증가
+      await db.prepare(`UPDATE news SET view_count = view_count + 1 WHERE id = ?`).bind(id).run()
+      
+      // 소식 조회
+      news = await db.prepare(`
+        SELECT * FROM news WHERE id = ? AND status = 'published'
+      `).bind(id).first()
+    }
+  } catch (error) {
+    console.error('News detail error:', error)
+  }
+  
+  if (!news) {
+    return c.html(
+      <html lang="ko">
+        <head>
+          <meta charset="UTF-8" />
+          <title>소식을 찾을 수 없습니다 - 케어조아</title>
+          <script src="https://cdn.tailwindcss.com"></script>
+        </head>
+        <body class="bg-gray-50">
+          <div class="max-w-2xl mx-auto px-4 py-20 text-center">
+            <h1 class="text-4xl font-bold text-gray-900 mb-4">404</h1>
+            <p class="text-xl text-gray-600 mb-8">소식을 찾을 수 없습니다</p>
+            <a href="/news" class="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700">
+              목록으로 돌아가기
+            </a>
+          </div>
+        </body>
+      </html>
+    )
+  }
+  
+  const iconMap: Record<string, string> = {
+    'policy': 'fa-bullhorn text-blue-600',
+    'facility': 'fa-hospital text-green-600',
+    'notice': 'fa-star text-purple-600',
+    'event': 'fa-gift text-orange-600'
+  }
+  const icon = iconMap[news.category] || 'fa-newspaper text-gray-600'
+  
+  let dateStr = '방금 전'
+  try {
+    if (news.published_at) {
+      const date = new Date(news.published_at)
+      dateStr = date.toISOString().split('T')[0].replace(/-/g, '.')
+    }
+  } catch (e) {}
+  
+  return c.html(
+    <html lang="ko">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>{news.title} - 케어조아</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet" />
+      </head>
+      <body class="bg-gray-50">
+        {/* 헤더 */}
+        <header class="bg-white shadow-sm border-b sticky top-0 z-50">
+          <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+              <a href="/" class="flex items-center">
+                <img 
+                  src="https://page.gensparksite.com/v1/base64_upload/b39dca8586af1dacd6d8417554313896" 
+                  alt="케어조아 로고"
+                  class="h-8 w-auto mr-2"
+                />
+                <h1 class="text-xl sm:text-2xl font-bold text-teal-600">케어조아</h1>
+              </a>
+              <a href="/news" class="text-gray-600 hover:text-teal-600 transition-colors">
+                <i class="fas fa-list mr-2"></i>
+                목록
+              </a>
+            </div>
+          </div>
+        </header>
+
+        {/* 메인 컨텐츠 */}
+        <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <article class="bg-white rounded-2xl shadow-lg p-8">
+            {/* 카테고리 아이콘 */}
+            <div class="flex items-center justify-center mb-6">
+              <div class="w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl flex items-center justify-center">
+                <i class={`fas ${icon} text-4xl`}></i>
+              </div>
+            </div>
+            
+            {/* 제목 */}
+            <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-4 text-center">
+              {news.title}
+            </h1>
+            
+            {/* 메타 정보 */}
+            <div class="flex items-center justify-center gap-6 text-sm text-gray-500 mb-8 pb-8 border-b">
+              <span>
+                <i class="fas fa-calendar mr-2"></i>
+                {dateStr}
+              </span>
+              <span>
+                <i class="fas fa-eye mr-2"></i>
+                {news.view_count} 조회
+              </span>
+            </div>
+            
+            {/* 본문 */}
+            <div class="prose prose-lg max-w-none">
+              <div class="text-gray-700 leading-relaxed whitespace-pre-line">
+                {news.content}
+              </div>
+            </div>
+          </article>
+
+          {/* 목록으로 버튼 */}
+          <div class="mt-8 text-center">
+            <a 
+              href="/news" 
+              class="inline-block px-8 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+            >
+              <i class="fas fa-list mr-2"></i>
+              목록으로
+            </a>
+          </div>
+        </main>
+
+        {/* 푸터 */}
+        <footer class="bg-white border-t mt-20 py-8">
+          <div class="max-w-4xl mx-auto px-4 text-center text-gray-600">
+            <p>&copy; 2026 케어조아. All rights reserved.</p>
+          </div>
+        </footer>
+      </body>
+    </html>
+  )
+})
+
+// 3. 후기 작성 페이지
+app.get('/reviews/create', async (c) => {
+  const facilityName = c.req.query('facility_name') || ''
+  
+  return c.html(
+    <html lang="ko">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>후기 작성 - 케어조아</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet" />
+      </head>
+      <body class="bg-gray-50">
+        {/* 헤더 */}
+        <header class="bg-white shadow-sm border-b sticky top-0 z-50">
+          <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+              <a href="/" class="flex items-center">
+                <img 
+                  src="https://page.gensparksite.com/v1/base64_upload/b39dca8586af1dacd6d8417554313896" 
+                  alt="케어조아 로고"
+                  class="h-8 w-auto mr-2"
+                />
+                <h1 class="text-xl sm:text-2xl font-bold text-teal-600">케어조아</h1>
+              </a>
+              <a href="/" class="text-gray-600 hover:text-teal-600 transition-colors">
+                <i class="fas fa-home text-xl"></i>
+              </a>
+            </div>
+          </div>
+        </header>
+
+        {/* 메인 컨텐츠 */}
+        <main class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div class="bg-white rounded-2xl shadow-lg p-8">
+            {/* 타이틀 */}
+            <div class="text-center mb-8">
+              <div class="w-20 h-20 bg-gradient-to-br from-teal-50 to-teal-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-pen-fancy text-teal-600 text-4xl"></i>
+              </div>
+              <h1 class="text-3xl font-bold text-gray-900 mb-2">후기 작성</h1>
+              <p class="text-gray-600">소중한 경험을 공유해주세요</p>
+            </div>
+
+            {/* 폼 */}
+            <form id="reviewForm" class="space-y-6">
+              {/* 시설명 */}
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                  <i class="fas fa-building mr-2 text-teal-600"></i>
+                  시설 이름 <span class="text-red-500">*</span>
+                </label>
+                <input 
+                  type="text" 
+                  id="facility_name"
+                  value={facilityName}
+                  placeholder="이용하신 요양시설 이름을 입력하세요"
+                  required
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                />
+              </div>
+
+              {/* 작성자명 */}
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                  <i class="fas fa-user mr-2 text-teal-600"></i>
+                  작성자 (선택)
+                </label>
+                <input 
+                  type="text" 
+                  id="author_name"
+                  placeholder="익명으로 작성됩니다 (선택 입력)"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                />
+              </div>
+
+              {/* 평점 */}
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                  <i class="fas fa-star mr-2 text-teal-600"></i>
+                  만족도 <span class="text-red-500">*</span>
+                </label>
+                <div class="flex gap-2">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button 
+                      type="button"
+                      data-rating={star}
+                      class="rating-btn flex-1 py-3 px-2 bg-gray-100 hover:bg-yellow-100 rounded-lg transition-colors text-sm font-medium border-2 border-transparent"
+                    >
+                      {'⭐'.repeat(star)} {star}점
+                    </button>
+                  ))}
+                </div>
+                <input type="hidden" id="rating" value="5" required />
+              </div>
+
+              {/* 후기 내용 */}
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                  <i class="fas fa-edit mr-2 text-teal-600"></i>
+                  후기 내용 <span class="text-red-500">*</span>
+                </label>
+                <textarea 
+                  id="content"
+                  rows="8"
+                  placeholder="시설 이용 경험을 자세히 작성해주세요. 다른 가족분들에게 큰 도움이 됩니다."
+                  required
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none"
+                ></textarea>
+                <p class="text-xs text-gray-500 mt-2">최소 10자 이상 작성해주세요</p>
+              </div>
+
+              {/* 제출 버튼 */}
+              <div class="pt-4">
+                <button 
+                  type="submit"
+                  class="w-full bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white font-bold py-4 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                >
+                  <i class="fas fa-paper-plane mr-2"></i>
+                  후기 등록하기
+                </button>
+              </div>
+            </form>
+
+            {/* 안내 문구 */}
+            <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+              <p class="text-sm text-blue-800">
+                <i class="fas fa-info-circle mr-2"></i>
+                작성하신 후기는 관리자 승인 후 공개됩니다.
+              </p>
+            </div>
+          </div>
+        </main>
+
+        {/* 푸터 */}
+        <footer class="bg-white border-t mt-20 py-8">
+          <div class="max-w-2xl mx-auto px-4 text-center text-gray-600">
+            <p>&copy; 2026 케어조아. All rights reserved.</p>
+          </div>
+        </footer>
+
+        {/* JavaScript */}
+        <script dangerouslySetInnerHTML={{ __html: `
+          // 평점 선택
+          let selectedRating = 5;
+          document.querySelectorAll('.rating-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+              selectedRating = parseInt(this.dataset.rating);
+              document.getElementById('rating').value = selectedRating;
+              
+              document.querySelectorAll('.rating-btn').forEach(b => {
+                b.classList.remove('bg-yellow-200', 'border-yellow-400');
+                b.classList.add('bg-gray-100', 'border-transparent');
+              });
+              
+              this.classList.remove('bg-gray-100', 'border-transparent');
+              this.classList.add('bg-yellow-200', 'border-yellow-400');
+            });
+          });
+          
+          // 기본 5점 선택
+          document.querySelector('[data-rating="5"]').click();
+          
+          // 폼 제출
+          document.getElementById('reviewForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const facilityName = document.getElementById('facility_name').value.trim();
+            const authorName = document.getElementById('author_name').value.trim() || '익명';
+            const rating = parseInt(document.getElementById('rating').value);
+            const content = document.getElementById('content').value.trim();
+            
+            // 유효성 검증
+            if (!facilityName || !content) {
+              alert('필수 항목을 입력해주세요');
+              return;
+            }
+            
+            if (content.length < 10) {
+              alert('후기 내용을 최소 10자 이상 작성해주세요');
+              return;
+            }
+            
+            // API 호출
+            try {
+              const response = await fetch('/api/reviews/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ facility_name: facilityName, author_name: authorName, rating, content })
+              });
+              
+              const data = await response.json();
+              
+              if (data.success) {
+                alert('후기가 등록되었습니다!\\\\n관리자 승인 후 공개됩니다.');
+                window.location.href = '/';
+              } else {
+                alert('후기 등록 실패: ' + (data.message || '알 수 없는 오류'));
+              }
+            } catch (error) {
+              alert('후기 등록 중 오류가 발생했습니다: ' + error.message);
+            }
+          });
+        ` }}></script>
+      </body>
+    </html>
+  )
+})
+
+
 // ========== Cloudflare Workers 설정 ==========
 
 export default {
