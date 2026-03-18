@@ -3311,7 +3311,39 @@ app.post('/api/manager-consultation/request', async (c) => {
 // ========== 대시보드 라우트 ========== (대시보드는 다음에 구현)
 
 // 메인 페이지 (전체 디자인)
-app.get('/', (c) => {
+app.get('/', async (c) => {
+  // DB에서 최신 소식 3개 조회
+  let latestNews: any[] = []
+  let latestReviews: any[] = []
+  
+  try {
+    const db = c.env.DB
+    if (db) {
+      // 소식 조회
+      const newsResult = await db.prepare(`
+        SELECT id, title, preview, category, view_count, published_at, created_at
+        FROM news
+        WHERE status = 'published'
+        ORDER BY published_at DESC
+        LIMIT 3
+      `).all()
+      latestNews = newsResult.results || []
+      
+      // 후기 조회
+      const reviewsResult = await db.prepare(`
+        SELECT id, facility_name, author_name, rating, content, helpful_count, created_at
+        FROM user_reviews
+        WHERE status = 'approved'
+        ORDER BY created_at DESC
+        LIMIT 2
+      `).all()
+      latestReviews = reviewsResult.results || []
+    }
+  } catch (error) {
+    console.error('DB query error:', error)
+    // 에러 시 빈 배열 유지 (폴백)
+  }
+  
   return c.render(
     <div>
       <style dangerouslySetInnerHTML={{
@@ -3561,56 +3593,59 @@ app.get('/', (c) => {
               
               {/* 소식 목록 */}
               <div class="space-y-4">
-                <a href="/news/1" class="block bg-white rounded-xl p-4 hover:shadow-md transition-shadow group">
-                  <div class="flex items-start gap-3">
-                    <div class="flex-shrink-0 w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <i class="fas fa-bullhorn text-blue-600 text-xl"></i>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                      <h4 class="font-bold text-gray-900 mb-1 group-hover:text-blue-600 transition-colors line-clamp-1">
-                        2026년 요양시설 지원금 확대 시행
-                      </h4>
-                      <p class="text-sm text-gray-600 line-clamp-2 mb-2">
-                        정부에서 요양시설 이용자를 위한 지원금이 대폭 확대됩니다. 자세한 내용을 확인하세요.
-                      </p>
-                      <span class="text-xs text-gray-500">2026.03.12</span>
-                    </div>
+                {latestNews.length > 0 ? (
+                  latestNews.map((news: any, index: number) => {
+                    const iconMap: Record<string, string> = {
+                      'policy': 'fa-bullhorn text-blue-600',
+                      'facility': 'fa-hospital text-green-600',
+                      'notice': 'fa-star text-purple-600',
+                      'event': 'fa-gift text-orange-600'
+                    }
+                    const bgMap: Record<string, string> = {
+                      'policy': 'bg-blue-100',
+                      'facility': 'bg-green-100',
+                      'notice': 'bg-purple-100',
+                      'event': 'bg-orange-100'
+                    }
+                    const icon = iconMap[news.category] || 'fa-newspaper text-gray-600'
+                    const bgColor = bgMap[news.category] || 'bg-gray-100'
+                    
+                    // 날짜 포맷팅 (YYYY-MM-DD)
+                    let dateStr = '방금 전'
+                    try {
+                      if (news.published_at) {
+                        const date = new Date(news.published_at)
+                        dateStr = date.toISOString().split('T')[0].replace(/-/g, '.')
+                      }
+                    } catch (e) {
+                      console.error('Date parse error:', e)
+                    }
+                    
+                    return (
+                      <a href={`/news/${news.id}`} class="block bg-white rounded-xl p-4 hover:shadow-md transition-shadow group">
+                        <div class="flex items-start gap-3">
+                          <div class={`flex-shrink-0 w-12 h-12 ${bgColor} rounded-lg flex items-center justify-center`}>
+                            <i class={`fas ${icon} text-xl`}></i>
+                          </div>
+                          <div class="flex-1 min-w-0">
+                            <h4 class="font-bold text-gray-900 mb-1 group-hover:text-blue-600 transition-colors line-clamp-1">
+                              {news.title}
+                            </h4>
+                            <p class="text-sm text-gray-600 line-clamp-2 mb-2">
+                              {news.preview || news.content?.substring(0, 100)}
+                            </p>
+                            <span class="text-xs text-gray-500">{dateStr}</span>
+                          </div>
+                        </div>
+                      </a>
+                    )
+                  })
+                ) : (
+                  <div class="text-center py-8 text-gray-500">
+                    <i class="fas fa-inbox text-4xl mb-3"></i>
+                    <p>등록된 소식이 없습니다.</p>
                   </div>
-                </a>
-                
-                <a href="/news/2" class="block bg-white rounded-xl p-4 hover:shadow-md transition-shadow group">
-                  <div class="flex items-start gap-3">
-                    <div class="flex-shrink-0 w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                      <i class="fas fa-hospital text-green-600 text-xl"></i>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                      <h4 class="font-bold text-gray-900 mb-1 group-hover:text-blue-600 transition-colors line-clamp-1">
-                        강남구 신규 프리미엄 요양시설 개원
-                      </h4>
-                      <p class="text-sm text-gray-600 line-clamp-2 mb-2">
-                        최신 시설과 의료 시스템을 갖춘 프리미엄 요양시설이 강남구에 새롭게 문을 엽니다.
-                      </p>
-                      <span class="text-xs text-gray-500">2026.03.10</span>
-                    </div>
-                  </div>
-                </a>
-                
-                <a href="/news/3" class="block bg-white rounded-xl p-4 hover:shadow-md transition-shadow group">
-                  <div class="flex items-start gap-3">
-                    <div class="flex-shrink-0 w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                      <i class="fas fa-star text-purple-600 text-xl"></i>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                      <h4 class="font-bold text-gray-900 mb-1 group-hover:text-blue-600 transition-colors line-clamp-1">
-                        케어조아 이용자 만족도 98% 달성
-                      </h4>
-                      <p class="text-sm text-gray-600 line-clamp-2 mb-2">
-                        케어조아를 통해 시설을 찾으신 분들의 만족도가 98%를 기록했습니다.
-                      </p>
-                      <span class="text-xs text-gray-500">2026.03.08</span>
-                    </div>
-                  </div>
-                </a>
+                )}
               </div>
             </div>
             
@@ -3692,24 +3727,24 @@ app.get('/', (c) => {
                     <span>최근 후기</span>
                   </h4>
                   <div class="space-y-3">
-                    <div class="text-sm">
-                      <div class="flex items-center justify-between mb-1">
-                        <span class="font-semibold text-gray-900">김**님</span>
-                        <span class="text-yellow-500">⭐⭐⭐⭐⭐</span>
-                      </div>
-                      <p class="text-gray-600 text-xs line-clamp-2">
-                        친절하고 깨끗한 시설이에요. 부모님께서 만족하십니다.
-                      </p>
-                    </div>
-                    <div class="text-sm">
-                      <div class="flex items-center justify-between mb-1">
-                        <span class="font-semibold text-gray-900">이**님</span>
-                        <span class="text-yellow-500">⭐⭐⭐⭐⭐</span>
-                      </div>
-                      <p class="text-gray-600 text-xs line-clamp-2">
-                        케어조아 덕분에 좋은 시설을 찾았습니다. 감사합니다!
-                      </p>
-                    </div>
+                    {latestReviews.length > 0 ? (
+                      latestReviews.map((review: any) => {
+                        const stars = '⭐'.repeat(review.rating)
+                        return (
+                          <div class="text-sm">
+                            <div class="flex items-center justify-between mb-1">
+                              <span class="font-semibold text-gray-900">{review.author_name}</span>
+                              <span class="text-yellow-500">{stars}</span>
+                            </div>
+                            <p class="text-gray-600 text-xs line-clamp-2">
+                              {review.content}
+                            </p>
+                          </div>
+                        )
+                      })
+                    ) : (
+                      <p class="text-xs text-gray-500 text-center py-2">첫 후기를 작성해주세요!</p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -21562,6 +21597,226 @@ app.get('/api/review/event-status/:userId', async (c) => {
     })
   } catch (error) {
     return c.json({ success: false, message: '이벤트 상태 조회 실패', error: String(error) }, 500)
+  }
+})
+
+// ========== 소식/후기 시스템 API ==========
+
+// 1. 소식 목록 조회 API (메인 페이지용 - 최신 3개)
+app.get('/api/news/latest', async (c) => {
+  try {
+    const db = c.env.DB
+    if (!db) {
+      return c.json({ success: false, message: 'Database not available' }, 500)
+    }
+    
+    const news = await db.prepare(`
+      SELECT id, title, preview, category, view_count, published_at, created_at
+      FROM news
+      WHERE status = 'published'
+      ORDER BY published_at DESC
+      LIMIT 3
+    `).all()
+    
+    return c.json({
+      success: true,
+      news: news.results || []
+    })
+  } catch (error) {
+    console.error('News fetch error:', error)
+    return c.json({ success: false, message: '소식 조회 실패', error: String(error) }, 500)
+  }
+})
+
+// 2. 소식 전체 목록 조회 API
+app.get('/api/news', async (c) => {
+  try {
+    const db = c.env.DB
+    if (!db) {
+      return c.json({ success: false, message: 'Database not available' }, 500)
+    }
+    
+    const page = parseInt(c.req.query('page') || '1')
+    const limit = parseInt(c.req.query('limit') || '10')
+    const category = c.req.query('category')
+    const offset = (page - 1) * limit
+    
+    let query = `
+      SELECT id, title, preview, category, view_count, published_at, created_at
+      FROM news
+      WHERE status = 'published'
+    `
+    const params: any[] = []
+    
+    if (category) {
+      query += ` AND category = ?`
+      params.push(category)
+    }
+    
+    query += ` ORDER BY published_at DESC LIMIT ? OFFSET ?`
+    params.push(limit, offset)
+    
+    const news = await db.prepare(query).bind(...params).all()
+    
+    // 총 개수 조회
+    let countQuery = `SELECT COUNT(*) as total FROM news WHERE status = 'published'`
+    const countParams: any[] = []
+    if (category) {
+      countQuery += ` AND category = ?`
+      countParams.push(category)
+    }
+    
+    const countResult = await db.prepare(countQuery).bind(...countParams).first()
+    
+    return c.json({
+      success: true,
+      news: news.results || [],
+      pagination: {
+        page,
+        limit,
+        total: countResult?.total || 0,
+        totalPages: Math.ceil((countResult?.total || 0) / limit)
+      }
+    })
+  } catch (error) {
+    console.error('News list error:', error)
+    return c.json({ success: false, message: '소식 목록 조회 실패', error: String(error) }, 500)
+  }
+})
+
+// 3. 소식 상세 조회 API
+app.get('/api/news/:id', async (c) => {
+  try {
+    const db = c.env.DB
+    if (!db) {
+      return c.json({ success: false, message: 'Database not available' }, 500)
+    }
+    
+    const id = c.req.param('id')
+    
+    // 조회수 증가
+    await db.prepare(`
+      UPDATE news SET view_count = view_count + 1 WHERE id = ?
+    `).bind(id).run()
+    
+    // 소식 조회
+    const news = await db.prepare(`
+      SELECT * FROM news WHERE id = ? AND status = 'published'
+    `).bind(id).first()
+    
+    if (!news) {
+      return c.json({ success: false, message: '소식을 찾을 수 없습니다' }, 404)
+    }
+    
+    return c.json({
+      success: true,
+      news
+    })
+  } catch (error) {
+    console.error('News detail error:', error)
+    return c.json({ success: false, message: '소식 조회 실패', error: String(error) }, 500)
+  }
+})
+
+// 4. 후기 목록 조회 API (메인 페이지용 - 최신 2개)
+app.get('/api/reviews/latest', async (c) => {
+  try {
+    const db = c.env.DB
+    if (!db) {
+      return c.json({ success: false, message: 'Database not available' }, 500)
+    }
+    
+    const reviews = await db.prepare(`
+      SELECT id, facility_name, author_name, rating, content, helpful_count, created_at
+      FROM user_reviews
+      WHERE status = 'approved'
+      ORDER BY created_at DESC
+      LIMIT 2
+    `).all()
+    
+    return c.json({
+      success: true,
+      reviews: reviews.results || []
+    })
+  } catch (error) {
+    console.error('Reviews fetch error:', error)
+    return c.json({ success: false, message: '후기 조회 실패', error: String(error) }, 500)
+  }
+})
+
+// 5. 후기 전체 목록 조회 API
+app.get('/api/reviews', async (c) => {
+  try {
+    const db = c.env.DB
+    if (!db) {
+      return c.json({ success: false, message: 'Database not available' }, 500)
+    }
+    
+    const page = parseInt(c.req.query('page') || '1')
+    const limit = parseInt(c.req.query('limit') || '10')
+    const offset = (page - 1) * limit
+    
+    const reviews = await db.prepare(`
+      SELECT id, facility_name, author_name, rating, content, helpful_count, created_at
+      FROM user_reviews
+      WHERE status = 'approved'
+      ORDER BY created_at DESC
+      LIMIT ? OFFSET ?
+    `).bind(limit, offset).all()
+    
+    const countResult = await db.prepare(`
+      SELECT COUNT(*) as total FROM user_reviews WHERE status = 'approved'
+    `).first()
+    
+    return c.json({
+      success: true,
+      reviews: reviews.results || [],
+      pagination: {
+        page,
+        limit,
+        total: countResult?.total || 0,
+        totalPages: Math.ceil((countResult?.total || 0) / limit)
+      }
+    })
+  } catch (error) {
+    console.error('Reviews list error:', error)
+    return c.json({ success: false, message: '후기 목록 조회 실패', error: String(error) }, 500)
+  }
+})
+
+// 6. 후기 작성 API
+app.post('/api/reviews/create', async (c) => {
+  try {
+    const db = c.env.DB
+    if (!db) {
+      return c.json({ success: false, message: 'Database not available' }, 500)
+    }
+    
+    const { facility_name, author_name, rating, content } = await c.req.json()
+    
+    // 입력 검증
+    if (!facility_name || !rating || !content) {
+      return c.json({ success: false, message: '필수 항목을 입력해주세요' }, 400)
+    }
+    
+    if (rating < 1 || rating > 5) {
+      return c.json({ success: false, message: '평점은 1-5 사이여야 합니다' }, 400)
+    }
+    
+    // 후기 저장
+    const result = await db.prepare(`
+      INSERT INTO user_reviews (facility_name, author_name, rating, content, status, created_at)
+      VALUES (?, ?, ?, ?, 'approved', datetime('now'))
+    `).bind(facility_name, author_name || '익명', rating, content).run()
+    
+    return c.json({
+      success: true,
+      message: '후기가 등록되었습니다',
+      reviewId: result.meta.last_row_id
+    })
+  } catch (error) {
+    console.error('Review create error:', error)
+    return c.json({ success: false, message: '후기 등록 실패', error: String(error) }, 500)
   }
 })
 
