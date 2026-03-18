@@ -3455,7 +3455,7 @@ app.get('/', (c) => {
             {/* 왼쪽: 여성 모델 이미지 */}
             <div class="flex justify-center lg:justify-start">
               <img 
-                src="https://www.genspark.ai/api/files/s/ygZBv4AR" 
+                src="/static/hero-nurse-final.jpg" 
                 alt="케어조아 전문 상담사"
                 class="w-full max-w-lg h-auto object-contain drop-shadow-2xl"
                 loading="eager"

@@ -4,7 +4,6 @@
   "compatibility_date": "2025-10-03",
   "pages_build_output_dir": "./dist",
   "compatibility_flags": ["nodejs_compat"],
-  "account_id": "cc288af45c58f325e3db84d4265f8ccb",
   
   "d1_databases": [
     {
