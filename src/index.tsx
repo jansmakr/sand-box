@@ -3445,107 +3445,111 @@ app.get('/', (c) => {
             }
           });
         `
-      }} />
-      
-      {/* 히어로 섹션 - 간호사 모델 + 텍스트 */}
-      <section class="relative bg-gradient-to-r from-blue-900 via-blue-800 to-teal-700 overflow-hidden">
-        {/* 상단 그라데이션 라인 */}
-        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-teal-400 via-green-400 to-blue-500"></div>
-        
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 md:py-16 lg:py-20">
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-            
-            {/* 왼쪽: 간호사 이미지 */}
-            <div class="flex justify-center lg:justify-start">
-              <div class="relative">
-                <img 
-                  src="https://www.genspark.ai/api/files/s/vQoS1dHM" 
-                  alt="케어조아 전문 상담사"
-                  class="w-full max-w-md h-auto object-contain drop-shadow-2xl"
-                  loading="eager"
-                />
+      }} /><section class="relative bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-t from-teal-500/10 to-transparent"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 md:py-16 lg:py-20 relative z-10">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 items-center">
+            {/* 모바일: 이미지를 작게 왼쪽에 표시 */}
+            <div class="flex lg:hidden items-center gap-4">
+              <img 
+                src="/static/hero-nurse.jpg" 
+                alt="케어조아 전문 상담사"
+                class="w-24 h-24 sm:w-32 sm:h-32 object-cover rounded-full border-4 border-white/20 shadow-2xl"
+                loading="eager"
+              />
+              <div class="flex-1">
+                <h1 class="text-lg sm:text-xl font-bold text-white leading-tight">
+                  최적의 요양시설 찾기,<br />
+                  케어조아와<br />
+                  함께하세요
+                </h1>
               </div>
             </div>
 
-            {/* 오른쪽: 텍스트 + 배지 */}
-            <div class="text-center lg:text-left space-y-6">
-              {/* 메인 타이틀 */}
-              <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
+            {/* 데스크톱: 왼쪽 이미지, 오른쪽 텍스트 */}
+            <div class="hidden lg:block">
+              <img 
+                src="/static/hero-nurse.jpg" 
+                alt="케어조아 전문 상담사"
+                class="w-full max-w-md h-auto object-contain drop-shadow-2xl"
+                loading="eager"
+              />
+            </div>
+
+            <div class="space-y-4 text-center lg:text-left">
+              <h1 class="hidden lg:block text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white leading-tight">
                 최적의 요양시설 찾기,<br />
                 케어조아와<br />
                 함께하세요
               </h1>
-
-              {/* 특허 배지 */}
-              <div class="flex justify-center lg:justify-start">
-                <div class="bg-gradient-to-r from-orange-500 to-orange-600 rounded-full px-6 py-3 flex items-center gap-3 shadow-2xl border-4 border-orange-400 transform hover:scale-105 transition-transform duration-300">
-                  <i class="fas fa-award text-white text-xl"></i>
-                  <span class="text-white text-base sm:text-lg font-bold">특허 기반 AI 매칭 시스템</span>
+              <div class="flex items-center justify-center lg:justify-start gap-2 pt-2">
+                <div class="bg-gradient-to-r from-orange-500 to-orange-600 rounded-full px-4 py-2 flex items-center gap-2 shadow-xl border-2 border-orange-400">
+                  <i class="fas fa-award text-white text-base"></i>
+                  <span class="text-white text-sm sm:text-base font-bold">특허 기반 AI 매칭 시스템</span>
                 </div>
               </div>
             </div>
-
           </div>
         </div>
       </section>
 
       {/* 메인 액션 버튼 - 히어로 바로 아래 */}
-      <section class="py-8 sm:py-10 md:py-12 bg-gradient-to-b from-white to-gray-50">
+      <section class="py-12 sm:py-14 md:py-16 bg-gradient-to-b from-white to-gray-50">
         <div class="max-w-6xl mx-auto px-4 sm:px-6">
           {/* 4개 핵심 버튼 - 첫 번째 이미지 스타일 */}
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-6" id="main-action-buttons">
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-8" id="main-action-buttons">
                 {/* 1. 간편검색 (파란색) */}
                 <a href="/quote-simple"
-                   class="group relative flex flex-col items-center justify-center bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600 hover:from-blue-500 hover:via-blue-600 hover:to-blue-700 py-6 sm:py-8 md:py-12 px-3 sm:px-4 md:px-6 rounded-2xl sm:rounded-3xl shadow-[0_4px_20px_rgb(59,130,246,0.4)] hover:shadow-[0_8px_30px_rgb(59,130,246,0.6)] transition-all duration-300 transform hover:-translate-y-2 hover:scale-105 min-h-[140px] sm:min-h-[160px] md:min-h-[220px] border-2 sm:border-3 md:border-4 border-blue-300/50">
-                  <div class="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent rounded-2xl sm:rounded-3xl"></div>
-                  <div class="relative z-10 mb-2 sm:mb-3 md:mb-5 transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
-                    <div class="w-14 h-14 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-white/20 rounded-xl sm:rounded-2xl flex items-center justify-center backdrop-blur-sm">
-                      <i class="fas fa-calculator text-3xl sm:text-4xl md:text-6xl text-white drop-shadow-2xl"></i>
+                   class="group relative flex flex-col items-center justify-center bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600 hover:from-blue-500 hover:via-blue-600 hover:to-blue-700 py-10 sm:py-12 md:py-14 px-4 sm:px-6 rounded-3xl shadow-[0_8px_30px_rgb(59,130,246,0.5)] hover:shadow-[0_12px_40px_rgb(59,130,246,0.7)] transition-all duration-300 transform hover:-translate-y-3 hover:scale-105 min-h-[200px] sm:min-h-[220px] md:min-h-[240px] border-4 border-blue-300/50">
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent rounded-3xl"></div>
+                  <div class="relative z-10 mb-4 sm:mb-5 transform group-hover:scale-125 group-hover:rotate-12 transition-all duration-300">
+                    <div class="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
+                      <i class="fas fa-calculator text-5xl sm:text-6xl md:text-7xl text-white drop-shadow-2xl"></i>
                     </div>
                   </div>
-                  <h3 class="relative z-10 font-black text-white text-base sm:text-xl md:text-2xl text-center mb-1 drop-shadow-lg tracking-tight">간편검색</h3>
-                  <p class="relative z-10 text-blue-50 text-xs sm:text-sm text-center font-medium">빠른 매칭 확인</p>
+                  <h3 class="relative z-10 font-black text-white text-xl sm:text-2xl md:text-3xl text-center mb-2 drop-shadow-lg tracking-tight">간편검색</h3>
+                  <p class="relative z-10 text-blue-50 text-sm sm:text-base text-center font-medium">빠른 매칭 확인</p>
                 </a>
 
                 {/* 2. 상세검색 (초록색) */}
                 <a href="/quote-request"
-                   class="group relative flex flex-col items-center justify-center bg-gradient-to-br from-green-400 via-green-500 to-green-600 hover:from-green-500 hover:via-green-600 hover:to-green-700 py-6 sm:py-8 md:py-12 px-3 sm:px-4 md:px-6 rounded-2xl sm:rounded-3xl shadow-[0_4px_20px_rgb(34,197,94,0.4)] hover:shadow-[0_8px_30px_rgb(34,197,94,0.6)] transition-all duration-300 transform hover:-translate-y-2 hover:scale-105 min-h-[140px] sm:min-h-[160px] md:min-h-[220px] border-2 sm:border-3 md:border-4 border-green-300/50">
-                  <div class="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent rounded-2xl sm:rounded-3xl"></div>
-                  <div class="relative z-10 mb-2 sm:mb-3 md:mb-5 transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
-                    <div class="w-14 h-14 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-white/20 rounded-xl sm:rounded-2xl flex items-center justify-center backdrop-blur-sm">
-                      <i class="fas fa-file-alt text-3xl sm:text-4xl md:text-6xl text-white drop-shadow-2xl"></i>
+                   class="group relative flex flex-col items-center justify-center bg-gradient-to-br from-green-400 via-green-500 to-green-600 hover:from-green-500 hover:via-green-600 hover:to-green-700 py-10 sm:py-12 md:py-14 px-4 sm:px-6 rounded-3xl shadow-[0_8px_30px_rgb(34,197,94,0.5)] hover:shadow-[0_12px_40px_rgb(34,197,94,0.7)] transition-all duration-300 transform hover:-translate-y-3 hover:scale-105 min-h-[200px] sm:min-h-[220px] md:min-h-[240px] border-4 border-green-300/50">
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent rounded-3xl"></div>
+                  <div class="relative z-10 mb-4 sm:mb-5 transform group-hover:scale-125 group-hover:rotate-12 transition-all duration-300">
+                    <div class="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
+                      <i class="fas fa-file-alt text-5xl sm:text-6xl md:text-7xl text-white drop-shadow-2xl"></i>
                     </div>
                   </div>
-                  <h3 class="relative z-10 font-black text-white text-base sm:text-xl md:text-2xl text-center mb-1 drop-shadow-lg tracking-tight">상세검색</h3>
-                  <p class="relative z-10 text-green-50 text-xs sm:text-sm text-center font-medium">맞춤형 요양시설 추천</p>
+                  <h3 class="relative z-10 font-black text-white text-xl sm:text-2xl md:text-3xl text-center mb-2 drop-shadow-lg tracking-tight">상세검색</h3>
+                  <p class="relative z-10 text-green-50 text-sm sm:text-base text-center font-medium">맞춤형 요양시설 추천</p>
                 </a>
 
                 {/* 3. 생생후기 (노란색) */}
                 <a href="/call-consultation"
-                   class="group relative flex flex-col items-center justify-center bg-gradient-to-br from-yellow-400 via-yellow-500 to-orange-500 hover:from-yellow-500 hover:via-yellow-600 hover:to-orange-600 py-6 sm:py-8 md:py-12 px-3 sm:px-4 md:px-6 rounded-2xl sm:rounded-3xl shadow-[0_4px_20px_rgb(234,179,8,0.4)] hover:shadow-[0_8px_30px_rgb(234,179,8,0.6)] transition-all duration-300 transform hover:-translate-y-2 hover:scale-105 min-h-[140px] sm:min-h-[160px] md:min-h-[220px] border-2 sm:border-3 md:border-4 border-yellow-300/50">
-                  <span class="absolute top-2 right-2 bg-red-500 text-white text-[10px] sm:text-xs font-bold px-2 py-1 rounded-full shadow-lg z-20 animate-pulse">인기</span>
-                  <div class="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent rounded-2xl sm:rounded-3xl"></div>
-                  <div class="relative z-10 mb-2 sm:mb-3 md:mb-5 transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
-                    <div class="w-14 h-14 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-white/20 rounded-xl sm:rounded-2xl flex items-center justify-center backdrop-blur-sm">
-                      <i class="fas fa-phone-alt text-3xl sm:text-4xl md:text-6xl text-white drop-shadow-2xl"></i>
+                   class="group relative flex flex-col items-center justify-center bg-gradient-to-br from-yellow-400 via-yellow-500 to-orange-500 hover:from-yellow-500 hover:via-yellow-600 hover:to-orange-600 py-10 sm:py-12 md:py-14 px-4 sm:px-6 rounded-3xl shadow-[0_8px_30px_rgb(234,179,8,0.5)] hover:shadow-[0_12px_40px_rgb(234,179,8,0.7)] transition-all duration-300 transform hover:-translate-y-3 hover:scale-105 min-h-[200px] sm:min-h-[220px] md:min-h-[240px] border-4 border-yellow-300/50">
+                  <span class="absolute top-3 right-3 bg-red-500 text-white text-xs sm:text-sm font-bold px-3 py-1.5 rounded-full shadow-lg z-20 animate-pulse">인기</span>
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent rounded-3xl"></div>
+                  <div class="relative z-10 mb-4 sm:mb-5 transform group-hover:scale-125 group-hover:rotate-12 transition-all duration-300">
+                    <div class="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
+                      <i class="fas fa-phone-alt text-5xl sm:text-6xl md:text-7xl text-white drop-shadow-2xl"></i>
                     </div>
                   </div>
-                  <h3 class="relative z-10 font-black text-white text-base sm:text-xl md:text-2xl text-center mb-1 drop-shadow-lg tracking-tight">전화상담</h3>
-                  <p class="relative z-10 text-yellow-50 text-xs sm:text-sm text-center font-medium">지역별 대표시설</p>
+                  <h3 class="relative z-10 font-black text-white text-xl sm:text-2xl md:text-3xl text-center mb-2 drop-shadow-lg tracking-tight">전화상담</h3>
+                  <p class="relative z-10 text-yellow-50 text-sm sm:text-base text-center font-medium">지역별 대표시설</p>
                 </a>
 
                 {/* 4. 전문상담 (분홍/보라색) */}
                 <a href="/ai-matching"
-                   class="group relative flex flex-col items-center justify-center bg-gradient-to-br from-pink-400 via-pink-500 to-purple-600 hover:from-pink-500 hover:via-pink-600 hover:to-purple-700 py-6 sm:py-8 md:py-12 px-3 sm:px-4 md:px-6 rounded-2xl sm:rounded-3xl shadow-[0_4px_20px_rgb(236,72,153,0.4)] hover:shadow-[0_8px_30px_rgb(236,72,153,0.6)] transition-all duration-300 transform hover:-translate-y-2 hover:scale-105 min-h-[140px] sm:min-h-[160px] md:min-h-[220px] border-2 sm:border-3 md:border-4 border-pink-300/50">
-                  <span class="absolute top-2 right-2 bg-yellow-400 text-gray-900 text-[10px] sm:text-xs font-bold px-2 py-1 rounded-full shadow-lg z-20">NEW</span>
-                  <div class="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent rounded-2xl sm:rounded-3xl"></div>
-                  <div class="relative z-10 mb-2 sm:mb-3 md:mb-5 transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
-                    <div class="w-14 h-14 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-white/20 rounded-xl sm:rounded-2xl flex items-center justify-center backdrop-blur-sm">
-                      <i class="fas fa-robot text-3xl sm:text-4xl md:text-6xl text-white drop-shadow-2xl"></i>
+                   class="group relative flex flex-col items-center justify-center bg-gradient-to-br from-pink-400 via-pink-500 to-purple-600 hover:from-pink-500 hover:via-pink-600 hover:to-purple-700 py-10 sm:py-12 md:py-14 px-4 sm:px-6 rounded-3xl shadow-[0_8px_30px_rgb(236,72,153,0.5)] hover:shadow-[0_12px_40px_rgb(236,72,153,0.7)] transition-all duration-300 transform hover:-translate-y-3 hover:scale-105 min-h-[200px] sm:min-h-[220px] md:min-h-[240px] border-4 border-pink-300/50">
+                  <span class="absolute top-3 right-3 bg-yellow-400 text-gray-900 text-xs sm:text-sm font-bold px-3 py-1.5 rounded-full shadow-lg z-20">NEW</span>
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent rounded-3xl"></div>
+                  <div class="relative z-10 mb-4 sm:mb-5 transform group-hover:scale-125 group-hover:rotate-12 transition-all duration-300">
+                    <div class="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
+                      <i class="fas fa-robot text-5xl sm:text-6xl md:text-7xl text-white drop-shadow-2xl"></i>
                     </div>
                   </div>
-                  <h3 class="relative z-10 font-black text-white text-base sm:text-xl md:text-2xl text-center mb-1 drop-shadow-lg tracking-tight">AI매칭</h3>
-                  <p class="relative z-10 text-pink-50 text-xs sm:text-sm text-center font-medium">특허 알고리즘</p>
+                  <h3 class="relative z-10 font-black text-white text-xl sm:text-2xl md:text-3xl text-center mb-2 drop-shadow-lg tracking-tight">AI매칭</h3>
+                  <p class="relative z-10 text-pink-50 text-sm sm:text-base text-center font-medium">특허 알고리즘</p>
                 </a>
 
 
@@ -3579,6 +3583,184 @@ app.get('/', (c) => {
               </div>
             </div>
           </section>
+
+      {/* 요양시설 소식 & 후기 작성 섹션 */}
+      <section class="py-12 sm:py-16 bg-white">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            
+            {/* 요양시설 소식 */}
+            <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6 sm:p-8 shadow-lg">
+              <div class="flex items-center justify-between mb-6">
+                <h3 class="text-2xl sm:text-3xl font-bold text-gray-900 flex items-center gap-3">
+                  <i class="fas fa-newspaper text-blue-600"></i>
+                  <span>요양시설 소식</span>
+                </h3>
+                <a href="/news" class="text-blue-600 hover:text-blue-700 font-semibold text-sm flex items-center gap-1 transition-colors">
+                  <span>더보기</span>
+                  <i class="fas fa-chevron-right text-xs"></i>
+                </a>
+              </div>
+              
+              {/* 소식 목록 */}
+              <div class="space-y-4">
+                <a href="/news/1" class="block bg-white rounded-xl p-4 hover:shadow-md transition-shadow group">
+                  <div class="flex items-start gap-3">
+                    <div class="flex-shrink-0 w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <i class="fas fa-bullhorn text-blue-600 text-xl"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <h4 class="font-bold text-gray-900 mb-1 group-hover:text-blue-600 transition-colors line-clamp-1">
+                        2026년 요양시설 지원금 확대 시행
+                      </h4>
+                      <p class="text-sm text-gray-600 line-clamp-2 mb-2">
+                        정부에서 요양시설 이용자를 위한 지원금이 대폭 확대됩니다. 자세한 내용을 확인하세요.
+                      </p>
+                      <span class="text-xs text-gray-500">2026.03.12</span>
+                    </div>
+                  </div>
+                </a>
+                
+                <a href="/news/2" class="block bg-white rounded-xl p-4 hover:shadow-md transition-shadow group">
+                  <div class="flex items-start gap-3">
+                    <div class="flex-shrink-0 w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                      <i class="fas fa-hospital text-green-600 text-xl"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <h4 class="font-bold text-gray-900 mb-1 group-hover:text-blue-600 transition-colors line-clamp-1">
+                        강남구 신규 프리미엄 요양시설 개원
+                      </h4>
+                      <p class="text-sm text-gray-600 line-clamp-2 mb-2">
+                        최신 시설과 의료 시스템을 갖춘 프리미엄 요양시설이 강남구에 새롭게 문을 엽니다.
+                      </p>
+                      <span class="text-xs text-gray-500">2026.03.10</span>
+                    </div>
+                  </div>
+                </a>
+                
+                <a href="/news/3" class="block bg-white rounded-xl p-4 hover:shadow-md transition-shadow group">
+                  <div class="flex items-start gap-3">
+                    <div class="flex-shrink-0 w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                      <i class="fas fa-star text-purple-600 text-xl"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <h4 class="font-bold text-gray-900 mb-1 group-hover:text-blue-600 transition-colors line-clamp-1">
+                        케어조아 이용자 만족도 98% 달성
+                      </h4>
+                      <p class="text-sm text-gray-600 line-clamp-2 mb-2">
+                        케어조아를 통해 시설을 찾으신 분들의 만족도가 98%를 기록했습니다.
+                      </p>
+                      <span class="text-xs text-gray-500">2026.03.08</span>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            </div>
+            
+            {/* 후기 작성 */}
+            <div class="bg-gradient-to-br from-teal-50 to-teal-100 rounded-2xl p-6 sm:p-8 shadow-lg">
+              <div class="flex items-center justify-between mb-6">
+                <h3 class="text-2xl sm:text-3xl font-bold text-gray-900 flex items-center gap-3">
+                  <i class="fas fa-pen-fancy text-teal-600"></i>
+                  <span>후기 작성</span>
+                </h3>
+                <a href="/reviews" class="text-teal-600 hover:text-teal-700 font-semibold text-sm flex items-center gap-1 transition-colors">
+                  <span>전체보기</span>
+                  <i class="fas fa-chevron-right text-xs"></i>
+                </a>
+              </div>
+              
+              {/* 후기 작성 폼 */}
+              <div class="bg-white rounded-xl p-6 shadow-sm">
+                <div class="mb-4">
+                  <p class="text-gray-700 mb-4">
+                    <i class="fas fa-heart text-red-500 mr-2"></i>
+                    소중한 경험을 공유해주세요. 다른 가족분들에게 큰 도움이 됩니다.
+                  </p>
+                </div>
+                
+                <form action="/reviews/create" method="GET" class="space-y-4">
+                  <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                      <i class="fas fa-building mr-1"></i>
+                      시설 이름
+                    </label>
+                    <input 
+                      type="text" 
+                      name="facility_name"
+                      placeholder="이용하신 요양시설 이름을 입력하세요"
+                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                      <i class="fas fa-star mr-1"></i>
+                      만족도
+                    </label>
+                    <div class="flex gap-2">
+                      <button type="button" class="flex-1 py-2 px-3 bg-gray-100 hover:bg-yellow-100 rounded-lg transition-colors text-sm font-medium">
+                        ⭐ 1점
+                      </button>
+                      <button type="button" class="flex-1 py-2 px-3 bg-gray-100 hover:bg-yellow-100 rounded-lg transition-colors text-sm font-medium">
+                        ⭐⭐ 2점
+                      </button>
+                      <button type="button" class="flex-1 py-2 px-3 bg-gray-100 hover:bg-yellow-100 rounded-lg transition-colors text-sm font-medium">
+                        ⭐⭐⭐ 3점
+                      </button>
+                    </div>
+                    <div class="flex gap-2 mt-2">
+                      <button type="button" class="flex-1 py-2 px-3 bg-gray-100 hover:bg-yellow-100 rounded-lg transition-colors text-sm font-medium">
+                        ⭐⭐⭐⭐ 4점
+                      </button>
+                      <button type="button" class="flex-1 py-2 px-3 bg-yellow-100 hover:bg-yellow-200 rounded-lg transition-colors text-sm font-medium border-2 border-yellow-400">
+                        ⭐⭐⭐⭐⭐ 5점
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <button 
+                    type="submit"
+                    class="w-full bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+                  >
+                    <i class="fas fa-edit"></i>
+                    <span>후기 작성하기</span>
+                  </button>
+                </form>
+                
+                {/* 최근 후기 미리보기 */}
+                <div class="mt-6 pt-6 border-t border-gray-200">
+                  <h4 class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                    <i class="fas fa-comments text-teal-600"></i>
+                    <span>최근 후기</span>
+                  </h4>
+                  <div class="space-y-3">
+                    <div class="text-sm">
+                      <div class="flex items-center justify-between mb-1">
+                        <span class="font-semibold text-gray-900">김**님</span>
+                        <span class="text-yellow-500">⭐⭐⭐⭐⭐</span>
+                      </div>
+                      <p class="text-gray-600 text-xs line-clamp-2">
+                        친절하고 깨끗한 시설이에요. 부모님께서 만족하십니다.
+                      </p>
+                    </div>
+                    <div class="text-sm">
+                      <div class="flex items-center justify-between mb-1">
+                        <span class="font-semibold text-gray-900">이**님</span>
+                        <span class="text-yellow-500">⭐⭐⭐⭐⭐</span>
+                      </div>
+                      <p class="text-gray-600 text-xs line-clamp-2">
+                        케어조아 덕분에 좋은 시설을 찾았습니다. 감사합니다!
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+          </div>
+        </div>
+      </section>
 
       {/* 모바일 하단 고정 네비게이션 - 최적화 */}
       <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-2 py-2 z-50 md:hidden shadow-lg">
@@ -3922,17 +4104,8 @@ app.get('/', (c) => {
                 <p class="text-center text-xs text-gray-600 mb-2">관리자 전용</p>
                 <form id="admin-quick-login" class="space-y-2">
                   <input 
-                    type="text" 
-                    name="username" 
-                    value="admin"
-                    autocomplete="username"
-                    style="display:none"
-                    aria-hidden="true"
-                  />
-                  <input 
                     type="password" 
                     id="admin-password" 
-                    name="password"
                     placeholder="비밀번호 입력"
                     autocomplete="current-password"
                     class="w-full px-3 py-2 text-sm bg-gray-800 border border-gray-700 text-gray-300 rounded focus:outline-none focus:border-gray-600 placeholder-gray-600"
