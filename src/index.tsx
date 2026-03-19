@@ -3479,7 +3479,7 @@ app.get('/', (c) => {
 
               {/* 4개 실제 작동 버튼 */}
               <div class="grid grid-cols-2 gap-4">
-                {/* 1. 간편검색 (파란색) */}
+                {/* 1. 간편상담 (파란색) */}
                 <a href="/quote-simple" 
                    class="group relative bg-gradient-to-br from-blue-400 to-blue-600 hover:from-blue-500 hover:to-blue-700 rounded-3xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 hover:scale-105">
                   <div class="absolute inset-0 bg-gradient-to-br from-blue-300/50 to-transparent rounded-3xl opacity-50"></div>
@@ -3487,12 +3487,12 @@ app.get('/', (c) => {
                     <div class="w-16 h-16 sm:w-20 sm:h-20 bg-white/30 rounded-2xl flex items-center justify-center mx-auto mb-3 backdrop-blur-sm shadow-inner">
                       <i class="fas fa-calculator text-3xl sm:text-4xl text-white drop-shadow-lg"></i>
                     </div>
-                    <h3 class="text-lg sm:text-xl font-bold text-white mb-1">간편검색</h3>
+                    <h3 class="text-lg sm:text-xl font-bold text-white mb-1">간편상담</h3>
                     <p class="text-sm text-blue-50">빠른 매칭 확인</p>
                   </div>
                 </a>
 
-                {/* 2. 상세검색 (초록색) */}
+                {/* 2. 상세상담 (초록색) */}
                 <a href="/quote-request" 
                    class="group relative bg-gradient-to-br from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 rounded-3xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 hover:scale-105">
                   <div class="absolute inset-0 bg-gradient-to-br from-green-300/50 to-transparent rounded-3xl opacity-50"></div>
@@ -3500,7 +3500,7 @@ app.get('/', (c) => {
                     <div class="w-16 h-16 sm:w-20 sm:h-20 bg-white/30 rounded-2xl flex items-center justify-center mx-auto mb-3 backdrop-blur-sm shadow-inner">
                       <i class="fas fa-file-alt text-3xl sm:text-4xl text-white drop-shadow-lg"></i>
                     </div>
-                    <h3 class="text-lg sm:text-xl font-bold text-white mb-1">상세검색</h3>
+                    <h3 class="text-lg sm:text-xl font-bold text-white mb-1">상세상담</h3>
                     <p class="text-sm text-green-50">맞춤형 요양시설 추천</p>
                   </div>
                 </a>
@@ -10203,7 +10203,7 @@ app.get('/quote-request', (c) => {
       <div class="max-w-4xl mx-auto px-4 py-12"><div class="text-center mb-8">
           <h2 class="text-5xl font-extrabold text-gray-900 mb-4">
             <i class="fas fa-file-invoice text-teal-600 mr-3"></i>
-            상세 견적 신청
+            상세상담
           </h2>
           <p class="text-xl text-gray-600">
             시설 유형과 지역을 선택하면 해당 시설에 자동으로 견적 요청이 전송됩니다
