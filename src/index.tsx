@@ -3690,7 +3690,45 @@ app.get('/', (c) => {
             </div>
           </div>
         </div>
-      </section><section id="partner-section" class="py-20 bg-gradient-to-br from-teal-50 to-emerald-50">
+      </section>
+
+      {/* ========== YouTube 채널 섹션 ========== */}
+      <section id="youtube-section" class="py-16 bg-white">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="text-center mb-10">
+            <h3 class="text-3xl font-bold text-gray-900 mb-4">
+              <i class="fab fa-youtube text-red-600 mr-3"></i>케어조아 YouTube
+            </h3>
+            <p class="text-lg text-gray-600">요양 정보와 시설 소개 영상을 만나보세요</p>
+          </div>
+          
+          {/* YouTube 플레이어 */}
+          <div class="relative w-full" style="padding-bottom: 56.25%;">
+            <iframe 
+              class="absolute top-0 left-0 w-full h-full rounded-xl shadow-2xl"
+              src="https://www.youtube.com/embed?listType=user_uploads&list=UCPI4w5LBKZ6P-5AFOadJXug"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowfullscreen
+              loading="lazy">
+            </iframe>
+          </div>
+          
+          {/* 채널 바로가기 버튼 */}
+          <div class="text-center mt-8">
+            <a 
+              href="https://www.youtube.com/channel/UCPI4w5LBKZ6P-5AFOadJXug" 
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center px-8 py-4 bg-red-600 text-white text-lg font-semibold rounded-full hover:bg-red-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+              <i class="fab fa-youtube mr-3 text-2xl"></i>
+              채널 구독하기
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section id="partner-section" class="py-20 bg-gradient-to-br from-teal-50 to-emerald-50">
         <div class="max-w-7xl mx-auto px-4">
           <div class="text-center mb-12">
             <h3 class="text-3xl font-bold text-gray-900 mb-4">
