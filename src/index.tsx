@@ -3704,14 +3704,14 @@ app.get('/', (c) => {
           
           {/* YouTube 썸네일 (클릭 시 영상 재생) */}
           <a 
-            href="https://youtu.be/TQ3ltapjGQA" 
+            href="https://youtu.be/OF8Av4efLpk" 
             target="_blank"
             rel="noopener noreferrer"
             class="block relative w-full group cursor-pointer overflow-hidden rounded-xl"
             style="padding-bottom: 56.25%;">
             {/* YouTube 공식 썸네일 (안정적) */}
             <img 
-              src="https://img.youtube.com/vi/TQ3ltapjGQA/maxresdefault.jpg"
+              src="https://img.youtube.com/vi/OF8Av4efLpk/maxresdefault.jpg"
               alt="케어조아 스토리 - YouTube 영상"
               class="absolute top-0 left-0 w-full h-full object-cover shadow-2xl group-hover:shadow-3xl transition-all duration-300 group-hover:scale-105"
               loading="lazy"
