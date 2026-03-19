@@ -1,0 +1,7 @@
+<svg width="1200" height="675" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="675" fill="#f0f9ff"/>
+  <text x="600" y="320" font-size="48" font-weight="bold" text-anchor="middle" fill="#1e40af">케어조아 스토리</text>
+  <text x="600" y="380" font-size="24" text-anchor="middle" fill="#64748b">가족의 행복을 함께 만들어갑니다</text>
+  <circle cx="600" cy="450" r="50" fill="#dc2626" opacity="0.9"/>
+  <path d="M 585 430 L 585 470 L 620 450 Z" fill="white"/>
+</svg>

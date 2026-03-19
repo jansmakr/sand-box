@@ -3709,7 +3709,7 @@ app.get('/', (c) => {
             rel="noopener noreferrer"
             class="block relative w-full group cursor-pointer overflow-hidden rounded-xl"
             style="padding-bottom: 56.25%;">
-            {/* YouTube 공식 썸네일 (안정적) */}
+            {/* YouTube 썸네일 */}
             <img 
               src="https://img.youtube.com/vi/OF8Av4efLpk/maxresdefault.jpg"
               alt="케어조아 스토리 - YouTube 영상"
