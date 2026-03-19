@@ -11414,7 +11414,7 @@ app.get('/quote-simple', (c) => {
       <div class="max-w-4xl mx-auto px-4 py-12"><div class="text-center mb-12">
           <h2 class="text-5xl font-extrabold text-gray-900 mb-4">
             <i class="fas fa-calculator text-green-600 mr-3"></i>
-            간편 견적
+            간편상담
           </h2>
           <p class="text-xl text-gray-600">
             간단한 정보 입력으로 예상 비용을 즉시 확인하세요
