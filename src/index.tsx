@@ -3706,12 +3706,21 @@ app.get('/', (c) => {
           <div class="relative w-full" style="padding-bottom: 56.25%;">
             <iframe 
               class="absolute top-0 left-0 w-full h-full rounded-xl shadow-2xl"
-              src="https://www.youtube.com/embed?listType=user_uploads&list=UCPI4w5LBKZ6P-5AFOadJXug"
+              src="https://www.youtube.com/embed/TQ3ltapjGQA?rel=0"
+              title="케어조아 YouTube"
               frameborder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowfullscreen
               loading="lazy">
             </iframe>
+          </div>
+          
+          {/* 더 많은 영상 보기 안내 */}
+          <div class="text-center mt-4">
+            <p class="text-sm text-gray-500">
+              <i class="fas fa-info-circle mr-1"></i>
+              더 많은 영상은 채널에서 확인하세요
+            </p>
           </div>
           
           {/* 채널 바로가기 버튼 */}
