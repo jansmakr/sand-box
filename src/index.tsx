@@ -3707,26 +3707,31 @@ app.get('/', (c) => {
             href="https://youtu.be/TQ3ltapjGQA" 
             target="_blank"
             rel="noopener noreferrer"
-            class="block relative w-full group cursor-pointer"
+            class="block relative w-full group cursor-pointer overflow-hidden rounded-xl"
             style="padding-bottom: 56.25%;">
+            {/* YouTube 공식 썸네일 (안정적) */}
             <img 
-              src="https://www.genspark.ai/api/files/s/rbQjzCJQ"
+              src="https://img.youtube.com/vi/TQ3ltapjGQA/maxresdefault.jpg"
               alt="케어조아 스토리 - YouTube 영상"
-              class="absolute top-0 left-0 w-full h-full object-cover rounded-xl shadow-2xl group-hover:shadow-3xl transition-all duration-300"
+              class="absolute top-0 left-0 w-full h-full object-cover shadow-2xl group-hover:shadow-3xl transition-all duration-300 group-hover:scale-105"
               loading="lazy"
             />
             {/* 재생 버튼 오버레이 */}
-            <div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 rounded-xl">
-              <div class="w-20 h-20 bg-red-600 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300">
-                <i class="fas fa-play text-white text-3xl ml-1"></i>
+            <div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300">
+              <div class="w-16 h-16 sm:w-20 sm:h-20 bg-red-600 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300">
+                <i class="fas fa-play text-white text-2xl sm:text-3xl ml-1"></i>
               </div>
+            </div>
+            {/* YouTube 로고 배지 */}
+            <div class="absolute top-3 right-3 sm:top-4 sm:right-4 bg-red-600 px-2 py-1 sm:px-3 sm:py-1 rounded text-white text-xs sm:text-sm font-bold shadow-lg">
+              <i class="fab fa-youtube mr-1"></i>YouTube
             </div>
           </a>
           
-          {/* 영상 설명 */}
-          <div class="text-center mt-4">
-            <p class="text-sm text-gray-600 font-medium">
-              <i class="fas fa-video mr-2 text-red-600"></i>
+          {/* 영상 설명 - 모바일 최적화 */}
+          <div class="text-center mt-4 px-4">
+            <p class="text-xs sm:text-sm text-gray-600 font-medium">
+              <i class="fas fa-video mr-1 sm:mr-2 text-red-600"></i>
               케어조아 스토리 - 가족의 행복을 함께 만들어갑니다
             </p>
           </div>
