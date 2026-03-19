@@ -3702,24 +3702,32 @@ app.get('/', (c) => {
             <p class="text-lg text-gray-600">요양 정보와 시설 소개 영상을 만나보세요</p>
           </div>
           
-          {/* YouTube 플레이어 */}
-          <div class="relative w-full" style="padding-bottom: 56.25%;">
-            <iframe 
-              class="absolute top-0 left-0 w-full h-full rounded-xl shadow-2xl"
-              src="https://www.youtube.com/embed/TQ3ltapjGQA?rel=0"
-              title="케어조아 YouTube"
-              frameborder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowfullscreen
-              loading="lazy">
-            </iframe>
-          </div>
+          {/* YouTube 썸네일 (클릭 시 영상 재생) */}
+          <a 
+            href="https://youtu.be/TQ3ltapjGQA" 
+            target="_blank"
+            rel="noopener noreferrer"
+            class="block relative w-full group cursor-pointer"
+            style="padding-bottom: 56.25%;">
+            <img 
+              src="https://www.genspark.ai/api/files/s/rbQjzCJQ"
+              alt="케어조아 스토리 - YouTube 영상"
+              class="absolute top-0 left-0 w-full h-full object-cover rounded-xl shadow-2xl group-hover:shadow-3xl transition-all duration-300"
+              loading="lazy"
+            />
+            {/* 재생 버튼 오버레이 */}
+            <div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 rounded-xl">
+              <div class="w-20 h-20 bg-red-600 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300">
+                <i class="fas fa-play text-white text-3xl ml-1"></i>
+              </div>
+            </div>
+          </a>
           
-          {/* 더 많은 영상 보기 안내 */}
+          {/* 영상 설명 */}
           <div class="text-center mt-4">
-            <p class="text-sm text-gray-500">
-              <i class="fas fa-info-circle mr-1"></i>
-              더 많은 영상은 채널에서 확인하세요
+            <p class="text-sm text-gray-600 font-medium">
+              <i class="fas fa-video mr-2 text-red-600"></i>
+              케어조아 스토리 - 가족의 행복을 함께 만들어갑니다
             </p>
           </div>
           
