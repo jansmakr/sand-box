@@ -10237,7 +10237,7 @@ app.get('/apply', (c) => {
   `)
 })
 
-app.get('/quote-request', (c) => {
+app.get('/quote-simple', (c) => {
   return c.render(
     <div class="min-h-screen bg-gradient-to-br from-teal-50 via-white to-blue-50"><header class="bg-white shadow-md border-b-2 border-teal-500">
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -11388,7 +11388,7 @@ function generateEnhancedMatchReasons(
 }
 
 // 상세견적 페이지 - 2단계 폼
-app.get('/quote-simple', (c) => {
+app.get('/quote-request', (c) => {
   return c.render(
     <div class="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
       <header class="bg-white shadow-md border-b-2 border-green-500">
