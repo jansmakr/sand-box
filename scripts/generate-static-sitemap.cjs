@@ -1,35 +1,67 @@
 /**
  * 정적 Sitemap 생성 스크립트 (빌드 시 실행)
- * Cloudflare D1 프로덕션 DB에서 시설 데이터를 가져와 정적 sitemap.xml 파일들을 생성합니다.
+ * public/static/facilities.json 파일에서 시설 데이터를 읽어 정적 sitemap.xml 파일들을 생성합니다.
  */
 
 const fs = require('fs');
 const path = require('path');
 
-// wrangler d1 명령으로 데이터 가져오기
-const { execSync } = require('child_process');
-
 async function generateStaticSitemap() {
   console.log('🚀 정적 Sitemap 생성 시작...\n');
   
   try {
-    // 1. 전체 시설 수 조회 (프로덕션 DB 사용)
-    console.log('📊 시설 개수 조회 중 (프로덕션 DB)...');
-    const countCmd = `npx wrangler d1 execute carejoa-production --command="SELECT COUNT(*) as count FROM facilities" --json`;
-    const countOutput = execSync(countCmd, { encoding: 'utf-8' });
+    // 1. 로컬 JSON 파일에서 시설 데이터 읽기
+    console.log('📊 시설 데이터 로드 중 (public/static/facilities.json)...');
+    const facilitiesPath = path.join(__dirname, '../public/static/facilities.json');
     
-    // JSON 파싱
-    let totalFacilities = 0;
-    try {
-      const countData = JSON.parse(countOutput);
-      totalFacilities = countData[0]?.results?.[0]?.count || 0;
-    } catch (e) {
-      console.error('❌ 시설 개수 파싱 실패:', e.message);
-      // 대체값으로 15396 사용
-      totalFacilities = 15396;
-      console.log(`⚠️  대체값 사용: ${totalFacilities.toLocaleString()}개`);
+    if (!fs.existsSync(facilitiesPath)) {
+      console.error('❌ facilities.json 파일을 찾을 수 없습니다!');
+      console.log('⚠️  빈 sitemap만 생성합니다.');
+      
+      // 빈 sitemap-main.xml만 생성
+      const staticPages = [
+        { url: 'https://carejoa.kr/', priority: '1.0', changefreq: 'daily' },
+        { url: 'https://carejoa.kr/facilities', priority: '0.9', changefreq: 'daily' },
+        { url: 'https://carejoa.kr/ai-matching', priority: '0.9', changefreq: 'weekly' },
+        { url: 'https://carejoa.kr/call-consultation', priority: '0.8', changefreq: 'weekly' },
+        { url: 'https://carejoa.kr/signup', priority: '0.7', changefreq: 'monthly' },
+        { url: 'https://carejoa.kr/haniwon-visit', priority: '0.7', changefreq: 'monthly' },
+        { url: 'https://carejoa.kr/manager-consultation', priority: '0.7', changefreq: 'monthly' },
+        { url: 'https://carejoa.kr/regional-consultation', priority: '0.7', changefreq: 'monthly' },
+      ];
+      
+      let sitemapMain = '<?xml version="1.0" encoding="UTF-8"?>\n';
+      sitemapMain += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
+      staticPages.forEach(page => {
+        sitemapMain += '  <url>\n';
+        sitemapMain += `    <loc>${page.url}</loc>\n`;
+        sitemapMain += `    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>\n`;
+        sitemapMain += `    <changefreq>${page.changefreq}</changefreq>\n`;
+        sitemapMain += `    <priority>${page.priority}</priority>\n`;
+        sitemapMain += '  </url>\n';
+      });
+      sitemapMain += '</urlset>';
+      
+      const publicDir = path.join(__dirname, '../public');
+      fs.writeFileSync(path.join(publicDir, 'sitemap-main.xml'), sitemapMain);
+      
+      let sitemapIndex = '<?xml version="1.0" encoding="UTF-8"?>\n';
+      sitemapIndex += '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
+      sitemapIndex += '  <sitemap>\n';
+      sitemapIndex += '    <loc>https://carejoa.kr/sitemap-main.xml</loc>\n';
+      sitemapIndex += `    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>\n`;
+      sitemapIndex += '  </sitemap>\n';
+      sitemapIndex += '</sitemapindex>';
+      fs.writeFileSync(path.join(publicDir, 'sitemap.xml'), sitemapIndex);
+      
+      console.log('\n✅ 기본 Sitemap 생성 완료');
+      return;
     }
     
+    const facilitiesData = fs.readFileSync(facilitiesPath, 'utf-8');
+    const facilities = JSON.parse(facilitiesData);
+    
+    const totalFacilities = facilities.length;
     console.log(`✅ 총 시설 수: ${totalFacilities.toLocaleString()}개\n`);
     
     // 2. 페이지 수 계산
@@ -96,51 +128,28 @@ async function generateStaticSitemap() {
     fs.writeFileSync(path.join(publicDir, 'sitemap-main.xml'), sitemapMain);
     console.log('✅ sitemap-main.xml 생성 완료\n');
     
-    // 5. 각 페이지별 시설 사이트맵 생성 (프로덕션 DB 사용)
-    console.log('📝 시설 Sitemap 생성 중 (프로덕션 DB)...');
+    // 5. 각 페이지별 시설 사이트맵 생성
+    console.log('📝 시설 Sitemap 생성 중...');
     
     for (let page = 1; page <= totalPages; page++) {
       const offset = (page - 1) * limit;
+      const pageFacilities = facilities.slice(offset, offset + limit);
       
-      console.log(`  ⏳ 페이지 ${page}/${totalPages} 처리 중... (오프셋: ${offset.toLocaleString()})`);
-      
-      // 시설 ID 목록 조회 (프로덕션 DB)
-      const facilitiesCmd = `npx wrangler d1 execute carejoa-production --command="SELECT id, updated_at FROM facilities ORDER BY id LIMIT ${limit} OFFSET ${offset}" --json`;
-      
-      let facilitiesOutput;
-      try {
-        facilitiesOutput = execSync(facilitiesCmd, { encoding: 'utf-8', timeout: 30000 });
-      } catch (e) {
-        console.error(`  ❌ 페이지 ${page} 데이터 조회 실패:`, e.message);
-        continue;
-      }
-      
-      // JSON 파싱
-      let facilities = [];
-      try {
-        const jsonData = JSON.parse(facilitiesOutput);
-        facilities = jsonData[0]?.results || [];
-      } catch (e) {
-        console.error(`  ❌ 페이지 ${page} JSON 파싱 실패:`, e.message);
-        continue;
-      }
-      
-      if (facilities.length === 0) {
+      if (pageFacilities.length === 0) {
         console.log(`  ⚠️  페이지 ${page}: 시설 데이터 없음`);
-        break; // 더 이상 데이터가 없으면 중단
+        break;
       }
+      
+      console.log(`  ⏳ 페이지 ${page}/${totalPages} 처리 중... (${pageFacilities.length.toLocaleString()}개)`);
       
       // XML 생성
       let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
       xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
       
-      facilities.forEach(facility => {
+      pageFacilities.forEach(facility => {
         xml += '  <url>\n';
         xml += `    <loc>https://carejoa.kr/facility/${facility.id}</loc>\n`;
-        if (facility.updated_at) {
-          const lastmod = facility.updated_at.split('T')[0];
-          xml += `    <lastmod>${lastmod}</lastmod>\n`;
-        }
+        xml += `    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>\n`;
         xml += '    <changefreq>monthly</changefreq>\n';
         xml += '    <priority>0.7</priority>\n';
         xml += '  </url>\n';
@@ -150,7 +159,7 @@ async function generateStaticSitemap() {
       
       const filename = `sitemap-facilities-${page}.xml`;
       fs.writeFileSync(path.join(publicDir, filename), xml);
-      console.log(`  ✅ ${filename} 생성 완료 (${facilities.length.toLocaleString()}개 URL)`);
+      console.log(`  ✅ ${filename} 생성 완료 (${pageFacilities.length.toLocaleString()}개 URL)`);
     }
     
     console.log('\n🎉 모든 Sitemap 생성 완료!');
@@ -167,6 +176,21 @@ async function generateStaticSitemap() {
     for (let i = 1; i <= totalPages; i++) {
       console.log(`  - https://carejoa.kr/sitemap-facilities-${i}.xml`);
     }
+    
+    // 파일 크기 출력
+    console.log('\n📦 파일 크기:');
+    const sitemapStat = fs.statSync(path.join(publicDir, 'sitemap.xml'));
+    const mainStat = fs.statSync(path.join(publicDir, 'sitemap-main.xml'));
+    console.log(`  - sitemap.xml: ${(sitemapStat.size / 1024).toFixed(2)} KB`);
+    console.log(`  - sitemap-main.xml: ${(mainStat.size / 1024).toFixed(2)} KB`);
+    
+    let totalSize = sitemapStat.size + mainStat.size;
+    for (let i = 1; i <= totalPages; i++) {
+      const fileStat = fs.statSync(path.join(publicDir, `sitemap-facilities-${i}.xml`));
+      totalSize += fileStat.size;
+      console.log(`  - sitemap-facilities-${i}.xml: ${(fileStat.size / 1024 / 1024).toFixed(2)} MB`);
+    }
+    console.log(`\n📊 총 크기: ${(totalSize / 1024 / 1024).toFixed(2)} MB`);
     
   } catch (error) {
     console.error('\n❌ Sitemap 생성 실패:', error.message);
