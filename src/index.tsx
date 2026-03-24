@@ -3946,6 +3946,31 @@ app.get('/', (c) => {
               채널 구독하기
             </a>
           </div>
+
+          {/* 커뮤니티 버튼 섹션 */}
+          <div class="flex flex-col sm:flex-row justify-center items-center gap-4 mt-8">
+            {/* 시설 이용 후기 작성하기 버튼 */}
+            <a 
+              href="https://cafe.naver.com/pinkqy5cg" 
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center px-6 py-3 bg-teal-600 text-white text-base font-semibold rounded-lg hover:bg-teal-700 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+              <i class="fas fa-pen-to-square mr-2 text-lg"></i>
+              시설 이용 후기 작성하기
+            </a>
+
+            {/* 네이버 카페 가기 버튼 */}
+            <a 
+              href="https://cafe.naver.com/pinkqy5cg" 
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center px-6 py-3 bg-green-600 text-white text-base font-semibold rounded-lg hover:bg-green-700 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+              <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M16.273 12.845 7.376 0H0v24h7.726V11.156L16.624 24H24V0h-7.727v12.845Z"/>
+              </svg>
+              네이버 카페 가기
+            </a>
+          </div>
         </div>
       </section>
 
