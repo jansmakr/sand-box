@@ -1074,6 +1074,25 @@ app.get('/signup', (c) => {
               </button>
             </form>
 
+            <!-- 구분선 -->
+            <div class="relative my-6">
+              <div class="absolute inset-0 flex items-center">
+                <div class="w-full border-t border-gray-300"></div>
+              </div>
+              <div class="relative flex justify-center text-sm">
+                <span class="px-4 bg-white text-gray-500">또는</span>
+              </div>
+            </div>
+
+            <!-- 카카오 로그인 버튼 -->
+            <a href="/api/auth/kakao/login"
+              class="flex items-center justify-center w-full bg-[#FEE500] text-[#000000] py-3 rounded-lg hover:bg-[#FDD800] transition-colors font-semibold text-lg">
+              <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 3C6.477 3 2 6.477 2 10.5c0 2.442 1.554 4.58 3.908 6.006-.176.613-.575 2.002-.66 2.322-.097.366.134.361.283.262.119-.08 1.851-1.235 2.552-1.704C9.193 17.761 10.58 18 12 18c5.523 0 10-3.477 10-7.5S17.523 3 12 3z"/>
+              </svg>
+              카카오로 간편 회원가입
+            </a>
+
             <div class="mt-6 text-center">
               <p class="text-gray-600">
                 이미 계정이 있으신가요? 
@@ -1787,24 +1806,69 @@ app.get('/signup/select-type', (c) => {
 
             <!-- 시설 유형 선택 (숨김) -->
             <div id="facilityTypeSelect" style="display: none;" class="mt-6 p-6 bg-teal-50 rounded-xl">
-              <h3 class="text-lg font-bold text-gray-800 mb-4">시설 유형을 선택해주세요</h3>
-              <div class="grid grid-cols-2 gap-3">
-                <button onclick="completeFacilitySignup('요양병원')" 
-                  class="bg-white text-gray-800 px-4 py-3 rounded-lg hover:bg-teal-100 transition-colors border-2 border-teal-200 font-medium">
-                  요양병원
+              <!-- 1단계: 기존 시설 확인 -->
+              <div id="facilitySearchStep">
+                <h3 class="text-lg font-bold text-gray-800 mb-4">
+                  <i class="fas fa-search text-teal-600 mr-2"></i>
+                  기존 시설 확인
+                </h3>
+                <p class="text-sm text-gray-600 mb-4">
+                  먼저 귀하의 시설이 이미 등록되어 있는지 확인해주세요.
+                </p>
+                
+                <div class="space-y-3">
+                  <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">시설명</label>
+                    <input type="text" id="facilitySearchName" placeholder="예: 사랑요양원"
+                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500" />
+                  </div>
+                  <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">전화번호 (선택)</label>
+                    <input type="tel" id="facilitySearchPhone" placeholder="010-1234-5678"
+                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500" />
+                  </div>
+                  <button onclick="searchExistingFacility()" 
+                    class="w-full bg-teal-600 text-white px-6 py-3 rounded-lg hover:bg-teal-700 transition-colors font-semibold">
+                    <i class="fas fa-search mr-2"></i>시설 검색
+                  </button>
+                </div>
+
+                <!-- 검색 결과 표시 -->
+                <div id="searchResult" class="mt-4" style="display: none;"></div>
+
+                <!-- 새 시설 등록 버튼 -->
+                <div class="mt-4 text-center">
+                  <button onclick="showFacilityTypeSelection()" 
+                    class="text-sm text-gray-600 hover:text-teal-600 underline">
+                    검색되지 않나요? 새 시설로 등록하기
+                  </button>
+                </div>
+              </div>
+
+              <!-- 2단계: 시설 유형 선택 -->
+              <div id="facilityTypeStep" style="display: none;">
+                <button onclick="backToSearch()" class="mb-4 text-sm text-gray-600 hover:text-teal-600">
+                  <i class="fas fa-arrow-left mr-1"></i>뒤로가기
                 </button>
-                <button onclick="completeFacilitySignup('요양원')" 
-                  class="bg-white text-gray-800 px-4 py-3 rounded-lg hover:bg-teal-100 transition-colors border-2 border-teal-200 font-medium">
-                  요양원
-                </button>
-                <button onclick="completeFacilitySignup('주야간보호')" 
-                  class="bg-white text-gray-800 px-4 py-3 rounded-lg hover:bg-teal-100 transition-colors border-2 border-teal-200 font-medium">
-                  주야간보호
-                </button>
-                <button onclick="completeFacilitySignup('재가복지센터')" 
-                  class="bg-white text-gray-800 px-4 py-3 rounded-lg hover:bg-teal-100 transition-colors border-2 border-teal-200 font-medium">
-                  재가복지센터
-                </button>
+                <h3 class="text-lg font-bold text-gray-800 mb-4">시설 유형을 선택해주세요</h3>
+                <div class="grid grid-cols-2 gap-3">
+                  <button onclick="completeFacilitySignup('요양병원')" 
+                    class="bg-white text-gray-800 px-4 py-3 rounded-lg hover:bg-teal-100 transition-colors border-2 border-teal-200 font-medium">
+                    요양병원
+                  </button>
+                  <button onclick="completeFacilitySignup('요양원')" 
+                    class="bg-white text-gray-800 px-4 py-3 rounded-lg hover:bg-teal-100 transition-colors border-2 border-teal-200 font-medium">
+                    요양원
+                  </button>
+                  <button onclick="completeFacilitySignup('주야간보호')" 
+                    class="bg-white text-gray-800 px-4 py-3 rounded-lg hover:bg-teal-100 transition-colors border-2 border-teal-200 font-medium">
+                    주야간보호
+                  </button>
+                  <button onclick="completeFacilitySignup('재가복지센터')" 
+                    class="bg-white text-gray-800 px-4 py-3 rounded-lg hover:bg-teal-100 transition-colors border-2 border-teal-200 font-medium">
+                    재가복지센터
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -1882,6 +1946,106 @@ app.get('/signup/select-type', (c) => {
             console.error(error);
           }
         }
+
+        let matchedFacilityId = null;
+
+        function showFacilityTypeSelection() {
+          document.getElementById('facilitySearchStep').style.display = 'none';
+          document.getElementById('facilityTypeStep').style.display = 'block';
+        }
+
+        function backToSearch() {
+          document.getElementById('facilitySearchStep').style.display = 'block';
+          document.getElementById('facilityTypeStep').style.display = 'none';
+          matchedFacilityId = null;
+        }
+
+        async function searchExistingFacility() {
+          const facilityName = document.getElementById('facilitySearchName').value.trim();
+          const facilityPhone = document.getElementById('facilitySearchPhone').value.trim();
+          
+          if (!facilityName) {
+            alert('시설명을 입력해주세요.');
+            return;
+          }
+
+          try {
+            const response = await fetch('/api/facility/search', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ name: facilityName, phone: facilityPhone })
+            });
+
+            const result = await response.json();
+            const searchResultDiv = document.getElementById('searchResult');
+
+            if (result.success && result.facilities && result.facilities.length > 0) {
+              const facilities = result.facilities;
+              let html = '<div class="bg-white p-4 rounded-lg border-2 border-teal-200">';
+              html += '<h4 class="font-bold text-gray-800 mb-3"><i class="fas fa-check-circle text-green-600 mr-2"></i>검색 결과</h4>';
+              
+              facilities.forEach(facility => {
+                html += \`
+                  <div class="p-3 bg-gray-50 rounded-lg mb-2">
+                    <p class="font-semibold text-gray-800">\${facility.name}</p>
+                    <p class="text-sm text-gray-600">\${facility.address || '주소 미등록'}</p>
+                    <p class="text-sm text-gray-600">전화: \${facility.phone || '미등록'}</p>
+                    <button onclick="selectMatchedFacility(\${facility.id}, '\${facility.name}')"
+                      class="mt-2 w-full bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors text-sm font-semibold">
+                      이 시설로 가입하기
+                    </button>
+                  </div>
+                \`;
+              });
+              
+              html += '</div>';
+              searchResultDiv.innerHTML = html;
+              searchResultDiv.style.display = 'block';
+            } else {
+              searchResultDiv.innerHTML = \`
+                <div class="bg-yellow-50 p-4 rounded-lg border-2 border-yellow-200">
+                  <p class="text-yellow-800">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    <strong>검색 결과가 없습니다.</strong><br>
+                    아래 '새 시설로 등록하기'를 클릭하여 등록해주세요.
+                  </p>
+                </div>
+              \`;
+              searchResultDiv.style.display = 'block';
+            }
+          } catch (error) {
+            console.error(error);
+            alert('검색 중 오류가 발생했습니다.');
+          }
+        }
+
+        function selectMatchedFacility(facilityId, facilityName) {
+          matchedFacilityId = facilityId;
+          if (confirm(\`'\${facilityName}' 시설로 가입하시겠습니까?\\n\\n기존 시설 정보가 연동됩니다.\`)) {
+            completeFacilitySignupWithMatch();
+          }
+        }
+
+        async function completeFacilitySignupWithMatch() {
+          try {
+            const response = await fetch('/api/auth/kakao/complete', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ 
+                type: 'facility',
+                facilityId: matchedFacilityId
+              })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+              alert('가입이 완료되었습니다!');
+              window.location.href = '/dashboard/facility';
+            } else {
+              alert(result.message || '가입 실패');
+            }
+          } catch (error) {
             alert('가입 중 오류가 발생했습니다.');
             console.error(error);
           }
@@ -1907,7 +2071,7 @@ app.post('/api/auth/kakao/complete', async (c) => {
     return c.json({ success: false, message: '세션 정보를 찾을 수 없습니다.' })
   }
 
-  const { type, facilityType } = await c.req.json()
+  const { type, facilityType, facilityId } = await c.req.json()
 
   try {
     let userId: number | null = null
@@ -1920,8 +2084,8 @@ app.post('/api/auth/kakao/complete', async (c) => {
         INSERT INTO users (
           user_type, email, password_hash, name, phone,
           address, facility_type, region_sido, region_sigungu,
-          created_at, updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
+          facility_id, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
       `).bind(
         type,
         kakaoInfo.email || `${kakaoInfo.kakaoId}@kakao.temp`,
@@ -1931,7 +2095,8 @@ app.post('/api/auth/kakao/complete', async (c) => {
         '',
         type === 'facility' ? (facilityType || '') : null,
         null,
-        null
+        null,
+        facilityId || null
       ).run()
       
       userId = insertResult.meta.last_row_id as number
