@@ -15237,11 +15237,11 @@ app.get('/dashboard/facility', async (c) => {
               <i class="fas fa-star text-2xl mb-2"></i>
               <p class="font-semibold">대표시설 신청</p>
             </button>
-            <button onclick="alert('요금표 관리 기능은 곧 출시됩니다')" class="bg-blue-600 text-white p-4 rounded-lg hover:bg-blue-700 transition-colors">
+            <button onclick="window.location.href='/facility-price-management'" class="bg-blue-600 text-white p-4 rounded-lg hover:bg-blue-700 transition-colors">
               <i class="fas fa-dollar-sign text-2xl mb-2"></i>
               <p class="font-semibold">요금표 관리</p>
             </button>
-            <button onclick="alert('시설 사진 관리 기능은 곧 출시됩니다')" class="bg-green-600 text-white p-4 rounded-lg hover:bg-green-700 transition-colors">
+            <button onclick="window.location.href='/facility-photo-management'" class="bg-green-600 text-white p-4 rounded-lg hover:bg-green-700 transition-colors">
               <i class="fas fa-images text-2xl mb-2"></i>
               <p class="font-semibold">시설 사진 관리</p>
             </button>
@@ -16127,6 +16127,253 @@ app.get('/dashboard/facility', async (c) => {
         // 페이지 로드 시 데이터 가져오기
         window.addEventListener('DOMContentLoaded', loadDashboardData);
       </script>
+    </body>
+    </html>
+  `)
+})
+
+// ========== 요금표 관리 페이지 ==========
+app.get('/facility-price-management', async (c) => {
+  const user = await getUser(c)
+  
+  if (!user || user.type !== 'facility') {
+    return c.redirect('/login')
+  }
+
+  return c.html(`
+    <!DOCTYPE html>
+    <html lang="ko">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>요금표 관리 - 케어조아</title>
+      <script src="https://cdn.tailwindcss.com"></script>
+      <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+    </head>
+    <body class="bg-gray-50">
+      <div class="min-h-screen">
+        <!-- 헤더 -->
+        <header class="bg-white shadow-sm border-b">
+          <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+              <a href="/" class="flex items-center gap-2">
+                <img src="https://page.gensparksite.com/v1/base64_upload/b39dca8586af1dacd6d8417554313896" alt="케어조아" class="h-8">
+              </a>
+              <h1 class="text-xl font-bold text-gray-800">
+                <i class="fas fa-dollar-sign text-blue-600 mr-2"></i>
+                요금표 관리
+              </h1>
+            </div>
+            <div class="flex gap-2">
+              <a href="/dashboard/facility" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+                <i class="fas fa-arrow-left mr-2"></i>
+                대시보드로
+              </a>
+              <a href="/logout" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                <i class="fas fa-sign-out-alt mr-2"></i>
+                로그아웃
+              </a>
+            </div>
+          </div>
+        </header>
+
+        <!-- 메인 컨텐츠 -->
+        <main class="max-w-7xl mx-auto px-4 py-8">
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">
+              <i class="fas fa-table text-blue-600 mr-2"></i>
+              시설 요금표
+            </h2>
+            
+            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+              <p class="text-yellow-800">
+                <i class="fas fa-info-circle mr-2"></i>
+                <strong>요금표 관리 기능은 현재 개발 중입니다.</strong><br>
+                곧 다음 기능들을 이용하실 수 있습니다:
+              </p>
+              <ul class="list-disc ml-8 mt-2 text-yellow-700">
+                <li>시설 입소 기본료 설정</li>
+                <li>등급별 요양급여 설정</li>
+                <li>특별 서비스 추가 요금 설정</li>
+                <li>견적서 템플릿 관리</li>
+                <li>요금 히스토리 관리</li>
+              </ul>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- 기본 요금 정보 -->
+              <div class="border-2 border-gray-200 rounded-lg p-6">
+                <h3 class="font-bold text-lg mb-4 text-gray-800">
+                  <i class="fas fa-money-bill-wave text-green-600 mr-2"></i>
+                  기본 요금 정보
+                </h3>
+                <div class="space-y-4">
+                  <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">월 기본료</label>
+                    <input type="text" placeholder="예: 1,500,000원" disabled class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100" />
+                  </div>
+                  <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">보증금</label>
+                    <input type="text" placeholder="예: 5,000,000원" disabled class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100" />
+                  </div>
+                  <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">식대</label>
+                    <input type="text" placeholder="예: 300,000원" disabled class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- 등급별 요금 -->
+              <div class="border-2 border-gray-200 rounded-lg p-6">
+                <h3 class="font-bold text-lg mb-4 text-gray-800">
+                  <i class="fas fa-layer-group text-purple-600 mr-2"></i>
+                  등급별 월 요금
+                </h3>
+                <div class="space-y-3">
+                  <div class="flex justify-between items-center">
+                    <span class="font-semibold">1등급</span>
+                    <input type="text" placeholder="예: 2,000,000원" disabled class="w-40 px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-right" />
+                  </div>
+                  <div class="flex justify-between items-center">
+                    <span class="font-semibold">2등급</span>
+                    <input type="text" placeholder="예: 1,800,000원" disabled class="w-40 px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-right" />
+                  </div>
+                  <div class="flex justify-between items-center">
+                    <span class="font-semibold">3등급</span>
+                    <input type="text" placeholder="예: 1,600,000원" disabled class="w-40 px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-right" />
+                  </div>
+                  <div class="flex justify-between items-center">
+                    <span class="font-semibold">4등급</span>
+                    <input type="text" placeholder="예: 1,400,000원" disabled class="w-40 px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-right" />
+                  </div>
+                  <div class="flex justify-between items-center">
+                    <span class="font-semibold">5등급</span>
+                    <input type="text" placeholder="예: 1,200,000원" disabled class="w-40 px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-right" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 저장 버튼 -->
+            <div class="mt-8 flex justify-end">
+              <button disabled class="px-6 py-3 bg-gray-400 text-white rounded-lg cursor-not-allowed">
+                <i class="fas fa-save mr-2"></i>
+                저장하기 (준비 중)
+              </button>
+            </div>
+          </div>
+        </main>
+      </div>
+    </body>
+    </html>
+  `)
+})
+
+// ========== 시설 사진 관리 페이지 ==========
+app.get('/facility-photo-management', async (c) => {
+  const user = await getUser(c)
+  
+  if (!user || user.type !== 'facility') {
+    return c.redirect('/login')
+  }
+
+  return c.html(`
+    <!DOCTYPE html>
+    <html lang="ko">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>시설 사진 관리 - 케어조아</title>
+      <script src="https://cdn.tailwindcss.com"></script>
+      <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+    </head>
+    <body class="bg-gray-50">
+      <div class="min-h-screen">
+        <!-- 헤더 -->
+        <header class="bg-white shadow-sm border-b">
+          <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+              <a href="/" class="flex items-center gap-2">
+                <img src="https://page.gensparksite.com/v1/base64_upload/b39dca8586af1dacd6d8417554313896" alt="케어조아" class="h-8">
+              </a>
+              <h1 class="text-xl font-bold text-gray-800">
+                <i class="fas fa-images text-green-600 mr-2"></i>
+                시설 사진 관리
+              </h1>
+            </div>
+            <div class="flex gap-2">
+              <a href="/dashboard/facility" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+                <i class="fas fa-arrow-left mr-2"></i>
+                대시보드로
+              </a>
+              <a href="/logout" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                <i class="fas fa-sign-out-alt mr-2"></i>
+                로그아웃
+              </a>
+            </div>
+          </div>
+        </header>
+
+        <!-- 메인 컨텐츠 -->
+        <main class="max-w-7xl mx-auto px-4 py-8">
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">
+              <i class="fas fa-camera text-green-600 mr-2"></i>
+              시설 사진 갤러리
+            </h2>
+            
+            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+              <p class="text-yellow-800">
+                <i class="fas fa-info-circle mr-2"></i>
+                <strong>사진 관리 기능은 현재 개발 중입니다.</strong><br>
+                곧 다음 기능들을 이용하실 수 있습니다:
+              </p>
+              <ul class="list-disc ml-8 mt-2 text-yellow-700">
+                <li>시설 외관/내부 사진 업로드</li>
+                <li>객실/식당/편의시설 사진 등록</li>
+                <li>대표 사진 설정</li>
+                <li>사진 설명 및 카테고리 관리</li>
+                <li>사진 순서 변경</li>
+              </ul>
+            </div>
+
+            <!-- 사진 업로드 영역 -->
+            <div class="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center mb-6 bg-gray-50">
+              <i class="fas fa-cloud-upload-alt text-6xl text-gray-400 mb-4"></i>
+              <p class="text-gray-600 mb-2">사진을 드래그하거나 클릭하여 업로드하세요</p>
+              <p class="text-sm text-gray-500 mb-4">(준비 중)</p>
+              <button disabled class="px-6 py-3 bg-gray-400 text-white rounded-lg cursor-not-allowed">
+                <i class="fas fa-plus mr-2"></i>
+                사진 선택
+              </button>
+            </div>
+
+            <!-- 사진 갤러리 예시 -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+              ${[1, 2, 3, 4, 5, 6, 7, 8].map(i => `
+                <div class="aspect-square bg-gray-200 rounded-lg flex items-center justify-center">
+                  <div class="text-center text-gray-400">
+                    <i class="fas fa-image text-4xl mb-2"></i>
+                    <p class="text-sm">사진 ${i}</p>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+
+            <!-- 저장 버튼 -->
+            <div class="mt-8 flex justify-between items-center">
+              <p class="text-sm text-gray-600">
+                <i class="fas fa-info-circle text-blue-600 mr-2"></i>
+                최대 20장까지 업로드 가능합니다
+              </p>
+              <button disabled class="px-6 py-3 bg-gray-400 text-white rounded-lg cursor-not-allowed">
+                <i class="fas fa-save mr-2"></i>
+                저장하기 (준비 중)
+              </button>
+            </div>
+          </div>
+        </main>
+      </div>
     </body>
     </html>
   `)
