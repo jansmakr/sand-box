@@ -1631,7 +1631,7 @@ app.get('/api/auth/kakao/callback', async (c) => {
         user = await db.prepare(`
           SELECT * FROM users 
           WHERE password_hash = ? 
-          AND user_type IN ('customer', 'facility')
+          AND user_type IN ('customer', 'facility', 'hospital_manager', 'welfare_manager')
         `).bind(kakaoId).first()
         
         console.log('[카카오 로그인] 기존 사용자 조회:', user ? '발견' : '없음', 'kakaoId:', kakaoId)
@@ -1674,8 +1674,12 @@ app.get('/api/auth/kakao/callback', async (c) => {
       // 대시보드로 리다이렉트
       if (userType === 'customer') {
         return c.redirect('/dashboard/customer')
-      } else {
+      } else if (userType === 'facility') {
         return c.redirect('/dashboard/facility')
+      } else if (userType === 'hospital_manager' || userType === 'welfare_manager') {
+        return c.redirect('/dashboard/partner')
+      } else {
+        return c.redirect('/')
       }
     } else {
       // 신규 사용자 - 회원 타입 선택 페이지로
@@ -1755,15 +1759,29 @@ app.get('/signup/select-type', (c) => {
               <button onclick="selectType('customer')" 
                 class="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-8 rounded-2xl hover:from-blue-600 hover:to-blue-700 transition-all transform hover:scale-105 shadow-lg">
                 <i class="fas fa-user text-5xl mb-4"></i>
-                <h3 class="text-2xl font-bold mb-2">고객</h3>
+                <h3 class="text-2xl font-bold mb-2">일반 고객</h3>
                 <p class="text-sm opacity-90">요양시설을 찾고 계신가요?</p>
               </button>
 
               <button onclick="selectType('facility')" 
                 class="bg-gradient-to-br from-teal-500 to-teal-600 text-white p-8 rounded-2xl hover:from-teal-600 hover:to-teal-700 transition-all transform hover:scale-105 shadow-lg">
                 <i class="fas fa-building text-5xl mb-4"></i>
-                <h3 class="text-2xl font-bold mb-2">시설</h3>
+                <h3 class="text-2xl font-bold mb-2">요양시설 / 요양병원</h3>
                 <p class="text-sm opacity-90">시설을 운영하고 계신가요?</p>
+              </button>
+
+              <button onclick="selectType('hospital_manager')" 
+                class="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-8 rounded-2xl hover:from-purple-600 hover:to-purple-700 transition-all transform hover:scale-105 shadow-lg">
+                <i class="fas fa-hospital text-5xl mb-4"></i>
+                <h3 class="text-2xl font-bold mb-2">상급병원 행정</h3>
+                <p class="text-sm opacity-90">병원 퇴원 지원 담당이신가요?</p>
+              </button>
+
+              <button onclick="selectType('welfare_manager')" 
+                class="bg-gradient-to-br from-orange-500 to-orange-600 text-white p-8 rounded-2xl hover:from-orange-600 hover:to-orange-700 transition-all transform hover:scale-105 shadow-lg">
+                <i class="fas fa-landmark text-5xl mb-4"></i>
+                <h3 class="text-2xl font-bold mb-2">정부복지 담당</h3>
+                <p class="text-sm opacity-90">복지 상담 담당이신가요?</p>
               </button>
             </div>
 
@@ -1800,25 +1818,37 @@ app.get('/signup/select-type', (c) => {
           selectedType = type;
           
           if (type === 'customer') {
-            completeCustomerSignup();
-          } else {
+            completeSignup('customer');
+          } else if (type === 'facility') {
             document.getElementById('facilityTypeSelect').style.display = 'block';
+          } else if (type === 'hospital_manager') {
+            completeSignup('hospital_manager');
+          } else if (type === 'welfare_manager') {
+            completeSignup('welfare_manager');
           }
         }
 
-        async function completeCustomerSignup() {
+        async function completeSignup(type) {
           try {
             const response = await fetch('/api/auth/kakao/complete', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ type: 'customer' })
+              body: JSON.stringify({ type: type })
             });
 
             const result = await response.json();
 
             if (result.success) {
               alert('가입이 완료되었습니다!');
-              window.location.href = '/dashboard/customer';
+              
+              // 타입에 따라 대시보드 이동
+              if (type === 'customer') {
+                window.location.href = '/dashboard/customer';
+              } else if (type === 'facility') {
+                window.location.href = '/dashboard/facility';
+              } else if (type === 'hospital_manager' || type === 'welfare_manager') {
+                window.location.href = '/dashboard/partner';
+              }
             } else {
               alert(result.message || '가입 실패');
             }
@@ -1848,6 +1878,10 @@ app.get('/signup/select-type', (c) => {
               alert(result.message || '가입 실패');
             }
           } catch (error) {
+            alert('가입 중 오류가 발생했습니다.');
+            console.error(error);
+          }
+        }
             alert('가입 중 오류가 발생했습니다.');
             console.error(error);
           }
