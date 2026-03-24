@@ -20456,7 +20456,7 @@ app.get('/sitemap-main.xml', (c) => {
 })
 
 // 동적 Sitemap: 시설별 페이지 (sitemap-facilities-1.xml, sitemap-facilities-2.xml 등)
-app.get('/sitemap-facilities-:page.xml', async (c) => {
+app.get('/sitemap-facilities-*.xml', async (c) => {
   const db = c.env.DB
   
   if (!db) {
@@ -20464,7 +20464,10 @@ app.get('/sitemap-facilities-:page.xml', async (c) => {
   }
   
   try {
-    const page = parseInt(c.req.param('page') || '1')
+    // URL에서 페이지 번호 추출
+    const url = c.req.url
+    const match = url.match(/sitemap-facilities-(\d+)\.xml/)
+    const page = match ? parseInt(match[1]) : 1
     const limit = 10000 // 한 페이지당 10000개 URL (Google 권장: 최대 50000)
     const offset = (page - 1) * limit
     
