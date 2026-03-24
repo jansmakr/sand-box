@@ -862,7 +862,7 @@ app.get('/api/auth/me', async (c) => {
 
 // 회원가입 페이지
 app.get('/register', (c) => {
-  return c.render(registerPage())
+  return c.redirect('/signup')
 })
 
 app.get('/signup', (c) => {
