@@ -20409,7 +20409,7 @@ app.get('/sitemap.xml', async (c) => {
     // 시설 페이지들 사이트맵 (페이지별)
     for (let i = 1; i <= totalPages; i++) {
       xml += '  <sitemap>\n'
-      xml += `    <loc>https://carejoa.kr/sitemap-facilities-${i}.xml</loc>\n`
+      xml += `    <loc>https://carejoa.kr/sitemap-facilities-${i}</loc>\n`
       xml += `    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>\n`
       xml += '  </sitemap>\n'
     }
@@ -20456,7 +20456,9 @@ app.get('/sitemap-main.xml', (c) => {
 })
 
 // 동적 Sitemap: 시설별 페이지 (sitemap-facilities-1.xml, sitemap-facilities-2.xml 등)
-app.get('/sitemap-facilities-*.xml', async (c) => {
+// Note: Cloudflare Pages에서 .xml 확장자가 있는 동적 라우트는 제대로 작동하지 않으므로
+// /sitemap/facilities/:page 형식으로 변경하고 헤더로 XML을 반환합니다
+app.get('/sitemap-facilities-:page', async (c) => {
   const db = c.env.DB
   
   if (!db) {
@@ -20464,10 +20466,7 @@ app.get('/sitemap-facilities-*.xml', async (c) => {
   }
   
   try {
-    // URL에서 페이지 번호 추출
-    const url = c.req.url
-    const match = url.match(/sitemap-facilities-(\d+)\.xml/)
-    const page = match ? parseInt(match[1]) : 1
+    const page = parseInt(c.req.param('page') || '1')
     const limit = 10000 // 한 페이지당 10000개 URL (Google 권장: 최대 50000)
     const offset = (page - 1) * limit
     
@@ -21673,8 +21672,8 @@ Disallow: /dashboard
 # 사이트맵 (메인 인덱스)
 Sitemap: https://carejoa.kr/sitemap.xml
 Sitemap: https://carejoa.kr/sitemap-main.xml
-Sitemap: https://carejoa.kr/sitemap-facilities-1.xml
-Sitemap: https://carejoa.kr/sitemap-facilities-2.xml
+Sitemap: https://carejoa.kr/sitemap-facilities-1
+Sitemap: https://carejoa.kr/sitemap-facilities-2
 
 # 검색 엔진별 크롤링 속도 제한
 Crawl-delay: 1
