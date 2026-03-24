@@ -65,7 +65,7 @@ async function generateStaticSitemap() {
     console.log(`✅ 총 시설 수: ${totalFacilities.toLocaleString()}개\n`);
     
     // 2. 페이지 수 계산
-    const limit = 10000; // 페이지당 10,000개
+    const limit = 5000; // 페이지당 5,000개 (구글 크롤링 최적화)
     const totalPages = Math.ceil(totalFacilities / limit);
     console.log(`📄 총 페이지 수: ${totalPages}개 (페이지당 ${limit.toLocaleString()}개)\n`);
     

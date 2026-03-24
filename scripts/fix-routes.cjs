@@ -27,6 +27,8 @@ const filesToExclude = [
   '/sitemap-main.xml',
   '/sitemap-facilities-1.xml',
   '/sitemap-facilities-2.xml',
+  '/sitemap-facilities-3.xml',
+  '/sitemap-facilities-4.xml',
   '/static/*'
 ];
 

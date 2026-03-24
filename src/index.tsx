@@ -21549,6 +21549,8 @@ Sitemap: https://carejoa.kr/sitemap.xml
 Sitemap: https://carejoa.kr/sitemap-main.xml
 Sitemap: https://carejoa.kr/sitemap-facilities-1.xml
 Sitemap: https://carejoa.kr/sitemap-facilities-2.xml
+Sitemap: https://carejoa.kr/sitemap-facilities-3.xml
+Sitemap: https://carejoa.kr/sitemap-facilities-4.xml
 
 # 검색 엔진별 크롤링 속도 제한
 Crawl-delay: 1
