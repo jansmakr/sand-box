@@ -20377,6 +20377,84 @@ app.get('/api/regions', async (c) => {
 })
 
 // ========== SEO: Sitemap.xml (동적 생성, 페이지네이션) ==========
+
+// 메인 Sitemap 인덱스 파일 (sitemap.xml)
+app.get('/sitemap.xml', async (c) => {
+  const db = c.env.DB
+  
+  if (!db) {
+    return c.text('데이터베이스 연결 실패', 500)
+  }
+  
+  try {
+    // 전체 시설 수 조회
+    const countResult = await db
+      .prepare('SELECT COUNT(*) as total FROM facilities')
+      .first()
+    
+    const totalFacilities = (countResult?.total as number) || 0
+    const limit = 10000 // 페이지당 10000개
+    const totalPages = Math.ceil(totalFacilities / limit)
+    
+    // Sitemap Index XML 생성
+    let xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
+    xml += '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+    
+    // 메인 페이지들 사이트맵
+    xml += '  <sitemap>\n'
+    xml += '    <loc>https://carejoa.kr/sitemap-main.xml</loc>\n'
+    xml += `    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>\n`
+    xml += '  </sitemap>\n'
+    
+    // 시설 페이지들 사이트맵 (페이지별)
+    for (let i = 1; i <= totalPages; i++) {
+      xml += '  <sitemap>\n'
+      xml += `    <loc>https://carejoa.kr/sitemap-facilities-${i}.xml</loc>\n`
+      xml += `    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>\n`
+      xml += '  </sitemap>\n'
+    }
+    
+    xml += '</sitemapindex>'
+    
+    c.header('Content-Type', 'application/xml; charset=utf-8')
+    return c.body(xml)
+  } catch (error) {
+    console.error('[Sitemap Index] 생성 오류:', error)
+    return c.text('Sitemap Index 생성 실패', 500)
+  }
+})
+
+// 메인 페이지 Sitemap (정적 페이지들)
+app.get('/sitemap-main.xml', (c) => {
+  const staticPages = [
+    { url: 'https://carejoa.kr/', priority: '1.0', changefreq: 'daily' },
+    { url: 'https://carejoa.kr/facilities', priority: '0.9', changefreq: 'daily' },
+    { url: 'https://carejoa.kr/ai-matching', priority: '0.9', changefreq: 'weekly' },
+    { url: 'https://carejoa.kr/call-consultation', priority: '0.8', changefreq: 'weekly' },
+    { url: 'https://carejoa.kr/signup', priority: '0.7', changefreq: 'monthly' },
+    { url: 'https://carejoa.kr/haniwon-visit', priority: '0.7', changefreq: 'monthly' },
+    { url: 'https://carejoa.kr/manager-consultation', priority: '0.7', changefreq: 'monthly' },
+    { url: 'https://carejoa.kr/regional-consultation', priority: '0.7', changefreq: 'monthly' },
+  ]
+  
+  let xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
+  xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+  
+  staticPages.forEach(page => {
+    xml += '  <url>\n'
+    xml += `    <loc>${page.url}</loc>\n`
+    xml += `    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>\n`
+    xml += `    <changefreq>${page.changefreq}</changefreq>\n`
+    xml += `    <priority>${page.priority}</priority>\n`
+    xml += '  </url>\n'
+  })
+  
+  xml += '</urlset>'
+  
+  c.header('Content-Type', 'application/xml; charset=utf-8')
+  return c.body(xml)
+})
+
 // 동적 Sitemap: 시설별 페이지 (sitemap-facilities-1.xml, sitemap-facilities-2.xml 등)
 app.get('/sitemap-facilities-:page.xml', async (c) => {
   const db = c.env.DB
@@ -21587,8 +21665,13 @@ Allow: /call-consultation
 Disallow: /admin
 Disallow: /api/*
 Disallow: /login
+Disallow: /dashboard
 
+# 사이트맵 (메인 인덱스)
 Sitemap: https://carejoa.kr/sitemap.xml
+Sitemap: https://carejoa.kr/sitemap-main.xml
+Sitemap: https://carejoa.kr/sitemap-facilities-1.xml
+Sitemap: https://carejoa.kr/sitemap-facilities-2.xml
 
 # 검색 엔진별 크롤링 속도 제한
 Crawl-delay: 1
