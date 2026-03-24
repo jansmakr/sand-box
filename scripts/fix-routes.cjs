@@ -23,6 +23,10 @@ if (!routes.exclude) {
 const filesToExclude = [
   '/robots.txt',
   '/ads.txt',
+  '/sitemap.xml',
+  '/sitemap-main.xml',
+  '/sitemap-facilities-1.xml',
+  '/sitemap-facilities-2.xml',
   '/static/*'
 ];
 

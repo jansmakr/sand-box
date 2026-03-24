@@ -3,8 +3,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npm run build:css && vite build && node scripts/fix-routes.cjs",
+    "build": "npm run build:css && npm run sitemap:static && vite build && node scripts/fix-routes.cjs",
     "build:css": "tailwindcss -i ./src/styles.css -o ./public/static/tailwind.css --minify",
+    "sitemap:static": "node scripts/generate-static-sitemap.cjs",
     "preview": "wrangler pages dev",
     "deploy": "npm run build && wrangler pages deploy dist --project-name=carejoa-webapp",
     "cf-typegen": "wrangler types --env-interface CloudflareBindings",
