@@ -4473,7 +4473,27 @@ app.get('/facility/:id', async (c) => {
       .first()
     
     if (!facility) {
-      return c.redirect('/facilities')
+      // 410 Gone: 시설이 DB에 없음 (검색엔진에게 명확한 신호)
+      return c.html(`
+        <!DOCTYPE html>
+        <html lang="ko">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>시설을 찾을 수 없습니다 - 케어조아</title>
+          <script src="https://cdn.tailwindcss.com"></script>
+        </head>
+        <body class="bg-gray-50 flex items-center justify-center min-h-screen">
+          <div class="text-center">
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">시설을 찾을 수 없습니다</h1>
+            <p class="text-gray-600 mb-6">요청하신 시설 정보가 존재하지 않습니다.</p>
+            <a href="/facilities" class="bg-teal-600 text-white px-6 py-3 rounded-lg hover:bg-teal-700">
+              전국 시설 찾기
+            </a>
+          </div>
+        </body>
+        </html>
+      `, 410)
     }
     
     // SEO 메타 정보 생성
