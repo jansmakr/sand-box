@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Icon Generator</title>
+</head>
+<body>
+    <canvas id="canvas192" width="192" height="192"></canvas>
+    <canvas id="canvas512" width="512" height="512"></canvas>
+    <script>
+        function drawIcon(canvasId, size) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            
+            // Background gradient
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#3b82f6');
+            gradient.addColorStop(1, '#2563eb');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, size, size);
+            
+            // White cross/plus (medical symbol)
+            ctx.fillStyle = 'white';
+            const centerX = size / 2;
+            const centerY = size / 2;
+            const thickness = size / 8;
+            const length = size / 2.5;
+            
+            // Horizontal bar
+            ctx.fillRect(centerX - length/2, centerY - thickness/2, length, thickness);
+            // Vertical bar
+            ctx.fillRect(centerX - thickness/2, centerY - length/2, thickness, length);
+            
+            // Add heart shape
+            ctx.beginPath();
+            const heartSize = size / 6;
+            ctx.moveTo(centerX, centerY + heartSize * 0.3);
+            ctx.bezierCurveTo(centerX, centerY, centerX - heartSize/2, centerY - heartSize/2, centerX - heartSize, centerY);
+            ctx.bezierCurveTo(centerX - heartSize - heartSize/2, centerY, centerX - heartSize - heartSize/2, centerY + heartSize/2, centerX, centerY + heartSize + heartSize/2);
+            ctx.bezierCurveTo(centerX + heartSize + heartSize/2, centerY + heartSize/2, centerX + heartSize + heartSize/2, centerY, centerX + heartSize, centerY);
+            ctx.bezierCurveTo(centerX + heartSize/2, centerY - heartSize/2, centerX, centerY, centerX, centerY + heartSize * 0.3);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.fill();
+        }
+        
+        drawIcon('canvas192', 192);
+        drawIcon('canvas512', 512);
+    </script>
+    <p>Right-click on each canvas and save as:</p>
+    <p>1. icon-192.png</p>
+    <p>2. icon-512.png</p>
+</body>
+</html>
