@@ -6018,7 +6018,7 @@ app.get('/facilities', (c) => {
             </h2>
             <p class="text-gray-600">전국 요양시설을 지도에서 확인하고 검색하세요</p>
           </div><div class="bg-white rounded-xl shadow-lg p-6 mb-6">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">
                   <i class="fas fa-map-marker-alt text-red-500 mr-1"></i>시/도
@@ -6064,6 +6064,22 @@ app.get('/facilities', (c) => {
                   <option value="요양원">요양원</option>
                   <option value="주야간보호">주야간보호</option>
                   <option value="재가복지센터">재가복지센터</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  <i class="fas fa-award text-yellow-500 mr-1"></i>평가등급
+                </label>
+                <select id="filterGrade" class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200">
+                  <option value="">전체 등급</option>
+                  <option value="A">A등급 (최우수)</option>
+                  <option value="B">B등급 (우수)</option>
+                  <option value="C">C등급 (양호)</option>
+                  <option value="D">D등급 (보통)</option>
+                  <option value="E">E등급 (개선필요)</option>
+                  <option value="AB">A+B등급 이상</option>
+                  <option value="ABC">C등급 이상</option>
                 </select>
               </div>
 
@@ -6413,6 +6429,7 @@ app.get('/facilities', (c) => {
           const sido = document.getElementById('filterSido').value;
           const sigungu = document.getElementById('filterSigungu').value;
           const type = document.getElementById('filterType').value;
+          const grade = document.getElementById('filterGrade').value;
           const keyword = document.getElementById('filterKeyword').value.toLowerCase();
           
           filteredFacilities = allFacilities.filter(facility => {
@@ -6420,6 +6437,21 @@ app.get('/facilities', (c) => {
             if (sigungu && facility.sigungu !== sigungu) return false;
             if (type && facility.type !== type) return false;
             if (keyword && !facility.name.toLowerCase().includes(keyword) && !facility.address.toLowerCase().includes(keyword)) return false;
+            
+            // 평가등급 필터
+            if (grade) {
+              if (grade === 'AB') {
+                // A+B등급 이상
+                if (!facility.grade_value || (facility.grade_value !== 'A' && facility.grade_value !== 'B')) return false;
+              } else if (grade === 'ABC') {
+                // C등급 이상
+                if (!facility.grade_value || !['A', 'B', 'C'].includes(facility.grade_value)) return false;
+              } else {
+                // 특정 등급
+                if (facility.grade_value !== grade) return false;
+              }
+            }
+            
             return true;
           });
           
@@ -6448,6 +6480,7 @@ app.get('/facilities', (c) => {
         // 필터 변경 이벤트
         document.getElementById('filterSigungu').addEventListener('change', applyFilters);
         document.getElementById('filterType').addEventListener('change', applyFilters);
+        document.getElementById('filterGrade').addEventListener('change', applyFilters);
         document.getElementById('filterKeyword').addEventListener('input', applyFilters);
 
         // 필터 초기화
@@ -6455,6 +6488,7 @@ app.get('/facilities', (c) => {
           document.getElementById('filterSido').value = '';
           document.getElementById('filterSigungu').innerHTML = '<option value="">전체 시/군/구</option>';
           document.getElementById('filterType').value = '';
+          document.getElementById('filterGrade').value = '';
           document.getElementById('filterKeyword').value = '';
           filteredFacilities = [...allFacilities];
           displayFacilities();
@@ -20512,6 +20546,7 @@ app.get('/api/facilities', async (c) => {
   const sido = c.req.query('sido') || ''
   const sigungu = c.req.query('sigungu') || ''
   const facilityType = c.req.query('facility_type') || ''
+  const grade = c.req.query('grade') || ''
   
   if (!env?.DB) {
     return c.json({ success: false, message: '데이터베이스 연결 실패' }, 500)
@@ -20525,24 +20560,41 @@ app.get('/api/facilities', async (c) => {
     let params: any[] = []
     
     if (sido) {
-      whereConditions.push('sido = ?')
+      whereConditions.push('f.sido = ?')
       params.push(sido)
     }
     if (sigungu) {
-      whereConditions.push('sigungu = ?')
+      whereConditions.push('f.sigungu = ?')
       params.push(sigungu)
     }
     if (facilityType) {
-      whereConditions.push('facility_type = ?')
+      whereConditions.push('f.facility_type = ?')
       params.push(facilityType)
+    }
+    
+    // 평가등급 필터 추가
+    if (grade) {
+      if (grade === 'AB') {
+        whereConditions.push("fpd.grade_value IN ('A', 'B')")
+      } else if (grade === 'ABC') {
+        whereConditions.push("fpd.grade_value IN ('A', 'B', 'C')")
+      } else {
+        whereConditions.push('fpd.grade_value = ?')
+        params.push(grade)
+      }
     }
     
     const whereClause = whereConditions.length > 0 
       ? `WHERE ${whereConditions.join(' AND ')}`
       : ''
     
-    // 전체 개수 조회
-    const countQuery = `SELECT COUNT(*) as total FROM facilities ${whereClause}`
+    // 전체 개수 조회 (JOIN 포함)
+    const countQuery = `
+      SELECT COUNT(*) as total 
+      FROM facilities f
+      LEFT JOIN facility_public_data fpd ON f.id = fpd.facility_id
+      ${whereClause}
+    `
     const countResult = await env.DB.prepare(countQuery).bind(...params).first()
     const total = countResult?.total || 0
     
@@ -20572,7 +20624,7 @@ app.get('/api/facilities', async (c) => {
         total,
         totalPages: Math.ceil(total / limit)
       },
-      filters: { sido, sigungu, facilityType }
+      filters: { sido, sigungu, facilityType, grade }
     })
   } catch (error) {
     console.error('❌ 시설 목록 조회 실패:', error)
