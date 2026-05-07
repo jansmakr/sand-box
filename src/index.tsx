@@ -20448,7 +20448,12 @@ app.get('/call-consultation', async (c) => {
                 </div>
                 
                 <!-- 시설 정보 -->
-                <h3 class="text-lg font-bold text-gray-800 mb-2">\${facility.facility_name}</h3>
+                <a href="/facility/\${facility.facility_id}" class="group block">
+                  <h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-purple-600 transition-colors">
+                    \${facility.facility_name}
+                    <i class="fas fa-arrow-right ml-2 text-sm opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                  </h3>
+                </a>
                 
                 <div class="space-y-2 text-sm text-gray-600 mb-4">
                   <div class="flex items-start">
@@ -20466,24 +20471,31 @@ app.get('/call-consultation', async (c) => {
                   </div>
                 </div>
                 
-                <!-- 전화 버튼 -->
-                \${
-                  !facility.manager_phone || facility.manager_phone === '' || facility.manager_phone === '1544-0000'
-                    ? \`
-                      <button disabled
-                         class="block w-full py-3 bg-gray-400 text-white text-center rounded-lg font-bold cursor-not-allowed opacity-60">
-                        <i class="fas fa-phone-slash mr-2"></i>
-                        전화번호 준비중
-                      </button>
-                    \`
-                    : \`
-                      <a href="tel:\${facility.manager_phone}" 
-                         class="block w-full py-3 bg-teal-600 text-white text-center rounded-lg font-bold hover:bg-teal-700 active:bg-teal-800 transition-colors touch-manipulation">
-                        <i class="fas fa-phone-alt mr-2"></i>
-                        전화 상담하기
-                      </a>
-                    \`
-                }
+                <!-- 액션 버튼 -->
+                <div class="grid grid-cols-2 gap-2">
+                  <a href="/facility/\${facility.facility_id}"
+                     class="block py-3 bg-purple-600 text-white text-center rounded-lg font-bold hover:bg-purple-700 active:bg-purple-800 transition-colors touch-manipulation">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    상세보기
+                  </a>
+                  \${
+                    !facility.manager_phone || facility.manager_phone === '' || facility.manager_phone === '1544-0000'
+                      ? \`
+                        <button disabled
+                           class="py-3 bg-gray-400 text-white text-center rounded-lg font-bold cursor-not-allowed opacity-60">
+                          <i class="fas fa-phone-slash mr-2"></i>
+                          준비중
+                        </button>
+                      \`
+                      : \`
+                        <a href="tel:\${facility.manager_phone}" 
+                           class="block py-3 bg-teal-600 text-white text-center rounded-lg font-bold hover:bg-teal-700 active:bg-teal-800 transition-colors touch-manipulation">
+                          <i class="fas fa-phone-alt mr-2"></i>
+                          전화하기
+                        </a>
+                      \`
+                  }
+                </div>
               </div>
             \`;
           }).join('');
