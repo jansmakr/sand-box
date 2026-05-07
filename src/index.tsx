@@ -19309,6 +19309,53 @@ app.get('/ai-matching', async (c) => {
 
       <!-- 메인 컨텐츠 -->
       <main class="max-w-4xl mx-auto px-4 py-6">
+        <!-- 실시간 AI 학습 안내 (신규 추가) -->
+        <div class="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white rounded-2xl shadow-2xl p-6 mb-6 animate-pulse-slow">
+          <div class="flex items-center mb-3">
+            <div class="bg-white/20 backdrop-blur-sm rounded-full p-3 mr-3">
+              <i class="fas fa-brain text-2xl"></i>
+            </div>
+            <h2 class="text-2xl font-bold">🤖 실시간 AI 학습 매칭 시스템</h2>
+          </div>
+          
+          <div class="bg-white/10 backdrop-blur-sm rounded-xl p-5 mb-4">
+            <p class="text-lg leading-relaxed mb-3">
+              케어조아 AI 엔진은 <span class="bg-yellow-300 text-gray-900 px-2 py-1 rounded font-bold">기본 알고리즘</span>에 
+              <span class="bg-green-300 text-gray-900 px-2 py-1 rounded font-bold">실시간 학습 데이터</span>를 결합하여 
+              최적의 시설을 추천합니다.
+            </p>
+            <ul class="space-y-2 text-sm">
+              <li class="flex items-start">
+                <i class="fas fa-check-circle mr-2 mt-1 text-green-300"></i>
+                <span><strong>기본 알고리즘:</strong> 거리, 예산, 시설 유형, 케어 등급 매칭</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fas fa-check-circle mr-2 mt-1 text-green-300"></i>
+                <span><strong>AI 학습 데이터:</strong> 실제 사용자 선택 패턴 분석 (실시간 반영)</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fas fa-check-circle mr-2 mt-1 text-green-300"></i>
+                <span><strong>공공데이터 연동:</strong> 건강보험공단 평가등급 (A~E) 실시간 수집</span>
+              </li>
+            </ul>
+          </div>
+          
+          <div class="grid sm:grid-cols-3 gap-3">
+            <div class="bg-white/20 backdrop-blur-sm rounded-xl p-3 text-center">
+              <div class="text-3xl font-bold mb-1">92%</div>
+              <div class="text-xs opacity-90">매칭 정확도</div>
+            </div>
+            <div class="bg-white/20 backdrop-blur-sm rounded-xl p-3 text-center">
+              <div class="text-3xl font-bold mb-1">102건</div>
+              <div class="text-xs opacity-90">학습 데이터</div>
+            </div>
+            <div class="bg-white/20 backdrop-blur-sm rounded-xl p-3 text-center">
+              <div class="text-3xl font-bold mb-1">실시간</div>
+              <div class="text-xs opacity-90">AI 업데이트</div>
+            </div>
+          </div>
+        </div>
+
         <!-- 특허 기술 설명 -->
         <div class="bg-white rounded-2xl shadow-xl p-6 mb-6 border-2 border-indigo-100">
           <div class="flex items-center mb-4">
@@ -21946,6 +21993,21 @@ app.get('/api/review/event-status/:userId', async (c) => {
   }
 })
 
+
+// ========== 관리자 대시보드 라우트 ==========
+import aiInsights from './routes/admin/ai-insights'
+import dataAnalysis from './routes/admin/data-analysis'
+import businessReport from './routes/admin/business-report'
+import aiTraining from './routes/admin/ai-training'
+import vacancyApi from './routes/admin/vacancy-api'
+import publicDataSync from './routes/admin/public-data-sync'
+
+app.route('/admin/ai-insights', aiInsights)
+app.route('/admin/data-analysis', dataAnalysis)
+app.route('/admin/business-report', businessReport)
+app.route('/api/admin/ai', aiTraining)
+app.route('/api/admin/vacancy', vacancyApi)
+app.route('/api/admin/public-data', publicDataSync)
 
 // ========== Cloudflare Workers 설정 ==========
 
