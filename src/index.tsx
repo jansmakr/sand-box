@@ -20689,6 +20689,19 @@ app.get('/api/facilities/:id', async (c) => {
       WHERE facility_id = ?
     `).bind(facilityId).first()
     
+    // 4. 공개 평가등급 정보 조회 (NEW!)
+    const publicData = await env.DB.prepare(`
+      SELECT 
+        grade_value,
+        grade_year,
+        score,
+        last_updated
+      FROM facility_public_data
+      WHERE facility_id = ?
+      ORDER BY grade_year DESC
+      LIMIT 1
+    `).bind(facilityId).first()
+    
     // JSON 문자열 파싱
     const parseJSON = (str: string | null) => {
       if (!str) return []
@@ -20697,6 +20710,20 @@ app.get('/api/facilities/:id', async (c) => {
       } catch {
         return []
       }
+    }
+    
+    // 등급별 라벨 매핑
+    const getGradeLabel = (gradeValue: string | null) => {
+      if (!gradeValue) return null
+      const grade = gradeValue.toUpperCase()
+      const labels: Record<string, string> = {
+        'A': '최우수',
+        'B': '우수',
+        'C': '양호',
+        'D': '보통',
+        'E': '개선필요'
+      }
+      return labels[grade] || grade
     }
     
     return c.json({
@@ -20716,7 +20743,14 @@ app.get('/api/facilities/:id', async (c) => {
         rating: {
           average: rating ? Math.round((rating.avg_rating || 0) * 10) / 10 : 0,
           count: rating ? (rating.review_count || 0) : 0
-        }
+        },
+        publicData: publicData ? {
+          gradeValue: publicData.grade_value,
+          gradeLabel: getGradeLabel(publicData.grade_value as string),
+          gradeYear: publicData.grade_year,
+          score: publicData.score,
+          lastUpdated: publicData.last_updated
+        } : null
       }
     })
   } catch (error) {
