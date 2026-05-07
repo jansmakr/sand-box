@@ -11267,17 +11267,23 @@ function calculateEnhancedMatchScore(
 ): number {
   let score = 0
   
-  // 가중치 설정 (총 100점)
+  // 🆕 하이브리드 가중치 설정 (총 100점)
+  // 내부 조건 50% + 공단 평가등급 30% + 리뷰/협업 20%
   const weights = {
-    location: 20,       // 지역 일치
-    distance: 18,       // 거리
-    rating: 15,         // 평점
-    collaborative: 15,  // 협업 필터링
-    budget: 12,         // 예산 적합성
-    facilityType: 8,    // 시설 타입
-    phone: 5,           // 연락처
-    representative: 4,  // 대표시설
-    coordinates: 3      // 좌표 정보
+    // 내부 조건 (50점)
+    location: 15,       // 지역 일치
+    distance: 15,       // 거리
+    budget: 10,         // 예산 적합성
+    facilityType: 5,    // 시설 타입
+    phone: 3,           // 연락처
+    coordinates: 2,     // 좌표 정보
+    
+    // 공단 평가등급 (30점)
+    publicGrade: 30,    // 국민건강보험공단 평가등급
+    
+    // 리뷰 및 협업 필터링 (20점)
+    rating: 12,         // 평점
+    collaborative: 8    // 협업 필터링
   }
   
   // 1. 지역 완전 일치
@@ -11294,20 +11300,35 @@ function calculateEnhancedMatchScore(
     score += distanceScore
   }
   
-  // 3. 평점 점수 (0-5점 → 0-15점)
+  // 3. 🆕 공단 평가등급 점수 (최대 30점) - 하이브리드 스코어링의 핵심
+  if (facility.grade_value) {
+    const gradeScores: { [key: string]: number } = {
+      'A': 30,  // A등급: 최대 점수 (30점)
+      'B': 24,  // B등급: 80% (24점)
+      'C': 18,  // C등급: 60% (18점)
+      'D': 12,  // D등급: 40% (12점)
+      'E': 6    // E등급: 20% (6점)
+    }
+    const gradeScore = gradeScores[facility.grade_value] || 0
+    score += gradeScore
+    
+    console.log(`🏆 [${facility.name}] 평가등급: ${facility.grade_value} → +${gradeScore}점`)
+  }
+  
+  // 4. 평점 점수 (0-5점 → 0-12점)
   if (stats && stats.avgRating > 0) {
     const ratingScore = (stats.avgRating / 5) * weights.rating
     score += ratingScore
     
-    // 리뷰 수 보너스 (최대 3점)
-    const reviewBonus = Math.min(3, Math.log10(stats.reviewCount + 1) * 1.5)
+    // 리뷰 수 보너스 (최대 2점)
+    const reviewBonus = Math.min(2, Math.log10(stats.reviewCount + 1) * 1.2)
     score += reviewBonus
   }
   
-  // 4. 협업 필터링 점수
-  score += collaborativeScore
+  // 5. 협업 필터링 점수 (최대 8점)
+  score += Math.min(weights.collaborative, collaborativeScore)
   
-  // 5. 예산 적합성 (추정 비용)
+  // 6. 예산 적합성 (추정 비용)
   if (criteria.budget) {
     const estimatedCost = estimateFacilityCost(facility, criteria)
     const budgetDiff = Math.abs(criteria.budget - estimatedCost) / criteria.budget
@@ -11323,19 +11344,14 @@ function calculateEnhancedMatchScore(
     }
   }
   
-  // 6. 시설 타입 일치
+  // 7. 시설 타입 일치
   if (facility.type === criteria.facilityType) {
     score += weights.facilityType
   }
   
-  // 7. 전화번호 있음
+  // 8. 전화번호 있음
   if (facility.phone && facility.phone !== '미등록' && facility.phone !== '') {
     score += weights.phone
-  }
-  
-  // 8. 대표시설 보너스
-  if (facility.isRepresentative) {
-    score += weights.representative
   }
   
   // 9. 좌표 정보
