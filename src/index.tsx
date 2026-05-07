@@ -4466,9 +4466,17 @@ app.get('/facility/:id', async (c) => {
   }
   
   try {
-    // 시설 정보 조회
+    // 시설 정보 조회 (평가등급 포함)
     const facility = await db
-      .prepare('SELECT * FROM facilities WHERE id = ?')
+      .prepare(`
+        SELECT f.*, 
+               fpd.grade_value, 
+               fpd.grade_year,
+               fpd.admin_sym as public_admin_sym
+        FROM facilities f
+        LEFT JOIN facility_public_data fpd ON f.id = fpd.facility_id
+        WHERE f.id = ?
+      `)
       .bind(facilityId)
       .first()
     
@@ -4581,14 +4589,33 @@ app.get('/facility/:id', async (c) => {
           <!-- 시설 정보 카드 -->
           <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-6">
             <div class="mb-6">
-              <div class="flex items-center gap-2 mb-4">
+              <div class="flex items-center gap-2 mb-4 flex-wrap">
                 <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold">
                   ${facility.facility_type}
                 </span>
                 <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
                   ${facility.sido} ${facility.sigungu}
                 </span>
+                ${facility.grade_value ? `
+                <span class="px-3 py-1 ${
+                  facility.grade_value === 'A' ? 'bg-green-500 text-white' :
+                  facility.grade_value === 'B' ? 'bg-blue-500 text-white' :
+                  facility.grade_value === 'C' ? 'bg-yellow-500 text-white' :
+                  facility.grade_value === 'D' ? 'bg-orange-500 text-white' :
+                  'bg-gray-500 text-white'
+                } rounded-full text-sm font-bold shadow-md">
+                  🏆 공단평가 ${facility.grade_value}등급
+                </span>
+                ` : ''}
               </div>
+              ${facility.grade_value ? `
+              <div class="mb-4 p-3 bg-green-50 border-l-4 border-green-500 rounded">
+                <p class="text-sm text-green-800">
+                  <i class="fas fa-check-circle mr-1"></i>
+                  국민건강보험공단 ${facility.grade_year || 2024}년 장기요양기관 평가 <strong>${facility.grade_value}등급</strong> 인증
+                </p>
+              </div>
+              ` : ''}
               <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
                 ${facility.name}
               </h1>
@@ -6301,7 +6328,7 @@ app.get('/facilities', (c) => {
             <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 p-6">
               <div class="flex justify-between items-start">
                 <div class="flex-1">
-                  <div class="flex items-center gap-3 mb-3">
+                  <div class="flex items-center gap-2 mb-3 flex-wrap">
                     <a href="/facility/\${facility.id}" class="group">
                       <h3 class="text-xl font-bold text-gray-900 group-hover:text-purple-600 transition-colors">
                         \${facility.name}
@@ -6311,6 +6338,17 @@ app.get('/facilities', (c) => {
                     <span class="inline-block px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-semibold">
                       \${facility.type}
                     </span>
+                    \${facility.grade_value ? \`
+                    <span class="inline-block px-3 py-1 \${
+                      facility.grade_value === 'A' ? 'bg-green-500' :
+                      facility.grade_value === 'B' ? 'bg-blue-500' :
+                      facility.grade_value === 'C' ? 'bg-yellow-500' :
+                      facility.grade_value === 'D' ? 'bg-orange-500' :
+                      'bg-gray-500'
+                    } text-white rounded-full text-sm font-bold shadow-sm">
+                      🏆 \${facility.grade_value}등급
+                    </span>
+                    \` : ''}
                   </div>
                   
                   <div class="space-y-2 text-gray-600">
@@ -20492,14 +20530,16 @@ app.get('/api/facilities', async (c) => {
     const countResult = await env.DB.prepare(countQuery).bind(...params).first()
     const total = countResult?.total || 0
     
-    // 시설 목록 조회
+    // 시설 목록 조회 (평가등급 포함)
     const query = `
       SELECT 
-        id, name, address, sido, sigungu, facility_type,
-        phone, latitude, longitude
-      FROM facilities
+        f.id, f.name, f.address, f.sido, f.sigungu, f.facility_type,
+        f.phone, f.latitude, f.longitude,
+        fpd.grade_value, fpd.grade_year
+      FROM facilities f
+      LEFT JOIN facility_public_data fpd ON f.id = fpd.facility_id
       ${whereClause}
-      ORDER BY id ASC
+      ORDER BY f.id ASC
       LIMIT ? OFFSET ?
     `
     
