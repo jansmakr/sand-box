@@ -20500,7 +20500,7 @@ app.get('/call-consultation', async (c) => {
                 </div>
                 
                 <!-- 시설 정보 -->
-                <a href="/facility/\${facility.id}" class="group block">
+                <a href="/facility/\${String(facility.id).replace('AUTO_', '')}" class="group block">
                   <h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-purple-600 transition-colors">
                     \${facility.facility_name}
                     <i class="fas fa-arrow-right ml-2 text-sm opacity-0 group-hover:opacity-100 transition-opacity"></i>
@@ -20525,7 +20525,7 @@ app.get('/call-consultation', async (c) => {
                 
                 <!-- 액션 버튼 -->
                 <div class="grid grid-cols-2 gap-2">
-                  <a href="/facility/\${facility.id}"
+                  <a href="/facility/\${String(facility.id).replace('AUTO_', '')}"
                      class="block py-3 bg-purple-600 text-white text-center rounded-lg font-bold hover:bg-purple-700 active:bg-purple-800 transition-colors touch-manipulation">
                     <i class="fas fa-info-circle mr-2"></i>
                     상세보기
