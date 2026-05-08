@@ -11245,18 +11245,61 @@ app.post('/api/ai-matching', async (c) => {
     // 6단계: 정렬 (매칭 점수 + 평점 + 협업 필터링)
     scored.sort((a, b) => b.matchScore - a.matchScore)
     
-    // 7단계: 최소 2개 보장 - 결과가 부족하면 전체에서 추가
+    // 7단계: 최소 2개 보장 - 결과가 부족하면 단계적으로 완화
     if (scored.length < 2 && facilities.length >= 2) {
-      console.log(`⚠️ 추천 결과 부족 (${scored.length}개) - 전체에서 2개 추가 샘플링`)
-      const shuffled = [...facilities].sort(() => 0.5 - Math.random())
-      const additional = shuffled.slice(0, 2 - scored.length).map(f => ({
+      console.log(`⚠️ 추천 결과 부족 (${scored.length}개) - 조건 완화하여 추가 샘플링`)
+      
+      let candidates = []
+      
+      // 1차 시도: 같은 시도(sido)에서 찾기
+      if (criteria.sido) {
+        candidates = facilities.filter(f => 
+          f.sido === criteria.sido && 
+          !scored.find(s => s.id === f.id)
+        )
+        console.log(`  🔍 1차 시도(같은 시도): ${candidates.length}개 발견`)
+      }
+      
+      // 2차 시도: 시설 유형만 일치하는 곳 찾기
+      if (candidates.length < 2 - scored.length && criteria.facilityType) {
+        candidates = facilities.filter(f => 
+          f.type === criteria.facilityType && 
+          !scored.find(s => s.id === f.id)
+        )
+        console.log(`  🔍 2차 시도(같은 유형): ${candidates.length}개 발견`)
+      }
+      
+      // 3차 시도: 전체에서 무작위 선택
+      if (candidates.length < 2 - scored.length) {
+        candidates = facilities.filter(f => !scored.find(s => s.id === f.id))
+        console.log(`  🔍 3차 시도(전체): ${candidates.length}개 발견`)
+      }
+      
+      // 평점 높은 순으로 정렬 후 선택
+      const sorted = candidates
+        .map(f => ({
+          ...f,
+          stats: facilityStats.get(f.id)
+        }))
+        .sort((a, b) => {
+          const avgA = a.stats?.avgRating || 0
+          const avgB = b.stats?.avgRating || 0
+          return avgB - avgA
+        })
+      
+      const needed = 2 - scored.length
+      const additional = sorted.slice(0, needed).map(f => ({
         ...f,
-        matchScore: 50, // 기본 점수
-        stats: null,
+        matchScore: 45, // 기본 점수 (조건 미달이므로 낮은 점수)
         collaborativeScore: 0,
-        matchReasons: ['조건에 정확히 일치하지 않지만 추천드립니다']
+        matchReasons: [
+          '조건에 정확히 일치하지 않지만 좋은 평가를 받은 시설입니다',
+          f.stats?.avgRating ? `평점 ${f.stats.avgRating.toFixed(1)}점` : '추천 시설'
+        ]
       }))
+      
       scored.push(...additional)
+      console.log(`  ✅ ${additional.length}개 시설 추가 (총 ${scored.length}개)`)
     }
     
     // 8단계: 상위 10개 선택 및 포맷팅
@@ -11290,6 +11333,50 @@ app.post('/api/ai-matching', async (c) => {
     }))
     
     console.log(`✅ 추천 완료: ${recommendations.length}개 (최고: ${recommendations[0]?.matchScore || 0}점)`)
+    
+    // 🚨 최종 안전장치: 추천 결과가 2개 미만이면 DB에서 직접 조회
+    if (recommendations.length < 2 && env?.DB) {
+      console.log(`🚨 긴급: 추천 결과 ${recommendations.length}개 - DB에서 직접 조회`)
+      try {
+        const fallbackQuery = `
+          SELECT 
+            f.id, f.name, f.type, f.address, f.sido, f.sigungu, 
+            f.phone, f.latitude as lat, f.longitude as lng
+          FROM facilities f
+          WHERE f.id NOT IN (${recommendations.map(r => r.id).join(',') || '0'})
+          ORDER BY RANDOM()
+          LIMIT ?
+        `
+        const needed = 2 - recommendations.length
+        const fallbackResult = await env.DB.prepare(fallbackQuery).bind(needed).all()
+        
+        if (fallbackResult.results && fallbackResult.results.length > 0) {
+          const fallbackFacilities = fallbackResult.results.map((f: any, index: number) => ({
+            id: f.id,
+            rank: recommendations.length + index + 1,
+            name: f.name,
+            type: f.type,
+            address: f.address,
+            sido: f.sido,
+            sigungu: f.sigungu,
+            phone: f.phone || '미등록',
+            lat: f.lat,
+            lng: f.lng,
+            distance: '거리 정보 없음',
+            distanceValue: 999,
+            matchScore: 40,
+            matchReasons: ['조건 검색 결과가 부족하여 추천드리는 시설입니다'],
+            isRepresentative: false,
+            rating: null,
+            popularityBonus: false
+          }))
+          recommendations.push(...fallbackFacilities)
+          console.log(`  ✅ DB에서 ${fallbackFacilities.length}개 추가 (총 ${recommendations.length}개)`)
+        }
+      } catch (error) {
+        console.error('⚠️ DB 백업 조회 실패:', error)
+      }
+    }
     
     // 8단계: 사용자 피드백 기록 (비동기)
     if (env?.DB) {
