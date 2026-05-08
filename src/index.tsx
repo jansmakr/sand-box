@@ -237,7 +237,7 @@ app.get('/subscription', (c) => {
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>멤버십 구독 - 케어조아</title>
-      <script src="https://cdn.tailwindcss.com"></script>
+      <link href="/static/tailwind.css" rel="stylesheet">
       <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
       <script src="https://cdn.iamport.kr/v1/iamport.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
@@ -2383,9 +2383,8 @@ app.get('/chat', async (c) => {
       <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
       <meta name="theme-color" content="#0d9488">
       <title>상담 채팅 - 케어조아</title>
-      <link rel="preconnect" href="https://cdn.tailwindcss.com">
       <link rel="preconnect" href="https://cdn.jsdelivr.net">
-      <script src="https://cdn.tailwindcss.com"></script>
+      <link href="/static/tailwind.css" rel="stylesheet">
       <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet" media="print" onload="this.media='all'">
       <noscript><link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet"></noscript>
       <style>
@@ -2727,7 +2726,7 @@ app.get('/review/write', (c) => {
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>사용후기 작성 | 케어조아</title>
-      <script src="https://cdn.tailwindcss.com"></script>
+      <link href="/static/tailwind.css" rel="stylesheet">
       <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
       <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
     </head>
@@ -2952,7 +2951,7 @@ app.get('/reviews', (c) => {
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>사용후기 | 케어조아</title>
-      <script src="https://cdn.tailwindcss.com"></script>
+      <link href="/static/tailwind.css" rel="stylesheet">
       <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
       <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
     </head>
@@ -3161,7 +3160,7 @@ app.get('/manager-consultation', (c) => {
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>케어조아 매니저 상담 | 케어조아</title>
-      <script src="https://cdn.tailwindcss.com"></script>
+      <link href="/static/tailwind.css" rel="stylesheet">
       <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
     </head>
     <body class="bg-gray-50">
@@ -4489,7 +4488,7 @@ app.get('/facility/:id', async (c) => {
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <title>시설을 찾을 수 없습니다 - 케어조아</title>
-          <script src="https://cdn.tailwindcss.com"></script>
+          <link href="/static/tailwind.css" rel="stylesheet">
         </head>
         <body class="bg-gray-50 flex items-center justify-center min-h-screen">
           <div class="text-center">
@@ -4559,7 +4558,7 @@ app.get('/facility/:id', async (c) => {
         </script>
         
         <!-- 스타일 -->
-        <script src="https://cdn.tailwindcss.com"></script>
+        <link href="/static/tailwind.css" rel="stylesheet">
         <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
         ${facility.latitude && facility.longitude ? '<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />' : ''}
       </head>
@@ -6172,8 +6171,29 @@ app.get('/facilities', (c) => {
             // Leaflet.js 지도 초기화
             initializeMap();
             
-            const response = await fetch('/static/facilities.json');
-            allFacilities = await response.json();
+            // API 엔드포인트로 전체 시설 데이터 로딩 (페이지네이션 없이)
+            const response = await fetch('/api/facilities?limit=50000');
+            const result = await response.json();
+            
+            if (!result.success) {
+              throw new Error(result.message || '시설 데이터 로딩 실패');
+            }
+            
+            // API 응답 필드명을 프론트엔드 변수명으로 매핑
+            allFacilities = (result.data || []).map(facility => ({
+              id: facility.id,
+              name: facility.name,
+              type: facility.facility_type,
+              address: facility.address,
+              sido: facility.sido,
+              sigungu: facility.sigungu,
+              phone: facility.phone,
+              lat: facility.latitude,
+              lng: facility.longitude,
+              grade_value: facility.grade_value,
+              grade_year: facility.grade_year
+            }));
+            
             filteredFacilities = [...allFacilities];
             
             document.getElementById('loadingSpinner').style.display = 'none';
@@ -6948,10 +6968,29 @@ app.get('/admin/facilities', (c) => {
               allFacilitiesData = await response.json();
               console.log('✅ D1 대표시설 정보 포함 시설 데이터 로드 완료');
             } else {
-              // API 실패 시 정적 JSON 폴백
-              console.log('⚠️ API 실패, 정적 JSON 로드');
-              const fallbackResponse = await fetch('/static/facilities.json');
-              allFacilitiesData = await fallbackResponse.json();
+              // API 실패 시 일반 시설 API로 폴백 (limit 50000)
+              console.log('⚠️ 대표시설 API 실패, 일반 시설 API로 폴백');
+              const fallbackResponse = await fetch('/api/facilities?limit=50000');
+              const result = await fallbackResponse.json();
+              
+              if (!result.success) {
+                throw new Error(result.message || '시설 데이터 로딩 실패');
+              }
+              
+              // API 응답 필드명 매핑
+              allFacilitiesData = (result.data || []).map(facility => ({
+                id: facility.id,
+                name: facility.name,
+                type: facility.facility_type,
+                address: facility.address,
+                sido: facility.sido,
+                sigungu: facility.sigungu,
+                phone: facility.phone,
+                lat: facility.latitude,
+                lng: facility.longitude,
+                grade_value: facility.grade_value,
+                grade_year: facility.grade_year
+              }));
             }
             
             // 시설 ID를 기준으로 내림차순 정렬 (최신 등록 시설이 상단에 표시)
@@ -9769,27 +9808,40 @@ app.get('/api/admin/quote-monitoring', async (c) => {
 async function loadFacilities(baseUrl?: string) {
   if (!dataStore.facilitiesLoaded) {
     try {
-      // baseUrl이 제공되면 사용, 아니면 프로덕션 URL 사용
+      // API 엔드포인트 사용 (정적 JSON 대신)
       const url = baseUrl 
-        ? `${baseUrl}/static/facilities.json`
-        : 'https://carejoa.kr/static/facilities.json'
+        ? `${baseUrl}/api/facilities?limit=50000`
+        : 'https://carejoa.kr/api/facilities?limit=50000'
       
-      console.log(`📡 Fetching facilities from: ${url}`)
+      console.log(`📡 Fetching facilities from API: ${url}`)
       const response = await fetch(url)
       
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`)
       }
       
-      const data = await response.json()
+      const result = await response.json()
       
-      // 배열인지 확인
-      if (Array.isArray(data)) {
-        dataStore.facilities = data
+      // API 응답 구조 확인
+      if (result.success && Array.isArray(result.data)) {
+        // API 필드명을 프론트엔드 변수명으로 매핑
+        dataStore.facilities = result.data.map((facility: any) => ({
+          id: facility.id,
+          name: facility.name,
+          type: facility.facility_type,
+          address: facility.address,
+          sido: facility.sido,
+          sigungu: facility.sigungu,
+          phone: facility.phone,
+          lat: facility.latitude,
+          lng: facility.longitude,
+          grade_value: facility.grade_value,
+          grade_year: facility.grade_year
+        }))
         dataStore.facilitiesLoaded = true
-        console.log(`✅ Loaded ${dataStore.facilities.length} facilities`)
+        console.log(`✅ Loaded ${dataStore.facilities.length} facilities from API`)
       } else {
-        console.error('❌ Facilities data is not an array:', typeof data)
+        console.error('❌ Invalid API response:', result)
         dataStore.facilities = []
       }
     } catch (error) {
@@ -10215,7 +10267,7 @@ app.get('/apply', (c) => {
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>서비스 신청 - 케어조아</title>
-      <script src="https://cdn.tailwindcss.com"></script>
+      <link href="/static/tailwind.css" rel="stylesheet">
       <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
     </head>
     <body class="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 min-h-screen">
@@ -16479,7 +16531,7 @@ app.get('/facility-price-management', async (c) => {
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>요금표 관리 - 케어조아</title>
-      <script src="https://cdn.tailwindcss.com"></script>
+      <link href="/static/tailwind.css" rel="stylesheet">
       <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
     </head>
     <body class="bg-gray-50">
@@ -16616,7 +16668,7 @@ app.get('/facility-photo-management', async (c) => {
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>시설 사진 관리 - 케어조아</title>
-      <script src="https://cdn.tailwindcss.com"></script>
+      <link href="/static/tailwind.css" rel="stylesheet">
       <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
     </head>
     <body class="bg-gray-50">
@@ -19371,7 +19423,7 @@ app.get('/ai-matching', async (c) => {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>AI 맞춤 시설 찾기 - 케어조아</title>
-        <script src="https://cdn.tailwindcss.com"></script>
+        <link href="/static/tailwind.css" rel="stylesheet">
         <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
         <style>
           * {
@@ -20204,7 +20256,7 @@ app.get('/call-consultation', async (c) => {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>지역별 대표 요양시설 및 요양병원 전화상담 - 케어조아</title>
-        <script src="https://cdn.tailwindcss.com"></script>
+        <link href="/static/tailwind.css" rel="stylesheet">
         <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
         <style>
           * {
