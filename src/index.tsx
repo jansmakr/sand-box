@@ -22312,4 +22312,384 @@ export default {
   // 외부 Cron 서비스(예: GitHub Actions, Uptime Robot 등)를 통해 주기적으로 호출할 수 있습니다
 }
 
+// ==================== 이용약관 페이지 ====================
+app.get('/terms', (c) => {
+  return c.html(`
+    <!DOCTYPE html>
+    <html lang="ko">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>이용약관 - 케어조아</title>
+      <link href="/static/tailwind.css" rel="stylesheet">
+    </head>
+    <body class="bg-gray-50">
+      <div class="max-w-4xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow-lg p-8">
+          <h1 class="text-3xl font-bold text-gray-800 mb-6">케어조아 이용약관</h1>
+          
+          <div class="space-y-6 text-gray-700">
+            <section>
+              <h2 class="text-xl font-bold text-gray-800 mb-3">제1조 (목적)</h2>
+              <p>본 약관은 케어조아(이하 "회사")가 제공하는 요양시설 매칭 플랫폼 서비스(이하 "서비스")의 이용과 관련하여 회사와 이용자 간의 권리, 의무 및 책임사항을 규정함을 목적으로 합니다.</p>
+            </section>
+
+            <section>
+              <h2 class="text-xl font-bold text-gray-800 mb-3">제2조 (정의)</h2>
+              <ul class="list-decimal list-inside space-y-2">
+                <li>"서비스"란 회사가 제공하는 요양시설 정보 제공, AI 매칭, 견적 요청 등의 서비스를 말합니다.</li>
+                <li>"이용자"란 본 약관에 따라 회사가 제공하는 서비스를 이용하는 자를 말합니다.</li>
+                <li>"회원"란 회사에 개인정보를 제공하여 회원등록을 한 자로서 회사의 정보를 지속적으로 제공받으며 서비스를 이용할 수 있는 자를 말합니다.</li>
+                <li>"유료서비스"란 월 990원의 이용료를 지불하고 이용하는 프리미엄 서비스를 말합니다.</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 class="text-xl font-bold text-gray-800 mb-3">제3조 (약관의 효력 및 변경)</h2>
+              <ul class="list-decimal list-inside space-y-2">
+                <li>본 약관은 서비스를 이용하고자 하는 모든 이용자에게 그 효력이 발생합니다.</li>
+                <li>회사는 필요한 경우 관련 법령을 위배하지 않는 범위 내에서 본 약관을 변경할 수 있습니다.</li>
+                <li>약관이 변경되는 경우 회사는 변경사항을 시행일자 7일 전부터 서비스 내 공지사항을 통해 공지합니다.</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 class="text-xl font-bold text-gray-800 mb-3">제4조 (서비스의 제공)</h2>
+              <ul class="list-decimal list-inside space-y-2">
+                <li>회사는 다음과 같은 서비스를 제공합니다:
+                  <ul class="list-disc list-inside ml-6 mt-2 space-y-1">
+                    <li>요양시설 정보 제공</li>
+                    <li>AI 기반 시설 매칭</li>
+                    <li>견적 요청 및 관리</li>
+                    <li>시설 평가 및 리뷰</li>
+                    <li>채팅 상담 서비스</li>
+                  </ul>
+                </li>
+                <li>서비스는 연중무휴 1일 24시간 제공함을 원칙으로 합니다.</li>
+                <li>회사는 시스템 정기점검, 증설 및 교체를 위해 서비스를 일시적으로 중단할 수 있으며, 예정된 작업의 경우 사전에 공지합니다.</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 class="text-xl font-bold text-gray-800 mb-3">제5조 (유료서비스)</h2>
+              <ul class="list-decimal list-inside space-y-2">
+                <li>유료서비스 이용료는 월 990원입니다.</li>
+                <li>유료서비스 이용 시 자동결제가 적용되며, 매월 가입일에 결제됩니다.</li>
+                <li>이용자는 언제든지 유료서비스를 해지할 수 있습니다.</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 class="text-xl font-bold text-gray-800 mb-3">제6조 (회원가입)</h2>
+              <ul class="list-decimal list-inside space-y-2">
+                <li>이용자는 회사가 정한 가입 양식에 따라 회원정보를 기입한 후 본 약관에 동의한다는 의사표시를 함으로써 회원가입을 신청합니다.</li>
+                <li>회사는 제1항과 같이 회원으로 가입할 것을 신청한 이용자 중 다음 각 호에 해당하지 않는 한 회원으로 등록합니다:
+                  <ul class="list-disc list-inside ml-6 mt-2 space-y-1">
+                    <li>가입신청자가 본 약관에 의하여 이전에 회원자격을 상실한 적이 있는 경우</li>
+                    <li>실명이 아니거나 타인의 명의를 이용한 경우</li>
+                    <li>허위 정보를 기재하거나 회사가 제시하는 내용을 기재하지 않은 경우</li>
+                  </ul>
+                </li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 class="text-xl font-bold text-gray-800 mb-3">제7조 (회원 탈퇴 및 자격 상실)</h2>
+              <ul class="list-decimal list-inside space-y-2">
+                <li>회원은 언제든지 탈퇴를 요청할 수 있으며, 회사는 즉시 회원탈퇴를 처리합니다.</li>
+                <li>회원이 다음 각 호의 사유에 해당하는 경우 회사는 회원자격을 제한 및 정지시킬 수 있습니다:
+                  <ul class="list-disc list-inside ml-6 mt-2 space-y-1">
+                    <li>가입 신청 시 허위 내용을 등록한 경우</li>
+                    <li>다른 사람의 서비스 이용을 방해하거나 정보를 도용하는 등 질서를 위협하는 경우</li>
+                    <li>서비스를 이용하여 법령 또는 본 약관이 금지하는 행위를 하는 경우</li>
+                  </ul>
+                </li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 class="text-xl font-bold text-gray-800 mb-3">제8조 (이용자의 의무)</h2>
+              <ul class="list-decimal list-inside space-y-2">
+                <li>이용자는 다음 행위를 하여서는 안 됩니다:
+                  <ul class="list-disc list-inside ml-6 mt-2 space-y-1">
+                    <li>신청 또는 변경 시 허위 내용의 등록</li>
+                    <li>타인의 정보 도용</li>
+                    <li>회사가 게시한 정보의 변경</li>
+                    <li>회사가 정한 정보 이외의 정보 등의 송신 또는 게시</li>
+                    <li>회사와 기타 제3자의 저작권 등 지적재산권에 대한 침해</li>
+                  </ul>
+                </li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 class="text-xl font-bold text-gray-800 mb-3">제9조 (면책조항)</h2>
+              <ul class="list-decimal list-inside space-y-2">
+                <li>회사는 천재지변 또는 이에 준하는 불가항력으로 인하여 서비스를 제공할 수 없는 경우에는 서비스 제공에 관한 책임이 면제됩니다.</li>
+                <li>회사는 이용자의 귀책사유로 인한 서비스 이용의 장애에 대하여 책임을 지지 않습니다.</li>
+                <li>회사는 이용자가 서비스를 이용하여 기대하는 수익을 얻지 못한 것에 대하여 책임을 지지 않습니다.</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 class="text-xl font-bold text-gray-800 mb-3">제10조 (분쟁해결)</h2>
+              <p>본 약관에 명시되지 않은 사항은 전기통신사업법 등 관계법령과 상관습에 따릅니다.</p>
+            </section>
+          </div>
+
+          <div class="mt-8 pt-6 border-t border-gray-200">
+            <p class="text-sm text-gray-500">시행일: 2025-01-01</p>
+          </div>
+
+          <div class="mt-6 text-center">
+            <a href="/" class="text-purple-600 hover:text-purple-700 font-bold">← 홈으로 돌아가기</a>
+          </div>
+        </div>
+      </div>
+    </body>
+    </html>
+  `);
+});
+
+// ==================== 개인정보처리방침 페이지 ====================
+app.get('/privacy', (c) => {
+  return c.html(`
+    <!DOCTYPE html>
+    <html lang="ko">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>개인정보처리방침 - 케어조아</title>
+      <link href="/static/tailwind.css" rel="stylesheet">
+    </head>
+    <body class="bg-gray-50">
+      <div class="max-w-4xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow-lg p-8">
+          <h1 class="text-3xl font-bold text-gray-800 mb-6">개인정보처리방침</h1>
+          
+          <div class="space-y-6 text-gray-700">
+            <section>
+              <h2 class="text-xl font-bold text-gray-800 mb-3">1. 개인정보의 처리 목적</h2>
+              <p>케어조아(이하 "회사")는 다음의 목적을 위하여 개인정보를 처리합니다. 처리하고 있는 개인정보는 다음의 목적 이외의 용도로는 이용되지 않으며, 이용 목적이 변경되는 경우에는 개인정보 보호법에 따라 별도의 동의를 받는 등 필요한 조치를 이행할 예정입니다.</p>
+              <ul class="list-decimal list-inside mt-2 space-y-2">
+                <li>회원 가입 및 관리: 회원 가입의사 확인, 회원제 서비스 제공, 본인확인, 부정이용 방지</li>
+                <li>서비스 제공: 요양시설 정보 제공, AI 매칭 서비스, 견적 요청 관리, 채팅 상담</li>
+                <li>요금 결제: 유료서비스 이용료(월 990원) 결제 및 환불 처리</li>
+                <li>마케팅 및 광고: 이벤트 및 광고성 정보 제공, 서비스 이용에 대한 통계</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 class="text-xl font-bold text-gray-800 mb-3">2. 개인정보의 처리 및 보유기간</h2>
+              <ul class="list-decimal list-inside space-y-2">
+                <li>회사는 법령에 따른 개인정보 보유·이용기간 또는 정보주체로부터 개인정보를 수집 시 동의받은 개인정보 보유·이용기간 내에서 개인정보를 처리·보유합니다.</li>
+                <li>각각의 개인정보 처리 및 보유 기간은 다음과 같습니다:
+                  <ul class="list-disc list-inside ml-6 mt-2 space-y-1">
+                    <li>회원 가입 및 관리: 회원 탈퇴 시까지</li>
+                    <li>계약 또는 청약철회 등에 관한 기록: 5년</li>
+                    <li>대금결제 및 재화 등의 공급에 관한 기록: 5년</li>
+                    <li>소비자의 불만 또는 분쟁처리에 관한 기록: 3년</li>
+                  </ul>
+                </li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 class="text-xl font-bold text-gray-800 mb-3">3. 처리하는 개인정보 항목</h2>
+              <p>회사는 다음의 개인정보 항목을 처리하고 있습니다:</p>
+              <ul class="list-decimal list-inside mt-2 space-y-2">
+                <li>필수항목: 이메일, 비밀번호, 이름, 전화번호</li>
+                <li>선택항목: 주소, 시설 유형(시설 회원의 경우)</li>
+                <li>자동 수집 항목: IP주소, 쿠키, 서비스 이용 기록, 접속 로그</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 class="text-xl font-bold text-gray-800 mb-3">4. 개인정보의 제3자 제공</h2>
+              <p>회사는 정보주체의 개인정보를 제1조(개인정보의 처리 목적)에서 명시한 범위 내에서만 처리하며, 정보주체의 동의, 법률의 특별한 규정 등 개인정보 보호법 제17조에 해당하는 경우에만 개인정보를 제3자에게 제공합니다.</p>
+            </section>
+
+            <section>
+              <h2 class="text-xl font-bold text-gray-800 mb-3">5. 개인정보처리의 위탁</h2>
+              <p>회사는 원활한 개인정보 업무처리를 위하여 다음과 같이 개인정보 처리업무를 위탁하고 있습니다:</p>
+              <ul class="list-disc list-inside mt-2 space-y-1">
+                <li>결제 처리: 포트원(PortOne)</li>
+                <li>카카오 로그인: 카카오</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 class="text-xl font-bold text-gray-800 mb-3">6. 정보주체의 권리·의무 및 행사방법</h2>
+              <p>정보주체는 회사에 대해 언제든지 다음 각 호의 개인정보 보호 관련 권리를 행사할 수 있습니다:</p>
+              <ul class="list-decimal list-inside mt-2 space-y-1">
+                <li>개인정보 열람 요구</li>
+                <li>오류 등이 있을 경우 정정 요구</li>
+                <li>삭제 요구</li>
+                <li>처리정지 요구</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 class="text-xl font-bold text-gray-800 mb-3">7. 개인정보의 파기</h2>
+              <ul class="list-decimal list-inside space-y-2">
+                <li>회사는 개인정보 보유기간의 경과, 처리목적 달성 등 개인정보가 불필요하게 되었을 때에는 지체없이 해당 개인정보를 파기합니다.</li>
+                <li>개인정보 파기의 절차 및 방법은 다음과 같습니다:
+                  <ul class="list-disc list-inside ml-6 mt-2 space-y-1">
+                    <li>파기절차: 불필요하게 된 개인정보는 개인정보 보호책임자의 승인을 거쳐 파기합니다.</li>
+                    <li>파기방법: 전자적 파일은 복구 불가능한 방법으로 영구 삭제하며, 종이 문서는 분쇄하거나 소각합니다.</li>
+                  </ul>
+                </li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 class="text-xl font-bold text-gray-800 mb-3">8. 개인정보 보호책임자</h2>
+              <p>회사는 개인정보 처리에 관한 업무를 총괄해서 책임지고, 개인정보 처리와 관련한 정보주체의 불만처리 및 피해구제를 처리하기 위하여 아래와 같이 개인정보 보호책임자를 지정하고 있습니다.</p>
+              <div class="mt-2 p-4 bg-gray-50 rounded">
+                <p><strong>개인정보 보호책임자</strong></p>
+                <p>이메일: privacy@carejoa.kr</p>
+                <p>전화: 1544-0000</p>
+              </div>
+            </section>
+
+            <section>
+              <h2 class="text-xl font-bold text-gray-800 mb-3">9. 개인정보의 안전성 확보조치</h2>
+              <p>회사는 개인정보의 안전성 확보를 위해 다음과 같은 조치를 취하고 있습니다:</p>
+              <ul class="list-decimal list-inside mt-2 space-y-1">
+                <li>관리적 조치: 내부관리계획 수립·시행, 정기적 직원 교육</li>
+                <li>기술적 조치: 개인정보처리시스템 등의 접근권한 관리, 접속기록 보관 및 위변조 방지, 개인정보의 암호화, 보안프로그램 설치</li>
+                <li>물리적 조치: 전산실, 자료보관실 등의 접근통제</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 class="text-xl font-bold text-gray-800 mb-3">10. 개인정보 처리방침의 변경</h2>
+              <p>이 개인정보 처리방침은 2025년 1월 1일부터 적용되며, 법령 및 방침에 따른 변경내용의 추가, 삭제 및 정정이 있는 경우에는 변경사항의 시행 7일 전부터 공지사항을 통하여 고지할 것입니다.</p>
+            </section>
+          </div>
+
+          <div class="mt-8 pt-6 border-t border-gray-200">
+            <p class="text-sm text-gray-500">시행일: 2025-01-01</p>
+          </div>
+
+          <div class="mt-6 text-center">
+            <a href="/" class="text-purple-600 hover:text-purple-700 font-bold">← 홈으로 돌아가기</a>
+          </div>
+        </div>
+      </div>
+    </body>
+    </html>
+  `);
+});
+
+// ==================== 환불정책 페이지 ====================
+app.get('/refund', (c) => {
+  return c.html(`
+    <!DOCTYPE html>
+    <html lang="ko">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>환불정책 - 케어조아</title>
+      <link href="/static/tailwind.css" rel="stylesheet">
+    </head>
+    <body class="bg-gray-50">
+      <div class="max-w-4xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow-lg p-8">
+          <h1 class="text-3xl font-bold text-gray-800 mb-6">환불정책</h1>
+          
+          <div class="space-y-6 text-gray-700">
+            <section>
+              <h2 class="text-xl font-bold text-gray-800 mb-3">1. 환불 대상 및 기간</h2>
+              <ul class="list-decimal list-inside space-y-2">
+                <li>유료서비스(월 990원) 결제 후 7일 이내 전액 환불 가능합니다.</li>
+                <li>서비스를 전혀 이용하지 않은 경우 결제일로부터 7일 이내 100% 환불됩니다.</li>
+                <li>서비스를 일부 이용한 경우 일할 계산하여 미사용 기간에 대해 환불됩니다.</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 class="text-xl font-bold text-gray-800 mb-3">2. 환불 불가 사항</h2>
+              <ul class="list-decimal list-inside space-y-2">
+                <li>결제 후 7일이 경과한 경우</li>
+                <li>이용자의 귀책사유로 인한 서비스 이용 불가의 경우</li>
+                <li>회원의 약관 위반으로 인한 이용정지 또는 탈퇴의 경우</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 class="text-xl font-bold text-gray-800 mb-3">3. 환불 계산 방법</h2>
+              <div class="bg-blue-50 p-4 rounded-lg mt-2">
+                <p class="font-bold text-blue-800 mb-2">환불금액 = 결제금액 - (일 이용료 × 사용일수)</p>
+                <p class="text-sm text-blue-700">※ 일 이용료 = 990원 ÷ 30일 = 33원/일</p>
+              </div>
+              <div class="mt-4 space-y-2">
+                <p><strong>예시 1:</strong> 결제 후 3일 사용 후 환불 요청</p>
+                <p class="ml-4 text-sm">환불금액 = 990원 - (33원 × 3일) = 891원</p>
+                
+                <p class="mt-3"><strong>예시 2:</strong> 결제 후 미사용 상태에서 즉시 환불 요청</p>
+                <p class="ml-4 text-sm">환불금액 = 990원 (전액 환불)</p>
+              </div>
+            </section>
+
+            <section>
+              <h2 class="text-xl font-bold text-gray-800 mb-3">4. 환불 신청 방법</h2>
+              <ul class="list-decimal list-inside space-y-2">
+                <li>마이페이지 > 구독 관리 > 환불 신청 버튼 클릭</li>
+                <li>또는 고객센터(1544-0000) 전화 또는 이메일(refund@carejoa.kr) 문의</li>
+                <li>환불 사유 및 환불받을 계좌 정보 입력</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 class="text-xl font-bold text-gray-800 mb-3">5. 환불 처리 기간</h2>
+              <ul class="list-decimal list-inside space-y-2">
+                <li>환불 신청 접수 후 영업일 기준 3~5일 이내 처리됩니다.</li>
+                <li>카드 결제의 경우 카드사 정책에 따라 승인 취소 후 3~7일 소요될 수 있습니다.</li>
+                <li>계좌이체의 경우 신청일로부터 3영업일 이내 입금됩니다.</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 class="text-xl font-bold text-gray-800 mb-3">6. 자동결제 해지</h2>
+              <ul class="list-decimal list-inside space-y-2">
+                <li>회원은 언제든지 자동결제를 해지할 수 있습니다.</li>
+                <li>자동결제 해지 시 다음 결제일부터 요금이 청구되지 않습니다.</li>
+                <li>해지 시점까지 사용한 기간에 대한 환불은 위 환불정책에 따릅니다.</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 class="text-xl font-bold text-gray-800 mb-3">7. 유의사항</h2>
+              <ul class="list-disc list-inside space-y-2">
+                <li>환불 처리 시 부가세 10%가 포함된 금액으로 환불됩니다.</li>
+                <li>환불 수수료는 별도로 발생하지 않습니다.</li>
+                <li>환불 관련 문의사항은 고객센터로 연락주시기 바랍니다.</li>
+              </ul>
+            </section>
+
+            <section class="bg-purple-50 p-6 rounded-lg">
+              <h3 class="text-lg font-bold text-purple-800 mb-3">📞 환불 문의</h3>
+              <div class="space-y-2 text-purple-700">
+                <p><strong>전화:</strong> 1544-0000 (평일 09:00~18:00)</p>
+                <p><strong>이메일:</strong> refund@carejoa.kr</p>
+                <p><strong>카카오톡:</strong> @케어조아</p>
+              </div>
+            </section>
+          </div>
+
+          <div class="mt-8 pt-6 border-t border-gray-200">
+            <p class="text-sm text-gray-500">시행일: 2025-01-01</p>
+          </div>
+
+          <div class="mt-6 text-center">
+            <a href="/" class="text-purple-600 hover:text-purple-700 font-bold">← 홈으로 돌아가기</a>
+          </div>
+        </div>
+      </div>
+    </body>
+    </html>
+  `);
+});
+
 
